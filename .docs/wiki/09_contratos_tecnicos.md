@@ -10,6 +10,7 @@
 | Validacion JWT | Clave simetrica (`Supabase:JwtSecret` o env `Supabase__JwtSecret` / `SUPABASE_JWT_SECRET`) |
 | Header | `Authorization: Bearer <access_token>` |
 | Claims minimos | `sub`, `email`, `iat`, `exp` |
+| Claim mapping | `MapInboundClaims=false`; fallback a `ClaimTypes.NameIdentifier` para `sub` |
 | Resolucion | `JWT.sub -> User.supabase_user_id -> User.user_id + role` |
 
 > Detalle: `09_contratos/CT-AUTH.md`

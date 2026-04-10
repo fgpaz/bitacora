@@ -8,6 +8,7 @@ public static class ClaimsPrincipalExtensions
     public static string GetSupabaseUserId(this ClaimsPrincipal principal)
     {
         return principal.FindFirstValue("sub")
+            ?? principal.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new BitacoraException("UNAUTHORIZED", "Falta el claim sub del token autenticado.", StatusCodes.Status401Unauthorized);
     }
 

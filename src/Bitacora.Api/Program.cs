@@ -68,6 +68,8 @@ builder.Services.AddSetupEventBus(builder.Configuration);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
+
         var jwtSecret = builder.Configuration["Supabase__JwtSecret"] ?? builder.Configuration["SUPABASE_JWT_SECRET"];
         jwtSecret ??= builder.Configuration["Supabase:JwtSecret"];
         if (string.IsNullOrWhiteSpace(jwtSecret))

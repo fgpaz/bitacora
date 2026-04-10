@@ -28,6 +28,7 @@
 - **Metodo:** Clave simetrica (`Supabase:JwtSecret` o env `Supabase__JwtSecret` / `SUPABASE_JWT_SECRET`), no OIDC discovery.
 - **Razon:** GoTrue no sirve `.well-known/openid-configuration`. La red interna Dokploy causaria fallos DNS para discovery URLs.
 - **Claims usados:** `sub` (supabase_user_id), `email`, `exp`.
+- **Mapeo de claims:** `JwtBearer` corre con `MapInboundClaims=false` para preservar `sub` y `email` tal como los emite Supabase; por resiliencia, el runtime tambien acepta fallback a `ClaimTypes.NameIdentifier`.
 - **Validaciones adicionales implementadas:** si existe `User.sessions_revoked_at` y `jwt.iat` es anterior, el token se rechaza.
 - **Clock skew:** 30 segundos tolerados.
 

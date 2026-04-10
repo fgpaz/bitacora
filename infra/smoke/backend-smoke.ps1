@@ -3,7 +3,9 @@ param(
     [string]$BaseUrl,
     [string]$JwtSecret,
     [string]$SmokeSub,
-    [string]$SmokeEmail
+    [string]$SmokeEmail,
+    [string]$ResolveIp,
+    [switch]$SkipCertificateCheck
 )
 
 Set-StrictMode -Version Latest
@@ -62,6 +64,25 @@ function Get-Setting {
     return $Fallback
 }
 
+function Get-BooleanSetting {
+    param(
+        [hashtable]$EnvValues,
+        [string]$Name,
+        [bool]$Fallback = $false
+    )
+
+    $rawValue = Get-Setting -EnvValues $EnvValues -Name $Name -Fallback ""
+    if ([string]::IsNullOrWhiteSpace($rawValue)) {
+        return $Fallback
+    }
+
+    switch ($rawValue.Trim().ToLowerInvariant()) {
+        { $_ -in @("1", "true", "yes", "y", "on") } { return $true }
+        { $_ -in @("0", "false", "no", "n", "off") } { return $false }
+        default { throw "Setting '$Name' must be a boolean value." }
+    }
+}
+
 function ConvertTo-Base64Url {
     param([byte[]]$Bytes)
 
@@ -107,24 +128,114 @@ function Invoke-Step {
         [string]$Url,
         [hashtable]$Headers = @{},
         [object]$Body = $null,
-        [int[]]$ExpectedStatusCodes = @(200)
+        [int[]]$ExpectedStatusCodes = @(200),
+        [string]$ResolvedIp = "",
+        [bool]$AllowInvalidCertificate = $false
     )
 
-    $invokeArgs = @{
-        Method             = $Method
-        Uri                = $Url
-        Headers            = $Headers
-        SkipHttpErrorCheck = $true
-    }
+    $content = $null
 
-    if ($null -ne $Body) {
-        $invokeArgs["Body"] = ($Body | ConvertTo-Json -Depth 10 -Compress)
-        $invokeArgs["ContentType"] = "application/json"
-    }
+    if ([string]::IsNullOrWhiteSpace($ResolvedIp) -and -not $AllowInvalidCertificate) {
+        $invokeArgs = @{
+            Method             = $Method
+            Uri                = $Url
+            Headers            = $Headers
+            SkipHttpErrorCheck = $true
+        }
 
-    $response = Invoke-WebRequest @invokeArgs
-    $statusCode = [int]$response.StatusCode
-    $content = if ([string]::IsNullOrWhiteSpace($response.Content)) { $null } else { $response.Content | ConvertFrom-Json }
+        if ($null -ne $Body) {
+            $invokeArgs["Body"] = ($Body | ConvertTo-Json -Depth 10 -Compress)
+            $invokeArgs["ContentType"] = "application/json"
+        }
+
+        $response = Invoke-WebRequest @invokeArgs
+        $statusCode = [int]$response.StatusCode
+
+        if (-not [string]::IsNullOrWhiteSpace($response.Content)) {
+            try {
+                $content = $response.Content | ConvertFrom-Json
+            }
+            catch {
+                $content = $response.Content
+            }
+        }
+    }
+    else {
+        $uri = [Uri]$Url
+        $port = if ($uri.IsDefaultPort) {
+            if ($uri.Scheme -eq "https") { 443 } else { 80 }
+        }
+        else {
+            $uri.Port
+        }
+
+        $curlArgs = New-Object System.Collections.Generic.List[string]
+        $curlArgs.Add("-sS")
+        $curlArgs.Add("-X")
+        $curlArgs.Add($Method)
+        $curlArgs.Add("-H")
+        $curlArgs.Add("Accept: application/json")
+
+        if ($AllowInvalidCertificate) {
+            $curlArgs.Add("-k")
+        }
+
+        foreach ($header in $Headers.GetEnumerator()) {
+            $curlArgs.Add("-H")
+            $curlArgs.Add("$($header.Key): $($header.Value)")
+        }
+
+        $tempBodyFile = $null
+        try {
+            if ($null -ne $Body) {
+                $tempBodyFile = New-TemporaryFile
+                $bodyJson = $Body | ConvertTo-Json -Depth 10 -Compress
+                Set-Content -Path $tempBodyFile -Value $bodyJson -NoNewline
+                $curlArgs.Add("-H")
+                $curlArgs.Add("Content-Type: application/json")
+                $curlArgs.Add("--data-binary")
+                $curlArgs.Add("@$tempBodyFile")
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace($ResolvedIp)) {
+                $curlArgs.Add("--resolve")
+                $curlArgs.Add(("{0}:{1}:{2}" -f $uri.Host, $port, $ResolvedIp))
+            }
+
+            $curlArgs.Add("-w")
+            $curlArgs.Add("`n__STATUS__:%{http_code}")
+            $curlArgs.Add($Url)
+
+            $rawOutput = (& curl.exe @curlArgs 2>&1) -join [Environment]::NewLine
+            if ($LASTEXITCODE -ne 0) {
+                throw "curl.exe failed for step '$Name' with exit code $LASTEXITCODE.`n$rawOutput"
+            }
+
+            $marker = "__STATUS__:"
+            $markerIndex = $rawOutput.LastIndexOf($marker)
+            if ($markerIndex -lt 0) {
+                throw "curl.exe output for step '$Name' did not include an HTTP status marker."
+            }
+
+            $bodyText = $rawOutput.Substring(0, $markerIndex).Trim()
+            $statusText = $rawOutput.Substring($markerIndex + $marker.Length).Trim()
+            $statusCode = [int]$statusText
+
+            if (-not [string]::IsNullOrWhiteSpace($bodyText)) {
+                try {
+                    $content = $bodyText | ConvertFrom-Json
+                }
+                catch {
+                    $content = $bodyText
+                }
+            }
+        }
+        finally {
+            if ($null -ne $tempBodyFile -and (Test-Path $tempBodyFile)) {
+                Remove-Item -Path $tempBodyFile -Force
+            }
+        }
+    }
 
     if ($ExpectedStatusCodes -notcontains $statusCode) {
         throw "Step '$Name' failed. Expected [$($ExpectedStatusCodes -join ', ')], got $statusCode."
@@ -158,6 +269,16 @@ if ([string]::IsNullOrWhiteSpace($resolvedSmokeEmail)) {
     $resolvedSmokeEmail = Get-Setting -EnvValues $envValues -Name "BITACORA_SMOKE_EMAIL"
 }
 
+$resolvedIp = Get-Setting -EnvValues $envValues -Name "ResolveIp" -Fallback ""
+if ([string]::IsNullOrWhiteSpace($resolvedIp)) {
+    $resolvedIp = Get-Setting -EnvValues $envValues -Name "BITACORA_SMOKE_RESOLVE_IP"
+}
+
+$allowInvalidCertificate = $SkipCertificateCheck.IsPresent
+if (-not $allowInvalidCertificate) {
+    $allowInvalidCertificate = Get-BooleanSetting -EnvValues $envValues -Name "BITACORA_SMOKE_SKIP_CERT_CHECK" -Fallback $false
+}
+
 if ([string]::IsNullOrWhiteSpace($resolvedSmokeSub)) {
     $resolvedSmokeSub = [guid]::NewGuid().ToString()
 }
@@ -175,14 +296,14 @@ $jwt = New-SmokeJwt -Secret $resolvedJwtSecret -Subject $resolvedSmokeSub -Email
 $authHeaders = @{ Authorization = "Bearer $jwt" }
 $results = New-Object System.Collections.Generic.List[object]
 
-$results.Add((Invoke-Step -Name "health" -Method "GET" -Url "$resolvedBaseUrl/health"))
-$results.Add((Invoke-Step -Name "ready" -Method "GET" -Url "$resolvedBaseUrl/health/ready"))
-$results.Add((Invoke-Step -Name "bootstrap" -Method "POST" -Url "$resolvedBaseUrl/api/v1/auth/bootstrap" -Headers $authHeaders))
+$results.Add((Invoke-Step -Name "health" -Method "GET" -Url "$resolvedBaseUrl/health" -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "ready" -Method "GET" -Url "$resolvedBaseUrl/health/ready" -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "bootstrap" -Method "POST" -Url "$resolvedBaseUrl/api/v1/auth/bootstrap" -Headers $authHeaders -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
 
-$currentConsent = Invoke-Step -Name "consent-current" -Method "GET" -Url "$resolvedBaseUrl/api/v1/consent/current" -Headers $authHeaders
+$currentConsent = Invoke-Step -Name "consent-current" -Method "GET" -Url "$resolvedBaseUrl/api/v1/consent/current" -Headers $authHeaders -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate
 $results.Add($currentConsent)
 
-$negativeMood = Invoke-Step -Name "mood-without-consent" -Method "POST" -Url "$resolvedBaseUrl/api/v1/mood-entries" -Headers $authHeaders -Body @{ score = 1 } -ExpectedStatusCodes @(403)
+$negativeMood = Invoke-Step -Name "mood-without-consent" -Method "POST" -Url "$resolvedBaseUrl/api/v1/mood-entries" -Headers $authHeaders -Body @{ score = 1 } -ExpectedStatusCodes @(403) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate
 $results.Add($negativeMood)
 
 if ($negativeMood.Body.error.code -ne "CONSENT_REQUIRED") {
@@ -194,8 +315,8 @@ if ([string]::IsNullOrWhiteSpace($consentVersion)) {
     throw "Consent version missing from current consent response."
 }
 
-$results.Add((Invoke-Step -Name "grant-consent" -Method "POST" -Url "$resolvedBaseUrl/api/v1/consent" -Headers $authHeaders -Body @{ version = $consentVersion; accepted = $true } -ExpectedStatusCodes @(201, 409)))
-$results.Add((Invoke-Step -Name "mood-with-consent" -Method "POST" -Url "$resolvedBaseUrl/api/v1/mood-entries" -Headers $authHeaders -Body @{ score = 1 } -ExpectedStatusCodes @(200, 201)))
+$results.Add((Invoke-Step -Name "grant-consent" -Method "POST" -Url "$resolvedBaseUrl/api/v1/consent" -Headers $authHeaders -Body @{ version = $consentVersion; accepted = $true } -ExpectedStatusCodes @(201, 409) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "mood-with-consent" -Method "POST" -Url "$resolvedBaseUrl/api/v1/mood-entries" -Headers $authHeaders -Body @{ score = 1 } -ExpectedStatusCodes @(200, 201) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
 $results.Add((Invoke-Step -Name "daily-checkin" -Method "POST" -Url "$resolvedBaseUrl/api/v1/daily-checkins" -Headers $authHeaders -Body @{
         sleepHours      = 8
         physicalActivity = $false
@@ -204,6 +325,6 @@ $results.Add((Invoke-Step -Name "daily-checkin" -Method "POST" -Url "$resolvedBa
         irritability     = $false
         medicationTaken  = $false
         medicationTime   = $null
-    } -ExpectedStatusCodes @(200, 201)))
+    } -ExpectedStatusCodes @(200, 201) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
 
 $results | Format-Table -AutoSize
