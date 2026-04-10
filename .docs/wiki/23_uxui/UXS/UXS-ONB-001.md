@@ -1,12 +1,10 @@
-# UXS-ONB-001 — Consentimiento del Onboarding Invitado
+# UXS-ONB-001 — Portada, consentimiento y puente del ONB-first
 
 ## Propósito
 
-Este documento fija el contrato UX del paso crítico `S03` del slice `ONB-001`.
+Este documento fija el contrato UX del slice `ONB-001` como paquete completo.
 
-No vuelve a contar el onboarding completo ni reemplaza la voz del caso. Su función es volver operable el momento de consentimiento para que prototipo, validación y contrato técnico trabajen sobre la misma interacción visible.
-
-En este proyecto, `UXS` es el punto donde la intención deja de ser abstracta y se vuelve decisión de pantalla, estado, copy y aceptación.
+No describe todavía código ni layout final de implementación. Su función es volver operables la portada `ONB-first`, la variante invitada, el retorno `auth/bootstrap`, el consentimiento y la confirmación con puente al primer registro.
 
 ## Relación con el canon
 
@@ -16,366 +14,265 @@ Este documento depende de:
 - `11_identidad_visual.md`
 - `12_lineamientos_interfaz_visual.md`
 - `13_voz_tono.md`
+- `16_patrones_ui.md`
 - `../UXR/UXR-ONB-001.md`
 - `../UXI/UXI-ONB-001.md`
 - `../UJ/UJ-ONB-001.md`
 - `../VOICE/VOICE-ONB-001.md`
-- `03_FL/FL-ONB-01.md`
-- `03_FL/FL-CON-01.md`
-- `04_RF/RF-ONB-003.md`
-- `04_RF/RF-CON-001.md`
-- `04_RF/RF-CON-002.md`
-- `04_RF/RF-CON-003.md`
-- `06_pruebas/TP-ONB.md`
-- `06_pruebas/TP-CON.md`
+- `../../03_FL/FL-ONB-01.md`
+- `../../03_FL/FL-CON-01.md`
+- `../../04_RF/RF-ONB-001.md`
+- `../../04_RF/RF-ONB-003.md`
+- `../../04_RF/RF-CON-001.md`
+- `../../04_RF/RF-CON-002.md`
+- `../../04_RF/RF-CON-003.md`
+- `../../06_pruebas/TP-ONB.md`
+- `../../06_pruebas/TP-CON.md`
 
 Y prepara directamente:
 
 - `../PROTOTYPE/PROTOTYPE-ONB-001.md`
-- `../UX-VALIDATION/UX-VALIDATION-ONB-001.md`
-- futuros `UI-RFC-*`
+- `../UI-RFC/UI-RFC-ONB-001.md`
+- `../HANDOFF-SPEC/HANDOFF-SPEC-ONB-001.md`
 
 No debe contradecir:
 
-- la promesa “tu espacio seguro, vos decidís”;
-- la regla de una sola pausa deliberada en el journey;
-- la voz `silencio útil antes, control explícito en consentimiento, silencio útil después`;
-- el hard gate de consentimiento previo;
-- la regla `can_view_data=false` por defecto.
+- la secuencia real `bootstrap -> consent -> needs_first_entry`;
+- la regla de una sola acción dominante por contexto;
+- el tone set humano y cálido del slice;
+- el hard gate de consentimiento.
 
-## Slice y paso dueño
+## Slice dueño
 
-### Slice
+### Nombre
 
-`ONB-001`: onboarding del paciente nuevo que llega por invitación válida y debe llegar a su primer `MoodEntry`.
+`ONB-001` — entrada `ONB-first` del paciente hasta consentimiento y puente al primer registro.
 
-### Paso
+### Alcance visible
 
-`S03 — Consentimiento como explicitación de control`
+Incluye:
 
-### Entrada
+- portada estándar;
+- portada con hero adaptado por invitación;
+- fallback genérico del hero adaptado;
+- interstitial breve de retorno `auth/bootstrap`;
+- consentimiento base;
+- consentimiento con recordatorio ligero de contexto invitado;
+- fricción principal por invitación/contexto;
+- conflicto de versión del consentimiento;
+- confirmación con CTA al primer registro.
 
-La persona ya atravesó `S01` y `S02`, está autenticada, conserva contexto del onboarding y necesita consentir antes de registrar cualquier dato clínico.
+Excluye:
 
-### Salida correcta
+- la implementación del primer `MoodEntry`;
+- daily check-in;
+- dashboards o pantallas profesionales;
+- Telegram.
 
-El consentimiento queda registrado y la transición a `S04` ocurre sin festejo, sin pantalla intermedia innecesaria y sin reabrir dudas sobre control.
+## Cobertura obligatoria
 
-## Qué parte del journey debe preservar
+- desktop;
+- mobile;
+- estados clave;
+- pack ampliado de fricciones con foco principal en confusión por invitación/contexto.
 
-Este paso debe preservar:
+## Sensación del slice
 
-- continuidad del onboarding;
-- sensación de espacio propio;
-- baja fricción general;
-- claridad suficiente sin exceso de lectura;
-- percepción de lugar seguro y cuidado.
+La experiencia debe sentirse como:
 
-No debe preservar la ligereza borrando información sensible. Debe preservar la ligereza resolviendo lo sensible con orden y compresión.
-
-## Sensación del paso
-
-### Sensación objetivo
-
-Este paso debe sentirse como una `pausa breve, clara y serena`.
-
-No debe sentirse como:
-
-- pantalla legal pesada;
-- advertencia clínica;
-- trámite administrativo;
-- momento de presión;
-- examen de comprensión.
-
-### Anti-sensación
+- guía personal;
+- cálida y seria;
+- clara para empezar;
+- explícita al hablar de control;
+- breve al pasar por auth;
+- serena al cerrar.
 
 La anti-sensación principal es:
 
-**“me frenaron con un bloque legal largo y confuso justo cuando estaba por empezar”.**
-
-### Postura de confianza
-
-La seguridad ya debe sentirse desde antes. En este paso se vuelve explícita sin cambiar de clima.
-
-La postura correcta es:
-
-- explicar qué habilita el consentimiento;
-- mostrar qué control conserva la persona;
-- aclarar que compartir datos no es automático;
-- mantener serenidad y baja agresividad visual/verbal.
-
-### Lectura visceral, conductual y reflexiva
-
-Visceral:
-
-- orden;
-- calma;
-- densidad contenida;
-- ningún gesto de alarma.
-
-Conductual:
-
-- una sola decisión principal;
-- texto resumido antes del contenido completo;
-- CTA inequívoco;
-- salida inmediata al siguiente paso.
-
-Reflexiva:
-
-- “entendí lo importante”;
-- “no me escondieron nada”;
-- “sigo teniendo control”;
-- “ya puedo seguir”.
-
-## Tarea del usuario
-
-La tarea de la persona en este paso es:
-
-1. entender por qué este consentimiento aparece ahora;
-2. comprender qué habilita y qué no habilita;
-3. revisar la versión vigente;
-4. aceptarla con control suficiente;
-5. seguir directamente al primer registro.
-
-No llega a esta pantalla para aprender el producto ni para revisar detalles técnicos del vínculo.
+**“esto parece una herramienta del profesional o una admisión clínica”.**
 
 ## Contrato de interacción
 
-### Estructura mínima
+### S01 — Portada estándar
 
-La pantalla debe resolver el paso con cuatro bloques y no más:
+#### Objetivo
+
+Presentar Bitácora como espacio personal y abrir el onboarding con una sola acción dominante.
+
+#### Jerarquía obligatoria
+
+1. historia principal de guía personal;
+2. CTA principal `Empezar ahora`;
+3. soporte dominante de privacidad y resguardo;
+4. cualquier camino de retorno queda fuera del hero principal o con prominencia muy baja.
+
+#### Reglas
+
+- no debe existir un CTA secundario fuerte;
+- el soporte de privacidad no debe competir con la acción;
+- el hero no debe parecer landing institucional.
+
+### S01 — Hero adaptado por invitación
+
+#### Objetivo
+
+Resolver la fricción de contexto sin crear una home separada.
+
+#### Reglas
+
+- la misma portada adapta su hero;
+- la señal dominante es `vínculo + propósito`;
+- el propósito visible se expresa como `registro inicial con acompañamiento profesional`;
+- el detalle visible es explícito: nombre + rol + frase breve de propósito cuando existan datos;
+- si faltan datos, usar hero adaptado genérico y no volver al modo estándar.
+
+#### Soporte
+
+- privacidad y resguardo siguen visibles como capa secundaria;
+- la invitación puede llegar hasta consentimiento con recordatorio ligero, pero desaparece en la confirmación final.
+
+### S02 — Retorno `auth/bootstrap`
+
+#### Objetivo
+
+Mantener continuidad y evitar un salto técnico.
+
+#### Reglas
+
+- resolver como `interstitial breve`;
+- una sola idea principal: se está preparando el espacio para seguir;
+- no mostrar progreso técnico, claims ni estados internos;
+- no agregar CTA paralelos.
+
+### S03 — Consentimiento
+
+#### Objetivo
+
+Hacer explícito el control con `resguardo claro`.
+
+#### Estructura mínima
 
 1. encabezado breve;
 2. resumen de control;
-3. texto completo del consentimiento;
-4. confirmación explícita + acción principal.
+3. texto vigente del consentimiento;
+4. confirmación explícita;
+5. CTA principal `Aceptar y seguir`.
 
-### Jerarquía
+#### Reglas
 
-El orden de lectura debe ser:
+- el resumen de control aparece antes del texto completo;
+- debe nombrar que aceptar no activa acceso automático del profesional;
+- si hubo invitación, mostrar un recordatorio contextual ligero, no dominante;
+- el consentimiento sigue siendo una sola columna, claro en desktop y mobile;
+- la acción primaria se habilita sólo con lectura + confirmación explícita.
 
-1. qué es este paso;
-2. qué seguís controlando;
-3. dónde está el texto completo vigente;
-4. qué acción te permite seguir.
+### S03 — Fricción principal por contexto
 
-No debe aparecer antes de esto:
+#### Qué debe resolver
 
-- información secundaria del vínculo;
-- explicaciones sobre arquitectura;
-- mensajes de tranquilidad vacíos;
-- CTA duplicados.
+Cuando la persona duda qué significa la invitación o qué implica “acompañamiento profesional”, la UI debe aclarar:
 
-### Composición
+- por qué llegó;
+- qué parte del vínculo es contextual;
+- y qué sigue bajo control del paciente.
 
-- una sola columna principal;
-- ancho de lectura moderado;
-- superficie calma y contenida;
-- aire suficiente entre bloques;
-- action area clara al final del paso.
+#### Regla
 
-### Resumen de control
+Esta aclaración vive dentro del mismo slice, sin modal paralelo ni desvío largo.
 
-Antes del texto completo debe aparecer un resumen breve, no decorativo, con máximo tres ideas:
+### S03 — Conflicto de versión
 
-- necesitás este consentimiento para registrar datos;
-- tus registros siguen bajo tu control;
-- el profesional no obtiene acceso automático por aceptar esta pantalla.
+- debe mostrarse como estado explícito;
+- recentra foco sobre la versión vigente;
+- evita reintentos ambiguos;
+- mantiene el tono sereno.
 
-Este resumen existe para bajar carga cognitiva, no para reemplazar el texto completo.
+### S04 — Confirmación + puente
 
-### Texto completo
+#### Objetivo
 
-- el consentimiento completo debe mostrarse como contenido legible y versionado;
-- la versión vigente debe verse, pero no dominar la pantalla;
-- el texto debe poder recorrerse con scroll en el mismo paso;
-- la lectura completa se considera parte del contrato del paso.
+Cerrar el consentimiento y empujar al siguiente valor.
 
-### Confirmación explícita
+#### Reglas
 
-- debe existir una sola casilla de confirmación vinculada a la versión vigente;
-- el sistema no debe enviar aceptación implícita;
-- la acción principal permanece deshabilitada hasta que se cumplan las condiciones del paso.
-
-### Acción primaria
-
-La pantalla debe tener una sola acción primaria:
-
-- `Aceptar y seguir`
-
-### Acción secundaria
-
-La salida no principal debe ser de baja prominencia y no competir con la primaria.
-
-Dirección aprobada:
-
-- `Salir por ahora`
-
-No corresponde una dupla simétrica tipo `Aceptar / Rechazar` con el mismo peso visual.
-
-## Reglas del flujo del paso
-
-### Condiciones para habilitar la acción primaria
-
-La acción primaria se habilita solo cuando:
-
-- la persona recorrió el texto completo vigente;
-- la casilla de aceptación quedó marcada;
-- no hay request en curso.
-
-### Transición de éxito
-
-- al registrar correctamente el consentimiento no debe aparecer una pantalla de celebración;
-- la persona debe pasar de inmediato a `S04`;
-- si hay feedback visible, debe ser breve y no interrumpir la continuidad.
-
-### Reanudación
-
-Si la persona abandona después de autenticarse pero antes de aceptar:
-
-- el onboarding debe retomar en este mismo paso;
-- no debe obligarla a repetir pasos anteriores;
-- el contexto de invitación debe seguir preservado.
+- confirmación factual breve;
+- CTA principal exacto: `Hacer mi primer registro`;
+- sin celebraciones;
+- sin recordar otra vez la invitación;
+- sin presentar el primer formulario dentro de este slice.
 
 ## Modelo de estados
 
 | Estado | Qué ve la persona | Comportamiento esperado |
 | --- | --- | --- |
-| `default` | encabezado, resumen de control, texto vigente, checkbox, CTA deshabilitada | puede leer y prepararse para aceptar |
-| `ready_to_submit` | CTA habilitada | puede confirmar y seguir |
-| `submitting` | CTA bloqueada + feedback breve de proceso | evita doble envío y conserva contexto |
-| `success_transition` | sin toast dominante; transición directa a `S04` | continuidad inmediata |
-| `error_retryable` | error breve y específico cerca del área de acción | permite reintento sin reiniciar lectura |
-| `version_conflict` | notice claro de cambio de versión | recarga foco y exige revisar la versión vigente |
-| `expired_session` | error orientado a reautenticación | no culpa a la persona |
+| `hero_standard` | portada `ONB-first` estándar | CTA principal lista para iniciar |
+| `hero_invite_explicit` | hero adaptado con vínculo + propósito visibles | baja confusión contextual |
+| `hero_invite_fallback` | hero adaptado genérico | conserva contexto aunque falten datos |
+| `invite_expired` | contexto no válido o vencido | salida clara y digna |
+| `auth_interstitial` | transición breve post-auth | continuidad sin explicación técnica |
+| `consent_default` | consentimiento base con resumen de control | prepara aceptación |
+| `consent_invite_reminder` | consentimiento con recordatorio ligero del contexto invitado | continuidad contextual sin dominancia |
+| `consent_context_clarification` | aclaración por confusión de invitación/contexto | resuelve la fricción principal |
+| `consent_version_conflict` | cambio de versión vigente | exige revisar la versión actual |
+| `consent_error_retryable` | error recuperable cerca del rail de acción | reintento digno |
+| `bridge_ready` | confirmación + CTA al primer registro | cierra el slice y empuja al siguiente |
 
-## Contrato de copy
+## Responsive
 
-### Titular
-
-Debe orientar el paso sin dramatizar.
-
-Dirección aprobada:
-
-- `Revisá el consentimiento`
-
-### Texto de apoyo
-
-Debe explicar por qué aparece este paso y qué habilita.
-
-Dirección aprobada:
-
-- `Para registrar cómo te sentís, primero necesitás revisar y aceptar esta versión.`
-
-### Resumen de control
-
-Direcciones aprobadas:
-
-- `Tus registros siguen bajo tu control.`
-- `Aceptar este paso no activa acceso automático para tu profesional.`
-- `Podés revisar la versión vigente antes de seguir.`
-
-### Confirmación
-
-Dirección aprobada:
-
-- `Leí el consentimiento y acepto esta versión.`
-
-### Feedback de proceso
-
-Dirección aprobada:
-
-- `Registrando consentimiento...`
-
-### Error recuperable
-
-Dirección aprobada:
-
-- `No pudimos registrar tu consentimiento. Probá de nuevo.`
-
-### Conflicto de versión
-
-Dirección aprobada:
-
-- `El consentimiento cambió. Revisá la versión actual antes de seguir.`
-
-### Copy prohibido en este paso
-
-- `Esto nos permite cuidarte mejor`;
-- `Tu profesional podrá acompañarte de cerca`;
-- `Debés aceptar para continuar` sin aclarar alcance;
-- `Tus datos están seguros` como frase vacía;
-- cualquier felicitación o tono celebratorio al aceptar.
+- mobile-first de una columna;
+- desktop conserva una columna dominante con soporte discreto;
+- el hero adaptado no debe fragmentarse en varias columnas que rompan la lectura;
+- el rail de acción de consentimiento debe seguir siendo inequívoco en ambos tamaños.
 
 ## Accesibilidad
 
-- foco inicial en el encabezado del paso;
-- región del texto completo identificable como contenido de consentimiento;
-- checkbox accesible por teclado y lector de pantalla;
-- CTA deshabilitada con razón comprensible por contexto, no solo por color;
-- errores anunciados cerca del área de acción y con foco recuperable;
-- scroll y lectura posibles en mobile sin bloquear zoom ni navegación estándar;
-- contraste AA estricto en texto, controles y foco.
+- foco visible y estable en todos los estados;
+- CTA y checkbox accesibles por teclado;
+- estados no comunicados sólo por color;
+- el recordatorio contextual de invitación debe ser legible sin depender de iconografía;
+- el interstitial debe seguir siendo entendible con movimiento reducido.
 
-## Telemetría mínima
+## Acceptance criteria
 
-| Evento | Momento | Propósito |
-| --- | --- | --- |
-| `onb_consent_viewed` | el paso se renderiza | medir inicio del paso |
-| `onb_consent_scrolled_end` | la persona llega al final del texto | detectar lectura completa |
-| `onb_consent_checked` | marca la casilla | medir intención de aceptación |
-| `onb_consent_submit_started` | pulsa acción primaria | medir intento |
-| `onb_consent_submit_succeeded` | backend registra consentimiento | medir conversión del paso |
-| `onb_consent_submit_failed` | request falla | medir fricción técnica |
-| `onb_consent_version_conflict` | backend responde conflicto de versión | detectar drift de contenido |
-| `onb_consent_abandoned` | sale del paso sin aceptar | medir abandono en pausa crítica |
+1. La portada estándar deja una sola acción dominante: `Empezar ahora`.
+2. No existe un camino secundario fuerte dentro del hero.
+3. La variante invitada adapta el mismo hero y muestra vínculo + propósito explícitos.
+4. Si faltan datos del vínculo, existe hero adaptado genérico.
+5. El retorno `auth/bootstrap` se resuelve con interstitial breve y no técnico.
+6. El consentimiento se siente como `resguardo claro` y no como pared legal.
+7. La fricción principal por invitación/contexto tiene una resolución visible dentro del slice.
+8. La invitación persiste hasta consentimiento con recordatorio ligero y desaparece en confirmación.
+9. La confirmación final usa `Hacer mi primer registro` como CTA inequívoco.
+10. Desktop y mobile cubren el mismo state pack sin reinterpretación.
 
-## Aceptación
+## Defaults transferibles
 
-Este `UXS` se considera listo si cumple todo lo siguiente:
+Este `UXS` fija como defaults para implementación posterior:
 
-1. El paso se entiende como parte del onboarding y no como circuito separado.
-2. La persona ve primero un resumen de control antes del texto completo.
-3. El profesional aparece como actor contextual, no dominante.
-4. El consentimiento completo vigente es legible y versionado.
-5. La acción primaria solo se habilita cuando se cumple lectura + confirmación explícita.
-6. El éxito lleva directo a `S04` sin celebración ni pausa extra.
-7. Los errores son específicos y permiten reintento digno.
-8. El conflicto de versión obliga a revisar la versión actual sin ambigüedad.
-9. En mobile la lectura sigue siendo clara, en una sola columna y sin mini-dashboard.
-10. El paso mantiene la sensación `pausa breve, clara y serena`.
-
-## Defaults transferibles para onboarding y formularios
-
-Este `UXS` fija defaults reutilizables para formularios y pasos sensibles del sistema:
-
-- una sola acción principal por paso;
-- helpers solo cuando destraban una duda real;
-- explicitud verbal y visual solo cuando cambia acceso, datos o consentimiento;
-- después del momento sensible, volver a compresión;
-- no repetir promesas abstractas de seguridad;
-- no convertir un requisito legal en una ceremonia pesada.
+- hero único con variante contextual;
+- secondary paths silenciosos;
+- interstitials breves de continuidad;
+- consentimiento con resumen de control;
+- bridges de siguiente acción sin celebración.
 
 ## Criterio de validación rápida
 
-El paso está bien calibrado si la persona percibe:
+El slice está bien calibrado si:
 
-- claridad rápida;
-- control legible;
-- baja fricción;
-- ausencia de vigilancia;
-- continuidad directa hacia el primer valor.
+- guía, contexto y resguardo se leen en ese orden;
+- la invitación aclara sin colonizar toda la experiencia;
+- el consentimiento no rompe el ritmo;
+- el cierre deja una acción siguiente clara.
 
-El paso está mal calibrado si la persona percibe:
+El slice está mal calibrado si:
 
-- pared de texto;
-- trámite legal;
-- obligación opaca;
-- sistema del profesional;
-- freno innecesario justo antes de empezar.
+- el hero parece institucional;
+- la invitación se vuelve una mini-home separada;
+- auth o consentimiento se vuelven técnicos;
+- o la confirmación pretende cerrar más de lo que el slice muestra.
 
 ---
 
-**Estado:** `UXS` activo para `ONB-001 / S03`.
-**Precedencia:** este documento depende de `../UXI/UXI-ONB-001.md`, `../UJ/UJ-ONB-001.md` y `../VOICE/VOICE-ONB-001.md`.
-**Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-ONB-001.md` y `../UX-VALIDATION/UX-VALIDATION-ONB-001.md`.
+**Estado:** `UXS` activo para `ONB-001`.
+**Precedencia:** depende de `UXR`, `UXI`, `UJ`, `VOICE` y `FL/RF` del onboarding real.
+**Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-ONB-001.md`, `../UI-RFC/UI-RFC-ONB-001.md` y la cadena `HANDOFF-*`.

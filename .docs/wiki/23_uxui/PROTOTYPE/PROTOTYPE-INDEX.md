@@ -10,7 +10,7 @@ Hoy los `13` slices visibles del MVP avanzaron más allá de `Case UX`. La cober
 
 | ID | Caso | Estado | Artefacto actual | Siguiente artefacto |
 | --- | --- | --- | --- | --- |
-| `ONB-001` | Onboarding invitado del paciente hasta primer `MoodEntry` | prototipo enlazado y navegable | `PROTOTYPE-ONB-001.md` + `PROTOTYPE-ONB-001.html` | `../UX-VALIDATION/UX-VALIDATION-ONB-001.md` |
+| `ONB-001` | ONB-first del paciente hasta consentimiento y puente al primer registro | prototipo redefinido y enlazado | `PROTOTYPE-ONB-001.md` + `PROTOTYPE-ONB-001.html` | `../UI-RFC/UI-RFC-ONB-001.md` bajo waiver; `../UX-VALIDATION/UX-VALIDATION-ONB-001.md` sigue pendiente |
 | `REG-001` | Registro rápido de humor vía web | prototipo enlazado y navegable | `PROTOTYPE-REG-001.md` + `PROTOTYPE-REG-001.html` | `../UX-VALIDATION/UX-VALIDATION-REG-001.md` |
 | `REG-002` | Registro de factores diarios vía web | prototipo enlazado y navegable | `PROTOTYPE-REG-002.md` + `PROTOTYPE-REG-002.html` | `../UX-VALIDATION/UX-VALIDATION-REG-002.md` |
 | `VIN-002` | Auto-vinculación paciente a profesional por código | prototipo enlazado y navegable | `PROTOTYPE-VIN-002.md` + `PROTOTYPE-VIN-002.html` | `../UX-VALIDATION/UX-VALIDATION-VIN-002.md` |

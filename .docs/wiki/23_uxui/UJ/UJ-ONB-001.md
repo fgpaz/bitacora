@@ -1,12 +1,10 @@
-# UJ-ONB-001 — Journey del Onboarding Invitado del Paciente
+# UJ-ONB-001 — Journey del ONB-first del paciente
 
 ## Propósito
 
-Este documento modela la tarea completa que vive la persona cuando llega a Bitácora mediante una invitación profesional y avanza hasta su primer registro de humor.
+Este documento modela la tarea completa que vive la persona desde la entrada pública de Bitácora hasta la confirmación que la empuja a su primer registro.
 
-No describe pantallas aisladas ni resuelve todavía el contrato preciso de una interacción crítica. Su función es traducir `UXR-ONB-001.md` y `UXI-ONB-001.md` a un recorrido completo, con ritmo, pasos estables, fricciones aceptables, errores relevantes y momentos sensibles.
-
-En este proyecto, `UJ` describe qué vive la persona de principio a fin, no cómo se implementa una pantalla.
+No resuelve todavía el contrato de componente. Su función es traducir `UXR` y `UXI` a una secuencia visible, estable y trazable para `VOICE`, `UXS`, `UI-RFC` y handoff.
 
 ## Relación con el canon
 
@@ -21,246 +19,161 @@ Este documento depende de:
 
 Y prepara directamente:
 
-- `23_uxui/VOICE/*`
+- `../VOICE/VOICE-ONB-001.md`
 - `../UXS/UXS-ONB-001.md`
 
 No debe contradecir:
 
-- la promesa “tu espacio seguro, vos decidís”;
-- la prioridad de baja fricción en onboarding y formularios;
-- la necesidad de seguridad implícita desde el inicio;
-- el consentimiento como momento donde el control se vuelve explícito;
-- la regla de acceso profesional revocable y `can_view_data=false` por defecto.
+- la prioridad de paciente primero;
+- una sola acción dominante por contexto;
+- el gate de consentimiento previo;
+- la continuidad real del backend `bootstrap -> consent -> first entry`.
 
 ## Goal del usuario
 
-La persona quiere empezar rápido, entender solo lo necesario y llegar a registrar cómo se siente sin perder control sobre sus datos.
+La persona quiere empezar rápido, entender por qué está acá y no perder control sobre sus datos mientras se acerca a su primer registro.
 
-No llega al flujo para “configurar una cuenta” ni para “gestionar un vínculo”. Llega para empezar a usar una herramienta que le fue recomendada o compartida por su profesional, pero que debe sentirse propia desde el primer momento.
+No llega para aprender el sistema completo ni para gestionar todavía el vínculo profesional. Llega para dar el primer paso correcto.
 
 ## Feeling global del journey
 
-El journey completo debe sentirse:
+El journey debe sentirse:
 
-- ligero;
-- continuo;
+- cálido;
 - simple;
-- seguro de forma implícita;
-- claro sin sobreexplicación;
-- centrado en la persona, no en el profesional.
+- seguro sin ruido;
+- continuo;
+- centrado en la persona;
+- serio sin volverse pesado.
 
 La anti-sensación dominante a evitar es:
 
-**un trámite ajeno que frena demasiado antes de dejar empezar.**
-
-## Ritmo del journey
-
-Este recorrido debe tener un ritmo casi uniforme, liviano y poco intrusivo.
-
-### Tramos que deben sentirse más ligeros
-
-- apertura de la invitación;
-- autenticación y bootstrap;
-- paso al primer registro;
-- confirmación posterior al primer mood.
-
-### Única pausa deliberada
-
-La única pausa consciente del journey ocurre en el consentimiento.
-
-Esa pausa debe:
-
-- ser breve;
-- hacer explícito el control del paciente;
-- explicar lo justo sobre compartición y acceso;
-- no volverse una ceremonia legal pesada.
-
-Fuera de ese punto, el journey no debe frenar.
+**una mezcla de landing, trámite y admisión clínica.**
 
 ## Main path
 
-### S01 — Apertura de invitación y primer encuadre
+### S01 — Entrada pública y primer encuadre
 
-La persona abre el link de invitación y entiende rápidamente que:
+La persona entra a Bitácora y encuentra una portada con una sola dirección dominante.
 
-- fue invitada por su profesional;
-- está entrando a Bitácora;
-- el espacio sigue siendo suyo;
-- puede avanzar sin sentirse observada.
+- si llega sin contexto especial, ve una entrada estándar guiada por `Empezar ahora`;
+- si llega por invitación, ve la misma portada con `hero adaptado` y contexto explícito de vínculo + propósito;
+- si faltan datos del vínculo, la variante sigue visible de forma genérica y no desaparece.
 
-Este paso debe instalar contexto sin instalar vigilancia.
+### S02 — Retorno de auth/bootstrap
 
-### S02 — Autenticación y bootstrap sin pérdida de contexto
+Después de autenticarse, el sistema no corta la experiencia con un estado técnico.
 
-La persona crea o confirma su acceso sin perder el hilo del journey.
+La persona vive un interstitial breve que confirma continuidad:
 
-Debe percibir que:
+- ya entró;
+- el sistema prepara su espacio;
+- el siguiente paso es revisar consentimiento.
 
-- el flujo sigue siendo uno solo;
-- no fue “sacada” de la invitación;
-- no necesita entender arquitectura, vínculo ni estados internos;
-- el sistema conserva contexto y la acerca al primer uso real.
+### S03 — Consentimiento con resguardo claro
 
-### S03 — Consentimiento como explicitación de control
+La persona llega al consentimiento como única pausa deliberada.
 
-La persona pasa por consentimiento como única pausa deliberada del recorrido.
+Este paso debe dejar claro:
 
-Este momento debe dejar claro que:
+- por qué aparece ahora;
+- qué control conserva;
+- que aceptar no activa acceso automático del profesional;
+- y que, si llegó invitada, ese contexto sigue existiendo pero no domina la decisión.
 
-- el registro no empieza antes del consentimiento;
-- compartir datos no es automático;
-- el control sigue del lado del paciente;
-- aceptar no significa quedar expuesta sin reversibilidad.
+### S04 — Confirmación + puente
 
-La tarea en este paso no es solo “aceptar”, sino aceptar con comprensión suficiente y sin caída brusca del ritmo general.
+Tras aceptar consentimiento, la experiencia no celebra ni agrega ceremonia.
 
-### S04 — Primer registro de humor como llegada al valor
+La persona recibe una confirmación serena y un puente inequívoco:
 
-Apenas termina el consentimiento, la persona llega al primer registro.
+- `Hacer mi primer registro`
 
-Ese pasaje debe sentirse inmediato.
+Ese CTA cierra el slice visible y deja preparado el siguiente tramo funcional.
 
-La experiencia aquí debe transmitir:
-
-- “ya empecé”;
-- “me pidieron solo lo necesario”;
-- “esto realmente sirve para registrar cómo estoy”.
-
-### S05 — Confirmación serena y continuidad futura
-
-Después del primer mood, la persona recibe una confirmación breve y clara.
-
-La salida correcta del journey no es una celebración. Es una confirmación serena de que:
-
-- el inicio ya ocurrió;
-- el registro fue simple;
-- el sistema quedó listo para continuidad futura.
-
-## Stable steps `S01..Sn`
+## Stable steps
 
 | Step | Nombre | Qué vive la persona | Sensación objetivo | Riesgo si falla |
 | --- | --- | --- | --- | --- |
-| `S01` | Apertura invitada | abre invitación y entiende dónde está entrando | claridad rápida + espacio propio | interpretar Bitácora como herramienta del profesional |
-| `S02` | Auth / bootstrap | crea acceso sin perder contexto | continuidad fluida | sentir corte, desorientación o trámite |
-| `S03` | Consentimiento | entiende y acepta el control explícito antes del primer dato | pausa breve + control legible | sentir carga legal, vigilancia o presión |
-| `S04` | Primer mood | registra su humor por primera vez | llegada inmediata al valor | sentir demasiados pasos antes de empezar |
-| `S05` | Confirmación y continuidad | cierra el inicio y entiende que puede seguir | alivio sereno + simpleza | sensación de cierre ambiguo o esfuerzo excesivo |
+| `S01` | Entrada estándar o contextual | entiende rápido qué es Bitácora y por qué llegó | guía personal + claridad | sentir que entra a algo ajeno |
+| `S02` | Auth/bootstrap return | percibe continuidad sin corte técnico | continuidad cálida | trámite o confusión post-auth |
+| `S03` | Consentimiento | hace explícito su control y acepta la versión vigente | resguardo claro | muro legal, vigilancia o pérdida de contexto |
+| `S04` | Confirmación + puente | entiende que ya puede hacer su primer registro | impulso sereno | cierre ambiguo o solemne |
 
-## Fricciones
-
-### Fricción aceptable
-
-Se acepta fricción cuando:
-
-- la exige el consentimiento previo;
-- mejora claridad sobre control y compartición;
-- evita ambigüedad sobre quién puede ver datos y cuándo.
-
-### Fricción indebida
-
-No se acepta fricción que provenga de:
-
-- pérdida de contexto entre invitación y auth;
-- pasos que repiten información sin agregar comprensión;
-- formularios más largos de lo indispensable;
-- explicaciones extensas sobre seguridad antes de que la persona experimente valor;
-- demora innecesaria entre consentimiento y primer registro.
-
-## Variant / error path
+## Variant / error paths
 
 | Condición | Qué vive la persona | Respuesta esperada del journey |
 | --- | --- | --- |
-| Invitación expirada | llega con intención pero no puede continuar por ese link | el flujo corta con claridad, sin dramatizar, y orienta a pedir una nueva invitación |
-| Falla de auth | intenta entrar pero el acceso no se completa | el sistema falla en cerrado, explica breve y permite reintento sin perder dignidad |
-| Rechazo o abandono en consentimiento | no acepta o deja el flujo en la pausa deliberada | no avanza a registro, pero tampoco se la presiona ni se vuelve punitivo |
-| Abandono antes del primer mood | ya dio consentimiento pero no termina el primer registro | al volver, el flujo retoma cerca del valor, no desde un circuito completo |
-| Pérdida de sensación de control | interpreta que el profesional ya ve sus datos | el journey debe recentrar control explícito antes de dejarla continuar |
+| Invitación con datos completos | la portada adapta hero y propósito | baja la confusión sin convertirse en experiencia paralela |
+| Invitación sin datos suficientes | hero adaptado genérico | conserva contexto y evita fallback abrupto |
+| Invitación expirada o inválida | no puede continuar por ese contexto | explica claro y vuelve a una entrada comprensible sin dramatizar |
+| Falla de auth/bootstrap | continuidad rota por una causa técnica | se informa con dignidad y permite reintento sin cambiar el tono |
+| Confusión por contexto de invitación | la persona duda quién acompaña o qué significa “compartido” | el sistema aclara vínculo + propósito antes de pedir la acción sensible |
+| Conflicto de versión de consentimiento | la versión vigente cambió | recentra foco y exige revisar la versión actual |
 
 ## Momentos sensibles
 
 Los momentos más sensibles del journey son:
 
-- el primer encuadre de la invitación;
+- el hero adaptado por invitación;
+- el interstitial breve de retorno;
 - el consentimiento;
-- la transición inmediata al primer registro.
+- el puente final.
 
-Son sensibles por razones distintas:
-
-- `S01` define si el sistema se percibe propio o ajeno;
-- `S03` define si la confianza se vuelve explícita sin romper ritmo;
-- `S04` define si el producto entrega valor real enseguida o si sigue pidiendo esfuerzo.
+Lo sensible no viene sólo por legalidad. Viene por percepción de propiedad, continuidad y resguardo.
 
 ## Critical steps que requieren `UXS`
 
-### Paso crítico principal
+Este caso no puede bajar a `UI-RFC` sólo con un paso crítico aislado.
 
-`S03 — Consentimiento como explicitación de control`
+La `UXS` debe cubrir el state pack completo del slice:
 
-Debe ser el primer candidato a `UXS-ONB-001.md` porque concentra:
+- `S01` entrada estándar;
+- `S01` entrada invitada explícita;
+- fallback genérico de invitación;
+- `S02` interstitial;
+- `S03` consentimiento base y con recordatorio contextual;
+- `S03` fricción principal por invitación/contexto;
+- `S04` confirmación + puente.
 
-- claridad sensible;
-- postura de confianza;
-- posible quiebre de continuidad;
-- y el único freno deliberado del journey.
+## Implicancias para capas siguientes
 
-### Paso sensible secundario
+### Hacia `VOICE`
 
-`S01 — Apertura de invitación y primer encuadre`
+La voz tiene que fijar:
 
-Debe bajar a `VOICE` de forma explícita y podría requerir spec posterior si el framing inicial concentra demasiada ambigüedad o riesgo de lectura vigilante.
+- `Empezar ahora` como CTA principal;
+- ausencia de camino secundario fuerte;
+- wording de vínculo + propósito en hero invitado;
+- interstitial breve no técnico;
+- confirmación final sin celebración.
 
-## Implicancias para pasos siguientes
+### Hacia `UXS`
 
-### Hacia `23_uxui/VOICE/*`
+La spec debe volver operables:
 
-La voz del caso deberá resolver, como mínimo:
-
-- cómo se presenta la invitación sin que el profesional domine la escena;
-- cómo se explica consentimiento sin tono legalista pesado;
-- cómo se confirma el primer registro sin celebración ni juicio.
-
-### Hacia `UXS-ONB-001.md`
-
-La primera spec UX de este caso deberá tomar `S03` y resolver:
-
-- jerarquía de información;
-- copy;
-- estados y errores;
-- claridad de control;
-- continuidad hacia `S04`.
-
-## Defaults transferibles
-
-Este journey adopta como defaults reutilizables para onboarding y formularios del sistema:
-
-- casi nula fricción;
-- seguridad implícita;
-- simpleza radical;
-- una sola pausa deliberada cuando el caso exige control explícito;
-- valor visible lo antes posible.
-
-Estos defaults no reemplazan el canon global, pero sí deben tratarse como baseline de producto para experiencias equivalentes salvo excepción explícita.
+- jerarquía de bloques;
+- estados clave desktop/mobile;
+- fallback contextual;
+- límites exactos del slice frente al futuro primer registro.
 
 ## Criterio de validación rápida
 
 Este `UJ` está bien modelado si:
 
-- el recorrido puede contarse de principio a fin sin saltos arbitrarios;
-- la única pausa fuerte es consentimiento;
-- el profesional queda contextualizado y no dominante;
-- el primer `MoodEntry` aparece como llegada real al valor;
-- y los puntos que necesitan `VOICE` y `UXS` quedan explícitos.
+- puede contarse como una sola continuidad;
+- la invitación vive como variante del mismo camino;
+- el consentimiento no monopoliza el relato;
+- el slice termina con un puente claro al siguiente valor.
 
 Este `UJ` está mal modelado si:
 
-- parece una secuencia de pantallas en vez de una tarea vivida;
-- distribuye fricción pareja en todo el flujo;
-- demora demasiado el primer valor;
-- trata el consentimiento como trámite aislado;
-- o deja ambiguo dónde se rompe la confianza.
+- vuelve a contar un onboarding hasta primer mood completo;
+- deja al hero invitado como apéndice menor;
+- o corta la experiencia con auth o consentimiento demasiado técnicos.
 
 ---
 
-**Estado:** journey UX del onboarding invitado del paciente.
-**Precedencia:** este documento depende de `../UXR/UXR-ONB-001.md` y `../UXI/UXI-ONB-001.md`.
-**Siguiente capa gobernada:** `../VOICE/VOICE-ONB-001.md` y `../UXS/UXS-ONB-001.md`, comenzando por `S03`.
+**Estado:** journey UX activo para `ONB-001`.
+**Precedencia:** depende de `../UXR/UXR-ONB-001.md` y `../UXI/UXI-ONB-001.md`.
+**Siguiente capa gobernada:** `../VOICE/VOICE-ONB-001.md` y `../UXS/UXS-ONB-001.md`.

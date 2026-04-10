@@ -1,12 +1,10 @@
-# UXI-ONB-001 — Intención del Onboarding Invitado del Paciente
+# UXI-ONB-001 — Intención del ONB-first del paciente
 
 ## Propósito
 
-Este documento define cómo debe sentirse el caso de onboarding del paciente que llega mediante una invitación profesional.
+Este documento define cómo debe sentirse la entrada web `ONB-first` del paciente.
 
-No describe todavía la journey completa ni el comportamiento detallado de una pantalla. Su función es fijar la intención emocional y operativa del caso para que `UJ-ONB-001.md`, `VOICE-ONB-001.md` y `UXS-ONB-001.md` no tengan que inventar tono, ritmo, postura de confianza ni fricción aceptable.
-
-En este proyecto, `UXI` existe para decidir la sensación antes de decidir los pasos.
+No describe todavía componentes ni detalle de implementación. Su función es fijar la sensación, la historia líder y la postura de confianza para que journey, voz, spec, `UI-RFC` y handoff no inventen el carácter del slice.
 
 ## Relación con el canon
 
@@ -21,251 +19,167 @@ Este documento depende de:
 Y prepara directamente:
 
 - `../UJ/UJ-ONB-001.md`
-- `23_uxui/VOICE/*`
+- `../VOICE/VOICE-ONB-001.md`
 - `../UXS/UXS-ONB-001.md`
 
 No debe contradecir:
 
 - la promesa “tu espacio seguro, vos decidís”;
-- la prioridad de baja fricción en onboarding y formularios;
-- la necesidad de seguridad implícita desde el inicio;
-- el consentimiento como momento donde el control se vuelve explícito;
-- la regla de acceso profesional revocable y `can_view_data=false` por defecto.
+- el orden `contexto -> acción -> confianza`;
+- una sola acción dominante por contexto;
+- el consentimiento como explicitación de control;
+- la presencia profesional sólo contextual y explícita.
 
 ## Sensación deseada
 
-El onboarding invitado del paciente debe sentirse:
+La entrada `ONB-first` debe sentirse:
 
-- ágil;
-- liviano;
-- claro;
-- propio;
-- cuidado;
-- poco demandante;
-- silenciosamente seguro.
+- humana;
+- cálida;
+- clara;
+- propia;
+- poco intimidante;
+- cuidada;
+- rápida de empezar.
 
-La intención del caso no es producir solemnidad ni profundidad emocional. La intención es que la persona pueda avanzar casi sin fricción, con claridad suficiente y con una sensación estable de que está entrando a un espacio cuidado que sigue siendo suyo.
+La sensación dominante no es solemnidad clínica. Es `guía personal con resguardo claro`.
+
+## Historia líder
+
+La historia principal del slice es:
+
+**Bitácora te recibe como un espacio personal para empezar a registrar cómo te sentís.**
+
+Todo lo demás acompaña:
+
+- privacidad y resguardo como soporte visible;
+- invitación profesional como contexto cuando existe;
+- consentimiento como pausa breve para hacer explícito el control;
+- confirmación como puente inmediato al primer registro.
 
 ## Arquetipo dominante
 
-El arquetipo dominante del caso es `asistente silencioso y ágil`.
+El arquetipo del caso es `guía serena que abre el camino`.
 
 Eso implica:
 
-- mostrar solo lo necesario;
-- pedir solo lo indispensable;
-- sostener un ritmo fluido;
-- no dramatizar el momento clínico;
-- intervenir lo justo para aclarar control, consentimiento y siguiente paso.
-
-El onboarding no debe sentirse como:
-
-- una recepción institucional;
-- una explicación extensa;
-- una app que demuestra ser “seria” a costa de volverse pesada.
-
-## Comparación concreta
-
-La comparación correcta para este caso es:
-
-**una guía breve que te abre el camino, te muestra lo imprescindible y se corre para dejarte empezar rápido.**
-
-No debe sentirse como:
-
-- una admisión clínica;
-- un trámite digital;
-- un tutorial;
-- una herramienta operada por tu profesional.
-
-## Anti-sensación
-
-Este caso debe evitar activamente que la persona sienta:
-
-- trámite burocrático;
-- onboarding clínico pesado;
-- vigilancia;
-- control externo;
-- solemnidad innecesaria;
-- ruido o sobreexplicación;
-- fricción gratuita;
-- interfaz “del profesional” más que propia.
-
-La anti-sensación más importante es:
-
-**“estoy entrando a algo ajeno que me pide demasiado antes de dejarme empezar”.**
+- explicar lo justo;
+- no usar tono institucional;
+- no tratar la invitación como eje dramático;
+- sostener continuidad visible sin tutorializar;
+- empujar al siguiente paso con calma, no con presión.
 
 ## Postura de confianza
 
-La confianza de este caso debe construirse en dos tiempos.
+La confianza del slice se construye en dos capas.
 
-### Antes del consentimiento
+### En la entrada
 
-La persona debe sentir seguridad de forma implícita, sin que el sistema la subraye demasiado.
+- el soporte dominante es privacidad y resguardo;
+- la UI debe verse personal antes que clínica;
+- el CTA principal debe ser directo: `Empezar ahora`;
+- no debe haber un camino secundario fuerte que compita con la acción principal.
 
-Eso significa:
+### En la variante invitada
 
-- entorno sobrio y calmo;
-- pocas decisiones visibles a la vez;
-- lenguaje simple;
-- ausencia de señales de vigilancia;
-- continuidad fluida hacia la acción principal.
+- la portada sigue siendo la misma, pero con `hero adaptado`;
+- la señal dominante pasa a ser `vínculo + propósito`;
+- el propósito visible debe presentarse como `registro inicial con acompañamiento profesional`;
+- si faltan datos del vínculo, el hero adaptado se mantiene de forma genérica y no vuelve al modo estándar puro.
 
 ### En el consentimiento
 
-El consentimiento no introduce seguridad desde cero. La vuelve legible.
+- la confianza se vuelve explícita como `resguardo claro`;
+- si la persona llegó invitada, el contexto se recuerda de forma ligera, no dominante;
+- el consentimiento no debe sentirse como un muro legal ni como un discurso tranquilizador.
 
-Ese momento debe:
+## Anti-sensación
 
-- hacer explícito qué control conserva la persona;
-- explicar de forma breve y clara qué se comparte y qué no;
-- confirmar que el acceso profesional no es automático ni total;
-- reforzar que la decisión sigue estando del lado del paciente.
+La anti-sensación principal a evitar es:
 
-### Postura resultante
+**“entré a algo ajeno que me explica demasiado y decide por mí”.**
 
-La postura de confianza correcta es:
+También deben evitarse:
 
-- `lugar seguro y cuidado` desde la primera impresión;
-- `control explícito` cuando aparece el consentimiento;
-- `simpleza sin descuido` durante todo el flujo.
-
-## Traducción visceral, conductual y reflexiva
-
-### Capa visceral
-
-En los primeros segundos, el onboarding debe transmitir:
-
-- limpieza;
-- baja carga;
-- calma ligera;
-- orden;
-- entrada fácil.
-
-No debe transmitir:
-
-- formulario pesado;
-- circuito administrativo;
-- interfaz clínica dura;
-- advertencia o vigilancia desde el primer contacto.
-
-### Capa conductual
-
-Durante el uso, el caso debe sentirse:
-
-- rápido de recorrer;
-- obvio en su siguiente paso;
-- mínimo en campos y decisiones;
-- claro en consentimiento;
-- sin desvíos innecesarios.
-
-Traducción práctica:
-
-- una sola dirección dominante por pantalla o bloque;
-- formularios reducidos a lo esencial;
-- texto de apoyo breve;
-- consentimiento entendible sin fricción ornamental;
-- continuidad visible entre invitación, consentimiento y primer registro.
-
-### Capa reflexiva
-
-Después de atravesarlo, la persona debería pensar:
-
-- “Fue fácil empezar.”
-- “Me pidieron solo lo necesario.”
-- “Mis datos están cuidados.”
-- “Entendí que sigo teniendo control.”
-- “Pude llegar rápido al registro sin sentir presión.”
-
-No debería pensar:
-
-- “Esto era más para mi profesional que para mí.”
-- “Me hicieron aceptar cosas sin entender.”
-- “Tuve que pasar demasiados pasos para recién empezar.”
+- onboarding más del profesional que de la persona;
+- portada institucional o clínica dura;
+- confirmaciones solemnes o celebratorias;
+- continuidad rota por un retorno de auth técnico y frío.
 
 ## Fricción aceptable y fricción indebida
 
 ### Fricción aceptable
 
-Se acepta fricción cuando:
-
-- la exige el consentimiento previo;
-- mejora comprensión de control y compartición;
-- evita una decisión ambigua sobre datos sensibles.
+- una pausa breve para consentimiento;
+- una aclaración visible cuando la persona no entiende el contexto de invitación;
+- un interstitial corto al volver de auth/bootstrap.
 
 ### Fricción indebida
 
-No se acepta fricción que provenga de:
+- múltiples caminos con el mismo peso en la portada;
+- explicaciones largas antes de que exista una acción clara;
+- repetición decorativa de promesas de seguridad;
+- cualquier paso extra entre consentimiento y el puente al primer registro.
 
-- copy redundante;
-- pasos que no agregan claridad real;
-- formularios más largos de lo necesario;
-- pantallas que demoran la llegada al primer registro;
-- explicaciones que repiten “seguridad” sin traducirla a control concreto.
+## Implicancias para la cadena posterior
 
-## Implicancias para la futura `UJ`
+### Hacia `UJ`
 
-La `UJ-ONB-001.md` futura deberá expresar esta intención en la secuencia completa.
+El journey debe salir de esta intención con:
 
-En especial, deberá preservar:
+- portada estándar y portada invitada dentro del mismo sistema;
+- retorno `auth/bootstrap` como transición breve;
+- consentimiento como pausa de resguardo claro;
+- confirmación con CTA `Hacer mi primer registro`.
 
-- inicio rápido y no intimidante;
-- continuidad sin cortes innecesarios;
-- consentimiento como pausa breve de explicitación de control;
-- salida inmediata hacia el primer registro;
-- mínimo ruido antes de que la persona experimente valor.
+### Hacia `VOICE`
 
-## Implicancias para `VOICE` y `UXS`
+La voz del slice deberá:
 
-### Hacia `23_uxui/VOICE/*`
+- ser cálida, no blanda;
+- usar claridad breve;
+- nombrar el vínculo profesional sin dejarlo dominar la pantalla;
+- evitar cualquier wording que sobredimensione “compartido” o coordinación clínica.
 
-La voz del caso deberá:
+### Hacia `UXS`
 
-- ser muy breve;
-- orientar sin sobreexplicar;
-- reforzar control sin dramatizar;
-- evitar tono legalista frío y también tono protector exagerado.
+La spec debe volver operables:
 
-### Hacia `UXS-ONB-001.md`
-
-La spec futura deberá verificar como mínimo:
-
-- cuántos pasos y decisiones son realmente necesarios;
-- dónde el consentimiento hace explícito el control;
-- dónde podría aparecer sensación de trámite;
-- cómo se mantiene la continuidad hasta el primer `MoodEntry`;
-- cómo la simpleza se preserva sin perder claridad sensible.
+- la jerarquía exacta del hero;
+- la variante contextual por invitación;
+- el fallback genérico de invitación;
+- el interstitial de auth;
+- el puente final al primer registro.
 
 ## Defaults del caso
 
 Este `UXI` adopta como defaults explícitos:
 
-- prioridad 1: casi nula fricción en onboarding y formularios;
-- prioridad 2: seguridad implícita, lugar seguro y cuidado;
-- prioridad 3: simpleza radical;
-- arquetipo dominante: asistente silencioso y ágil;
-- el consentimiento es el punto donde la confianza se vuelve explícita;
-- la presencia profesional queda contextualizada, nunca dominante.
+- historia líder: guía personal del paciente;
+- tono: humano y cálido;
+- CTA principal: `Empezar ahora`;
+- sin camino secundario fuerte en hero;
+- cobertura obligatoria: desktop + mobile + estados clave;
+- profundidad de entrega: casi-`UI-RFC` completo.
 
 ## Criterio de validación rápida
 
-Este `UXI` está bien calibrado si el futuro caso se percibe como:
+Este `UXI` está bien calibrado si el slice se percibe como:
 
-- rápido de empezar;
-- claro sin exceso;
-- cuidado sin ceremonialidad;
-- seguro sin amenaza;
-- propio aunque venga de una invitación profesional.
+- entrada propia y clara;
+- invitación contextual, no invasiva;
+- consentimiento breve pero serio;
+- continuidad natural hacia el primer registro.
 
-Este `UXI` está mal calibrado si el futuro caso se percibe como:
+Este `UXI` está mal calibrado si se percibe como:
 
-- trámite;
-- flujo pesado;
-- onboarding clínico rígido;
-- sistema del profesional;
-- experiencia con más explicaciones que avance.
+- landing institucional;
+- experiencia del profesional;
+- paso legal pesado;
+- o serie de pantallas sueltas sin hilo narrativo.
 
 ---
 
-**Estado:** intención UX del onboarding invitado del paciente.
-**Precedencia:** este documento depende de `10-15` y `../UXR/UXR-ONB-001.md`.
+**Estado:** intención UX activa para `ONB-001`.
+**Precedencia:** depende de `../UXR/UXR-ONB-001.md` y del canon global.
 **Siguiente capa gobernada:** `../UJ/UJ-ONB-001.md`, `../VOICE/VOICE-ONB-001.md` y `../UXS/UXS-ONB-001.md`.

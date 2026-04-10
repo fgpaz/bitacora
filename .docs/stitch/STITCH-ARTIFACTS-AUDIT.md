@@ -1,6 +1,6 @@
 # STITCH-ARTIFACTS-AUDIT
 
-> Archivo derivado. Resume el estado estático de los artifacts Stitch y la preparación de cada slice frente al gate `strict Stitch only`.
+> Archivo derivado. Resume el estado estático de los artifacts Stitch y la preparación de cada slice frente al gate `strict Stitch only`, con excepción operativa explícita para `ONB-001`.
 
 | Slice | Config | Perfil | Design pack | Artifacts | Cobertura | Estado | Gap | Fallback | Recomendación |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -68,8 +68,22 @@ Resultado observable:
 Conclusión operativa de esta rework pass:
 
 - la ola núcleo avanzó materialmente;
-- `REG-001`, `REG-002` y `ONB-001` siguen **bloqueados** para apertura de `UI-RFC-*`;
+- al cierre de esa rework pass, `REG-001`, `REG-002` y `ONB-001` seguían **bloqueados** para apertura de `UI-RFC-*`;
 - el siguiente movimiento ya no es más ajuste local del runner, sino reintentar corridas Stitch cuando vuelva a haber cuota disponible y reauditar contra los mismos criterios.
+
+## Override operativa posterior (`2026-04-10`)
+
+Después de redefinir `ONB-001` como slice `ONB-first`, se aprobó una excepción documental específica:
+
+- `ONB-001` ya no depende de una nueva corrida Stitch para abrir `UI-RFC-ONB-001.md` y `HANDOFF-*`;
+- la autoridad operativa de ese slice pasa al pack manual `UXS -> UI-RFC -> HANDOFF-*`;
+- esta excepción no cambia el estado estático de los artifacts Stitch ni levanta el bloqueo de `REG-001` o `REG-002`.
+
+Nueva lectura operativa de la ola núcleo:
+
+- `ONB-001`: desbloqueado para documentación técnica e implementación inicial;
+- `REG-001`: sigue bloqueado;
+- `REG-002`: sigue bloqueado.
 
 Screens que todavía requieren rerun útil después del fix del runner:
 
@@ -82,6 +96,8 @@ Screens que todavía requieren rerun útil después del fix del runner:
   - `s03-ready`
   - `s03-version-conflict`
   - `s05-confirm`
+
+En `ONB-001`, esos reruns quedan como deuda de paridad visual futura y ya no bloquean la apertura documental ni la implementación inicial.
 
 Nota operativa:
 

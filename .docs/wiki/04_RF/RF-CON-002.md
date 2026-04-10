@@ -28,14 +28,16 @@
 4. Verificar que no existe grant previo con `status='granted'` para esta version y paciente.
 5. INSERT `ConsentGrant {patient_id, consent_version, status='granted', granted_at=NOW()}`.
 6. INSERT `AccessAudit` append-only con `action_type='grant'`, `resource_type='consent_grant'`, `resource_id=consent_grant_id` y `created_at_utc`.
-7. Retornar `201` con `consent_grant_id`, `status='granted'` y `granted_at`.
+7. Retornar `201` con `consent_grant_id`, `status='consent_granted'`, `granted_at`, `needs_first_entry=true` y `resume_pending_invite=false`.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
 | consent_grant_id | uuid | ID del grant creado |
-| status | string | `granted` |
+| status | string | `consent_granted` |
 | granted_at | timestamp | UTC del momento de aceptacion |
+| needs_first_entry | bool | Indica que el paciente debe continuar al primer registro |
+| resume_pending_invite | bool | Debe quedar `false` despues del grant |
 
 ## Errores tipados
 | Codigo | HTTP | Trigger | Respuesta |
@@ -59,7 +61,8 @@
 Scenario: Aceptar version vigente
   Given version vigente es "v1.2"
   When POST /api/v1/consent {version: "v1.2", accepted: true}
-  Then se retorna 201 con status="granted"
+  Then se retorna 201 con status="consent_granted"
+  And needs_first_entry=true
 
 Scenario: Rechazar version antigua
   Given version vigente es "v1.2"

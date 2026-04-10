@@ -10,7 +10,7 @@ Cada `UXS-*` define el paso dueño del caso antes de prototipo y validación.
 
 | ID | Caso | Paso crítico | Estado | Siguiente artefacto |
 | --- | --- | --- | --- | --- |
-| `ONB-001` | Onboarding invitado del paciente hasta primer MoodEntry | `S03` — Consentimiento como explicitación de control | activo | `../PROTOTYPE/PROTOTYPE-ONB-001.md` |
+| `ONB-001` | ONB-first del paciente hasta consentimiento y puente al primer registro | state pack completo `S01..S04` | activo | `../PROTOTYPE/PROTOTYPE-ONB-001.md` |
 | `REG-001` | Registro rápido de humor vía web | `S02` — Selección y confirmación inmediata del humor | activo | `../PROTOTYPE/PROTOTYPE-REG-001.md` |
 | `REG-002` | Registro de factores diarios vía web | `S03` — Revisión final y envío del check-in | activo | `../PROTOTYPE/PROTOTYPE-REG-002.md` |
 | `VIN-001` | Emisión de invitación profesional a paciente | `S02` — Revisión y emisión de invitación | activo | `../PROTOTYPE/PROTOTYPE-VIN-001.md` |

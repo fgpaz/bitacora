@@ -16,7 +16,7 @@ La intención emocional y operativa por caso vive en `23_uxui/UXI/*`.
 
 | ID | Caso | Actor | Estado | Documento |
 | --- | --- | --- | --- | --- |
-| `ONB-001` | Onboarding invitado del paciente hasta primer MoodEntry | Paciente | Prototype cerrado | `23_uxui/UXI/UXI-ONB-001.md` |
+| `ONB-001` | ONB-first del paciente hasta consentimiento y puente al primer registro | Paciente | Prototype cerrado | `23_uxui/UXI/UXI-ONB-001.md` |
 | `REG-001` | Registro rápido de humor vía web | Paciente | Case UX cerrado | `23_uxui/UXI/UXI-REG-001.md` |
 | `REG-002` | Registro de factores diarios vía web | Paciente | Case UX cerrado | `23_uxui/UXI/UXI-REG-002.md` |
 | `VIN-001` | Emisión de invitación profesional a paciente | Profesional | Case UX cerrado | `23_uxui/UXI/UXI-VIN-001.md` |

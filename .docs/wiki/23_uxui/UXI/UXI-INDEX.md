@@ -10,7 +10,7 @@ Cada `UXI-*` fija sensación, anti-sensación y postura de confianza antes de jo
 
 | ID | Caso | Actor | Estado | Siguiente artefacto |
 | --- | --- | --- | --- | --- |
-| `ONB-001` | Onboarding invitado del paciente hasta primer MoodEntry | Paciente | activo | `../UJ/UJ-ONB-001.md` |
+| `ONB-001` | ONB-first del paciente hasta consentimiento y puente al primer registro | Paciente | activo | `../UJ/UJ-ONB-001.md` |
 | `REG-001` | Registro rápido de humor vía web | Paciente | activo | `../UJ/UJ-REG-001.md` |
 | `REG-002` | Registro de factores diarios vía web | Paciente | activo | `../UJ/UJ-REG-002.md` |
 | `VIN-001` | Emisión de invitación profesional a paciente | Profesional | activo | `../UJ/UJ-VIN-001.md` |

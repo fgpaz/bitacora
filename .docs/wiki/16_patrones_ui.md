@@ -179,18 +179,51 @@ El patrón sale de esta vía cuando:
   - feedback progresivo en función del riesgo; cuando no hay riesgo, se mantiene en modo discreto;
   - continuidad de contexto para no perder el hilo del check-in.
 
+### 10. Hero contextual adaptativo
+
+- estado: `seed`
+- uso: onboarding o entradas públicas que deben absorber contexto sin bifurcar la experiencia;
+- rasgos:
+  - misma estructura base para camino estándar y contextual;
+  - cambio fuerte de copy y señal de propósito, no de producto;
+  - una sola acción dominante;
+  - soporte de confianza subordinado a la historia principal.
+
+### 11. Interstitial de continuidad breve
+
+- estado: `seed`
+- uso: retornos de auth, bootstrap o checks previos a una acción sensible;
+- rasgos:
+  - duración corta;
+  - lenguaje humano, no técnico;
+  - confirma continuidad sin abrir una pantalla nueva con peso propio;
+  - evita loaders agresivos o spinners teatrales.
+
+### 12. Puente de siguiente acción
+
+- estado: `seed`
+- uso: cierres donde hace falta orientar con claridad el paso inmediato posterior;
+- rasgos:
+  - confirmación factual breve;
+  - CTA siguiente inequívoca;
+  - sin tono celebratorio;
+  - cierra el slice actual y abre el próximo sin confusión.
+
 ## Patrones prioritarios para la primera ola UI
 
 La primera ola UI de Bitácora prioriza esta jerarquía:
 
 1. `Shell editorial de una columna`
-2. `Contenedor sensible`
-3. `Gesto rápido de valor`
-4. `Formulario corto agrupado`
-5. `Rail final de guardado`
-6. `Confirmación factual breve`
-7. `Error recuperable localizado`
-8. `Control explícito de acceso`
+2. `Hero contextual adaptativo`
+3. `Interstitial de continuidad breve`
+4. `Contenedor sensible`
+5. `Puente de siguiente acción`
+6. `Gesto rápido de valor`
+7. `Formulario corto agrupado`
+8. `Rail final de guardado`
+9. `Confirmación factual breve`
+10. `Error recuperable localizado`
+11. `Control explícito de acceso`
 
 El orden importa porque los tres primeros slices objetivo (`ONB-001`, `REG-001`, `REG-002`) dependen sobre todo de esta gramática.
 
@@ -206,6 +239,9 @@ El orden importa porque los tres primeros slices objetivo (`ONB-001`, `REG-001`,
 | Confirmación factual breve | `seed` | sí, bajo dispensa | confirmación visible sin toast celebratorio |
 | Error recuperable localizado | `seed` | sí, bajo dispensa | error visible cerca del punto afectado |
 | Control explícito de acceso | `seed` | sí, bajo dispensa | estado base y cambio sensible o reversible |
+| Hero contextual adaptativo | `seed` | sí, bajo dispensa | hero estándar + hero contextual + fallback del mismo slice |
+| Interstitial de continuidad breve | `seed` | sí, bajo dispensa | estado intermedio visible y no técnico |
+| Puente de siguiente acción | `seed` | sí, bajo dispensa | confirmación + CTA al próximo paso |
 
 Esta tabla no abre slices por sí sola. El gating sigue siendo por slice, no por patrón aislado.
 

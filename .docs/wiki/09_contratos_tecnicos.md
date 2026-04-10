@@ -59,6 +59,12 @@
 - La revocacion de consentimiento hoy solo opera sobre `ConsentGrant`; las cascadas sobre vinculos y caches siguen diferidas.
 - El bus de eventos permanece en `NoOp` mientras `EventBusSettings:HostAddress` siga vacio.
 
+### Campos de respuesta hoy consumidos por frontend
+
+- `POST /api/v1/auth/bootstrap` retorna `userId`, `status`, `needsConsent` y `resumePendingInvite`.
+- `GET /api/v1/consent/current` retorna `version`, `text`, `sections` y `patientStatus`.
+- `POST /api/v1/consent` retorna `consentGrantId`, `status`, `grantedAtUtc`, `needsFirstEntry` y `resumePendingInvite`.
+
 ## Patron de errores
 
 Todas las respuestas de error siguen este envelope:

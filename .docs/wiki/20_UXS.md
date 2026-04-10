@@ -16,7 +16,7 @@ Los contratos UX críticos por caso viven en `23_uxui/UXS/*` y toman el paso má
 
 | ID | Caso | Paso crítico | Estado | Documento |
 | --- | --- | --- | --- | --- |
-| `ONB-001` | Onboarding invitado del paciente hasta primer MoodEntry | `S03` — Consentimiento como explicitación de control | Prototype cerrado | `23_uxui/UXS/UXS-ONB-001.md` |
+| `ONB-001` | ONB-first del paciente hasta consentimiento y puente al primer registro | state pack completo `S01..S04` | Prototype cerrado | `23_uxui/UXS/UXS-ONB-001.md` |
 | `REG-001` | Registro rápido de humor vía web | `S02` — Selección y confirmación inmediata del humor | Case UX cerrado | `23_uxui/UXS/UXS-REG-001.md` |
 | `REG-002` | Registro de factores diarios vía web | `S03` — Revisión final y envío del check-in | Case UX cerrado | `23_uxui/UXS/UXS-REG-002.md` |
 | `VIN-001` | Emisión de invitación profesional a paciente | `S02` — Revisión y emisión de invitación | Case UX cerrado | `23_uxui/UXS/UXS-VIN-001.md` |

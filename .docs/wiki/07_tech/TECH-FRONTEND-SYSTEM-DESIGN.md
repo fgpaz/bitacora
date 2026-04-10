@@ -32,7 +32,7 @@ No debe contradecir:
 - la postura `no-dashboard` para experiencia paciente;
 - el bloqueo estricto de consentimiento;
 - la semántica de errores y `trace_id`;
-- el uso de Stitch como autoridad visual primaria en esta etapa.
+- el uso de Stitch como autoridad visual primaria en esta etapa, salvo la excepción explícita aprobada para `ONB-001`.
 
 ## Alcance y prioridades de decisión
 
@@ -190,6 +190,10 @@ La futura implementación debe organizarse alrededor de estas primitivas de sist
 | `BindingCodePanel` | auto-vinculación paciente-profesional por código | idle, code, invalid, expired, success, error |
 | `TelegramCodeBridgePanel` | pairing Telegram y códigos temporales de canal | idle, code, expired, linked, error |
 | `TrustContextPanel` | aviso puntual de confianza/consentimiento en tareas críticas | default, contextual_trust |
+| `OnboardingEntryHero` | entrada pública `ONB-first` | standard, invite, invite_fallback |
+| `AuthBootstrapInterstitial` | continuidad breve entre auth y bootstrap | default, contextual_invite |
+| `ConsentGatePanel` | lectura y aceptación de consentimiento | ready, reminder, conflict, error, submitting |
+| `NextActionBridgeCard` | puente al siguiente paso luego de consent | default |
 
 Estos nombres son de sistema y sirven como gramática común. El nombre de implementación puede refinarse después, pero no debería redefinir la familia visual.
 
@@ -245,6 +249,12 @@ La futura capa frontend debe asumir como baseline:
 Stitch es la fuente visual primaria de esta etapa (`strict Stitch only`).
 El `DESIGN.md` que Stitch consume vive en `.docs/stitch/` como artefacto derivado y regenerable desde el wiki; no introduce una autoridad visual paralela.
 
+Excepción operativa vigente:
+
+- `ONB-001` puede apoyarse en el authority pack manual `UXS -> UI-RFC -> HANDOFF-*`;
+- esa excepción solo habilita documentación e implementación inicial del slice;
+- no relaja el gate para otros casos.
+
 ### Reglas obligatorias
 
 - cada `UI-RFC-*` debe citar rutas exactas de Stitch por estado obligatorio;
@@ -298,8 +308,11 @@ La UI debe mapear explícitamente los códigos de contrato más relevantes:
 
 | Código | Tratamiento UI esperado |
 | --- | --- |
+| `ONB_001_JWT_INVALID` | salida digna a login o reanudación de auth |
+| `ONB_001_JWT_EXPIRED` | reingreso breve sin exponer jerga de tokens |
 | `CONSENT_REQUIRED` | estado `locked` con camino claro a consentimiento |
 | `CONSENT_VERSION_MISMATCH` | conflicto bloqueante con actualización de flujo |
+| `CONSENT_ALREADY_GRANTED` | continuar al bridge o rehidratar estado sin mostrar error duro |
 | `CARELINK_EXISTS` | conflicto contextual, no error genérico |
 | `BINDING_CODE_NOT_FOUND` | error localizado o estado inválido |
 | `BINDING_CODE_EXPIRED` | estado `expired` con regeneración |
@@ -354,9 +367,9 @@ Antes de abrir un `UI-RFC-*` de slice, debe cumplirse:
 
 ### Bloqueos actuales de la primera ola
 
-- `ONB-001`: bloqueado por cobertura Stitch incompleta de estados obligatorios;
-- `REG-001`: bloqueado porque no existen artefactos Stitch del slice;
-- `REG-002`: bloqueado porque no existen artefactos Stitch del slice.
+- `ONB-001`: abierto por authority pack manual y listo para `T04/T05`;
+- `REG-001`: bloqueado por drift visual pendiente y rerun Stitch corregido;
+- `REG-002`: bloqueado por drift visual pendiente y rerun Stitch corregido.
 
 ### Supuestos
 

@@ -10,7 +10,7 @@ Cada `VOICE-*` traduce la base global de `13_voz_tono.md` al caso concreto ya de
 
 | ID | Caso | Cobertura | Estado | Siguiente artefacto |
 | --- | --- | --- | --- | --- |
-| `VOICE-ONB-001` | Onboarding invitado del paciente hasta primer MoodEntry | `S01..S05`, con foco sensible en `S01` y `S03` | activo y adelantado | `../PROTOTYPE/PROTOTYPE-ONB-001.md` |
+| `VOICE-ONB-001` | ONB-first del paciente hasta consentimiento y puente al primer registro | `S01..S04`, con foco sensible en portada/contexto y consentimiento | activo y adelantado | `../PROTOTYPE/PROTOTYPE-ONB-001.md` |
 | `VOICE-REG-001` | Registro rápido de humor vía web | framing verbal del slice y su paso crítico | activo | `../UXS/UXS-REG-001.md` |
 | `VOICE-REG-002` | Registro de factores diarios vía web | framing verbal del slice y su paso crítico | activo | `../UXS/UXS-REG-002.md` |
 | `VOICE-VIN-001` | Emisión de invitación profesional a paciente | framing verbal del slice y su paso crítico | activo | `../UXS/UXS-VIN-001.md` |

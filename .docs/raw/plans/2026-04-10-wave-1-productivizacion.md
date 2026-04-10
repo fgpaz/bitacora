@@ -2,11 +2,11 @@
 
 **Goal:** Create the execution-ready portfolio that takes Bitacora from the current Wave 1 backend to a truthful production-first lane, then layers the future web, Telegram, and release gates in later tasks.
 
-**Architecture:** Keep the current modular .NET 10 monolith as the backend core, bootstrap only the production environment needed for the backend runtime that exists today, add a Next.js 16 web app later under `frontend/`, and preserve Stitch/UI-RFC slice gates before slice-specific frontend implementation. The portfolio separates truthful production bootstrap, UI unblock, domain completion, hardening, and release readiness so later sessions can dispatch whole waves safely.
+**Architecture:** Keep the current modular .NET 10 monolith as the backend core, bootstrap only the production environment needed for the backend runtime that exists today, add a Next.js 16 web app later under `frontend/`, and preserve slice gates before slice-specific frontend implementation except where an explicit authority-pack override is approved. The portfolio separates truthful production bootstrap, ONB-first visual unblock, domain completion, hardening, and release readiness so later sessions can dispatch whole waves safely.
 
 **Tech Stack:** .NET 10, Next.js 16 / React 19, PostgreSQL, Supabase Auth, Telegram Bot API, Dokploy/Traefik, OpenTelemetry, xUnit, Playwright.
 
-**Context Source:** Repository verification on 2026-04-10 using `AGENTS.md`, `CLAUDE.md`, `mi-lsp`, and direct inspection. Confirmed current runtime: Wave 1 backend only (`POST /api/v1/auth/bootstrap`, consent current/grant/revoke, `POST /api/v1/mood-entries`, `POST /api/v1/daily-checkins`, `/health`, `/health/ready` after T01), materialized entities `User`, `ConsentGrant`, `MoodEntry`, `DailyCheckin`, `PendingInvite`, `AccessAudit`, `EncryptionKeyVersion`, no real Next.js app, no real Telegram runtime, repo-local `infra/` bootstrap added by T01, and `Bitacora.Tests` still scaffold-only. Confirmed UI gates: `ONB-001`, `REG-001`, and `REG-002` have full Stitch coverage but remain blocked; the remaining slices still require audit or rerun. Confirmed Dokploy host exists on `turismo`, but live bootstrap still depends on materializing `infra/.env` / `DOKPLOY_API_KEY` locally.
+**Context Source:** Repository verification on 2026-04-10 using `AGENTS.md`, `CLAUDE.md`, `mi-lsp`, and direct inspection. Confirmed current runtime: Wave 1 backend only (`POST /api/v1/auth/bootstrap`, consent current/grant/revoke, `POST /api/v1/mood-entries`, `POST /api/v1/daily-checkins`, `/health`, `/health/ready` after T01), materialized entities `User`, `ConsentGrant`, `MoodEntry`, `DailyCheckin`, `PendingInvite`, `AccessAudit`, `EncryptionKeyVersion`, no real Next.js app, no real Telegram runtime, repo-local `infra/` bootstrap added by T01, and `Bitacora.Tests` still scaffold-only. Confirmed UI gates: `ONB-001` is now open through a manual authority pack for `UI-RFC + HANDOFF`, while `REG-001` and `REG-002` remain blocked and the remaining slices still require audit or rerun. Confirmed Dokploy host exists on `turismo`, but live bootstrap still depends on materializing `infra/.env` / `DOKPLOY_API_KEY` locally.
 
 **Runtime:** Codex
 
@@ -50,7 +50,7 @@
 graph TD
     subgraph Wave0["Wave 0: Bootstrap"]
         T01["T01: Production Infra / Ops<br/>ps-worker"]
-        T02["T02: Visual Unblock / Stitch<br/>ps-worker"]
+        T02["T02: ONB-first Visual Pack / Handoff<br/>ps-docs"]
     end
     subgraph Wave1["Wave 1: Core Buildout"]
         T03["T03: Backend Vinculos + Consent Cascades<br/>ps-dotnet10"]
@@ -98,10 +98,10 @@ graph TD
 | Task | Wave | Agent | Subdoc | Done When |
 |------|------|-------|--------|-----------|
 | T01 | 0 | ps-worker | `./wave-1/01-prod-infra-ops-dokploy-postgres-secrets-migraciones-observabilidad.md` | Backend-only production bootstrap, readiness contract, dedicated DB bootstrap, secret bridge, smoke gate, and operability runbooks are evidence-backed |
-| T02 | 0 | ps-worker | `./wave-1/02-visual-unblock-stitch-reruns-auditoria-y-gates-ui-rfc.md` | Stitch rerun plan and per-slice UI gate matrix are explicit with no hidden blockers |
+| T02 | 0 | ps-docs | `./wave-1/02-visual-unblock-stitch-reruns-auditoria-y-gates-ui-rfc.md` | `ONB-001` has a coherent `UI-RFC + HANDOFF` package, while the remaining slices keep truthful gate status |
 | T03 | 1 | ps-dotnet10 | `./wave-1/03-backend-vinculos-consent-cascadas-diferidas.md` | Vinculos domain, PendingInvite consumption, CareLink access, and consent cascades are fully specified |
 | T04 | 1 | ps-next-vercel | `./wave-1/04-frontend-bootstrap-nextjs-shell-supabase-auth.md` | `frontend/` bootstrap, shared auth, and app shell plan are fully specified |
-| T05 | 2 | ps-next-vercel | `./wave-1/05-frontend-paciente-onboarding-consent-registro.md` | Patient web flows are ready for implementation once visual gate is green |
+| T05 | 2 | ps-next-vercel | `./wave-1/05-frontend-paciente-onboarding-consent-registro.md` | ONB/consent patient flows are ready from the ONB authority pack, while REG flows remain explicitly gated |
 | T06 | 3 | ps-dotnet10 | `./wave-1/06-backend-visualizacion-export-queries-profesionales.md` | Query/export backend plan covers patient and professional read paths |
 | T07 | 3 | ps-dotnet10 | `./wave-1/07-telegram-runtime-pairing-sesiones-recordatorios.md` | Telegram runtime plan covers pairing, sessions, reminders, and conversational logging |
 | T08 | 3 | ps-next-vercel | `./wave-1/08-frontend-profesional-visualizacion-export.md` | Professional web plan is ready once backend and visual gates are satisfied |
