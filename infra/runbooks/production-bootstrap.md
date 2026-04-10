@@ -14,6 +14,7 @@ This runbook bootstraps the truthful Bitacora production surface for T01:
 2. `dkp.ps1 doctor` passes from the Bitacora repo.
 3. `sshr hosts test turismo` succeeds.
 4. DNS for `api.bitacora.nuestrascuentitas.com` points to `54.37.157.93`.
+5. If the root host will be parked on the backend, DNS for `bitacora.nuestrascuentitas.com` also points to `54.37.157.93`.
 
 ## Bootstrap order
 
@@ -23,12 +24,15 @@ This runbook bootstraps the truthful Bitacora production surface for T01:
 4. Persist returned DB host metadata into local `infra/.env`.
 5. Build `ConnectionStrings__BitacoraDb`.
 6. Create and configure `bitacora-api`.
-7. Run explicit EF migrations.
-8. Deploy `bitacora-api`.
-9. Wait for `GET /health/ready` to return `200`.
-10. Run `infra/smoke/backend-smoke.ps1` against the public host.
-11. Create or verify the daily backup job.
-12. Confirm observability defaults and incident hooks from `infra/observability/otlp-contract.md`.
+7. Attach `api.bitacora.nuestrascuentitas.com`.
+8. Attach `bitacora.nuestrascuentitas.com` as a temporary parking host for the backend root route.
+9. Run explicit EF migrations.
+10. Deploy `bitacora-api`.
+11. Wait for `GET /health/ready` to return `200`.
+12. Run `infra/smoke/backend-smoke.ps1` against the public host.
+13. Verify `https://bitacora.nuestrascuentitas.com/` returns the backend redirect to `/scalar/v1`.
+14. Create or verify the daily backup job.
+15. Confirm observability defaults and incident hooks from `infra/observability/otlp-contract.md`.
 
 ## Control-plane bridge
 

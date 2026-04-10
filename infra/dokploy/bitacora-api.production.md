@@ -6,6 +6,7 @@
 - Build source: `Dockerfile` en repo root
 - Service recipe mirror: `src/Bitacora.Api/Dockerfile`
 - Public host: `api.bitacora.nuestrascuentitas.com`
+- Parking host: `bitacora.nuestrascuentitas.com` -> mismo backend, redirect de `/` a `/scalar/v1`
 - Internal port: `8080`
 - Liveness: `GET /health`
 - Readiness: `GET /health/ready`
@@ -57,22 +58,30 @@
 & $DKP POST domain.create '{"applicationId":"<BITACORA_API_APP_ID>","host":"api.bitacora.nuestrascuentitas.com","port":8080,"https":true,"certificateType":"letsencrypt"}'
 ```
 
-9. Deploy:
+9. Create the temporary parking domain for the root host:
+
+```powershell
+& $DKP POST domain.create '{"applicationId":"<BITACORA_API_APP_ID>","host":"bitacora.nuestrascuentitas.com","port":8080,"https":true,"certificateType":"letsencrypt"}'
+```
+
+10. Deploy:
 
 ```powershell
 & $DKP POST application.deploy '{"applicationId":"<BITACORA_API_APP_ID>"}'
 ```
 
-10. Validate with:
+11. Validate with:
    - `& $DKP status <BITACORA_API_APP_ID>`
    - `sshr exec --host turismo --cmd "docker ps --format '{{.Names}} {{.Status}}' | grep -i bitacora"`
    - `curl -f https://api.bitacora.nuestrascuentitas.com/health`
    - `curl -f https://api.bitacora.nuestrascuentitas.com/health/ready`
+   - `curl -I https://bitacora.nuestrascuentitas.com/`
 
 ## Blocking conditions
 
 - `infra/.env` missing or `DOKPLOY_API_KEY` unresolved
 - `BITACORA_PROJECT_ID` or `DOKPLOY_GITHUB_PROVIDER_ID` unknown and not discoverable via control-plane API
 - DNS for `api.bitacora.nuestrascuentitas.com` not pointed to `54.37.157.93`
+- DNS for `bitacora.nuestrascuentitas.com` missing when the parking host is part of the rollout
 - the bootstrap commit with `Dockerfile` and readiness/smoke assets is not pushed to `main`
 - readiness remains red after migrations and env wiring

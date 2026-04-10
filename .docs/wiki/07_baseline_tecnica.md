@@ -46,7 +46,7 @@
 | Auth | Supabase Auth (GoTrue) | auth.tedi.nuestrascuentitas.com |
 | Reverse proxy | Traefik (via Dokploy) | Target de produccion |
 | Dominio API | `api.bitacora.nuestrascuentitas.com` | Target backend-only de T01 |
-| Dominio web | `bitacora.nuestrascuentitas.com` | Reservado para futuro runtime web |
+| Dominio web | `bitacora.nuestrascuentitas.com` | Estacionado temporalmente en `Bitacora.Api`; `GET /` redirige a `/scalar/v1` mientras no exista runtime web |
 | Frontend | Next.js 16 | Planeado para T04/T05, sin runtime hoy |
 
 ## Observabilidad
