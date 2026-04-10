@@ -9,7 +9,7 @@
 | Herramienta | EF Core Migrations (code-first) |
 | Aplicacion | `dotnet ef database update` o `Database.Migrate()` condicionado |
 | Dev | Hook de `Database.Migrate()` implementado, pero `DataAccess:ApplyMigrationsOnStartup=false` por defecto |
-| Prod | Manual via CLI antes del deploy o del restart productivo |
+| Prod | Manual via CLI; si la DB queda solo en red interna Dokploy, correrla desde `turismo` usando el checkout remoto y un SDK efimero |
 | Rollback | Script de down-migration generado por EF Core |
 
 ## Estado actual
@@ -26,7 +26,9 @@
 2. Construir `ConnectionStrings__BitacoraDb` final.
 3. Materializar secretos de runtime (`SUPABASE_JWT_SECRET`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`).
 4. Ejecutar `dotnet ef database update`.
-5. Desplegar `bitacora-api`.
+   Si `bitacora-db` solo es accesible desde la red interna, usar `/etc/dokploy/applications/app-input-neural-matrix-psstrb/code`
+   y un contenedor `mcr.microsoft.com/dotnet/sdk:10.0` con `--network container:<bitacora-api-container>`.
+5. Desplegar o redeployar `bitacora-api`.
 6. Verificar `GET /health/ready`.
 7. Ejecutar `infra/smoke/backend-smoke.ps1`.
 

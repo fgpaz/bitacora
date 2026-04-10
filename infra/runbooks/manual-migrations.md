@@ -12,6 +12,31 @@ dotnet ef database update `
   --startup-project src/Bitacora.Api
 ```
 
+If PostgreSQL is reachable only from Dokploy internal networking, execute the migration from `turismo`
+using the checked-out application code and an ephemeral SDK container that shares the live app network namespace:
+
+```bash
+container=$(docker ps --filter name=app-input-neural-matrix-psstrb --format "{{.Names}}" | sed -n 1p)
+workdir=/etc/dokploy/applications/app-input-neural-matrix-psstrb/code
+envfile=$(mktemp)
+
+docker service inspect app-input-neural-matrix-psstrb \
+  --format '{{range .Spec.TaskTemplate.ContainerSpec.Env}}{{println .}}{{end}}' > "$envfile"
+
+docker run --rm \
+  --network container:$container \
+  --env-file "$envfile" \
+  -v "$workdir:/workspace" \
+  -w /workspace/src \
+  --entrypoint /bin/bash \
+  mcr.microsoft.com/dotnet/sdk:10.0 \
+  -lc 'dotnet restore Bitacora.sln >/dev/null \
+    && dotnet tool install --tool-path /tmp/dotnet-tools dotnet-ef --version 10.0.3 >/dev/null \
+    && /tmp/dotnet-tools/dotnet-ef database update --project Bitacora.DataAccess.EntityFramework --startup-project Bitacora.Api --verbose'
+
+rm -f "$envfile"
+```
+
 ## Required environment
 
 - `ConnectionStrings__BitacoraDb`
@@ -22,10 +47,11 @@ dotnet ef database update `
 ## Order
 
 1. Deploy or start `bitacora-db`.
-2. Export the production connection string into the current shell.
-3. Run the EF command.
-4. Only after success, deploy or restart `bitacora-api`.
-5. Verify `GET /health/ready`.
+2. Materialize the runtime secrets and connection string in Dokploy.
+3. If the DB is reachable from the operator shell, run `dotnet ef database update` locally.
+4. If the DB is internal-only, run the remote SDK-container flow on `turismo`.
+5. Only after success, deploy or restart `bitacora-api`.
+6. Verify `GET /health/ready`.
 
 ## Rollback
 
