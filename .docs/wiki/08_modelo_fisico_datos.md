@@ -10,6 +10,7 @@
 | Schema | `public` (unico) |
 | ORM | EF Core 10 |
 | Migraciones | EF Core Migrations (code-first) |
+| Politica prod | Migracion manual explicita antes de abrir readiness |
 
 ## Estado de materializacion actual
 
@@ -25,11 +26,13 @@ La migracion `InitialCore` ya fue generada y materializa estas tablas:
 
 `binding_codes`, `care_links`, `telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` siguen en el canon de alcance, pero todavia no existen en la base fisica de esta ola.
 
+T01 congela para produccion una topologia backend-only: una DB dedicada `bitacora-db` y una app `bitacora-api`. La creacion live en Dokploy depende de materializar localmente `infra/.env` con credenciales de control-plane.
+
 ## Ownership y safety stance
 
 - Owner de migraciones: `Bitacora.DataAccess.EntityFramework` con `Bitacora.Api` como startup project.
 - Safety stance: sin DELETE fisico en tablas clinicas. `mood_entries` y `access_audits` son append-only.
-- Backup: `pg_dump` diario + retencion 30 dias.
+- Backup: snapshot o dump diario + retencion minima de 30 copias verificables.
 - Aislamiento (T3-4): DB dedicada; credenciales no compartidas.
 
 ## Tablas y ownership

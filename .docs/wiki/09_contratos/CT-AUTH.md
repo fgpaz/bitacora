@@ -31,6 +31,8 @@
 - **Validaciones adicionales implementadas:** si existe `User.sessions_revoked_at` y `jwt.iat` es anterior, el token se rechaza.
 - **Clock skew:** 30 segundos tolerados.
 
+El smoke operativo de T01 genera un JWT HS256 con `sub`, `email`, `iat` y `exp` porque esa es la forma minima que el runtime actual requiere para `POST /api/v1/auth/bootstrap`.
+
 ## Variables de entorno
 
 ```env
@@ -40,6 +42,7 @@ SUPABASE_ANON_KEY=<anon_key>
 ```
 
 El runtime local tambien acepta `Supabase:JwtSecret` desde `appsettings*.json` para destrabar tooling y smoke local sin exponer secretos reales.
+En produccion, el secreto debe entrar por `SUPABASE_JWT_SECRET` y quedar verificado por `GET /health/ready`.
 
 ## Session revocation
 

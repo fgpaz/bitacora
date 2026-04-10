@@ -9,6 +9,7 @@
 
 - `Wave 1` implementa y deja listos para prueba efectiva los flujos web: RF-REG-001..005 y RF-REG-020..025.
 - RF-REG-010..015 siguen como plan de prueba canonico para la futura capa Telegram y todavia no aplican sobre el runtime actual.
+- T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/mood-entries` y `POST /api/v1/daily-checkins` sobre la superficie real.
 
 ## Cobertura RF
 
@@ -72,3 +73,4 @@ Scenario: DailyCheckin falla cerrado si la auditoria no persiste
 - Cobertura positiva y negativa de los 17 RF del modulo.
 - Evidencia de fail-closed en cifrado y auditoria.
 - Evidencia de guidance correcto en Telegram para sesiones no vinculadas y consentimiento ausente.
+- Para la productivizacion backend-only, el smoke minimo debe demostrar rechazo pre-consent y exito post-consent para MoodEntry y DailyCheckin.

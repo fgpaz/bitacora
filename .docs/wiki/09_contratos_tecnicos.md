@@ -9,6 +9,7 @@
 | Metodos | Magic Link (primario), Google OAuth |
 | Validacion JWT | Clave simetrica (`Supabase:JwtSecret` o env `Supabase__JwtSecret` / `SUPABASE_JWT_SECRET`) |
 | Header | `Authorization: Bearer <access_token>` |
+| Claims minimos | `sub`, `email`, `iat`, `exp` |
 | Resolucion | `JWT.sub -> User.supabase_user_id -> User.user_id + role` |
 
 > Detalle: `09_contratos/CT-AUTH.md`
@@ -25,6 +26,13 @@
 | DELETE | /api/v1/consent/current | RF-CON-010 | Revocar consentimiento vigente |
 | POST | /api/v1/mood-entries | RF-REG-001 | Registrar humor |
 | POST | /api/v1/daily-checkins | RF-REG-020 | Registrar o actualizar factores diarios del mismo dia |
+
+### Endpoints operacionales
+
+| Metodo | Ruta | Uso | Descripcion |
+|--------|------|-----|-------------|
+| GET | /health | Liveness | Confirma proceso HTTP vivo |
+| GET | /health/ready | Readiness | Valida config critica y conectividad PostgreSQL antes de abrir trafico |
 
 ### Superficie canonica diferida
 
@@ -45,8 +53,10 @@
 - `GET /api/v1/consent/current` requiere JWT de paciente.
 - `POST /api/v1/auth/bootstrap` recibe `invite_token` por query string (`?invite_token=...`).
 - Los errores usan envelope comun con `trace_id`.
+- `GET /health/ready` responde `503` si falta `ConnectionStrings:BitacoraDb`, `SUPABASE_JWT_SECRET`, clave de cifrado valida, salt o conectividad DB.
 - Los writes de consentimiento y registro fallan cerrado si la auditoria no puede persistirse.
 - La revocacion de consentimiento hoy solo opera sobre `ConsentGrant`; las cascadas sobre vinculos y caches siguen diferidas.
+- El bus de eventos permanece en `NoOp` mientras `EventBusSettings:HostAddress` siga vacio.
 
 ## Patron de errores
 
@@ -95,6 +105,7 @@ Todas las respuestas de error siguen este envelope:
 - Consent version: string semantica (ej: `1.0`)
 - Encryption `key_version`: entero monotonicamente creciente
 - BindingCode TTL preset: `15m` / `3h` / `24h` / `72h`
+- Runtime target de T01: `api.bitacora.nuestrascuentitas.com`
 
 ## Detail docs
 

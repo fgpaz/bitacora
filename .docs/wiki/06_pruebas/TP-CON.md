@@ -9,6 +9,7 @@
 
 - `Wave 1` implementa y deja listos para prueba efectiva: RF-CON-001, RF-CON-002, RF-CON-003 y RF-CON-010 baseline.
 - RF-CON-011, RF-CON-012 y RF-CON-013 siguen planificados, pero dependen de `CareLink` y cache profesional, todavia no materializados en runtime.
+- T01 agrega un smoke backend minimo que ejecuta lectura, otorgamiento y gate negativo de consentimiento mediante `infra/smoke/backend-smoke.ps1`.
 
 ## Cobertura RF
 
@@ -65,3 +66,4 @@ Scenario: Fallo del cascade revierte toda la revocacion
 - Cobertura positiva y negativa de los 7 RF del modulo.
 - Evidencia de texto activo leido desde configuracion y no desde DB.
 - Evidencia de atomicidad entre revocacion de consentimiento y revocacion de vinculos.
+- Para el runtime backend-only actual, el smoke minimo debe cubrir `GET /api/v1/consent/current`, rechazo pre-consent y `POST /api/v1/consent`.

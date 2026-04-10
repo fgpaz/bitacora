@@ -1,0 +1,13 @@
+.git
+.docs
+.mi-lsp
+.playwright-mcp
+.codex
+.vscode
+artifacts
+tmp
+frontend
+**/bin
+**/obj
+infra/.env
+infra/secrets.enc.env

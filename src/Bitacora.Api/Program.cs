@@ -13,6 +13,7 @@ using NuestrasCuentitas.Bitacora.Api.Extensions;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Auth;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Consent;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Registro;
+using NuestrasCuentitas.Bitacora.Api.Health;
 using NuestrasCuentitas.Bitacora.Api.Middleware;
 using NuestrasCuentitas.Bitacora.Api.Security;
 using NuestrasCuentitas.Bitacora.Api.Options;
@@ -52,6 +53,7 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddCorrelate(options => options.RequestHeaders = ["X-Correlation-ID"]);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentAuthenticatedPatientResolver>();
+builder.Services.AddScoped<ReadinessProbe>();
 builder.Services.Configure<TelemetryOptions>(builder.Configuration.GetSection(TelemetryOptions.SectionName));
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -182,6 +184,14 @@ app.MapScalarApiReference(options =>
 app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 app.MapGet("/swagger", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" })).ExcludeFromDescription();
+app.MapGet("/health/ready", async Task<IResult>(ReadinessProbe readinessProbe, CancellationToken cancellationToken) =>
+    {
+        var report = await readinessProbe.CheckAsync(cancellationToken);
+        return report.Status == "ready"
+            ? Results.Ok(report)
+            : Results.Json(report, statusCode: StatusCodes.Status503ServiceUnavailable);
+    })
+    .ExcludeFromDescription();
 
 app.UseMiddleware<TraceIdMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();

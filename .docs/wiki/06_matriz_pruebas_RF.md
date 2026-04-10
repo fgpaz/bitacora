@@ -1,5 +1,17 @@
 # 06 — Matriz de Pruebas RF
 
+## Estado ejecutable actual
+
+- Runtime actual: backend-only.
+- Gate ejecutable minimo de T01: `infra/smoke/backend-smoke.ps1`.
+- Cobertura ejecutable hoy:
+  - `RF-ONB-001` baseline (`POST /api/v1/auth/bootstrap`)
+  - `RF-CON-001`, `RF-CON-002`, `RF-CON-003` baseline
+  - `RF-REG-001` baseline
+  - `RF-REG-020` baseline
+- `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
+- Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
+
 ## Modulo REG
 
 | RF | TP | Escenario positivo | Escenario negativo |

@@ -9,6 +9,7 @@
 
 - `Wave 1` implementa bootstrap, deteccion de `PendingInvite` reanudable y transicion a `active` con el primer `MoodEntry`.
 - El consumo efectivo de `PendingInvite` y la creacion de `CareLink` posterior al consentimiento siguen diferidos hasta que exista el modulo de vinculos.
+- T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/auth/bootstrap` contra el runtime real mediante `infra/smoke/backend-smoke.ps1`.
 
 ## Cobertura RF
 
@@ -53,3 +54,4 @@ Scenario: Primer MoodEntry activa definitivamente al usuario
 
 - Cobertura positiva y negativa de los 5 RF del modulo.
 - Evidencia de reanudacion automatica de PendingInvite y de transicion a active tras el primer registro.
+- Para la ola de productivizacion backend-only, al menos debe existir evidencia del smoke de bootstrap autenticado.

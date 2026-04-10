@@ -34,3 +34,6 @@ Thumbs.db
 tmp/
 artifacts/
 .playwright-mcp/
+
+# Infra local secrets
+infra/.env

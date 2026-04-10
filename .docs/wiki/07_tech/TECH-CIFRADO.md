@@ -45,7 +45,8 @@ Cada entidad clinica (MoodEntry, DailyCheckin) tiene dos representaciones:
 | Key material en DB | NO. Solo key_version (int) para saber que clave usar. |
 
 ### Fail-closed (T3-10)
-- Si `BITACORA_ENCRYPTION_KEY` no esta disponible al arrancar → servicio no arranca.
+- Si `BITACORA_ENCRYPTION_KEY` no esta disponible o no resuelve a 32 bytes → `GET /health/ready` queda en `not_ready`.
+- Si se intenta escribir o cifrar sin clave valida → la operacion falla cerrada.
 - Si la clave para un key_version historico no esta → operacion falla con `ENCRYPTION_KEY_MISSING` (500).
 - Ningun dato clinico se escribe sin cifrar. Nunca.
 

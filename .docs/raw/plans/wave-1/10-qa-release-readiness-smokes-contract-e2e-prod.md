@@ -3,7 +3,7 @@
 ## Shared Context
 **Goal:** Define the executable quality gate that must pass before opening real production traffic.
 **Stack:** xUnit, Playwright, backend smokes, prod smoke runbooks, Telegram checks.
-**Architecture:** There is no staging environment in this wave, so the release gate must be stronger and explicit. This task owns runnable verification, not just aspirational TP coverage.
+**Architecture:** There is no staging environment in this wave, so the release gate must be stronger and explicit. T01 already pulled forward the minimum backend smoke required for a backend-only production bootstrap; T10 extends that baseline instead of redefining it.
 
 ## Task Metadata
 ```yaml
@@ -40,23 +40,25 @@ done_when: "The repo has executable backend tests, E2E coverage for the real MVP
 - `.docs/wiki/06_matriz_pruebas_RF.md` — current TP/RF matrix is ahead of runtime and must be brought down to executable truth
 - `src/Bitacora.Tests/Bitacora.Tests.csproj` — current scaffold-only test project
 - `.docs/wiki/06_pruebas/TP-*.md` — existing canonical test plans by module
+- `infra/smoke/backend-smoke.ps1` — minimum backend smoke gate already delivered in T01
 
 ## Prompt
 Turn the current QA canon into a real release gate.
 
-1. Replace scaffold-only `Bitacora.Tests` with runnable backend coverage for the implemented API surface.
-2. Add test helpers/fixtures as needed, but keep test ownership aligned with real runtime modules.
-3. Build frontend E2E only for flows that the repo actually implements in this wave:
+1. Keep `infra/smoke/backend-smoke.ps1` as the minimum backend smoke baseline and extend it with broader automated coverage.
+2. Replace scaffold-only `Bitacora.Tests` with runnable backend coverage for the implemented API surface.
+3. Add test helpers/fixtures as needed, but keep test ownership aligned with real runtime modules.
+4. Build frontend E2E only for flows that the repo actually implements in this wave:
    - patient onboarding/consent/registro
    - professional dashboard/timeline/export
-4. Add Telegram coverage at the level that is realistic for this repo:
+5. Add Telegram coverage at the level that is realistic for this repo:
    - command/handler tests
    - webhook contract checks
    - smoke procedure for real production webhook once deployed
-5. Update the TP matrix to distinguish:
+6. Update the TP matrix to distinguish:
    - executable current coverage
    - still-deferred cases, if any remain after Wave 1 execution
-6. Create a prod-first smoke checklist that must pass before public launch:
+7. Create a prod-first smoke checklist that must pass before public launch:
    - API health and auth bootstrap
    - consent grant/revoke
    - patient registro
@@ -65,7 +67,7 @@ Turn the current QA canon into a real release gate.
    - Telegram pairing and reminder sanity
    - backup confirmation
    - observability confirmation
-7. Make the release gate block go-live if any required smoke or executable test fails.
+8. Make the release gate block go-live if any required smoke or executable test fails.
 
 ## Execution Waves
 ### Wave A — Backend executable tests

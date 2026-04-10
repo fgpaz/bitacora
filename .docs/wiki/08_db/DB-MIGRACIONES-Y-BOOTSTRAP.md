@@ -9,7 +9,7 @@
 | Herramienta | EF Core Migrations (code-first) |
 | Aplicacion | `dotnet ef database update` o `Database.Migrate()` condicionado |
 | Dev | Hook de `Database.Migrate()` implementado, pero `DataAccess:ApplyMigrationsOnStartup=false` por defecto |
-| Prod | Manual via CLI o pipeline antes del deploy |
+| Prod | Manual via CLI antes del deploy o del restart productivo |
 | Rollback | Script de down-migration generado por EF Core |
 
 ## Estado actual
@@ -18,6 +18,17 @@
 - Assembly owner: `Bitacora.DataAccess.EntityFramework`.
 - Startup project para tooling: `Bitacora.Api`.
 - La ola actual no materializa aun `binding_codes`, `care_links`, `telegram_*` ni `reminder_configs`.
+- El gate operativo de produccion queda en `GET /health/ready`; no se abre trafico hasta pasar migracion + readiness + smoke.
+
+## Orden de bootstrap productivo
+
+1. Provisionar `bitacora-db`.
+2. Construir `ConnectionStrings__BitacoraDb` final.
+3. Materializar secretos de runtime (`SUPABASE_JWT_SECRET`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`).
+4. Ejecutar `dotnet ef database update`.
+5. Desplegar `bitacora-api`.
+6. Verificar `GET /health/ready`.
+7. Ejecutar `infra/smoke/backend-smoke.ps1`.
 
 ## Seeding
 
@@ -51,6 +62,12 @@
 | binding_codes | DELETE o archive WHERE expires_at < now() OR used = true | Diario (background job) |
 | telegram_pairing_codes | DELETE WHERE expires_at < now() AND used = false | Diario (background job) |
 | access_audits | Archivado a cold storage despues de 2 anos | Mensual |
+
+## Backup y restore
+
+- Antes de una migracion productiva se fuerza un backup manual del PostgreSQL dedicado.
+- La politica minima es diaria con retencion de 30 copias verificables.
+- El restore drill debe probarse sobre un dump o snapshot reciente antes de cerrar la ola de productivizacion.
 
 ## Sync gates
 

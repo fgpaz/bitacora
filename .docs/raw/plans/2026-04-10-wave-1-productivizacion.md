@@ -1,12 +1,12 @@
 # Wave 1 — Productivizacion Implementation Plan
 
-**Goal:** Create the execution-ready portfolio that takes Bitacora from the current Wave 1 backend to a single production environment with web, Telegram, infra, QA, and visual gates resolved.
+**Goal:** Create the execution-ready portfolio that takes Bitacora from the current Wave 1 backend to a truthful production-first lane, then layers the future web, Telegram, and release gates in later tasks.
 
-**Architecture:** Keep the current modular .NET 10 monolith as the backend core, add a new Next.js 16 web app under `frontend/`, deploy only a production environment on Dokploy in `turismo`, and preserve Stitch/UI-RFC slice gates before slice-specific frontend implementation. The portfolio separates platform bootstrap, UI unblock, domain completion, hardening, and release readiness so later sessions can dispatch whole waves safely.
+**Architecture:** Keep the current modular .NET 10 monolith as the backend core, bootstrap only the production environment needed for the backend runtime that exists today, add a Next.js 16 web app later under `frontend/`, and preserve Stitch/UI-RFC slice gates before slice-specific frontend implementation. The portfolio separates truthful production bootstrap, UI unblock, domain completion, hardening, and release readiness so later sessions can dispatch whole waves safely.
 
 **Tech Stack:** .NET 10, Next.js 16 / React 19, PostgreSQL, Supabase Auth, Telegram Bot API, Dokploy/Traefik, OpenTelemetry, xUnit, Playwright.
 
-**Context Source:** Repository verification on 2026-04-10 using `AGENTS.md`, `CLAUDE.md`, `mi-lsp`, and direct inspection. Confirmed current runtime: Wave 1 backend only (`POST /api/v1/auth/bootstrap`, consent current/grant/revoke, `POST /api/v1/mood-entries`, `POST /api/v1/daily-checkins`, `/health`), materialized entities `User`, `ConsentGrant`, `MoodEntry`, `DailyCheckin`, `PendingInvite`, `AccessAudit`, `EncryptionKeyVersion`, no real Next.js app, no real Telegram runtime, no repo-local infra bootstrap, and `Bitacora.Tests` still scaffold-only. Confirmed UI gates: `ONB-001`, `REG-001`, and `REG-002` have full Stitch coverage but remain blocked; the remaining slices still require audit or rerun. Confirmed Dokploy host exists on `turismo`, but local `dokploy-cli` bootstrap is missing because `infra/.env` / `DOKPLOY_API_KEY` are absent.
+**Context Source:** Repository verification on 2026-04-10 using `AGENTS.md`, `CLAUDE.md`, `mi-lsp`, and direct inspection. Confirmed current runtime: Wave 1 backend only (`POST /api/v1/auth/bootstrap`, consent current/grant/revoke, `POST /api/v1/mood-entries`, `POST /api/v1/daily-checkins`, `/health`, `/health/ready` after T01), materialized entities `User`, `ConsentGrant`, `MoodEntry`, `DailyCheckin`, `PendingInvite`, `AccessAudit`, `EncryptionKeyVersion`, no real Next.js app, no real Telegram runtime, repo-local `infra/` bootstrap added by T01, and `Bitacora.Tests` still scaffold-only. Confirmed UI gates: `ONB-001`, `REG-001`, and `REG-002` have full Stitch coverage but remain blocked; the remaining slices still require audit or rerun. Confirmed Dokploy host exists on `turismo`, but live bootstrap still depends on materializing `infra/.env` / `DOKPLOY_API_KEY` locally.
 
 **Runtime:** Codex
 
@@ -21,7 +21,7 @@
 - `ps-gap-terminator` — read-only docs/code gap detection
 - `ps-explorer` — read-only repo exploration
 
-**Initial Assumptions:** The new web app will live under `frontend/` at repo root. Production will use separate Dokploy applications for API and web plus a dedicated PostgreSQL service on the same `turismo` host. Telegram runtime will live inside the existing backend solution by using hosted services and API endpoints instead of a separate repo.
+**Initial Assumptions:** The new web app will live under `frontend/` at repo root in a later task. T01 only bootstraps a truthful production topology with `bitacora-api` plus dedicated PostgreSQL on the same `turismo` host. Telegram runtime remains deferred and is not deployed in this task.
 
 ---
 
@@ -97,7 +97,7 @@ graph TD
 
 | Task | Wave | Agent | Subdoc | Done When |
 |------|------|-------|--------|-----------|
-| T01 | 0 | ps-worker | `./wave-1/01-prod-infra-ops-dokploy-postgres-secrets-migraciones-observabilidad.md` | Production bootstrap artifacts, Dokploy contract, DB/bootstrap, observability, and backup runbooks are decision-complete |
+| T01 | 0 | ps-worker | `./wave-1/01-prod-infra-ops-dokploy-postgres-secrets-migraciones-observabilidad.md` | Backend-only production bootstrap, readiness contract, dedicated DB bootstrap, secret bridge, smoke gate, and operability runbooks are evidence-backed |
 | T02 | 0 | ps-worker | `./wave-1/02-visual-unblock-stitch-reruns-auditoria-y-gates-ui-rfc.md` | Stitch rerun plan and per-slice UI gate matrix are explicit with no hidden blockers |
 | T03 | 1 | ps-dotnet10 | `./wave-1/03-backend-vinculos-consent-cascadas-diferidas.md` | Vinculos domain, PendingInvite consumption, CareLink access, and consent cascades are fully specified |
 | T04 | 1 | ps-next-vercel | `./wave-1/04-frontend-bootstrap-nextjs-shell-supabase-auth.md` | `frontend/` bootstrap, shared auth, and app shell plan are fully specified |
@@ -106,7 +106,7 @@ graph TD
 | T07 | 3 | ps-dotnet10 | `./wave-1/07-telegram-runtime-pairing-sesiones-recordatorios.md` | Telegram runtime plan covers pairing, sessions, reminders, and conversational logging |
 | T08 | 3 | ps-next-vercel | `./wave-1/08-frontend-profesional-visualizacion-export.md` | Professional web plan is ready once backend and visual gates are satisfied |
 | T09 | 4 | ps-dotnet10 | `./wave-1/09-hardening-seguridad-auditoria-seams-operacionales.md` | Cross-cutting hardening and dependency/security closure are explicit |
-| T10 | 5 | ps-qa | `./wave-1/10-qa-release-readiness-smokes-contract-e2e-prod.md` | Production go-live gate has executable smokes, tests, and release criteria |
+| T10 | 5 | ps-qa | `./wave-1/10-qa-release-readiness-smokes-contract-e2e-prod.md` | Production go-live gate extends the T01 backend smoke with broader automated coverage and release criteria |
 | T11 | F | — | inline | `ps-trazabilidad` closure completed |
 | T12 | F | — | inline | `ps-auditar-trazabilidad` verdict recorded |
 
@@ -121,4 +121,3 @@ graph TD
 - Perform the read-only cross-document audit before marking the overall wave complete.
 - Verify docs, code, secrets/bootstrap, visual gates, and production evidence do not contradict each other.
 - Block closure if prod-first readiness lacks observability, backup, or smoke evidence.
-
