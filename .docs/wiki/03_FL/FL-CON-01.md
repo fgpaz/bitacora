@@ -12,7 +12,7 @@ El paciente acepta el consentimiento informado digital como hard gate antes de r
 |-------|----------------|
 | Paciente | Lee y acepta consentimiento |
 | Modulo Auth | Valida identidad |
-| Modulo Consent | Presenta texto, registra aceptacion |
+| Modulo Consent | Lee texto/version vigente desde configuracion y registra aceptacion |
 | Capa Seguridad | Registra audit |
 
 ## Precondiciones
@@ -35,7 +35,8 @@ sequenceDiagram
 
     P->>WEB: Accede a pantalla de consentimiento
     WEB->>API: GET /api/v1/consent/current
-    API-->>WEB: {version: "1.0", text: "...", sections: [...]}
+    API->>API: Leer consentimiento vigente desde configuracion publicada
+    API-->>WEB: {version: "1.0", text: "...", sections: [...], patient_status: "pending"}
     WEB-->>P: Muestra consentimiento completo (scroll obligatorio)
     P->>WEB: Check "He leido y acepto" + click "Aceptar"
     WEB->>API: POST /api/v1/consent {version: "1.0", accepted: true}
@@ -51,7 +52,7 @@ sequenceDiagram
 | Condicion | Resultado | HTTP |
 |-----------|----------|------|
 | Paciente no acepta | No se crea ConsentGrant. Sin acceso a registro. | — |
-| Version de consent obsoleta | Rechazar, mostrar version vigente | 409 |
+| Version de consent obsoleta | Rechazar, mostrar version vigente publicada en configuracion | 409 |
 | ConsentGrant ya existe y esta granted | Retornar estado actual sin re-crear | 200 |
 
 ## Architecture slice
@@ -65,8 +66,13 @@ sequenceDiagram
 | ConsentGrant | INSERT | granted |
 | AccessAudit | INSERT | append-only |
 
+## Config touchpoints
+| Recurso | Operacion | Resultado |
+|---------|-----------|-----------|
+| Consent text config | READ | version y texto vigentes |
+
 ## RF candidatos
-- RF-CON-001: Presentar texto de consentimiento vigente (versionado)
+- RF-CON-001: Presentar texto de consentimiento vigente autenticado
 - RF-CON-002: Registrar aceptacion con version y timestamp
 - RF-CON-003: Hard gate: bloquear todo registro si consent no granted
 

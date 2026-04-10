@@ -24,7 +24,7 @@
    a. Construir clave de cache: "safe_projection:{professional_id}:{patient_id}".
    b. DEL clave en cache store.
 2. Si cache store no responde: loguear warning, no bloquear transaccion.
-3. INSERT AccessAudit operacion='CACHE_INVALIDATED' por cada professional afectado.
+3. INSERT AccessAudit con `action_type='revoke'`, `resource_type='care_link'` por cada professional afectado.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -44,7 +44,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | Cache store | DEL | safe_projection:{professional_id}:{patient_id} |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

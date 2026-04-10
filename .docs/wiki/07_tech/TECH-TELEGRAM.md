@@ -56,8 +56,8 @@ Bot: "Registrado. Tu humor hoy: +1. ¡Buen dia!"
 ## Vinculacion (RF-TG-001..003)
 
 ```text
-Web: POST /api/v1/telegram/pairing → {code: "BIT-A7X3K2", expires_in: 900}
-Paciente: envia /start BIT-A7X3K2 al bot
+Web: POST /api/v1/telegram/pairing → {code: "BIT-7K2Q9", expires_in: 900}
+Paciente: envia /start BIT-7K2Q9 al bot
 Webhook: valida code, crea TelegramSession(patient_id, chat_id, linked)
 Bot: "Cuenta vinculada. Ya podes registrar tu humor desde aca."
 ```

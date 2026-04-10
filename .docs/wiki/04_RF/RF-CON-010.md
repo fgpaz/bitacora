@@ -26,7 +26,7 @@
 3. UPDATE ConsentGrant SET status='revoked', revoked_at=NOW().
 4. Disparar cascade sobre CareLinks (RF-CON-011).
 5. Invalidar caches (RF-CON-012).
-6. INSERT AccessAudit con trace_id, operacion='CONSENT_REVOKE'.
+6. INSERT AccessAudit con `action_type='revoke'`, `resource_type='consent_grant'`, `resource_id=consent_grant_id`.
 7. Commit. Retornar 200 con revoked_at.
 
 ## Outputs
@@ -50,7 +50,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | ConsentGrant | UPDATE | status, revoked_at |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

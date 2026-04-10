@@ -1,0 +1,271 @@
+{
+  "waveTitle": "Bitacora Patient Wave A",
+  "defaults": {
+    "deviceType": "MOBILE",
+    "modelId": "GEMINI_3_FLASH",
+    "designProfile": "patient",
+    "designSystemDisplayName": "Bitacora Patient Design System",
+    "style": "Bitacora patient-control UI. Warm paper background #F6F1EA, sage primary #5E766E, muted terracotta accent #B67864, editorial serif heading, humanist sans body, calm rounded cards, one quiet column, patient-first, serious, low-friction, explicit control, no dashboard, no surveillance, no celebration."
+  },
+  "slices": {
+    "vin-002": {
+      "projectTitle": "Bitacora VIN-002 Prototype",
+      "outputSlug": "vin-002",
+      "presets": {
+        "core": [
+          "s01-code",
+          "s02-invalid",
+          "s03-success"
+        ],
+        "full": [
+          "s01-code",
+          "s01-ready",
+          "s02-submitting",
+          "s02-invalid",
+          "s03-success"
+        ]
+      },
+      "screens": {
+        "s01-code": {
+          "title": "VIN-002 code entry",
+          "goal": "Short code entry with explicit consequence.",
+          "prompt": "Create the patient self-linking screen for Bitacora using a professional code. One calm column, short title 'Ingresá el código', one dominant code field, a brief note that creating the link does not grant automatic access to personal data, one primary CTA 'Vincular' and one quiet secondary action. Avoid technical token language."
+        },
+        "s01-ready": {
+          "title": "VIN-002 ready",
+          "goal": "Ready-to-submit code state.",
+          "prompt": "Create the ready-to-submit state for Bitacora self-linking by code. Keep the same calm layout, show a valid completed code, enable the primary CTA 'Vincular' and keep the short access-control explanation visible. No extra complexity."
+        },
+        "s02-submitting": {
+          "title": "VIN-002 submitting",
+          "goal": "Short linking feedback.",
+          "prompt": "Create the linking in-progress state for Bitacora self-linking by code. Preserve the same layout, show compact processing feedback near the action area, avoid spinners dominating the screen, and keep the experience brief and controlled."
+        },
+        "s02-invalid": {
+          "title": "VIN-002 invalid or expired",
+          "goal": "Recoverable invalid code state.",
+          "prompt": "Create the invalid or expired code state for Bitacora self-linking. Keep the same code-entry layout, add a short recoverable error saying the code is not available and the person should ask for a new one, preserve the field and allow correction. No blame, no technical jargon."
+        },
+        "s03-success": {
+          "title": "VIN-002 success",
+          "goal": "Link active, access still under patient control.",
+          "prompt": "Create the success state after patient self-linking in Bitacora. Show a factual confirmation that the link is active, make it explicit that access to records is still controlled by the patient, and present one clear next action to continue. No celebration or institutional tone."
+        }
+      }
+    },
+    "vin-004": {
+      "projectTitle": "Bitacora VIN-004 Prototype",
+      "outputSlug": "vin-004",
+      "presets": {
+        "core": [
+          "s01-default",
+          "s02-saved",
+          "s03-error"
+        ],
+        "full": [
+          "s01-default",
+          "s01-dirty",
+          "s02-saving",
+          "s02-saved",
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-default": {
+          "title": "VIN-004 default",
+          "goal": "Readable current access state.",
+          "prompt": "Create the patient screen to manage professional access in Bitacora. One quiet column, short title 'Gestionar acceso', a clear current-state block saying whether the professional can see the records, a simple main control to change that state, and one primary CTA 'Guardar cambio'. The consequence must be understandable before interaction."
+        },
+        "s01-dirty": {
+          "title": "VIN-004 dirty",
+          "goal": "Changed state waiting for save.",
+          "prompt": "Create the changed-but-not-saved state for Bitacora access management. Keep the same calm layout, show the new selected access state, keep the effect of the change explicit in plain language, and make the save action clearly available."
+        },
+        "s02-saving": {
+          "title": "VIN-004 saving",
+          "goal": "Brief saving feedback.",
+          "prompt": "Create the saving state for Bitacora access management. Preserve the current layout, add short saving feedback close to the action area and avoid technical or admin-looking language."
+        },
+        "s02-saved": {
+          "title": "VIN-004 saved",
+          "goal": "New access state clearly visible.",
+          "prompt": "Create the saved state for Bitacora access management. Show the new access state in simple language, confirm the change factually and keep the interface calm and reversible-looking."
+        },
+        "s03-error": {
+          "title": "VIN-004 error",
+          "goal": "Localized retryable failure.",
+          "prompt": "Create the recoverable error state for Bitacora access management. Keep the same layout, show a short localized error near the save area, preserve the chosen state and allow retry. No technical permission jargon."
+        }
+      }
+    },
+    "vin-003": {
+      "projectTitle": "Bitacora VIN-003 Prototype",
+      "outputSlug": "vin-003",
+      "presets": {
+        "core": [
+          "s01-confirm",
+          "s02-success",
+          "s03-error"
+        ],
+        "full": [
+          "s01-confirm",
+          "s01-submitting",
+          "s02-success",
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-confirm": {
+          "title": "VIN-003 confirm revoke",
+          "goal": "Serene but firm revocation decision.",
+          "prompt": "Create the patient confirmation screen for revoking a professional link in Bitacora. One calm column, short title 'Revocar vínculo', one concrete explanation that this professional loses immediate access to the person's data, one primary CTA 'Revocar vínculo' and one quiet secondary action 'Conservar vínculo'. No guilt, no threat, no dramatic warning wall."
+        },
+        "s01-submitting": {
+          "title": "VIN-003 submitting",
+          "goal": "Short revocation processing state.",
+          "prompt": "Create the in-progress state for revoking a professional link in Bitacora. Keep the same calm decision layout, add brief processing feedback and avoid turning the screen into a technical transaction state."
+        },
+        "s02-success": {
+          "title": "VIN-003 success",
+          "goal": "Clear access cut confirmation.",
+          "prompt": "Create the success state after revoking a professional link in Bitacora. Show a factual confirmation that access was cut, keep the tone firm and serene, and avoid celebration or emotional framing."
+        },
+        "s03-error": {
+          "title": "VIN-003 error",
+          "goal": "Retryable revoke error.",
+          "prompt": "Create the recoverable error state for revoking a professional link in Bitacora. Keep the same layout, add a short error near the action area and allow retry without guilt or alarmism."
+        }
+      }
+    },
+    "con-002": {
+      "projectTitle": "Bitacora CON-002 Prototype",
+      "outputSlug": "con-002",
+      "presets": {
+        "core": [
+          "s01-review",
+          "s02-success",
+          "s03-error"
+        ],
+        "full": [
+          "s01-review",
+          "s01-submitting",
+          "s02-success",
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-review": {
+          "title": "CON-002 review impact",
+          "goal": "Consent revocation as a serious but calm pause.",
+          "prompt": "Create the consent revocation review screen for Bitacora. One quiet column, short title 'Revocar consentimiento', two or three compact impact cards explaining that records are suspended and professionals lose access, one primary CTA 'Revocar consentimiento' and one quiet secondary action 'Conservar consentimiento'. It must be explicit but not legalistic or punitive."
+        },
+        "s01-submitting": {
+          "title": "CON-002 submitting",
+          "goal": "Short consent revocation processing.",
+          "prompt": "Create the in-progress state for consent revocation in Bitacora. Preserve the same review layout, add brief processing feedback near the action area, and keep the calm clinical tone."
+        },
+        "s02-success": {
+          "title": "CON-002 success",
+          "goal": "Revoked state with clear new conditions.",
+          "prompt": "Create the success state after revoking consent in Bitacora. Show a factual confirmation that consent is revoked, records are suspended and professionals no longer have access, with clear next-state language and no punishment framing."
+        },
+        "s03-error": {
+          "title": "CON-002 error",
+          "goal": "Retryable revoke consent error.",
+          "prompt": "Create the recoverable error state for consent revocation in Bitacora. Keep the same calm structure, show one brief error near the primary action and allow retry. No threat, no heavy warning language."
+        }
+      }
+    },
+    "vis-001": {
+      "projectTitle": "Bitacora VIS-001 Prototype",
+      "outputSlug": "vis-001",
+      "styleAppend": "Timeline views should feel editorial and readable, never like analytics dashboards.",
+      "presets": {
+        "core": [
+          "s01-ready",
+          "s02-empty",
+          "s03-error"
+        ],
+        "full": [
+          "s01-loading",
+          "s01-ready",
+          "s01-period-change",
+          "s02-empty",
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-loading": {
+          "title": "VIS-001 loading",
+          "goal": "Calm loading placeholder.",
+          "prompt": "Create the loading state for the patient timeline in Bitacora. Show a calm editorial skeleton for the timeline chart and period controls. It should anticipate the structure without looking like an analytics dashboard."
+        },
+        "s01-ready": {
+          "title": "VIS-001 ready",
+          "goal": "Readable timeline with current period.",
+          "prompt": "Create the patient timeline screen for Bitacora. One calm column with short title 'Tu timeline', a main timeline chart visible before secondary controls, simple period filters, and minimal supporting copy that helps reading without interpreting trends. Keep it personal and readable."
+        },
+        "s01-period-change": {
+          "title": "VIS-001 period change",
+          "goal": "Simple period adjustment.",
+          "prompt": "Create the period-adjustment state for the patient timeline in Bitacora. Keep the chart primary, show simple period controls with one main action 'Aplicar período' and a quiet reset action. The filters must not dominate the screen."
+        },
+        "s02-empty": {
+          "title": "VIS-001 empty",
+          "goal": "No records for selected period.",
+          "prompt": "Create the empty state for the patient timeline in Bitacora. Keep the same calm layout, show a clear message that there are no records for this period, distinguish it from an error, and offer one quiet path to adjust the period."
+        },
+        "s03-error": {
+          "title": "VIS-001 error",
+          "goal": "Retryable load error.",
+          "prompt": "Create the recoverable error state for the patient timeline in Bitacora. Keep the timeline shell, add a short loading error near the chart area and allow retry. No technical error copy."
+        }
+      }
+    },
+    "exp-001": {
+      "projectTitle": "Bitacora EXP-001 Prototype",
+      "outputSlug": "exp-001",
+      "presets": {
+        "core": [
+          "s01-default",
+          "s02-generating",
+          "s03-error"
+        ],
+        "full": [
+          "s01-default",
+          "s01-period",
+          "s02-generating",
+          "s02-success",
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-default": {
+          "title": "EXP-001 default",
+          "goal": "Simple export request with clear scope.",
+          "prompt": "Create the patient CSV export screen for Bitacora. One calm column, short title 'Exportar tus registros', a brief scope summary explaining what the CSV includes, a simple period selector if needed and one primary CTA 'Descargar CSV'. It must feel like a clear right of access, not a technical export console."
+        },
+        "s01-period": {
+          "title": "EXP-001 period selected",
+          "goal": "Export ready with chosen period.",
+          "prompt": "Create the ready-to-download state for Bitacora CSV export after a period is selected. Keep the scope summary visible, make the selected period legible and keep one primary CTA 'Descargar CSV'."
+        },
+        "s02-generating": {
+          "title": "EXP-001 generating",
+          "goal": "Short handoff while preparing file.",
+          "prompt": "Create the generating state for Bitacora CSV export. Preserve the calm export layout, add brief preparation feedback near the action area, and make the person feel the file is being prepared without extra technical detail."
+        },
+        "s02-success": {
+          "title": "EXP-001 success handoff",
+          "goal": "Download started or ready.",
+          "prompt": "Create the success handoff state for Bitacora CSV export. Show a factual confirmation that the CSV is ready or the download started, keep the wording simple and avoid compliance jargon."
+        },
+        "s03-error": {
+          "title": "EXP-001 error",
+          "goal": "Retryable export preparation error.",
+          "prompt": "Create the recoverable error state for Bitacora CSV export. Keep the same layout, show one short error near the primary action and allow retry. No payload or backend jargon."
+        }
+      }
+    }
+  }
+}

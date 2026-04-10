@@ -7,10 +7,17 @@
 | Campo | Valor |
 |-------|-------|
 | Herramienta | EF Core Migrations (code-first) |
-| Aplicacion | `dotnet ef database update` |
-| Dev | Auto-migrate al arrancar (Database.Migrate() en Program.cs) |
+| Aplicacion | `dotnet ef database update` o `Database.Migrate()` condicionado |
+| Dev | Hook de `Database.Migrate()` implementado, pero `DataAccess:ApplyMigrationsOnStartup=false` por defecto |
 | Prod | Manual via CLI o pipeline antes del deploy |
 | Rollback | Script de down-migration generado por EF Core |
+
+## Estado actual
+
+- Migracion inicial generada: `20260409185502_InitialCore`.
+- Assembly owner: `Bitacora.DataAccess.EntityFramework`.
+- Startup project para tooling: `Bitacora.Api`.
+- La ola actual no materializa aun `binding_codes`, `care_links`, `telegram_*` ni `reminder_configs`.
 
 ## Seeding
 
@@ -20,10 +27,12 @@
 |-------|------|-------------|
 | encryption_key_versions | 1 registro | key_version = 1, is_active = true. Key material en env. |
 | (consent text) | Config file | Texto de consentimiento v1.0. No en DB, en appsettings. |
+| users.key_version | Default 1 | Version inicial para PII cifrada de nuevos usuarios |
 
 ### Datos NO seeded
 
 - Users, MoodEntries, DailyCheckins: nunca se seedean.
+- PendingInvites, BindingCodes, CareLinks: nunca se seedean.
 - AccessAudits: generados por operacion, nunca seeded.
 
 ## Reglas de migracion
@@ -38,6 +47,8 @@
 
 | Tabla | Accion | Frecuencia |
 |-------|--------|-----------|
+| pending_invites | UPDATE status='expired' WHERE expires_at < now() AND status='issued' | Diario (background job) |
+| binding_codes | DELETE o archive WHERE expires_at < now() OR used = true | Diario (background job) |
 | telegram_pairing_codes | DELETE WHERE expires_at < now() AND used = false | Diario (background job) |
 | access_audits | Archivado a cold storage despues de 2 anos | Mensual |
 

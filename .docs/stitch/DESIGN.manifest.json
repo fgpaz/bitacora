@@ -1,0 +1,71 @@
+{
+  "authority": "wiki-derived",
+  "generator": ".docs/stitch/design-pack.mjs",
+  "sourceFingerprint": "6fb1aaa5e9a82f58e4026e1b559bd70d7241f607c3598af63aaa3ce5dbcfed4e",
+  "sources": {
+    "11_identidad_visual.md": "81f0837fee0f0102e5bf2be7d0e8727913482505dbc97e71f78d5fc915072de8",
+    "12_lineamientos_interfaz_visual.md": "1deb12f7654052f35e7a6a62696a8072df69685f8053857508256efd7c1b4fef",
+    "13_voz_tono.md": "74b9b56016e06d988b6def67e079c33a909a24bff51f7020745bb9bb52c04655",
+    "16_patrones_ui.md": "e3b2883394db4fd4a638423be6dbfa6a365312287cdee6b99fec3db2471b6c74",
+    "07_tech/TECH-FRONTEND-SYSTEM-DESIGN.md": "63f14ede25f958291e63f6edf1c4886cd6f90a0d596fb7d1268f6e0bf0ca4421"
+  },
+  "outputs": {
+    "DESIGN.md": "75b89ada7e99d4bd234f1a40ec00b6bfe6220951de7084f75ef5f1528386bcbd",
+    "DESIGN.patient.md": "06dc0ab4b6a3806478413ed88cb9442bf1cf784c34df7c1ff287c420bc96e67c",
+    "DESIGN.professional.md": "d3dfcb09efab0174e90e49f460f7b7c2cf9cb0ca59d56afc03c7bd6c0be7a427",
+    "DESIGN.telegram.md": "fde9e500e36f722a625b378c8f2ed52126d1ada8d364661f0a27bac3407b311a"
+  },
+  "profiles": {
+    "patient": {
+      "displayName": "Bitacora Patient Design System",
+      "designPack": "DESIGN.patient.md",
+      "theme": {
+        "colorMode": "LIGHT",
+        "headlineFont": "DM_SANS",
+        "bodyFont": "INTER",
+        "labelFont": "INTER",
+        "roundness": "ROUND_TWELVE",
+        "customColor": "#5E766E",
+        "colorVariant": "TONAL_SPOT",
+        "overridePrimaryColor": "#5E766E",
+        "overrideSecondaryColor": "#C8B7AE",
+        "overrideTertiaryColor": "#B67864",
+        "overrideNeutralColor": "#F6F1EA"
+      }
+    },
+    "professional": {
+      "displayName": "Bitacora Professional Design System",
+      "designPack": "DESIGN.professional.md",
+      "theme": {
+        "colorMode": "LIGHT",
+        "headlineFont": "DM_SANS",
+        "bodyFont": "INTER",
+        "labelFont": "INTER",
+        "roundness": "ROUND_EIGHT",
+        "customColor": "#5E766E",
+        "colorVariant": "NEUTRAL",
+        "overridePrimaryColor": "#5E766E",
+        "overrideSecondaryColor": "#C8B7AE",
+        "overrideTertiaryColor": "#B67864",
+        "overrideNeutralColor": "#F6F1EA"
+      }
+    },
+    "telegram": {
+      "displayName": "Bitacora Telegram Design System",
+      "designPack": "DESIGN.telegram.md",
+      "theme": {
+        "colorMode": "LIGHT",
+        "headlineFont": "DM_SANS",
+        "bodyFont": "INTER",
+        "labelFont": "INTER",
+        "roundness": "ROUND_EIGHT",
+        "customColor": "#5E766E",
+        "colorVariant": "TONAL_SPOT",
+        "overridePrimaryColor": "#5E766E",
+        "overrideSecondaryColor": "#C8B7AE",
+        "overrideTertiaryColor": "#B67864",
+        "overrideNeutralColor": "#F6F1EA"
+      }
+    }
+  }
+}

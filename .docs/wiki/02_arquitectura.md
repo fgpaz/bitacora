@@ -84,7 +84,7 @@ graph TB
 | Auth | Validar JWT Supabase, resolver identidad, inyectar contexto de paciente/profesional | User |
 | Registro | Crear MoodEntry y DailyCheckin, cifrar payload, generar safe_projection | MoodEntry, DailyCheckin |
 | Consent | Hard gate antes del primer registro, revocacion, politica de retencion | ConsentGrant |
-| Vinculos | Crear/revocar CareLink, validar acceso profesional (default false) | CareLink |
+| Vinculos | Emitir PendingInvite y BindingCode, crear/revocar CareLink, validar acceso profesional (default false) | PendingInvite, BindingCode, CareLink |
 | Visualizacion | Queries sobre safe_projection, timeline longitudinal, dashboard multi-paciente, alertas basicas | (queries, sin entidad propia) |
 | Telegram | Webhook endpoint, keyboard inline, flujo secuencial de registro, recordatorios | TelegramSession |
 | Export | Generar CSV de registros del paciente, descifrar encrypted_payload bajo demanda | (generacion, sin entidad propia) |
@@ -154,6 +154,7 @@ La arquitectura incluye el "seam" (interfaces y contratos) sin implementacion ac
 | FL-VIN-01 | Creacion de vinculo profesional→paciente (invitacion) | Profesional | Auth, Vinculos |
 | FL-VIN-02 | Auto-vinculacion paciente→profesional | Paciente | Auth, Vinculos |
 | FL-VIN-03 | Revocacion de vinculo por paciente | Paciente | Auth, Vinculos, Seguridad |
+| FL-VIN-04 | Activacion/desactivacion de acceso del profesional | Paciente | Auth, Vinculos, Seguridad |
 | FL-VIS-01 | Consulta de timeline longitudinal (paciente) | Paciente | Auth, Visualizacion |
 | FL-VIS-02 | Dashboard multi-paciente (profesional) | Profesional | Auth, Vinculos, Visualizacion |
 | FL-EXP-01 | Export CSV de registros | Paciente | Auth, Export, Seguridad |
@@ -165,6 +166,8 @@ La arquitectura incluye el "seam" (interfaces y contratos) sin implementacion ac
 ### Estados y eventos clave
 
 - **ConsentGrant:** `pending` → `granted` → `revoked`
+- **PendingInvite:** `issued` → `consumed` / `expired` / `revoked`
+- **BindingCode:** `issued` → `used` / `expired` / `revoked`
 - **CareLink:** `invited` → `active` → `revoked_by_patient`
 - **MoodEntry:** `created` (inmutable, append-only)
 - **TelegramSession:** `unlinked` → `linked` → `unlinked`

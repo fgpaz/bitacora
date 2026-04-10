@@ -35,12 +35,12 @@ sequenceDiagram
     P->>WEB: "Vincular Telegram"
     WEB->>API: POST /api/v1/telegram/pairing
     API->>DB: INSERT TelegramPairingCode (patient_id, code, expires_at: +15min)
-    API-->>WEB: {code: "BIT-A7X3K2", expires_in: 900}
-    WEB-->>P: "Envia este mensaje al bot: /start BIT-A7X3K2"
+    API-->>WEB: {code: "BIT-7K2Q9", expires_in: 900}
+    WEB-->>P: "Envia este mensaje al bot: /start BIT-7K2Q9"
 
-    P->>TG: /start BIT-A7X3K2
-    TG->>API: POST /api/v1/telegram/webhook {message: "/start BIT-A7X3K2"}
-    API->>DB: SELECT TelegramPairingCode WHERE code = "BIT-A7X3K2" AND NOT expired
+    P->>TG: /start BIT-7K2Q9
+    TG->>API: POST /api/v1/telegram/webhook {message: "/start BIT-7K2Q9"}
+    API->>DB: SELECT TelegramPairingCode WHERE code = "BIT-7K2Q9" AND NOT expired
     API->>DB: INSERT TelegramSession (patient_id, chat_id, linked)
     API->>DB: DELETE TelegramPairingCode
     API->>DB: INSERT AccessAudit (telegram.linked, trace_id)

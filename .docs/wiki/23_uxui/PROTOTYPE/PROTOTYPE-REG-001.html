@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-REG-001</title>
+  <style>
+    :root{--p:#58746d;--a:#bb735f;--bg:#f6f1ea;--bg2:#fffaf4;--txt:#2f2a28;--mut:#6d655f;--bd:#d9cdbf;--ok:#5f7c73;--vw:390px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--txt);background:radial-gradient(circle at top left,rgba(187,115,95,.14),transparent 34%),linear-gradient(180deg,#fbf7f2,#efe5da)}
+    button{font:inherit;cursor:pointer}
+    .app{max-width:1220px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(255,250,244,.88);border:1px solid rgba(217,205,191,.92);border-radius:24px;box-shadow:0 18px 38px rgba(47,42,40,.08);backdrop-filter:blur(8px)}
+    .hero,.sidebar,.shell,.screen,.summary,.notice,.chipset button,.mood,.actions button{display:grid;gap:12px}
+    .hero,.sidebar,.shell{padding:24px}
+    .eyebrow,.chip,.meta span,.tag{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(88,116,109,.12);color:var(--p)}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3.2rem);max-width:13ch}
+    h2{font-size:clamp(1.75rem,2vw,2.2rem);max-width:16ch}
+    p,span,small{margin:0;line-height:1.55;color:var(--mut)}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;background:rgba(233,223,213,.84);border-radius:999px}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--mut);font-weight:700}
+    .toggle button.on{background:var(--bg2);border-color:rgba(217,205,191,.92);color:var(--txt)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(217,205,191,.92);border-radius:15px;background:rgba(246,241,234,.96);color:var(--txt);text-align:left}
+    .nav button.on{background:rgba(88,116,109,.12);border-color:rgba(88,116,109,.44)}
+    .summary,.notice{padding:16px;border-radius:18px;border:1px solid rgba(217,205,191,.94);background:rgba(246,241,234,.96)}
+    .notice.err{background:rgba(187,115,95,.11);border-color:rgba(187,115,95,.32)}
+    .notice.ok{background:rgba(95,124,115,.11);border-color:rgba(95,124,115,.32)}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(217,205,191,.92)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}.meta span{background:rgba(233,223,213,.78);color:var(--mut)}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--bg2),var(--bg));border:1px solid rgba(195,176,160,.86);box-shadow:0 20px 46px rgba(47,42,40,.12);min-height:760px}
+    .viewport.desktop{--vw:1040px;min-height:680px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--mut);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(217,205,191,.92);background:rgba(255,250,244,.95)}
+    .tag{background:rgba(187,115,95,.13);color:var(--mut)}
+    .mood-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(100px,1fr))}
+    .mood{padding:14px;border-radius:16px;border:1px solid rgba(195,176,160,.94);background:rgba(255,250,244,.96);text-align:left}
+    .mood.on{background:rgba(88,116,109,.12);border-color:rgba(88,116,109,.44)}
+    .mood strong{font-size:1.15rem}
+    .actions{display:grid;gap:10px}
+    .btn,.ghost{padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700}
+    .btn{background:var(--p);border-color:rgba(88,116,109,.56);color:#faf4ee}
+    .btn[disabled]{background:rgba(88,116,109,.36);border-color:rgba(88,116,109,.2);cursor:not-allowed}
+    .ghost{background:rgba(255,250,244,.96);border-color:rgba(195,176,160,.94);color:var(--txt)}
+    .foot{font-size:.85rem;color:var(--mut);max-width:58ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .screen{padding:30px}.viewport.desktop .actions.inline{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">REG-001 · Prototipo local</div>
+      <h1>Registrar el humor tiene que sentirse inmediato.</h1>
+      <p>Slice centrado en una sola promesa: abrir, elegir un valor y salir con certeza de guardado. Nada de interpretación emocional extra, nada de mini formulario.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>El prototipo conserva el mismo gesto directo en ambos formatos.</p>
+        </section>
+        <section>
+          <div class="chip">Frames</div>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section class="summary">
+          <strong>Hipótesis</strong>
+          <span>La escala se entiende sin explicación y la confirmación factual alcanza para cerrar el gesto sin ruido.</span>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Commit inmediato del humor.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 390 px</span><span>09:54 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Referencia canónica local del slice `REG-001`: pack corto, navegable y con estados sensibles visibles.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={
+      "REG-001-S01-ENTRY":"S01 · Entrada",
+      "REG-001-S02-DEFAULT":"S02 · Escala lista",
+      "REG-001-S02-SUBMITTING":"S02 · Guardando",
+      "REG-001-S02-ERROR":"S02 · Error recuperable",
+      "REG-001-S02-CONSENT":"S02 · Consentimiento faltante",
+      "REG-001-S02-SESSION":"S02 · Sesión expirada",
+      "REG-001-S03-CONFIRM":"S03 · Confirmación"
+    };
+    const state={frame:"REG-001-S01-ENTRY",mode:"mobile",mood:""};
+    const nav=document.getElementById("nav"),screen=document.getElementById("screen"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    const moods=[["-3","Muy abajo"],["-2","Abajo"],["-1","Un poco abajo"],["0","Neutral"],["1","Un poco bien"],["2","Bien"],["3","Muy bien"]];
+    const btn=(label,action,disabled=false)=>`<button class="btn" type="button" data-action="${action}" ${disabled?"disabled":""}>${label}</button>`;
+    const ghost=(label,action)=>`<button class="ghost" type="button" data-action="${action}">${label}</button>`;
+    function setFrame(frame){state.frame=frame;if(frame==="REG-001-S03-CONFIRM"&&!state.mood)state.mood="1";render();}
+    function setHead(a,b,c,d){title.textContent=a;subtitle.textContent=b;chip.textContent=c;meta.innerHTML=`<span>${d}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop"}</span><span>${state.frame}</span>`;}
+    function navHtml(){nav.innerHTML=Object.entries(labels).map(([id,label])=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${label}<br><small>${id}</small></button>`).join("");}
+    function entry(){
+      setHead("S01 · Entrada al registro","El slice arranca con contexto mínimo y cero tutorial.","Contexto mínimo","S01");
+      return `
+        <div class="tag">Registro rápido</div>
+        <h2>¿Querés registrar cómo te sentís ahora?</h2>
+        <p>Entrás, elegís un valor y seguís. No hace falta explicar más para empezar.</p>
+        <div class="summary"><strong>Lo importante</strong><span>Este gesto tiene que sentirse más corto que pensarlo. La interfaz no compite con la acción.</span></div>
+        <div class="actions">${btn("Abrir escala","goto-default")}${ghost("Ver estado de sesión expirada","goto-session")}</div>
+      `;
+    }
+    function scale(mode){
+      const copy={
+        default:["S02 · Escala lista","La escala ya está lista para un solo gesto.", "Escala visible", ""],
+        submitting:["S02 · Guardando","Feedback breve mientras el valor ya está en curso.", "Guardando", `<div class="notice ok"><strong>Registrando valor...</strong><span>Evitamos doble envío y no abrimos una pantalla intermedia.</span></div>`],
+        error:["S02 · Reintento breve","El error aparece cerca del gesto principal y no convierte el slice en formulario.", "Error recuperable", `<div class="notice err"><strong>No pudimos guardar este registro.</strong><span>Probá de nuevo. Conservamos tu intención y el contexto del gesto.</span></div>`],
+        consent:["S02 · Consentimiento faltante","Si falta una condición sensible, se explica sin romper dignidad.", "Redirección sensible", `<div class="notice err"><strong>Antes de registrar, necesitás revisar tu consentimiento.</strong><span>Este paso no sigue desde acá porque todavía no está activo ese permiso.</span></div>`],
+        session:["S02 · Sesión expirada","La recuperación existe sin culpar ni resetear el tono.", "Reingreso digno", `<div class="notice err"><strong>Tu sesión ya no está activa.</strong><span>Entrá otra vez para seguir registrando sin perder la lógica de este gesto.</span></div>`]
+      }[mode];
+      setHead(copy[0],copy[1],copy[2],"S02");
+      return `
+        <div class="tag">Escala</div>
+        <h2>¿Cómo te sentís ahora?</h2>
+        <p>Elegí un valor y lo registramos enseguida.</p>
+        ${copy[3]}
+        <div class="mood-grid">
+          ${moods.map(([value,label])=>`<button class="mood ${state.mood===value?"on":""}" type="button" data-mood="${value}"><strong>${value}</strong><span>${label}</span></button>`).join("")}
+        </div>
+        <div class="actions ${state.mode==="desktop"?"inline":""}">
+          ${btn(mode==="submitting"?"Registrando...":"Registrar valor","submit",mode==="submitting"||!state.mood)}
+          ${ghost(mode==="default"?"Ver error recuperable":"Volver a escala normal",mode==="default"?"goto-error":"goto-default")}
+        </div>
+        <div class="actions ${state.mode==="desktop"?"inline":""}">
+          ${ghost("Ver consentimiento faltante","goto-consent")}
+          ${ghost("Ver sesión expirada","goto-session")}
+        </div>
+      `;
+    }
+    function confirm(){
+      setHead("S03 · Confirmación factual","El cierre confirma el hecho sin festejo ni interpretación.","Guardado claro","S03");
+      return `
+        <div class="tag">Guardado</div>
+        <h2>Tu registro ya quedó guardado.</h2>
+        <p>Terminó rápido y sin pasos extra. Eso es exactamente lo que este slice necesita sostener.</p>
+        <div class="summary"><strong>Qué confirmamos</strong><span>El valor <strong>${state.mood || "1"}</strong> quedó registrado. No hace falta agregar nada para que la acción se sienta completa.</span></div>
+        <div class="actions">${ghost("Volver a la escala","goto-default")}${ghost("Ir a la entrada","goto-entry")}</div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="REG-001-S01-ENTRY") return entry();
+      if(state.frame==="REG-001-S02-DEFAULT") return scale("default");
+      if(state.frame==="REG-001-S02-SUBMITTING") return scale("submitting");
+      if(state.frame==="REG-001-S02-ERROR") return scale("error");
+      if(state.frame==="REG-001-S02-CONSENT") return scale("consent");
+      if(state.frame==="REG-001-S02-SESSION") return scale("session");
+      return confirm();
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 1040 px":"Móvil · 390 px";
+      screen.innerHTML=frameHtml();
+    }
+    document.addEventListener("click",e=>{
+      const mode=e.target.closest("[data-mode]"); if(mode){state.mode=mode.dataset.mode; document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode)); return render();}
+      const frame=e.target.closest("[data-frame]"); if(frame) return setFrame(frame.dataset.frame);
+      const mood=e.target.closest("[data-mood]"); if(mood){state.mood=mood.dataset.mood; return render();}
+      const action=e.target.closest("[data-action]"); if(!action) return;
+      const a=action.dataset.action;
+      if(a==="goto-entry") setFrame("REG-001-S01-ENTRY");
+      if(a==="goto-default") setFrame("REG-001-S02-DEFAULT");
+      if(a==="goto-error") setFrame("REG-001-S02-ERROR");
+      if(a==="goto-consent") setFrame("REG-001-S02-CONSENT");
+      if(a==="goto-session") setFrame("REG-001-S02-SESSION");
+      if(a==="submit"&&state.mood) setFrame("REG-001-S02-SUBMITTING");
+    });
+    document.addEventListener("dblclick",e=>{ if(state.frame==="REG-001-S02-SUBMITTING") setFrame("REG-001-S03-CONFIRM"); });
+    render();
+  </script>
+</body>
+</html>

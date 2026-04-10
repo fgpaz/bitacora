@@ -25,7 +25,7 @@
 2. Verificar status en ('active', 'invited').
 3. UPDATE CareLink SET status='revoked_by_patient', revoked_at=NOW().
 4. Invalidar cache del professional para ese patient (RF-VIN-021).
-5. INSERT AccessAudit operacion='CARELINK_REVOKED_BY_PATIENT'.
+5. INSERT AccessAudit con `action_type='revoke'`, `resource_type='care_link'`, `resource_id=care_link_id`.
 6. Retornar 200 con status='revoked_by_patient' y revoked_at.
 
 ## Outputs
@@ -50,7 +50,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | CareLink | UPDATE | status, revoked_at |
-| AccessAudit | INSERT | trace_id, patient_id, care_link_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

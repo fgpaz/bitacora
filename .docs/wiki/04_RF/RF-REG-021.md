@@ -22,14 +22,15 @@
 | anxiety | bool | Request | true o false, no nulo |
 | irritability | bool | Request | true o false, no nulo |
 | medication_taken | bool | Request | true o false, no nulo |
-| medication_time | time | Request | HH:MM formato 24h; requerido si medication_taken=true |
+| medication_time | time | Request | HH:MM formato 24h; requerido si medication_taken=true y luego normalizado a 15 minutos |
 
 ## Proceso (Happy Path)
 1. Validar sleep_hours: float, rango [0, 24].
 2. Validar campos booleanos: exactamente true o false.
 3. Si medication_taken=true, validar medication_time presente y formato HH:MM valido.
-4. Si medication_taken=false, ignorar medication_time.
-5. Retornar campos validados al flujo llamador.
+4. Normalizar medication_time al bloque aproximado de 15 minutos mas cercano.
+5. Si medication_taken=false, ignorar medication_time.
+6. Retornar campos validados al flujo llamador.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -47,6 +48,7 @@
 ## Casos especiales y variantes
 - sleep_hours = 0 y sleep_hours = 24 son valores de borde validos.
 - medication_time con medication_taken=false: ignorar silenciosamente.
+- La validacion no busca exactitud clinica al minuto; solo consistencia de formato para almacenar un horario aproximado.
 
 ## Impacto en modelo de datos
 | Entidad | Operacion | Campos afectados |

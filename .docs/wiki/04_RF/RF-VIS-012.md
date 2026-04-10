@@ -1,90 +1,78 @@
-# RF-VIS-012: Calcular alertas basicas
+# RF-VIS-012: Calcular alertas basicas por paciente
 
 ## Execution Sheet
-- Modulo: VIS
-- Endpoint: GET /api/v1/professional/patients/{patient_ref}/alerts
-- Actor: Professional (autenticado via JWT)
-- Prioridad PDP: Security > Correctness > Usability
+| Campo | Valor |
+|-------|-------|
+| ID | RF-VIS-012 |
+| Modulo | VIS |
+| Actor | Sistema (endpoint profesional) |
+| Flujo fuente | FL-VIS-02 |
+| Prioridad | Security |
 
 ## Precondiciones detalladas
-- JWT valido con rol=professional y User.status=active
-- Existe CareLink: professional_id=actor, patient_id=target, status=active, can_view_data=true
-- AccessAudit requerido antes de retornar datos (RF-SEC-001, RF-SEC-003)
-- Solo se usa `safe_projection.mood_score` para el calculo
+- JWT valido con `role=professional` y `User.status=active`.
+- Existe `CareLink` activo con `can_view_data=true`.
+- `AccessAudit` debe persistirse antes de retornar datos; si falla, aplica fail-closed.
+- El calculo usa solo `safe_projection.mood_score`.
 
 ## Inputs
-| Campo | Tipo | Requerido | Descripcion |
-|-------|------|-----------|-------------|
-| patient_ref | string (path) | Si | Referencia opaca del paciente |
+| Campo | Tipo | Origen | Validacion |
+|-------|------|--------|-----------|
+| patient_ref | string | Path param | Referencia opaca valida del paciente |
 
 ## Proceso (Happy Path)
-1. Resolver patient_id desde patient_ref
-2. Verificar CareLink activo con can_view_data=true
-3. Insertar AccessAudit — si falla, abortar (RF-SEC-003)
-4. Query ultimas 30 entradas ordenadas por created_at DESC
-5. Detectar rachas: grupos de dias consecutivos donde mood_score <= -2
-6. Si racha >= 3 dias consecutivos, generar alerta de tipo `LOW_MOOD_STREAK`
-7. Retornar lista de alertas activas
+1. Resolver `patient_id` desde `patient_ref`.
+2. Verificar `CareLink` activo con `can_view_data=true`.
+3. INSERT `AccessAudit` con `action_type='read'`, `resource_type='mood_entry'`; si falla, abortar.
+4. Query ultimas 30 entradas de `MoodEntry.safe_projection`.
+5. Detectar rachas de dias consecutivos con `mood_score <= -2`.
+6. Generar alerta `LOW_MOOD_STREAK` si la racha es de 3 o mas dias.
+7. Retornar lista de alertas activas.
 
 ## Outputs
-```json
-{
-  "patient_ref": "PAT-0042",
-  "alerts": [
-    {
-      "type": "LOW_MOOD_STREAK",
-      "severity": "medium",
-      "consecutive_days": 4,
-      "start_date": "2026-04-03",
-      "last_date": "2026-04-06"
-    }
-  ],
-  "alert_count": 1
-}
-```
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| patient_ref | string | Referencia opaca del paciente |
+| alerts | array | Alertas activas calculadas on-demand |
+| alert_count | int | Cantidad de alertas retornadas |
 
 ## Errores tipados
-| Codigo | HTTP | Descripcion |
-|--------|------|-------------|
-| VIS_012_NOT_LINKED | 403 | No existe CareLink valido |
-| VIS_012_AUDIT_FAILED | 500 | Fallo al insertar AccessAudit (fail-closed) |
-| VIS_012_PATIENT_NOT_FOUND | 404 | patient_ref invalido |
+| Codigo | HTTP | Trigger | Respuesta |
+|--------|------|---------|----------|
+| VIS_012_PATIENT_NOT_FOUND | 404 | `patient_ref` invalido | {error: "VIS_012_PATIENT_NOT_FOUND"} |
+| VIS_012_NOT_LINKED | 403 | No existe `CareLink` valido | {error: "VIS_012_NOT_LINKED"} |
+| VIS_012_AUDIT_FAILED | 500 | Fallo al insertar `AccessAudit` | {error: "VIS_012_AUDIT_FAILED"} |
 
 ## Casos especiales y variantes
-- Sin rachas detectadas: retorna `alerts=[]`
-- Dias no consecutivos aunque con mood_score <= -2: no generan alerta
-- Multiple rachas en el periodo: se reportan todas
-- Racha activa (llega hasta hoy): `last_date = today`
+- Sin rachas detectadas: retorna `alerts=[]`.
+- Dias no consecutivos con score critico no generan alerta.
+- Las alertas no se persisten; se calculan por demanda.
 
 ## Impacto en modelo de datos
-- Solo lectura sobre `mood_entries.safe_projection`
-- INSERT en `access_audits`
-- No persiste alertas: calculo on-demand
+| Entidad | Operacion | Campos afectados |
+|---------|-----------|-----------------|
+| MoodEntry | SELECT | patient_id, safe_projection, created_at_utc |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin
 Scenario: Racha de 3 dias con mood <= -2 genera alerta
   Given un paciente con mood_score=-3,-2,-3 en dias consecutivos
-  When GET .../alerts
-  Then alerta LOW_MOOD_STREAK con consecutive_days=3
-
-Scenario: Dos dias con mood <= -2 no generan alerta
-  Given mood_score=-2,-2 en dias consecutivos
-  When GET .../alerts
-  Then alerts=[]
+  When GET /api/v1/professional/patients/PAT-0042/alerts
+  Then se retorna una alerta LOW_MOOD_STREAK
 
 Scenario: Dias no consecutivos no generan alerta
-  Given mood_score=-3 el lunes y -3 el miercoles (martes=0)
-  When GET .../alerts
-  Then alerts=[]
+  Given mood_score=-3 el lunes y -3 el miercoles
+  When GET /api/v1/professional/patients/PAT-0042/alerts
+  Then se retorna alerts=[]
 ```
 
 ## Trazabilidad de tests
-- UT: VIS012_ConsecutiveDays_Detection
-- UT: VIS012_NonConsecutive_NoAlert
-- IT: VIS012_AuditFail_Returns500
+| TP ID | Escenario | Tipo |
+|-------|-----------|------|
+| TP-VIS-012-01 | Detecta racha de bajo humor consecutiva | Positivo |
+| TP-VIS-012-02 | No crea alertas con dias no consecutivos | Positivo |
+| TP-VIS-012-03 | Falla cerrado si la auditoria no puede persistirse | Negativo |
 
 ## Sin ambiguedades pendientes
-- Umbral: mood_score <= -2 (incluye -2)
-- "Consecutivo" se calcula por `checkin_date`, no por `created_at` datetime
-- Ventana de deteccion: 30 dias hacia atras desde today
+Ninguna.

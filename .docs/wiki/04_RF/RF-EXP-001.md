@@ -79,5 +79,5 @@ Scenario: Rango sin datos retorna solo headers
 
 ## Sin ambiguedades pendientes
 - El orden de las 9 columnas es fijo e inmutable
-- `medication_time` se exporta en formato HH:mm UTC
+- `medication_time` se exporta en formato HH:mm como horario aproximado informado por el paciente
 - Caracteres especiales en valores: escapar con comillas dobles segun RFC 4180

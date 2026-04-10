@@ -28,7 +28,7 @@
 1. Intentar INSERT DailyCheckin con (patient_id, checkin_date).
 2. Si viola UNIQUE constraint: ejecutar UPDATE de encrypted_payload, safe_projection, key_version.
 3. Retornar daily_checkin_id y codigo HTTP: 201 si INSERT, 200 si UPDATE.
-4. INSERT AccessAudit con operacion='CHECKIN_UPSERT'.
+4. Delegar el registro de AccessAudit a RF-REG-024.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -50,7 +50,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | DailyCheckin | INSERT o UPDATE | daily_checkin_id, patient_id, checkin_date, encrypted_payload, safe_projection, key_version |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT (delegado a RF-REG-024) | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

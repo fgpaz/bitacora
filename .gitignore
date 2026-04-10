@@ -32,3 +32,5 @@ Thumbs.db
 
 # Ephemeral artifacts
 tmp/
+artifacts/
+.playwright-mcp/

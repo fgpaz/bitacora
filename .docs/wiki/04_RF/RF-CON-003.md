@@ -24,7 +24,7 @@
 2. Consultar ConsentGrant WHERE patient_id=? AND status='granted'.
 3. Si existe: dejar pasar la request al handler.
 4. Si no existe: cortar la cadena y retornar 403 CONSENT_REQUIRED.
-5. INSERT AccessAudit con trace_id, operacion='CONSENT_GATE_BLOCKED' solo si bloqueado.
+5. INSERT AccessAudit con `action_type='read'`, `resource_type='consent_grant'`, `outcome='denied'` solo si el request queda bloqueado.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -45,7 +45,7 @@
 ## Impacto en modelo de datos
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
-| AccessAudit | INSERT (condicional) | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT (condicional) | trace_id, patient_id, action_type, resource_type, outcome, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

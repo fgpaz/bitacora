@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-TG-002</title>
+  <style>
+    :root{--sage:#5a7269;--paper:#fbf6ef;--sand:#f1e7dc;--ink:#292420;--muted:#6d655f;--accent:#b77763;--line:#daccc0}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(183,119,99,.14),transparent 34%),linear-gradient(180deg,#faf4ec,#efe4d8)}
+    button,a{font:inherit} p,small,span,strong{margin:0;line-height:1.5} p,small,span{color:var(--muted)}
+    .app{max-width:1280px;margin:0 auto;padding:22px;display:grid;gap:22px}
+    .panel{background:rgba(251,246,239,.94);border:1px solid rgba(218,204,192,.94);border-radius:24px;box-shadow:0 18px 38px rgba(41,36,32,.08)}
+    .hero,.side,.main,.card,.nav button{display:grid;gap:12px}
+    .hero,.side,.main{padding:24px}
+    .eyebrow,.chip,.meta span{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(90,114,105,.12);color:var(--sage)}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3rem);max-width:14ch} h2{font-size:1.05rem}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(236,226,216,.92)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:var(--line);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:rgba(244,236,227,.96);color:var(--ink);text-align:left;cursor:pointer}
+    .nav button.on{background:rgba(90,114,105,.12);border-color:rgba(90,114,105,.35)}
+    .card{padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(244,236,227,.96)}
+    .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}.meta span{background:rgba(236,226,216,.92)}
+    .stage{display:grid;gap:14px}
+    .frame{width:min(100%,420px);height:820px;border:1px solid rgba(194,178,163,.9);border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 18px 44px rgba(41,36,32,.12)}
+    .frame.desktop{width:min(100%,980px);height:700px}
+    iframe{width:100%;height:100%;border:0;background:#fff}
+    .direct{display:flex;gap:10px;flex-wrap:wrap}
+    .direct a{display:inline-flex;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700}
+    .foot{font-size:.85rem;text-align:center;max-width:64ch;justify-self:center}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">TG-002 · Wrapper basado en Stitch</div>
+      <h1>La referencia navegable usa directamente la conversación que devolvió Stitch.</h1>
+      <p>Este HTML organiza el pack del recordatorio conversacional para revisar la secuencia completa sin reconstruirla localmente.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel side">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>La fuente del slice es mobile-first y se conserva así en el wrapper.</p>
+        </section>
+        <section><div class="chip">Frames Stitch</div><div class="nav" id="nav"></div></section>
+        <section class="card"><strong>Regla</strong><span>El iframe apunta a los HTML descargados de Stitch. Este wrapper solo agrega navegación y lectura por estados.</span></section>
+      </aside>
+      <section class="panel main">
+        <div class="head">
+          <div><h2 id="title">Frame</h2><p id="subtitle">Descripción</p></div>
+          <div class="chip">Stitch primary</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="frame" id="frame"><iframe id="preview" title="Preview TG-002"></iframe></div>
+          <div class="direct"><a id="open" href="#" target="_blank" rel="noopener noreferrer">Abrir HTML directo</a></div>
+          <p class="foot">Wrapper canónico de `TG-002`: reminder, envío, confirmación y error, todos basados en Stitch.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const frames=[
+      {id:"TG-002-S01-REMINDER",label:"S01 · Reminder",subtitle:"Mensaje breve con keyboard inline.",src:"../../../../artifacts/stitch/tg-002/2026-04-09T00-28-55-455Z/s01-reminder.html"},
+      {id:"TG-002-S01-SUBMITTING",label:"S01 · Enviando",subtitle:"Feedback breve mientras se registra la respuesta.",src:"../../../../artifacts/stitch/tg-002/2026-04-09T00-34-31-553Z/s01-submitting.html"},
+      {id:"TG-002-S02-SUCCESS",label:"S02 · Confirmación",subtitle:"Respuesta registrada sin insistencia.",src:"../../../../artifacts/stitch/tg-002/2026-04-09T00-28-55-455Z/s02-success.html"},
+      {id:"TG-002-S03-ERROR",label:"S03 · Error",subtitle:"Fallo recuperable y amable.",src:"../../../../artifacts/stitch/tg-002/2026-04-09T00-28-55-455Z/s03-error.html"}
+    ];
+    const state={frame:frames[0],mode:"mobile"};
+    const nav=document.getElementById("nav"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),meta=document.getElementById("meta"),preview=document.getElementById("preview"),open=document.getElementById("open"),frame=document.getElementById("frame");
+    function renderNav(){nav.innerHTML=frames.map(item=>`<button class="${state.frame.id===item.id?"on":""}" data-frame="${item.id}" type="button">${item.label}<br><small>${item.id}</small></button>`).join("");}
+    function render(){renderNav();title.textContent=state.frame.label;subtitle.textContent=state.frame.subtitle;meta.innerHTML=`<span>${state.frame.id}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop preview"}</span><span>Fuente: Stitch</span>`;preview.src=state.frame.src;open.href=state.frame.src;frame.classList.toggle("desktop",state.mode==="desktop");}
+    document.addEventListener("click",e=>{const mode=e.target.closest("[data-mode]");if(mode){state.mode=mode.dataset.mode;document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode));return render();}const hit=e.target.closest("[data-frame]");if(!hit)return;state.frame=frames.find(item=>item.id===hit.dataset.frame)||frames[0];render();});
+    render();
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# RF-VIN-001: Crear CareLink con invitacion del profesional
+# RF-VIN-001: Emitir invitacion de vinculo del profesional
 
 ## Execution Sheet
 | Campo | Valor |
@@ -11,8 +11,9 @@
 
 ## Precondiciones detalladas
 - Professional autenticado con JWT valido.
-- patient_email provisto en el body.
-- No existe CareLink activo o invitado entre este professional y ese patient.
+- `patient_email` provisto en el body con formato valido.
+- No existe `CareLink` activo o invitado entre este professional y ese patient.
+- No existe `PendingInvite` vigente para la misma dupla `professional_id + invitee_email_hash`.
 
 ## Inputs
 | Campo | Tipo | Origen | Validacion |
@@ -21,54 +22,75 @@
 | professional_id | uuid | JWT | Existente |
 
 ## Proceso (Happy Path)
-1. Calcular email_hash = HASH(patient_email) (ver RF-VIN-002).
-2. Resolver patient_id desde email_hash.
-3. Verificar que no existe CareLink activo/invitado para el par professional_id:patient_id.
-4. INSERT CareLink {care_link_id, professional_id, patient_id, status='invited', can_view_data=false, invited_at=NOW()}.
-5. INSERT AccessAudit operacion='CARELINK_INVITED'.
-6. Retornar 201 con care_link_id y status.
+1. Normalizar `patient_email` y calcular `email_hash` mediante RF-VIN-002.
+2. Resolver `patient_id` desde `email_hash`.
+3. Si `patient_id` existe:
+   a. Verificar que no exista `CareLink` activo o invitado para el par.
+   b. INSERT `CareLink {professional_id, patient_id, status='invited', can_view_data=false, invited_at=NOW()}`.
+   c. INSERT `AccessAudit` con `action_type='create'`, `resource_type='care_link'`.
+   d. Retornar `201` con `resource_type='care_link'`, `status='invited'`.
+4. Si `patient_id` no existe:
+   a. Verificar que no exista `PendingInvite` vigente para el mismo email hash y profesional.
+   b. Generar `invite_token` opaco.
+   c. INSERT `PendingInvite {professional_id, invitee_email_hash, invite_token, status='issued', expires_at=NOW()+7d}`.
+   d. INSERT `AccessAudit` con `action_type='create'`, `resource_type='pending_invite'`.
+   e. Retornar `201` con `resource_type='pending_invite'`, `status='issued'`, `expires_at`.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
-| care_link_id | uuid | ID del vinculo creado |
-| status | string | "invited" |
-| invited_at | timestamp | UTC de creacion |
+| resource_type | string | `care_link` o `pending_invite` |
+| resource_id | uuid | ID del artefacto creado |
+| status | string | `invited` o `issued` |
+| expires_at | timestamp? | Solo para `pending_invite` |
 
 ## Errores tipados
 | Codigo | HTTP | Trigger | Respuesta |
 |--------|------|---------|----------|
-| PATIENT_NOT_FOUND | 404 | email_hash sin match | {error: "PATIENT_NOT_FOUND"} |
-| LINK_ALREADY_EXISTS | 409 | CareLink duplicado | {error: "LINK_ALREADY_EXISTS"} |
+| INVALID_EMAIL_FORMAT | 422 | `patient_email` invalido | {error: "INVALID_EMAIL_FORMAT"} |
+| CARELINK_EXISTS | 409 | Ya existe `CareLink` activo o invitado | {error: "CARELINK_EXISTS"} |
+| PENDING_INVITE_EXISTS | 409 | Ya existe `PendingInvite` vigente | {error: "PENDING_INVITE_EXISTS"} |
 
 ## Casos especiales y variantes
-- can_view_data siempre false en creacion (invariante RF-VIN-004).
-- Si patient no existe en sistema: retornar 404 sin revelar si el email existe.
+- `can_view_data` siempre nace en `false` cuando se crea un `CareLink`.
+- La invitacion a un paciente no registrado no revela si el email ya fue usado en otros contextos.
+- `PendingInvite` expira a los 7 dias y debe reemitirse si se vence.
 
 ## Impacto en modelo de datos
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
-| CareLink | INSERT | care_link_id, professional_id, patient_id, status, can_view_data, invited_at |
-| AccessAudit | INSERT | trace_id, professional_id, operacion, created_at |
+| CareLink | INSERT (condicional) | professional_id, patient_id, status, can_view_data, invited_at |
+| PendingInvite | INSERT (condicional) | professional_id, invitee_email_hash, invite_token, status, expires_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin
-Scenario: Profesional invita paciente existente
-  Given paciente con email "p@test.com" existe
+Scenario: Profesional invita a un paciente ya registrado
+  Given existe un paciente con email "p@test.com"
   When POST /api/v1/care-links {patient_email: "p@test.com"}
-  Then se retorna 201 con status="invited" y can_view_data=false
+  Then se retorna 201 con resource_type="care_link"
+  And status="invited"
+  And can_view_data=false
 
-Scenario: Email sin match retorna 404
-  When POST /api/v1/care-links {patient_email: "noexiste@test.com"}
-  Then se retorna 404 con error PATIENT_NOT_FOUND
+Scenario: Profesional invita a un paciente aun no registrado
+  Given no existe un paciente con email "nuevo@test.com"
+  When POST /api/v1/care-links {patient_email: "nuevo@test.com"}
+  Then se retorna 201 con resource_type="pending_invite"
+  And status="issued"
+  And expires_at corresponde a 7 dias
+
+Scenario: Invitacion duplicada es rechazada
+  Given ya existe un CareLink o PendingInvite vigente para el mismo profesional y email
+  When POST /api/v1/care-links {patient_email: "p@test.com"}
+  Then se retorna 409 con error CARELINK_EXISTS o PENDING_INVITE_EXISTS
 ```
 
 ## Trazabilidad de tests
 | TP ID | Escenario | Tipo |
 |-------|-----------|------|
-| TP-VIN-001-01 | CareLink creado con status=invited | Positivo |
-| TP-VIN-001-02 | 404 si email no tiene match | Negativo |
-| TP-VIN-001-03 | 409 si link duplicado | Negativo |
+| TP-VIN-001-01 | Crea CareLink invitado para paciente existente | Positivo |
+| TP-VIN-001-02 | Crea PendingInvite de 7 dias para paciente no registrado | Positivo |
+| TP-VIN-001-03 | Rechaza invitacion duplicada | Negativo |
 
 ## Sin ambiguedades pendientes
 Ninguna.

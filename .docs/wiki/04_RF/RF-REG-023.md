@@ -24,9 +24,10 @@
 1. Obtener clave AES activa del KMS por key_version.
 2. Serializar payload_raw a JSON string.
 3. Cifrar con AES (modo GCM). Almacenar como encrypted_payload.
-4. Extraer campos operacionales: sleep_hours, has_physical, has_social, has_anxiety, has_irritability, has_medication.
-5. Construir safe_projection jsonb con esos seis campos.
-6. Retornar encrypted_payload, safe_projection, key_version.
+4. Mantener `medication_time` aproximado solo dentro de `encrypted_payload`.
+5. Extraer campos operacionales: sleep_hours, has_physical, has_social, has_anxiety, has_irritability, has_medication.
+6. Construir safe_projection jsonb con esos seis campos.
+7. Retornar encrypted_payload, safe_projection, key_version.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -43,7 +44,7 @@
 
 ## Casos especiales y variantes
 - Fail-closed: si la clave no esta disponible, la operacion completa se aborta. No se almacena nada.
-- safe_projection no incluye medication_time (dato sensible, solo en encrypted_payload).
+- safe_projection no incluye medication_time (dato sensible, solo en encrypted_payload, aun cuando sea aproximado).
 - Patron identico a RF-REG-003 pero para entidad DailyCheckin con campos diferentes.
 
 ## Impacto en modelo de datos

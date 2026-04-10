@@ -24,7 +24,7 @@
 1. Construir clave: "safe_projection:{professional_id}:{patient_id}".
 2. DEL clave en cache store.
 3. Si cache no responde: loguear warning, no revertir revocacion.
-4. INSERT AccessAudit operacion='CACHE_INVALIDATED_ON_LINK_REVOKE'.
+4. INSERT AccessAudit con `action_type='revoke'`, `resource_type='care_link'` para dejar trazado el cierre de acceso.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -44,7 +44,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | Cache store | DEL | safe_projection:{professional_id}:{patient_id} |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

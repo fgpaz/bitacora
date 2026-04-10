@@ -6,80 +6,100 @@
 |-------|-------|
 | Motor | PostgreSQL 16+ |
 | Base de datos | `bitacora_db` (dedicada, credenciales propias) |
-| Server | VPS 54.37.157.93 (mismo que multi-tedi, DB separada) |
+| Server | VPS 54.37.157.93 |
 | Schema | `public` (unico) |
 | ORM | EF Core 10 |
 | Migraciones | EF Core Migrations (code-first) |
 
+## Estado de materializacion actual
+
+La migracion `InitialCore` ya fue generada y materializa estas tablas:
+
+- `users`
+- `mood_entries`
+- `daily_checkins`
+- `consent_grants`
+- `pending_invites`
+- `access_audits`
+- `encryption_key_versions`
+
+`binding_codes`, `care_links`, `telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` siguen en el canon de alcance, pero todavia no existen en la base fisica de esta ola.
+
 ## Ownership y safety stance
 
-- **Owner de migraciones:** Bitacora.Api (EF Core aplica migraciones al arrancar en dev, manual en prod).
-- **Safety stance:** Sin DELETE fisico en tablas clinicas. MoodEntry es append-only. AccessAudit es append-only.
-- **Backup:** Independiente de multi-tedi. pg_dump diario + retencion 30 dias.
-- **Aislamiento (T3-4):** DB dedicada. Credenciales no compartidas con otros servicios.
+- Owner de migraciones: `Bitacora.DataAccess.EntityFramework` con `Bitacora.Api` como startup project.
+- Safety stance: sin DELETE fisico en tablas clinicas. `mood_entries` y `access_audits` son append-only.
+- Backup: `pg_dump` diario + retencion 30 dias.
+- Aislamiento (T3-4): DB dedicada; credenciales no compartidas.
 
 ## Tablas y ownership
 
-| Tabla | Owner | Patron | Notas |
-|-------|-------|--------|-------|
-| users | Auth | CRUD | PII cifrado. email_hash para lookup. |
-| mood_entries | Registro | Append-only | encrypted_payload + safe_projection. Inmutable. |
-| daily_checkins | Registro | Upsert | UNIQUE(patient_id, checkin_date). encrypted_payload + safe_projection. |
-| consent_grants | Consent | State machine | pending → granted → revoked. |
-| care_links | Vinculos | State machine | invited → active → revoked_*. can_view_data default false. |
-| telegram_sessions | Telegram | CRUD | UNIQUE(chat_id). |
-| telegram_pairing_codes | Telegram | Temporal | TTL 15min. Se elimina al usar. |
-| reminder_configs | Telegram | CRUD | Horarios de recordatorio por paciente. |
-| access_audits | Seguridad | Append-only | Sin UPDATE/DELETE. trace_id + pseudonym_id. |
-| encryption_key_versions | Seguridad | Append-only | Key material en vault/env, no en DB. |
+| Tabla | Owner | Patron | Notas | Estado |
+|-------|-------|--------|-------|--------|
+| users | Auth | CRUD | PII cifrado + `key_version`; `email_hash` para lookup. | Materializada |
+| mood_entries | Registro | Append-only | `encrypted_payload + safe_projection`. | Materializada |
+| daily_checkins | Registro | Upsert | `UNIQUE(patient_id, checkin_date)`. | Materializada |
+| consent_grants | Consent | State machine | `pending → granted → revoked`. | Materializada |
+| pending_invites | Vinculos | Temporal/state machine | TTL 7 dias, sin acceso clinico. | Materializada |
+| binding_codes | Vinculos | Temporal | `ttl_preset` por codigo; un activo por profesional a nivel app. | Diferida |
+| care_links | Vinculos | State machine | `invited → active → revoked_*`; `can_view_data` default false. | Diferida |
+| telegram_sessions | Telegram | CRUD | `UNIQUE(chat_id)`. | Diferida |
+| telegram_pairing_codes | Telegram | Temporal | TTL 15 min. | Diferida |
+| reminder_configs | Telegram | CRUD | Horarios por paciente. | Diferida |
+| access_audits | Seguridad | Append-only | `trace_id + pseudonym_id`, sin UPDATE/DELETE. | Materializada |
+| encryption_key_versions | Seguridad | Append-only | Key material en vault/env, no en DB. | Materializada |
 
 ## Cifrado en reposo
 
 | Nivel | Que protege | Implementacion |
 |-------|-------------|---------------|
 | Disk | Todo el volumen | LUKS (VPS level) |
-| App-layer (PII) | nombre, email, DNI, telefono en `users` | AES-256 con key_version |
-| App-layer (clinico) | payload completo en mood_entries y daily_checkins | encrypted_payload + safe_projection |
+| App-layer (PII) | nombre, email, DNI, telefono en `users` | AES-256 con `key_version` |
+| App-layer (clinico) | payload completo en `mood_entries` y `daily_checkins` | `encrypted_payload + safe_projection` |
 
 > Detalle completo: `07_tech/TECH-CIFRADO.md`
 
 ## Indices criticos
 
-| Tabla | Indice | Justificacion |
-|-------|--------|---------------|
-| users | UNIQUE(supabase_user_id) | Lookup desde JWT |
-| users | INDEX(email_hash) | Busqueda por email sin descifrar |
-| mood_entries | INDEX(patient_id, created_at_utc) | Timeline queries |
-| daily_checkins | UNIQUE(patient_id, checkin_date) | Constraint uno por dia |
-| care_links | INDEX(professional_id, status) | Dashboard profesional |
-| care_links | INDEX(patient_id, status) | Lista de vinculos del paciente |
-| access_audits | INDEX(patient_id, created_at_utc) | Consulta de auditoria |
-| telegram_sessions | UNIQUE(chat_id) | Lookup desde webhook |
+| Tabla | Indice | Justificacion | Estado |
+|-------|--------|---------------|--------|
+| users | UNIQUE(supabase_user_id) | Lookup desde JWT | Materializado |
+| users | INDEX(email_hash) | Busqueda por email sin descifrar | Materializado |
+| mood_entries | INDEX(patient_id, created_at_utc) | Timeline queries | Materializado |
+| daily_checkins | UNIQUE(patient_id, checkin_date) | Un checkin por dia | Materializado |
+| pending_invites | INDEX(professional_id, invitee_email_hash, status) | Reutilizacion/duplicados de invitacion | Materializado |
+| binding_codes | UNIQUE(code) | Lookup del codigo | Diferido |
+| binding_codes | INDEX(professional_id, used, expires_at) | Invalida codigo activo del profesional | Diferido |
+| care_links | INDEX(professional_id, status) | Dashboard profesional | Diferido |
+| care_links | INDEX(patient_id, status) | Lista de vinculos del paciente | Diferido |
+| access_audits | INDEX(patient_id, created_at_utc) | Consulta de auditoria | Materializado |
+| telegram_sessions | UNIQUE(chat_id) | Lookup desde webhook | Diferido |
 
 ## Retencion
 
 | Tabla | Retencion | Justificacion |
 |-------|-----------|---------------|
 | access_audits | 2 anos minimo | Compliance auditoria |
-| mood_entries (score = -3) | 5 anos minimo | Ley 26.657 (salud mental) |
+| mood_entries (score = -3) | 5 anos minimo | Ley 26.657 |
 | consent_grants | Permanente | Evidencia legal |
-| telegram_pairing_codes | Limpieza diaria (expired) | Temporal |
+| pending_invites | Hasta expiracion o consumo | Artefacto temporal |
+| binding_codes | Hasta expiracion o uso | Artefacto temporal |
+| telegram_pairing_codes | Limpieza diaria | Artefacto temporal |
 
 ## EF Core Global Query Filters
 
 ```csharp
-// Aplicado en DbContext.OnModelCreating
 modelBuilder.Entity<MoodEntry>().HasQueryFilter(e => e.PatientId == _currentPatientId);
 modelBuilder.Entity<DailyCheckin>().HasQueryFilter(e => e.PatientId == _currentPatientId);
 ```
 
-> Migracion a RLS de PostgreSQL en Roadmap.
+> La lectura profesional no usa `patient_ref` persistido; resuelve el target por contrato de aplicacion.
 
 ## Detail docs
 
 | Doc | Tema |
 |-----|------|
-| `08_db/DB-MIGRACIONES-Y-BOOTSTRAP.md` | Estrategia de migraciones EF Core, seeding, rollback |
+| `08_db/DB-MIGRACIONES-Y-BOOTSTRAP.md` | Estrategia de migraciones EF Core, seeding, cleanup y rollback |
 
 ## Sync gates
 

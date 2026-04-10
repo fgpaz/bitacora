@@ -1,4 +1,4 @@
-# RF-VIN-010: Generar codigo de vinculacion para profesional
+# RF-VIN-010: Generar BindingCode para auto-vinculacion
 
 ## Execution Sheet
 | Campo | Valor |
@@ -11,61 +11,72 @@
 
 ## Precondiciones detalladas
 - Professional autenticado con JWT valido.
-- No existe binding_code activo (no expirado) para este professional (o se permite uno por vez).
+- El TTL del codigo se define por emision, no por profesional ni por `CareLink`.
+- Solo puede existir un `BindingCode` activo por profesional; el anterior se invalida al generar uno nuevo.
 
 ## Inputs
 | Campo | Tipo | Origen | Validacion |
 |-------|------|--------|-----------|
+| ttl_preset | string | Request body (opcional) | Uno de `15m`, `3h`, `24h`, `72h`; default `15m` |
 | professional_id | uuid | JWT | Existente |
 
 ## Proceso (Happy Path)
-1. Generar codigo con formato "BIT-XXXXX" (5 chars alfanumericos uppercase, criptograficamente aleatorio).
-2. Calcular expires_at = NOW() + 15 minutos.
-3. INSERT binding_codes {code, professional_id, expires_at, used=false}.
-4. INSERT AccessAudit operacion='BINDING_CODE_GENERATED'.
-5. Retornar 201 con code y expires_at.
+1. Resolver `ttl_preset`; si no viene, usar `15m`.
+2. Generar codigo con formato `BIT-XXXXX` (5 caracteres alfanumericos uppercase, criptograficamente aleatorio).
+3. Calcular `expires_at` segun el preset elegido.
+4. Invalidar cualquier `BindingCode` activo previo del profesional.
+5. INSERT `BindingCode {code, professional_id, ttl_preset, expires_at, used=false}`.
+6. INSERT `AccessAudit` con `action_type='create'`, `resource_type='binding_code'`.
+7. Retornar `201` con `code`, `ttl_preset` y `expires_at`.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
-| code | string | "BIT-XXXXX" codigo generado |
-| expires_at | timestamp | UTC de expiracion (15 min) |
+| code | string | Codigo generado con formato `BIT-XXXXX` |
+| ttl_preset | string | Preset aplicado |
+| expires_at | timestamp | UTC de expiracion |
 
 ## Errores tipados
 | Codigo | HTTP | Trigger | Respuesta |
 |--------|------|---------|----------|
-| CODE_GENERATION_FAILED | 500 | Fallo en generacion aleatoria | {error: "CODE_GENERATION_FAILED"} |
+| INVALID_BINDING_CODE_TTL | 422 | `ttl_preset` fuera del catalogo permitido | {error: "INVALID_BINDING_CODE_TTL"} |
+| CODE_GENERATION_FAILED | 500 | Fallo en generacion aleatoria o colisiones repetidas | {error: "CODE_GENERATION_FAILED"} |
 
 ## Casos especiales y variantes
-- Si ya existe codigo activo: invalidar el anterior e insertar nuevo (un codigo activo por professional).
-- Colision de codigo: reintentar generacion hasta que sea unico (max 3 intentos).
+- Si ya existe codigo activo, se invalida antes de insertar el nuevo.
+- En colision de codigo, se reintenta hasta 3 veces antes de fallar cerrado.
 
 ## Impacto en modelo de datos
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
-| binding_codes | INSERT | code, professional_id, expires_at, used |
-| binding_codes | UPDATE (condicional) | used=true en codigo anterior |
-| AccessAudit | INSERT | trace_id, professional_id, operacion, created_at |
+| BindingCode | UPDATE (condicional) | used=true en codigo activo previo |
+| BindingCode | INSERT | code, professional_id, ttl_preset, expires_at, used |
+| AccessAudit | INSERT | trace_id, actor_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin
-Scenario: Profesional genera codigo de vinculacion
+Scenario: Profesional genera BindingCode con TTL default
   Given professional autenticado
-  When POST /api/v1/professional/binding-codes
-  Then se retorna codigo formato "BIT-XXXXX" con TTL 15 min
+  When POST /api/v1/professional/binding-codes sin body
+  Then se retorna codigo formato "BIT-XXXXX"
+  And ttl_preset="15m"
 
-Scenario: Codigo expira tras 15 minutos
-  Given codigo "BIT-ABC12" generado hace 16 minutos
-  When se intenta usar el codigo
-  Then se rechaza por expirado (RF-VIN-011)
+Scenario: Profesional genera BindingCode con preset 72h
+  Given professional autenticado
+  When POST /api/v1/professional/binding-codes {ttl_preset: "72h"}
+  Then se retorna expires_at a 72 horas
+
+Scenario: Preset invalido es rechazado
+  When POST /api/v1/professional/binding-codes {ttl_preset: "2d"}
+  Then se retorna 422 INVALID_BINDING_CODE_TTL
 ```
 
 ## Trazabilidad de tests
 | TP ID | Escenario | Tipo |
 |-------|-----------|------|
-| TP-VIN-010-01 | Codigo generado con formato correcto y TTL 15 min | Positivo |
-| TP-VIN-010-02 | Codigo anterior invalidado al generar nuevo | Borde |
-| TP-VIN-010-03 | Colision resuelta con reintento | Borde |
+| TP-VIN-010-01 | Codigo generado con TTL default 15m | Positivo |
+| TP-VIN-010-02 | Codigo generado con preset 72h | Positivo |
+| TP-VIN-010-03 | 422 si el preset no pertenece al catalogo | Negativo |
 
 ## Sin ambiguedades pendientes
 Ninguna.

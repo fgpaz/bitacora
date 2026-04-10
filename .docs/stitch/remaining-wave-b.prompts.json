@@ -1,0 +1,259 @@
+{
+  "waveTitle": "Bitacora Remaining Coverage Wave B",
+  "defaults": {
+    "deviceType": "MOBILE",
+    "modelId": "GEMINI_3_FLASH",
+    "designProfile": "patient",
+    "designSystemDisplayName": "Bitacora Patient Design System",
+    "style": "Bitacora high-fidelity UX coverage. Warm paper background #F6F1EA, sage primary #5E766E, muted terracotta accent #B67864, editorial serif heading, humanist sans body, soft rounded cards, calm hierarchy, explicit control, serious and low-friction, no surveillance, no exaggerated alerts, no dark dashboard aesthetic."
+  },
+  "slices": {
+    "vin-001": {
+      "projectTitle": "Bitacora VIN-001 Prototype",
+      "outputSlug": "vin-001",
+      "deviceType": "DESKTOP",
+      "designProfile": "professional",
+      "designSystemDisplayName": "Bitacora Professional Design System",
+      "styleAppend": "Professional invitation screens should feel brief, responsible, and administrative only in the lightest sense. Never resemble patient intake software.",
+      "presets": {
+        "core": [
+          "s01-default",
+          "s02-success",
+          "s03-conflict"
+        ],
+        "full": [
+          "s01-default",
+          "s01-ready",
+          "s02-submitting",
+          "s02-success",
+          "s03-conflict"
+        ],
+        "s01-default": [
+          "s01-default"
+        ],
+        "s01-ready": [
+          "s01-ready"
+        ],
+        "s02-submitting": [
+          "s02-submitting"
+        ],
+        "s02-success": [
+          "s02-success"
+        ],
+        "s03-conflict": [
+          "s03-conflict"
+        ]
+      },
+      "screens": {
+        "s01-default": {
+          "title": "VIN-001 default",
+          "goal": "Invitation form with explicit but brief consequence.",
+          "prompt": "Create the professional invitation screen for Bitacora. Desktop-first calm layout, short title 'Invitar a una persona', one main email field, one short explanatory summary that this action creates a pending link and does not grant automatic access to health data, one primary CTA 'Enviar invitación' and one quiet secondary action. Keep it serious, brief and easy to scan."
+        },
+        "s01-ready": {
+          "title": "VIN-001 ready",
+          "goal": "Ready-to-send state with visible outcome summary.",
+          "prompt": "Create the ready-to-send state for the Bitacora professional invitation flow. Keep the same sober desktop layout, show a valid email already filled, preserve the short summary about pending link and patient-controlled access, and enable the primary CTA 'Enviar invitación'."
+        },
+        "s02-submitting": {
+          "title": "VIN-001 submitting",
+          "goal": "Brief processing state that avoids double send.",
+          "prompt": "Create the in-progress sending state for Bitacora professional invitation. Preserve the same interface, add compact progress feedback close to the primary action, and avoid turning the screen into a technical loading console."
+        },
+        "s02-success": {
+          "title": "VIN-001 success",
+          "goal": "Pending invitation clearly emitted.",
+          "prompt": "Create the success state after sending a professional invitation in Bitacora. Show a factual confirmation that the invitation is now pending, keep patient access control explicit, and make the next state understandable without extra explanation."
+        },
+        "s03-conflict": {
+          "title": "VIN-001 conflict",
+          "goal": "Existing invitation or link explained in context.",
+          "prompt": "Create the conflict state for Bitacora professional invitation when an invitation already exists or the person is already linked. Keep the same desktop form shell, explain the existing state in plain language and avoid duplicate-action confusion. No technical jargon."
+        }
+      }
+    },
+    "vis-002": {
+      "projectTitle": "Bitacora VIS-002 Prototype",
+      "outputSlug": "vis-002",
+      "deviceType": "DESKTOP",
+      "designProfile": "professional",
+      "designSystemDisplayName": "Bitacora Professional Design System",
+      "styleAppend": "Professional dashboard views should feel bounded, sober, and readable. Avoid EHR chaos, alert-wall aesthetics, and over-analytic density.",
+      "presets": {
+        "core": [
+          "s01-ready",
+          "s02-empty",
+          "s03-error"
+        ],
+        "full": [
+          "s01-loading",
+          "s01-ready",
+          "s01-pagination",
+          "s02-empty",
+          "s03-error"
+        ],
+        "s01-loading": [
+          "s01-loading"
+        ],
+        "s01-ready": [
+          "s01-ready"
+        ],
+        "s01-pagination": [
+          "s01-pagination"
+        ],
+        "s02-empty": [
+          "s02-empty"
+        ],
+        "s03-error": [
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-loading": {
+          "title": "VIS-002 loading",
+          "goal": "Quiet loading placeholder for a bounded professional dashboard.",
+          "prompt": "Create the loading state for the Bitacora professional dashboard. Desktop-first, calm list shell, visible header and patient card placeholders, and a restrained loading treatment. It must anticipate a bounded dashboard, not a data wall."
+        },
+        "s01-ready": {
+          "title": "VIS-002 ready",
+          "goal": "Professional dashboard with visible patient list and simple summaries.",
+          "prompt": "Create the ready state for the Bitacora professional dashboard. Desktop-first, short title 'Dashboard de pacientes', one paginated list of visible patients, each card showing a brief summary and basic alert markers, with one clear action 'Ver resumen'. Make it explicit that only patients with active access appear here."
+        },
+        "s01-pagination": {
+          "title": "VIS-002 page change",
+          "goal": "Second page or pagination interaction that stays quiet.",
+          "prompt": "Create the page-change state for the Bitacora professional dashboard. Keep the same desktop layout, show a second-page or changed-page view with pagination controls that do not dominate, and preserve the calm hierarchy of patient cards."
+        },
+        "s02-empty": {
+          "title": "VIS-002 empty",
+          "goal": "No visible patients without confusion or drama.",
+          "prompt": "Create the empty state for the Bitacora professional dashboard. Keep the same desktop shell, show a clear message that there are no patients with active access right now, and avoid making it look like an error state."
+        },
+        "s03-error": {
+          "title": "VIS-002 error",
+          "goal": "Retryable dashboard load error.",
+          "prompt": "Create the recoverable error state for the Bitacora professional dashboard. Preserve the dashboard shell, place a short error close to the content area and allow retry. No infrastructure or permission jargon."
+        }
+      }
+    },
+    "tg-001": {
+      "projectTitle": "Bitacora TG-001 Prototype",
+      "outputSlug": "tg-001",
+      "deviceType": "MOBILE",
+      "designProfile": "telegram",
+      "designSystemDisplayName": "Bitacora Telegram Design System",
+      "styleAppend": "Telegram pairing bridge still uses Bitacora's calm product language, with clear steps and no setup-lab feel.",
+      "presets": {
+        "core": [
+          "s01-idle",
+          "s02-code",
+          "s03-linked"
+        ],
+        "full": [
+          "s01-idle",
+          "s02-code",
+          "s02-expired",
+          "s03-linked",
+          "s03-error"
+        ],
+        "s01-idle": [
+          "s01-idle"
+        ],
+        "s02-code": [
+          "s02-code"
+        ],
+        "s02-expired": [
+          "s02-expired"
+        ],
+        "s03-linked": [
+          "s03-linked"
+        ],
+        "s03-error": [
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-idle": {
+          "title": "TG-001 idle",
+          "goal": "Short and guided bridge to Telegram pairing.",
+          "prompt": "Create the idle state for linking Telegram in Bitacora. Mobile-first one-column screen, short title 'Vincular Telegram', a brief explanation that the person can generate a code and send it to the bot to finish the link, one primary CTA 'Generar código' and one quiet secondary action. The screen must feel like a short bridge, not a setup wizard."
+        },
+        "s02-code": {
+          "title": "TG-001 code generated",
+          "goal": "Visible code, expiry, and one next step.",
+          "prompt": "Create the code-generated state for Bitacora Telegram linking. Keep the same calm mobile shell, show a prominent pairing code, visible but non-alarmist expiry information, and one very clear next step that sends the person to the Telegram bot."
+        },
+        "s02-expired": {
+          "title": "TG-001 expired",
+          "goal": "Expired code with easy regeneration.",
+          "prompt": "Create the expired-code state for Bitacora Telegram linking. Preserve the same mobile structure, make it clear that the code expired, and let the person regenerate it without blame or setup confusion."
+        },
+        "s03-linked": {
+          "title": "TG-001 linked",
+          "goal": "Successful link confirmation.",
+          "prompt": "Create the success state after linking Telegram in Bitacora. Show a factual confirmation that Telegram is already linked, keep the tone calm, and make the completion state obvious."
+        },
+        "s03-error": {
+          "title": "TG-001 error",
+          "goal": "Retryable code-generation failure.",
+          "prompt": "Create the recoverable error state for Bitacora Telegram linking. Keep the same mobile bridge layout, show one short localized error and allow retry. No technical token or API language."
+        }
+      }
+    },
+    "tg-002": {
+      "projectTitle": "Bitacora TG-002 Prototype",
+      "outputSlug": "tg-002",
+      "deviceType": "MOBILE",
+      "designProfile": "telegram",
+      "designSystemDisplayName": "Bitacora Telegram Design System",
+      "styleAppend": "This slice should resemble a Telegram conversation while remaining testable as a prototype: chat bubbles, inline keyboard, optional tone, no gamification.",
+      "presets": {
+        "core": [
+          "s01-reminder",
+          "s02-success",
+          "s03-error"
+        ],
+        "full": [
+          "s01-reminder",
+          "s01-submitting",
+          "s02-success",
+          "s03-error"
+        ],
+        "s01-reminder": [
+          "s01-reminder"
+        ],
+        "s01-submitting": [
+          "s01-submitting"
+        ],
+        "s02-success": [
+          "s02-success"
+        ],
+        "s03-error": [
+          "s03-error"
+        ]
+      },
+      "screens": {
+        "s01-reminder": {
+          "title": "TG-002 reminder",
+          "goal": "Optional reminder with inline keyboard.",
+          "prompt": "Create the Telegram reminder conversation for Bitacora. Mobile-first chat composition that clearly resembles Telegram: one short incoming message asking 'Como te sentis?', one brief support line 'Responde si te sirve ahora.', a visible inline keyboard with values, and a quiet exit option like 'Ahora no'. It should feel optional and light."
+        },
+        "s01-submitting": {
+          "title": "TG-002 submitting",
+          "goal": "Short conversational feedback during reply send.",
+          "prompt": "Create the reply-submitting state for the Bitacora Telegram reminder. Preserve the chat context, show the chosen value, add a brief in-chat sending feedback and avoid making the interaction feel blocked or formal."
+        },
+        "s02-success": {
+          "title": "TG-002 success",
+          "goal": "Short confirmation that keeps the conversation flowing.",
+          "prompt": "Create the success state after replying to the Bitacora Telegram reminder. Keep the chat composition, show a brief factual confirmation that the response was registered, and preserve an optional feeling without cheerleading."
+        },
+        "s03-error": {
+          "title": "TG-002 error",
+          "goal": "Retryable conversational failure.",
+          "prompt": "Create the recoverable error state for the Bitacora Telegram reminder. Keep the same chat shell, show a short message that the response could not be registered, and offer a retry path without pressure."
+        }
+      }
+    }
+  }
+}

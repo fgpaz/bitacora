@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-VIS-001</title>
+  <style>
+    :root{--sage:#4e6760;--sage-soft:#dfe8e3;--paper:#fef8f1;--paper-2:#f3eade;--ink:#26211e;--muted:#6a625c;--accent:#b77460;--line:#d9cbbd;--ok:#5d7a6f;--error:#9c5b49;--vw:398px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(183,116,96,.14),transparent 35%),linear-gradient(180deg,#fbf5ed,#efe4d7)}
+    button,a{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1280px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(254,248,241,.92);border:1px solid rgba(217,203,189,.96);border-radius:24px;box-shadow:0 18px 38px rgba(38,33,30,.08);backdrop-filter:blur(8px)}
+    .hero,.sidebar,.shell,.summary,.notice,.screen,.nav button,.card,.actions,.cards{display:grid;gap:12px}
+    .hero,.sidebar,.shell{padding:24px}
+    .eyebrow,.chip,.meta span,.tag,.badge,.pill{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip,.pill{background:rgba(78,103,96,.12);color:var(--sage)}
+    .tag{background:rgba(183,116,96,.12);color:var(--accent)}
+    .badge{background:rgba(93,122,111,.12);color:var(--ok)}
+    h1,h2,h3{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3.1rem);max-width:13ch}
+    h2{font-size:clamp(1.7rem,2vw,2.25rem);max-width:14ch}
+    h3{font-size:1.12rem}
+    p,span,small,strong{margin:0;line-height:1.55}
+    p,span,small{color:var(--muted)}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(233,223,213,.88)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:rgba(217,203,189,.96);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(217,203,189,.96);border-radius:15px;background:rgba(243,234,222,.95);color:var(--ink);text-align:left}
+    .nav button.on{background:rgba(78,103,96,.12);border-color:rgba(78,103,96,.42)}
+    .summary,.notice,.card{padding:16px;border-radius:18px;border:1px solid rgba(217,203,189,.96);background:rgba(243,234,222,.95)}
+    .notice.err{background:rgba(183,116,96,.1);border-color:rgba(183,116,96,.32)}
+    .notice.ok{background:rgba(93,122,111,.1);border-color:rgba(93,122,111,.32)}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(217,203,189,.96)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}
+    .meta span{background:rgba(233,223,213,.8);color:var(--muted)}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--paper),var(--paper-2));border:1px solid rgba(194,178,163,.86);box-shadow:0 20px 46px rgba(38,33,30,.12);min-height:790px}
+    .viewport.desktop{--vw:1080px;min-height:700px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(217,203,189,.96);background:rgba(254,248,241,.96)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+    .toolbar button{padding:10px 12px;border-radius:999px;border:1px solid rgba(194,178,163,.96);background:rgba(255,255,255,.75);color:var(--ink);font-weight:700}
+    .toolbar button.on{background:var(--sage-soft);border-color:rgba(78,103,96,.42)}
+    .hero-row{display:grid;gap:14px}
+    .hero-row.compact{gap:10px}
+    .chart-shell{padding:16px;border-radius:22px;border:1px solid rgba(217,203,189,.96);background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(243,234,222,.95))}
+    .chart-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:8px}
+    svg{width:100%;height:auto;display:block}
+    .legend{display:flex;flex-wrap:wrap;gap:8px}
+    .legend span{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.72)}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .grid{stroke:rgba(194,178,163,.7);stroke-width:1}
+    .axis{stroke:rgba(114,120,117,.6);stroke-width:1.2}
+    .line{fill:none;stroke:#4e6760;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+    .fill{fill:url(#area);opacity:.24}
+    .point{fill:#4e6760;stroke:#fff8f1;stroke-width:2.5}
+    .bar{fill:#b77460;opacity:.58}
+    .label{font-size:12px;fill:#6a625c;font-family:"Segoe UI","Trebuchet MS",sans-serif}
+    .value{font-size:12px;fill:#26211e;font-weight:700;font-family:"Segoe UI","Trebuchet MS",sans-serif}
+    .cards{gap:10px}
+    .actions{grid-template-columns:1fr}
+    .btn,.ghost-link,.ghost{display:inline-flex;align-items:center;justify-content:center;padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700;text-decoration:none}
+    .btn{background:linear-gradient(180deg,#5f7a72,#4e6760);border-color:rgba(78,103,96,.56);color:#faf4ed}
+    .btn[disabled]{background:rgba(78,103,96,.34);border-color:rgba(78,103,96,.18);cursor:not-allowed}
+    .ghost,.ghost-link{background:rgba(254,248,241,.96);border-color:rgba(194,178,163,.96);color:var(--ink)}
+    .foot{font-size:.85rem;color:var(--muted);max-width:64ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .hero-row{grid-template-columns:minmax(0,1fr) 260px}.viewport.desktop .actions{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.viewport.desktop .screen{padding:30px}}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">VIS-001 · Prototipo local</div>
+      <h1>Tu historia tiene que leerse como una bitácora, no como un tablero.</h1>
+      <p>Este slice prioriza una lectura calma del patrón longitudinal. El gráfico es la pieza principal; los filtros ajustan el encuadre sin comerse la escena, y la exportación queda como salida secundaria.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>El chart se mantiene protagónico en ambos formatos.</p>
+        </section>
+        <section>
+          <div class="chip">Frames</div>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section class="summary">
+          <strong>Relación con exportación</strong>
+          <span>`EXP-001` existe como flujo aparte. Desde este slice aparece como salida secundaria, no como CTA dominante.</span>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Timeline longitudinal del paciente.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 398 px</span><span>11:42 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Referencia canónica local de `VIS-001`: chart suavizado, filtros simples, estados de vacío/error y salida secundaria hacia `EXP-001`.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={
+      "VIS-001-S01-LOADING":"S01 · Loading",
+      "VIS-001-S01-READY":"S01 · Timeline listo",
+      "VIS-001-S02-PERIOD":"S02 · Ajuste de período",
+      "VIS-001-S03-EMPTY":"S03 · Vacío útil",
+      "VIS-001-S03-ERROR":"S03 · Error recuperable"
+    };
+    const state={frame:"VIS-001-S01-READY",mode:"mobile",period:"Mes"};
+    const nav=document.getElementById("nav"),screen=document.getElementById("screen"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    function setHead(a,b,c,d){
+      title.textContent=a;
+      subtitle.textContent=b;
+      chip.textContent=c;
+      meta.innerHTML=`<span>${d}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop"}</span><span>${state.frame}</span>`;
+    }
+    function setFrame(frame){state.frame=frame; render();}
+    function chartMarkup(period){
+      const series=period==="Semana"
+        ? {points:"40,150 120,120 200,132 280,88 360,104 440,70 520,86", bars:[120,64,38,74,28,56,34], labels:["L","M","X","J","V","S","D"], title:"Últimos 7 días"}
+        : period==="Año"
+          ? {points:"40,164 105,146 170,138 235,110 300,120 365,100 430,116 495,92 560,82", bars:[24,40,28,36,30,48,26,44,20], labels:["Ago","Sep","Oct","Nov","Dic","Ene","Feb","Mar","Abr"], title:"Últimos 9 meses"}
+          : {points:"40,160 120,140 200,126 280,90 360,106 440,84 520,118", bars:[40,26,54,22,34,62,28], labels:["1","5","10","14","19","24","29"], title:"Últimos 30 días"};
+      const barXs=series.labels.map((_,i)=>50+i*80);
+      return `
+        <div class="chart-shell">
+          <div class="chart-title">
+            <div>
+              <div class="pill">${series.title}</div>
+              <h3>Tu registro de humor</h3>
+            </div>
+            <small>Escala -3 a +3</small>
+          </div>
+          <svg viewBox="0 0 600 250" role="img" aria-label="Timeline de humor y factores">
+            <defs>
+              <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#5d7a6f"/>
+                <stop offset="100%" stop-color="#5d7a6f" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line class="axis" x1="30" y1="30" x2="30" y2="190"></line>
+            <line class="axis" x1="30" y1="190" x2="570" y2="190"></line>
+            <line class="grid" x1="30" y1="150" x2="570" y2="150"></line>
+            <line class="grid" x1="30" y1="110" x2="570" y2="110"></line>
+            <line class="grid" x1="30" y1="70" x2="570" y2="70"></line>
+            <path class="fill" d="M ${series.points} L 520 190 L 40 190 Z"></path>
+            <polyline class="line" points="${series.points}"></polyline>
+            ${series.points.split(" ").map(point=>{const [x,y]=point.split(","); return `<circle class="point" cx="${x}" cy="${y}" r="6"></circle>`;}).join("")}
+            ${barXs.map((x,i)=>`<rect class="bar" x="${x}" y="${190-series.bars[i]}" width="24" height="${series.bars[i]}" rx="10"></rect>`).join("")}
+            ${series.labels.map((label,i)=>`<text class="label" x="${60+i*80}" y="216">${label}</text>`).join("")}
+            <text class="label" x="5" y="194">-3</text>
+            <text class="label" x="8" y="154">-1</text>
+            <text class="label" x="10" y="114">+1</text>
+            <text class="label" x="10" y="74">+3</text>
+          </svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#4e6760"></i> Humor</span>
+            <span><i class="dot" style="background:#b77460"></i> Factores asociados</span>
+          </div>
+        </div>
+      `;
+    }
+    function periodControls(showActions){
+      return `
+        <div class="toolbar">
+          ${["Semana","Mes","Año"].map(option=>`<button class="${state.period===option?"on":""}" type="button" data-period="${option}">${option}</button>`).join("")}
+        </div>
+        ${showActions?`<div class="actions"><button class="btn" type="button" data-action="apply-period">Aplicar período</button><button class="ghost" type="button" data-action="reset-period">Restablecer</button></div>`:""}
+      `;
+    }
+    function loadingFrame(){
+      setHead("S01 · Loading","La espera anticipa estructura sin convertirse en dashboard.","Carga calma","S01");
+      return `
+        <div class="tag">Tu timeline</div>
+        <h2>Tu timeline</h2>
+        <p>Estamos preparando tu período actual para que la lectura arranque por lo importante.</p>
+        <div class="chart-shell">
+          <div class="card" style="height:28px;background:rgba(223,232,227,.7)"></div>
+          <div class="card" style="height:220px;background:linear-gradient(180deg,rgba(223,232,227,.72),rgba(243,234,222,.9))"></div>
+          <div class="legend">
+            <span><i class="dot" style="background:#d0d8d4"></i> timeline</span>
+            <span><i class="dot" style="background:#ead7ce"></i> factores</span>
+          </div>
+        </div>
+        <div class="notice ok"><strong>Cargando período base</strong><span>El gráfico aparece antes que los controles accesorios.</span></div>
+      `;
+    }
+    function readyFrame(){
+      setHead("S01 · Timeline listo","El chart entra primero y los filtros quedan serenos.","Lectura inicial","S01");
+      return `
+        <div class="tag">Tu timeline</div>
+        <h2>Tu timeline</h2>
+        <p>Revisá tus registros por período sin perder el hilo.</p>
+        ${chartMarkup(state.period)}
+        <div class="hero-row">
+          <div class="card"><strong>Período actual</strong><span>${state.period} · lectura base lista para ajustar si hace falta.</span></div>
+          <div class="card"><strong>Salida secundaria</strong><span>Si querés una copia, podés abrir la exportación sin salir de esta lógica de lectura.</span></div>
+        </div>
+        ${periodControls(false)}
+        <div class="actions">
+          <button class="ghost" type="button" data-action="goto-period">Ajustar período</button>
+          <a class="ghost-link" href="./PROTOTYPE-EXP-001.html">Abrir exportación CSV</a>
+        </div>
+      `;
+    }
+    function periodFrame(){
+      setHead("S02 · Ajuste de período","Los controles ajustan el encuadre sin desplazar al chart.","Control tranquilo","S02");
+      return `
+        <div class="tag">Tu timeline</div>
+        <h2>Ajustar período</h2>
+        <p>Podés cambiar el período sin perder la lectura principal.</p>
+        ${chartMarkup(state.period)}
+        <div class="cards">
+          <div class="card"><strong>Qué cambia</strong><span>Solo cambia el recorte temporal que estás leyendo.</span></div>
+          <div class="card"><strong>Qué no cambia</strong><span>La exportación sigue siendo un camino aparte y secundario.</span></div>
+        </div>
+        ${periodControls(true)}
+      `;
+    }
+    function emptyFrame(){
+      setHead("S03 · Vacío útil","La ausencia de datos se entiende como una pausa, no como fallo.","Sin registros","S03");
+      return `
+        <div class="tag">Tu timeline</div>
+        <h2>Tu bitácora está en silencio.</h2>
+        <p>No hay registros para este período. Podés cambiarlo sin perder el encuadre.</p>
+        <div class="notice ok"><strong>Sin registros para este período</strong><span>Probá con un período más amplio o revisá registros anteriores.</span></div>
+        <div class="actions">
+          <button class="ghost" type="button" data-action="goto-period">Cambiar período</button>
+          <a class="ghost-link" href="./PROTOTYPE-EXP-001.html">Ir a exportación CSV</a>
+        </div>
+      `;
+    }
+    function errorFrame(){
+      setHead("S03 · Error recuperable","El error queda localizado y mantiene el contexto.","Reintento claro","S03");
+      return `
+        <div class="tag">Tu timeline</div>
+        <h2>No pudimos cargar este período.</h2>
+        <p>Probá de nuevo. Tu timeline no cambia y el encuadre sigue siendo el mismo.</p>
+        <div class="notice err"><strong>Fallo de carga breve</strong><span>El problema queda cerca del chart y no se convierte en pantalla técnica.</span></div>
+        <div class="actions">
+          <button class="btn" type="button" data-action="goto-ready">Probar de nuevo</button>
+          <button class="ghost" type="button" data-action="goto-period">Cambiar período</button>
+        </div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="VIS-001-S01-LOADING") return loadingFrame();
+      if(state.frame==="VIS-001-S01-READY") return readyFrame();
+      if(state.frame==="VIS-001-S02-PERIOD") return periodFrame();
+      if(state.frame==="VIS-001-S03-EMPTY") return emptyFrame();
+      return errorFrame();
+    }
+    function navHtml(){
+      nav.innerHTML=Object.entries(labels).map(([id,label])=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${label}<br><small>${id}</small></button>`).join("");
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 1080 px":"Móvil · 398 px";
+      screen.innerHTML=frameHtml();
+    }
+    document.addEventListener("click",event=>{
+      const mode=event.target.closest("[data-mode]");
+      if(mode){
+        state.mode=mode.dataset.mode;
+        document.querySelectorAll("[data-mode]").forEach(button=>button.classList.toggle("on",button.dataset.mode===state.mode));
+        return render();
+      }
+      const frame=event.target.closest("[data-frame]");
+      if(frame) return setFrame(frame.dataset.frame);
+      const period=event.target.closest("[data-period]");
+      if(period){
+        state.period=period.dataset.period;
+        return render();
+      }
+      const action=event.target.closest("[data-action]");
+      if(!action) return;
+      const a=action.dataset.action;
+      if(a==="goto-period") return setFrame("VIS-001-S02-PERIOD");
+      if(a==="apply-period") return setFrame(state.period==="Año"?"VIS-001-S03-EMPTY":"VIS-001-S01-READY");
+      if(a==="reset-period"){state.period="Mes"; return setFrame("VIS-001-S01-READY");}
+      if(a==="goto-ready") return setFrame("VIS-001-S01-READY");
+    });
+    render();
+  </script>
+</body>
+</html>

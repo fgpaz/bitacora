@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-VIN-003</title>
+  <style>
+    :root{--pine:#4b645c;--mist:#dfe9e4;--paper:#fff9f3;--paper-2:#f3ebdf;--ink:#292421;--muted:#6b635d;--accent:#b56d59;--line:#d8cabd;--ok:#5a786c;--error:#9c5a4a;--vw:398px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(181,109,89,.15),transparent 36%),linear-gradient(180deg,#fbf5ee,#efe4d8)}
+    button{font:inherit;cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(255,249,243,.92);border:1px solid rgba(216,202,189,.96);border-radius:24px;box-shadow:0 18px 38px rgba(41,36,33,.08);backdrop-filter:blur(8px)}
+    .hero,.sidebar,.shell,.summary,.notice,.screen,.nav button,.card,.actions,.cards{display:grid;gap:12px}
+    .hero,.sidebar,.shell{padding:24px}
+    .eyebrow,.chip,.meta span,.tag,.badge{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(75,100,92,.12);color:var(--pine)}
+    .tag{background:rgba(181,109,89,.12);color:var(--accent)}
+    .badge{background:rgba(90,120,108,.12);color:var(--ok)}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3.05rem);max-width:13ch}
+    h2{font-size:clamp(1.7rem,2vw,2.2rem);max-width:16ch}
+    p,span,small,strong{margin:0;line-height:1.55}
+    p,span,small{color:var(--muted)}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(233,223,213,.88)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:rgba(216,202,189,.96);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(216,202,189,.96);border-radius:15px;background:rgba(243,235,223,.95);color:var(--ink);text-align:left}
+    .nav button.on{background:rgba(75,100,92,.12);border-color:rgba(75,100,92,.42)}
+    .summary,.notice,.card{padding:16px;border-radius:18px;border:1px solid rgba(216,202,189,.96);background:rgba(243,235,223,.95)}
+    .notice.err{background:rgba(181,109,89,.11);border-color:rgba(181,109,89,.3)}
+    .notice.ok{background:rgba(90,120,108,.11);border-color:rgba(90,120,108,.3)}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(216,202,189,.96)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}
+    .meta span{background:rgba(233,223,213,.8);color:var(--muted)}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--paper),var(--paper-2));border:1px solid rgba(194,178,163,.86);box-shadow:0 20px 46px rgba(41,36,33,.12);min-height:760px}
+    .viewport.desktop{--vw:1040px;min-height:700px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(216,202,189,.96);background:rgba(255,249,243,.96)}
+    .actions{grid-template-columns:1fr}
+    .btn,.ghost{padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700}
+    .btn{background:linear-gradient(180deg,#5d776f,#4b645c);border-color:rgba(75,100,92,.56);color:#faf4ed}
+    .btn[disabled]{background:rgba(75,100,92,.34);border-color:rgba(75,100,92,.18);cursor:not-allowed}
+    .ghost{background:rgba(255,249,243,.96);border-color:rgba(194,178,163,.96);color:var(--ink)}
+    .cards{gap:10px}
+    .foot{font-size:.85rem;color:var(--muted);max-width:62ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .actions{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.viewport.desktop .screen{padding:30px}}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">VIN-003 · Prototipo local</div>
+      <h1>Revocar un vínculo tiene que sentirse firme, no dramático.</h1>
+      <p>El slice muestra una sola decisión sensible: cortar el vínculo con impacto visible antes de confirmar y con una salida clara después.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>La misma lógica debe sostenerse en ambos formatos.</p>
+        </section>
+        <section>
+          <div class="chip">Frames</div>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section class="summary">
+          <strong>Base Stitch</strong>
+          <span>La corrida parcial ya devolvió el éxito. Este pack local agrega entrada, caso ya revocado y error para dejar el slice completo y testeable.</span>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Revocación del vínculo con impacto visible.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 398 px</span><span>11:06 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Referencia canónica local de `VIN-003`: pack navegable con impacto previo, revocación, confirmación y error recuperable.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={
+      "VIN-003-S01-ENTRY":"S01 · Entrada",
+      "VIN-003-S02-DEFAULT":"S02 · Confirmación",
+      "VIN-003-S02-SUBMITTING":"S02 · Revocando",
+      "VIN-003-S03-SUCCESS":"S03 · Revocado",
+      "VIN-003-S03-ALREADY":"S03 · Ya revocado",
+      "VIN-003-S03-ERROR":"S03 · Error recuperable"
+    };
+    const state={frame:"VIN-003-S01-ENTRY",mode:"mobile",professional:"Dra. Julia Costa"};
+    const nav=document.getElementById("nav"),screen=document.getElementById("screen"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    const btn=(label,action,disabled=false)=>`<button class="btn" type="button" data-action="${action}" ${disabled?"disabled":""}>${label}</button>`;
+    const ghost=(label,action)=>`<button class="ghost" type="button" data-action="${action}">${label}</button>`;
+    function setFrame(frame){state.frame=frame; render();}
+    function setHead(a,b,c,d){
+      title.textContent=a;
+      subtitle.textContent=b;
+      chip.textContent=c;
+      meta.innerHTML=`<span>${d}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop"}</span><span>${state.frame}</span>`;
+    }
+    function navHtml(){
+      nav.innerHTML=Object.entries(labels).map(([id,label])=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${label}<br><small>${id}</small></button>`).join("");
+    }
+    function impactCards(){
+      return `
+        <div class="cards">
+          <div class="card"><strong>Qué cambia ahora</strong><span>${state.professional} pierde acceso inmediato a tus datos.</span></div>
+          <div class="card"><strong>Qué no cambia</strong><span>Tus registros siguen guardados para vos. No se eliminan.</span></div>
+        </div>
+      `;
+    }
+    function entry(){
+      setHead("S01 · Entrada al corte","Primero se ubica el vínculo correcto antes de la decisión sensible.","Contexto visible","S01");
+      return `
+        <div class="tag">Revocar vínculo</div>
+        <h2>Revisá este vínculo antes de revocarlo.</h2>
+        <p>Si seguís, ${state.professional} pierde acceso a tus datos y el vínculo queda cortado.</p>
+        <div class="card"><strong>Vínculo actual</strong><span>${state.professional} tiene un vínculo activo con vos y acceso a tus registros según la configuración actual.</span></div>
+        <div class="actions">${btn("Revisar impacto","goto-default")}${ghost("Ver caso ya revocado","goto-already")}</div>
+      `;
+    }
+    function confirm(){
+      setHead("S02 · Confirmación de revocación","El impacto aparece antes de la acción principal.","Decisión firme","S02");
+      return `
+        <div class="tag">Confirmación</div>
+        <h2>Revocar vínculo</h2>
+        <p>Si seguís, este profesional pierde acceso inmediato a tus datos.</p>
+        ${impactCards()}
+        <div class="actions ${state.mode==="desktop"?"inline":""}">
+          ${btn("Revocar vínculo","submit")}
+          ${ghost("Conservar vínculo","back-entry")}
+        </div>
+      `;
+    }
+    function submitting(){
+      setHead("S02 · Revocando","Feedback corto mientras se aplica el cambio.","Procesando","S02");
+      return `
+        <div class="tag">Revocando</div>
+        <h2>Estamos revocando este vínculo.</h2>
+        <p>Mantenemos visible el impacto para que el paso no se vuelva opaco.</p>
+        <div class="notice ok"><strong>Cambio en curso</strong><span>${state.professional} va a perder acceso a tus datos cuando termine este paso.</span></div>
+        <div class="actions">${btn("Revocando...","noop",true)}${ghost("Ver confirmación","goto-success")}</div>
+      `;
+    }
+    function success(){
+      setHead("S03 · Vínculo revocado","La salida confirma el corte sin dramatizar.","Resultado claro","S03");
+      return `
+        <div class="badge">Vínculo revocado</div>
+        <h2>${state.professional} ya no tiene acceso a tus datos.</h2>
+        <p>El vínculo quedó cortado y no hace falta hacer nada más ahora.</p>
+        <div class="card"><strong>Estado actual</strong><span>El acceso quedó cortado de forma inmediata.</span></div>
+        <div class="actions">${ghost("Ver caso ya revocado","goto-already")}${ghost("Ver error recuperable","goto-error")}</div>
+      `;
+    }
+    function already(){
+      setHead("S03 · Ya revocado","La variante evita repetir una acción que ya pasó.","Estado existente","S03");
+      return `
+        <div class="badge">Sin acción pendiente</div>
+        <h2>Este vínculo ya estaba revocado.</h2>
+        <p>${state.professional} ya no tiene acceso a tus datos, así que no hace falta volver a confirmarlo.</p>
+        <div class="notice ok"><strong>Estado actual</strong><span>El acceso ya está cortado.</span></div>
+        <div class="actions">${ghost("Volver al flujo","goto-default")}</div>
+      `;
+    }
+    function error(){
+      setHead("S03 · Error recuperable","El error queda localizado y permite reintentar.","Reintento claro","S03");
+      return `
+        <div class="tag">No se revocó</div>
+        <h2>No pudimos revocar este vínculo.</h2>
+        <p>Probá de nuevo. Mientras tanto, el vínculo sigue como estaba antes de este intento.</p>
+        ${impactCards()}
+        <div class="notice err"><strong>El cambio no se aplicó.</strong><span>${state.professional} conserva el acceso anterior hasta que el paso termine bien.</span></div>
+        <div class="actions">${btn("Probar de nuevo","submit")}${ghost("Conservar vínculo","back-entry")}</div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="VIN-003-S01-ENTRY") return entry();
+      if(state.frame==="VIN-003-S02-DEFAULT") return confirm();
+      if(state.frame==="VIN-003-S02-SUBMITTING") return submitting();
+      if(state.frame==="VIN-003-S03-SUCCESS") return success();
+      if(state.frame==="VIN-003-S03-ALREADY") return already();
+      return error();
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 1040 px":"Móvil · 398 px";
+      screen.innerHTML=frameHtml();
+    }
+    document.addEventListener("click",event=>{
+      const mode=event.target.closest("[data-mode]");
+      if(mode){
+        state.mode=mode.dataset.mode;
+        document.querySelectorAll("[data-mode]").forEach(button=>button.classList.toggle("on",button.dataset.mode===state.mode));
+        return render();
+      }
+      const frame=event.target.closest("[data-frame]");
+      if(frame) return setFrame(frame.dataset.frame);
+      const action=event.target.closest("[data-action]");
+      if(!action) return;
+      const a=action.dataset.action;
+      if(a==="goto-default") return setFrame("VIN-003-S02-DEFAULT");
+      if(a==="back-entry") return setFrame("VIN-003-S01-ENTRY");
+      if(a==="submit") return setFrame("VIN-003-S02-SUBMITTING");
+      if(a==="goto-success") return setFrame("VIN-003-S03-SUCCESS");
+      if(a==="goto-already") return setFrame("VIN-003-S03-ALREADY");
+      if(a==="goto-error") return setFrame("VIN-003-S03-ERROR");
+    });
+    document.addEventListener("dblclick",event=>{
+      if(event.target.closest("[data-action='submit']")&&state.frame==="VIN-003-S02-SUBMITTING") setFrame("VIN-003-S03-SUCCESS");
+    });
+    render();
+  </script>
+</body>
+</html>

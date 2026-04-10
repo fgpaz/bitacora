@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-VIN-002</title>
+  <style>
+    :root{--pine:#45645f;--sand:#f4eee5;--paper:#fffbf6;--ink:#2f2b29;--muted:#6d6660;--accent:#c06f57;--line:#d8caba;--ok:#5c7a6d;--warn:#9f624f;--vw:398px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(192,111,87,.16),transparent 34%),linear-gradient(180deg,#fbf6ef,#efe4d8)}
+    button,input{font:inherit} button{cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(255,251,246,.9);border:1px solid rgba(216,202,186,.96);border-radius:24px;box-shadow:0 18px 38px rgba(47,43,41,.08);backdrop-filter:blur(8px)}
+    .hero,.sidebar,.shell{padding:24px}
+    .hero,.sidebar,.shell,.summary,.notice,.screen,.nav button,.card,.actions{display:grid;gap:12px}
+    .eyebrow,.chip,.meta span,.tag,.badge{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(69,100,95,.12);color:var(--pine)}
+    .tag{background:rgba(192,111,87,.12);color:var(--warn)}
+    .badge{background:rgba(92,122,109,.12);color:var(--ok)}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3.15rem);max-width:13ch}
+    h2{font-size:clamp(1.7rem,2vw,2.2rem);max-width:15ch}
+    p,span,small,strong{margin:0;line-height:1.55}
+    p,span,small{color:var(--muted)}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(234,224,214,.88)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:rgba(216,202,186,.96);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(216,202,186,.96);border-radius:15px;background:rgba(244,238,229,.95);color:var(--ink);text-align:left}
+    .nav button.on{background:rgba(69,100,95,.12);border-color:rgba(69,100,95,.44)}
+    .summary,.notice,.card{padding:16px;border-radius:18px;border:1px solid rgba(216,202,186,.96);background:rgba(244,238,229,.95)}
+    .notice.err{background:rgba(192,111,87,.11);border-color:rgba(192,111,87,.3)}
+    .notice.ok{background:rgba(92,122,109,.11);border-color:rgba(92,122,109,.3)}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(216,202,186,.96)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}
+    .meta span{background:rgba(234,224,214,.8);color:var(--muted)}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--paper),var(--sand));border:1px solid rgba(194,178,163,.86);box-shadow:0 20px 46px rgba(47,43,41,.12);min-height:760px}
+    .viewport.desktop{--vw:1040px;min-height:700px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(216,202,186,.96);background:rgba(255,251,246,.96)}
+    .code-input{width:100%;padding:16px 18px;border-radius:16px;border:1px solid rgba(194,178,163,.96);background:rgba(255,255,255,.7);font-size:1.05rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+    .hint{font-size:.92rem}
+    .cards{display:grid;gap:10px}
+    .actions{grid-template-columns:1fr}
+    .btn,.ghost{padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700}
+    .btn{background:var(--pine);border-color:rgba(69,100,95,.56);color:#faf5ef}
+    .btn[disabled]{background:rgba(69,100,95,.34);border-color:rgba(69,100,95,.18);cursor:not-allowed}
+    .ghost{background:rgba(255,251,246,.96);border-color:rgba(194,178,163,.96);color:var(--ink)}
+    .inline{display:grid;gap:10px}
+    .foot{font-size:.85rem;color:var(--muted);max-width:62ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .actions,.viewport.desktop .inline{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.viewport.desktop .screen{padding:30px}}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">VIN-002 · Prototipo local</div>
+      <h1>Vincularse por código tiene que sentirse preciso, no técnico.</h1>
+      <p>El slice sostiene una idea central: contexto breve antes del código, control explícito después. El vínculo se activa sin confundirlo con acceso automático a los datos.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>La lógica del paso crítico se mantiene igual en ambos formatos.</p>
+        </section>
+        <section>
+          <div class="chip">Frames</div>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section class="summary">
+          <strong>Hipótesis</strong>
+          <span>Si el contexto previo es suficiente y el límite de acceso queda explícito, el código deja de sentirse opaco aunque sea el único dato pedido.</span>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Ingreso del código con claridad y control.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 398 px</span><span>10:11 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Fallback local canónico para `VIN-002`: cubre el flujo principal y los estados sensibles mientras Stitch no devuelve una salida estable para este slice.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={
+      "VIN-002-S01-ENTRY":"S01 · Entrada",
+      "VIN-002-S02-DEFAULT":"S02 · Código vacío",
+      "VIN-002-S02-READY":"S02 · Listo para enviar",
+      "VIN-002-S02-SUBMITTING":"S02 · Validando",
+      "VIN-002-S02-INVALID":"S02 · Código inválido",
+      "VIN-002-S02-EXPIRED":"S02 · Código expirado",
+      "VIN-002-S03-SUCCESS":"S03 · Vínculo activo",
+      "VIN-002-S03-EXISTING":"S03 · Vínculo existente"
+    };
+    const state={frame:"VIN-002-S01-ENTRY",mode:"mobile",code:"",professional:"Dra. Julia Costa"};
+    const nav=document.getElementById("nav"),screen=document.getElementById("screen"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    const btn=(label,action,disabled=false)=>`<button class="btn" type="button" data-action="${action}" ${disabled?"disabled":""}>${label}</button>`;
+    const ghost=(label,action)=>`<button class="ghost" type="button" data-action="${action}">${label}</button>`;
+    function setFrame(frame){
+      state.frame=frame;
+      if(frame==="VIN-002-S02-READY"&&!state.code) state.code="BIT-4J8KQ";
+      render();
+    }
+    function setHead(a,b,c,d){
+      title.textContent=a;
+      subtitle.textContent=b;
+      chip.textContent=c;
+      meta.innerHTML=`<span>${d}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop"}</span><span>${state.frame}</span>`;
+    }
+    function navHtml(){
+      nav.innerHTML=Object.entries(labels).map(([id,label])=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${label}<br><small>${id}</small></button>`).join("");
+    }
+    function inputBlock(readOnly=false){
+      return `
+        <label>
+          <span class="hint">Código de vinculación</span>
+          <input class="code-input" id="code-input" type="text" value="${state.code}" placeholder="BIT-XXXXX" maxlength="16" ${readOnly?"readonly":""}>
+        </label>
+        <p class="hint">El vínculo no activa acceso automático a tus datos.</p>
+      `;
+    }
+    function contextCard(){
+      return `<div class="card"><strong>Qué pasa si el código sirve</strong><span>Se crea el vínculo con tu profesional y el acceso a tus datos queda apagado hasta que vos decidas cambiarlo.</span></div>`;
+    }
+    function entry(){
+      setHead("S01 · Entrada al vínculo","El flujo abre con una explicación breve antes del código.","Contexto breve","S01");
+      return `
+        <div class="tag">Auto-vinculación</div>
+        <h2>Vinculate con tu profesional usando un código.</h2>
+        <p>Es un paso corto. Si el código es válido, queda creado el vínculo y el acceso a tus datos sigue bajo tu control.</p>
+        ${contextCard()}
+        <div class="actions">${btn("Ingresar código","goto-default")}${ghost("Ver vínculo ya existente","goto-existing")}</div>
+      `;
+    }
+    function codeFrame(mode){
+      const copy={
+        default:["S02 · Ingreso del código","Un solo campo y un resumen visible del efecto del vínculo.","Esperando código",""],
+        ready:["S02 · Código listo","La acción principal ya está habilitada y no compite con nada más.","Listo para validar",""],
+        submitting:["S02 · Validando código","Feedback breve mientras se resuelve el vínculo.","Validando","<div class=\"notice ok\"><strong>Estamos validando el código.</strong><span>El paso sigue siendo corto: evitamos doble envío y mantenemos visible el límite de acceso.</span></div>"],
+        invalid:["S02 · Código inválido","El error explica el problema sin culpar ni tecnificar.","Error recuperable","<div class=\"notice err\"><strong>Ese código no está disponible.</strong><span>Pedí uno nuevo a tu profesional.</span></div>"],
+        expired:["S02 · Código expirado","La expiración se explica como estado del código, no como error de la persona.","Código vencido","<div class=\"notice err\"><strong>Ese código ya venció.</strong><span>Pedí uno nuevo a tu profesional para volver a intentarlo.</span></div>"]
+      }[mode];
+      const successPreview=mode==="submitting"?ghost("Ver confirmación","goto-success"):"";
+      setHead(copy[0],copy[1],copy[2],"S02");
+      return `
+        <div class="tag">Ingreso del código</div>
+        <h2>Ingresá el código</h2>
+        <p>Si sirve, quedás vinculada con ${state.professional} y el acceso a tus datos no se activa automáticamente.</p>
+        ${copy[3]}
+        ${inputBlock(mode==="submitting")}
+        ${contextCard()}
+        <div class="actions ${state.mode==="desktop"?"inline":""}">
+          ${btn(mode==="submitting"?"Validando...":"Vincular","submit",mode==="submitting"||!state.code.trim())}
+          ${ghost("Salir por ahora","clear-code")}
+        </div>
+        <div class="inline">
+          ${successPreview}
+          ${ghost("Cargar código de ejemplo","fill-code")}
+          ${ghost("Ver código inválido","goto-invalid")}
+          ${ghost("Ver código expirado","goto-expired")}
+        </div>
+      `;
+    }
+    function success(){
+      setHead("S03 · Vínculo activo","La confirmación cierra el gesto y deja el control de acceso explícito.","Vínculo claro","S03");
+      return `
+        <div class="badge">Vínculo activo</div>
+        <h2>Ya quedaste vinculada con ${state.professional}.</h2>
+        <p>El acceso a tus datos sigue desactivado. Podés cambiarlo después cuando quieras.</p>
+        <div class="cards">
+          <div class="card"><strong>Resultado</strong><span>El vínculo quedó creado con el código <strong>${state.code || "BIT-4J8KQ"}</strong>.</span></div>
+          <div class="card"><strong>Límite activo</strong><span>${state.professional} todavía no puede ver tus registros. Ese control sigue en tus manos.</span></div>
+        </div>
+        <div class="actions">${ghost("Volver al código","goto-ready")}${ghost("Ver vínculo existente","goto-existing")}</div>
+      `;
+    }
+    function existing(){
+      setHead("S03 · Vínculo ya existente","La variante evita duplicación y aclara el estado actual.","Estado existente","S03");
+      return `
+        <div class="badge">Sin duplicación</div>
+        <h2>Ya tenés un vínculo activo con ${state.professional}.</h2>
+        <p>No hace falta volver a crear nada. El acceso a tus datos sigue con la configuración que ya tenés.</p>
+        <div class="notice ok"><strong>Estado actual</strong><span>Tu vínculo sigue activo y no vamos a duplicarlo usando otro código.</span></div>
+        <div class="actions">${ghost("Volver al ingreso","goto-default")}${ghost("Ver confirmación estándar","goto-success")}</div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="VIN-002-S01-ENTRY") return entry();
+      if(state.frame==="VIN-002-S02-DEFAULT") return codeFrame("default");
+      if(state.frame==="VIN-002-S02-READY") return codeFrame("ready");
+      if(state.frame==="VIN-002-S02-SUBMITTING") return codeFrame("submitting");
+      if(state.frame==="VIN-002-S02-INVALID") return codeFrame("invalid");
+      if(state.frame==="VIN-002-S02-EXPIRED") return codeFrame("expired");
+      if(state.frame==="VIN-002-S03-SUCCESS") return success();
+      return existing();
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 1040 px":"Móvil · 398 px";
+      screen.innerHTML=frameHtml();
+      const input=document.getElementById("code-input");
+      if(input&&!input.readOnly){
+        input.addEventListener("input",event=>{
+          state.code=event.target.value.toUpperCase();
+          if(state.frame==="VIN-002-S02-DEFAULT"&&state.code.trim()) state.frame="VIN-002-S02-READY";
+          if(state.frame==="VIN-002-S02-READY"&&!state.code.trim()) state.frame="VIN-002-S02-DEFAULT";
+          render();
+        });
+      }
+    }
+    document.addEventListener("click",event=>{
+      const mode=event.target.closest("[data-mode]");
+      if(mode){
+        state.mode=mode.dataset.mode;
+        document.querySelectorAll("[data-mode]").forEach(button=>button.classList.toggle("on",button.dataset.mode===state.mode));
+        return render();
+      }
+      const frame=event.target.closest("[data-frame]");
+      if(frame) return setFrame(frame.dataset.frame);
+      const action=event.target.closest("[data-action]");
+      if(!action) return;
+      const a=action.dataset.action;
+      if(a==="goto-default"){state.code=""; return setFrame("VIN-002-S02-DEFAULT");}
+      if(a==="goto-ready"){if(!state.code) state.code="BIT-4J8KQ"; return setFrame("VIN-002-S02-READY");}
+      if(a==="goto-invalid"){if(!state.code) state.code="BIT-4J8KQ"; return setFrame("VIN-002-S02-INVALID");}
+      if(a==="goto-expired"){if(!state.code) state.code="BIT-4J8KQ"; return setFrame("VIN-002-S02-EXPIRED");}
+      if(a==="goto-success"){if(!state.code) state.code="BIT-4J8KQ"; return setFrame("VIN-002-S03-SUCCESS");}
+      if(a==="goto-existing"){if(!state.code) state.code="BIT-4J8KQ"; return setFrame("VIN-002-S03-EXISTING");}
+      if(a==="fill-code"){state.code="BIT-4J8KQ"; return setFrame("VIN-002-S02-READY");}
+      if(a==="clear-code"){state.code=""; return setFrame("VIN-002-S01-ENTRY");}
+      if(a==="submit"&&state.code.trim()) return setFrame("VIN-002-S02-SUBMITTING");
+    });
+    document.addEventListener("dblclick",event=>{
+      if(event.target.closest("[data-action='submit']")&&state.frame==="VIN-002-S02-SUBMITTING") setFrame("VIN-002-S03-SUCCESS");
+    });
+    render();
+  </script>
+</body>
+</html>

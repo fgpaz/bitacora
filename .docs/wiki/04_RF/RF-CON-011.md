@@ -22,7 +22,7 @@
 ## Proceso (Happy Path)
 1. SELECT todos los CareLinks WHERE patient_id=? AND status='active'.
 2. UPDATE CareLinks SET status='revoked_by_consent', revoked_at=NOW() para cada uno.
-3. Para cada CareLink afectado, INSERT AccessAudit operacion='CARELINK_REVOKED_BY_CONSENT'.
+3. Para cada CareLink afectado, INSERT AccessAudit con `action_type='revoke'`, `resource_type='care_link'`, `resource_id=care_link_id`.
 4. Si no hay CareLinks activos: operacion es no-op, transaccion continua.
 
 ## Outputs
@@ -43,7 +43,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | CareLink | UPDATE | status, revoked_at |
-| AccessAudit | INSERT | trace_id, patient_id, care_link_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

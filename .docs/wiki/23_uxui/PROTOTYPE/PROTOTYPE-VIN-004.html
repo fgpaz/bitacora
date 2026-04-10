@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-VIN-004</title>
+  <style>
+    :root{--sage:#4f6962;--sage-soft:#e3ece7;--paper:#fef8f1;--paper-2:#f5eee4;--ink:#24201d;--muted:#6f675f;--accent:#b97560;--line:#d8cabc;--ok:#5d7d70;--error:#9e5948;--vw:398px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(185,117,96,.14),transparent 34%),linear-gradient(180deg,#fcf7ef,#efe4d8)}
+    button{font:inherit;cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(254,248,241,.9);border:1px solid rgba(216,202,188,.96);border-radius:24px;box-shadow:0 18px 38px rgba(36,32,29,.08);backdrop-filter:blur(8px)}
+    .hero,.sidebar,.shell,.summary,.notice,.screen,.nav button,.card,.actions,.segmented{display:grid;gap:12px}
+    .hero,.sidebar,.shell{padding:24px}
+    .eyebrow,.chip,.meta span,.tag,.badge{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(79,105,98,.12);color:var(--sage)}
+    .tag{background:rgba(185,117,96,.12);color:var(--accent)}
+    .badge{background:rgba(93,125,112,.12);color:var(--ok)}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3.1rem);max-width:13ch}
+    h2{font-size:clamp(1.7rem,2vw,2.2rem);max-width:16ch}
+    p,span,small,strong{margin:0;line-height:1.55}
+    p,span,small{color:var(--muted)}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(233,223,213,.88)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:rgba(216,202,188,.96);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(216,202,188,.96);border-radius:15px;background:rgba(245,238,228,.95);color:var(--ink);text-align:left}
+    .nav button.on{background:rgba(79,105,98,.12);border-color:rgba(79,105,98,.44)}
+    .summary,.notice,.card{padding:16px;border-radius:18px;border:1px solid rgba(216,202,188,.96);background:rgba(245,238,228,.95)}
+    .notice.err{background:rgba(185,117,96,.11);border-color:rgba(185,117,96,.32)}
+    .notice.ok{background:rgba(93,125,112,.11);border-color:rgba(93,125,112,.32)}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(216,202,188,.96)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}
+    .meta span{background:rgba(233,223,213,.8);color:var(--muted)}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--paper),var(--paper-2));border:1px solid rgba(194,178,163,.86);box-shadow:0 20px 46px rgba(36,32,29,.12);min-height:760px}
+    .viewport.desktop{--vw:1040px;min-height:700px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(216,202,188,.96);background:rgba(254,248,241,.96)}
+    .state-card{padding:18px;border-radius:20px;background:rgba(255,255,255,.78);border:1px solid rgba(216,202,188,.96)}
+    .state-card strong{display:block;font-size:1.05rem;color:var(--ink);margin-bottom:6px}
+    .segmented{grid-template-columns:1fr 1fr}
+    .segmented button{padding:14px 12px;border-radius:16px;border:1px solid rgba(194,178,163,.96);background:rgba(255,255,255,.7);color:var(--ink);text-align:left}
+    .segmented button.on{background:var(--sage-soft);border-color:rgba(79,105,98,.42)}
+    .actions{grid-template-columns:1fr}
+    .btn,.ghost{padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700}
+    .btn{background:linear-gradient(180deg,#5f7a72,#4f6962);border-color:rgba(79,105,98,.56);color:#faf4ee}
+    .btn[disabled]{background:rgba(79,105,98,.34);border-color:rgba(79,105,98,.18);cursor:not-allowed}
+    .ghost{background:rgba(254,248,241,.96);border-color:rgba(194,178,163,.96);color:var(--ink)}
+    .inline{display:grid;gap:10px}
+    .foot{font-size:.85rem;color:var(--muted);max-width:62ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .actions,.viewport.desktop .inline{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.viewport.desktop .screen{padding:30px}}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">VIN-004 · Prototipo local</div>
+      <h1>Cambiar acceso tiene que sentirse fino, legible y reversible.</h1>
+      <p>Este slice no toca el vínculo entero. Solo hace visible si el profesional puede ver los registros y qué pasa cuando esa decisión cambia.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>La decisión y su efecto usan la misma lógica en ambos formatos.</p>
+        </section>
+        <section>
+          <div class="chip">Frames</div>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section class="summary">
+          <strong>Base Stitch</strong>
+          <span>El complemento local consolida la corrida `core` de Stitch y agrega los estados que faltan para observar comprensión y reversibilidad.</span>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Cambio de acceso con efecto visible.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 398 px</span><span>10:42 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Referencia canónica local de `VIN-004`: pack navegable con lectura del estado, cambio, guardado y error, apoyado por la corrida Stitch real de este slice.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={
+      "VIN-004-S01-DEFAULT":"S01 · Estado actual",
+      "VIN-004-S01-INACTIVE":"S01 · Vínculo inactivo",
+      "VIN-004-S02-DIRTY":"S02 · Cambio pendiente",
+      "VIN-004-S02-SAVING":"S02 · Guardando",
+      "VIN-004-S03-SAVED":"S03 · Cambio guardado",
+      "VIN-004-S03-ERROR":"S03 · Error recuperable"
+    };
+    const state={frame:"VIN-004-S01-DEFAULT",mode:"mobile",currentAccess:false,nextAccess:false,professional:"Dra. Julia Costa"};
+    const nav=document.getElementById("nav"),screen=document.getElementById("screen"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    const btn=(label,action,disabled=false)=>`<button class="btn" type="button" data-action="${action}" ${disabled?"disabled":""}>${label}</button>`;
+    const ghost=(label,action)=>`<button class="ghost" type="button" data-action="${action}">${label}</button>`;
+    function setFrame(frame){state.frame=frame; render();}
+    function setHead(a,b,c,d){
+      title.textContent=a;
+      subtitle.textContent=b;
+      chip.textContent=c;
+      meta.innerHTML=`<span>${d}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop"}</span><span>${state.frame}</span>`;
+    }
+    function navHtml(){
+      nav.innerHTML=Object.entries(labels).map(([id,label])=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${label}<br><small>${id}</small></button>`).join("");
+    }
+    function currentStateCard(){
+      const active=state.currentAccess;
+      return `
+        <div class="state-card">
+          <strong>${active ? "Acceso activo" : "Acceso restringido"}</strong>
+          <span>${active ? `${state.professional} puede ver tus registros.` : `${state.professional} todavía no puede ver tus registros.`}</span>
+        </div>
+      `;
+    }
+    function consequenceCopy(active){
+      return active
+        ? `${state.professional} podrá ver tus registros desde la próxima consulta.`
+        : `${state.professional} dejará de ver tus registros hasta que vuelvas a cambiarlo.`;
+    }
+    function defaultFrame(){
+      setHead("S01 · Estado actual","Primero se entiende el punto de partida.","Estado legible","S01");
+      return `
+        <div class="tag">Gestionar acceso</div>
+        <h2>Gestionar acceso</h2>
+        <p>Podés decidir si este profesional puede ver tus registros.</p>
+        ${currentStateCard()}
+        <div class="card"><strong>Antes de cambiar</strong><span>${state.currentAccess ? "Si restringís el acceso, el vínculo sigue activo pero deja de poder ver tus registros." : "Si activás el acceso, el vínculo sigue igual y solo cambia la visibilidad de tus registros."}</span></div>
+        <div class="actions">${btn("Cambiar acceso","make-dirty")}${ghost("Ver vínculo inactivo","goto-inactive")}</div>
+      `;
+    }
+    function inactiveFrame(){
+      setHead("S01 · Vínculo inactivo","La variante cerrada evita tocar un vínculo que ya no admite cambios.","Cambio no disponible","S01");
+      return `
+        <div class="tag">Gestionar acceso</div>
+        <h2>Este vínculo ya no admite cambios.</h2>
+        <p>El acceso no puede ajustarse porque el vínculo ya no está activo.</p>
+        <div class="notice err"><strong>Sin acción disponible</strong><span>Si necesitás volver a compartir registros, primero vas a tener que crear un vínculo nuevo.</span></div>
+        <div class="actions">${ghost("Volver al estado actual","goto-default")}</div>
+      `;
+    }
+    function dirtyFrame(){
+      const next=state.nextAccess;
+      setHead("S02 · Cambio pendiente","El efecto del cambio aparece antes del guardado.","Cambio listo","S02");
+      return `
+        <div class="tag">Gestionar acceso</div>
+        <h2>Elegí cómo querés dejar este acceso.</h2>
+        <p>El vínculo sigue activo. Solo cambia si ${state.professional} puede ver tus registros.</p>
+        ${currentStateCard()}
+        <div class="segmented">
+          <button class="${!next?"on":""}" type="button" data-access="off"><strong>Restringir acceso</strong><span>${state.professional} no puede ver tus registros.</span></button>
+          <button class="${next?"on":""}" type="button" data-access="on"><strong>Permitir acceso</strong><span>${state.professional} puede ver tus registros.</span></button>
+        </div>
+        <div class="card"><strong>Si guardás este cambio</strong><span>${consequenceCopy(next)}</span></div>
+        <div class="actions ${state.mode==="desktop"?"inline":""}">
+          ${btn("Guardar cambio","save-change")}
+          ${ghost("Dejar como está","reset-default")}
+        </div>
+      `;
+    }
+    function savingFrame(){
+      setHead("S02 · Guardando","Feedback corto mientras se persiste el nuevo estado.","Guardando","S02");
+      return `
+        <div class="tag">Guardando</div>
+        <h2>Estamos guardando tu cambio.</h2>
+        <p>Mantenemos visible el efecto para que el paso no se vuelva opaco.</p>
+        <div class="notice ok"><strong>Cambio en curso</strong><span>${consequenceCopy(state.nextAccess)}</span></div>
+        <div class="actions">${btn("Guardando...","noop",true)}${ghost("Ver resultado guardado","goto-saved")}</div>
+      `;
+    }
+    function savedFrame(){
+      setHead("S03 · Cambio guardado","La confirmación dice qué cambió y nada más.","Estado guardado","S03");
+      return `
+        <div class="badge">Cambio guardado</div>
+        <h2>${state.nextAccess ? `${state.professional} ya puede ver tus registros.` : `${state.professional} ya no puede ver tus registros.`}</h2>
+        <p>El vínculo sigue activo. Solo cambió el acceso.</p>
+        <div class="card"><strong>Estado actual</strong><span>${consequenceCopy(state.nextAccess)}</span></div>
+        <div class="actions">${ghost("Hacer otro cambio","edit-again")}${ghost("Ver error recuperable","goto-error")}</div>
+      `;
+    }
+    function errorFrame(){
+      setHead("S03 · Error recuperable","El error queda localizado y el estado previo sigue visible.","Reintento claro","S03");
+      return `
+        <div class="tag">No se guardó</div>
+        <h2>No pudimos guardar este cambio.</h2>
+        <p>Probá de nuevo. El acceso sigue como estaba antes de este intento.</p>
+        ${currentStateCard()}
+        <div class="notice err"><strong>El cambio pendiente no se aplicó.</strong><span>${consequenceCopy(state.nextAccess)}</span></div>
+        <div class="actions">${btn("Probar de nuevo","save-change")}${ghost("Volver al estado actual","reset-default")}</div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="VIN-004-S01-DEFAULT") return defaultFrame();
+      if(state.frame==="VIN-004-S01-INACTIVE") return inactiveFrame();
+      if(state.frame==="VIN-004-S02-DIRTY") return dirtyFrame();
+      if(state.frame==="VIN-004-S02-SAVING") return savingFrame();
+      if(state.frame==="VIN-004-S03-SAVED") return savedFrame();
+      return errorFrame();
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 1040 px":"Móvil · 398 px";
+      screen.innerHTML=frameHtml();
+    }
+    document.addEventListener("click",event=>{
+      const mode=event.target.closest("[data-mode]");
+      if(mode){
+        state.mode=mode.dataset.mode;
+        document.querySelectorAll("[data-mode]").forEach(button=>button.classList.toggle("on",button.dataset.mode===state.mode));
+        return render();
+      }
+      const frame=event.target.closest("[data-frame]");
+      if(frame) return setFrame(frame.dataset.frame);
+      const access=event.target.closest("[data-access]");
+      if(access){
+        state.nextAccess=access.dataset.access==="on";
+        return setFrame("VIN-004-S02-DIRTY");
+      }
+      const action=event.target.closest("[data-action]");
+      if(!action) return;
+      const a=action.dataset.action;
+      if(a==="make-dirty"){state.nextAccess=!state.currentAccess; return setFrame("VIN-004-S02-DIRTY");}
+      if(a==="save-change") return setFrame("VIN-004-S02-SAVING");
+      if(a==="goto-default") return setFrame("VIN-004-S01-DEFAULT");
+      if(a==="goto-inactive") return setFrame("VIN-004-S01-INACTIVE");
+      if(a==="goto-saved"){state.currentAccess=state.nextAccess; return setFrame("VIN-004-S03-SAVED");}
+      if(a==="goto-error") return setFrame("VIN-004-S03-ERROR");
+      if(a==="reset-default"){state.nextAccess=state.currentAccess; return setFrame("VIN-004-S01-DEFAULT");}
+      if(a==="edit-again"){state.nextAccess=!state.currentAccess; return setFrame("VIN-004-S02-DIRTY");}
+    });
+    document.addEventListener("dblclick",event=>{
+      if(event.target.closest("[data-action='save-change']")&&state.frame==="VIN-004-S02-SAVING"){
+        state.currentAccess=state.nextAccess;
+        setFrame("VIN-004-S03-SAVED");
+      }
+    });
+    render();
+  </script>
+</body>
+</html>

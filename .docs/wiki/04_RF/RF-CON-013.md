@@ -24,7 +24,7 @@
 2. Ejecutar RF-CON-010: UPDATE ConsentGrant status='revoked'.
 3. Ejecutar RF-CON-011: UPDATE CareLinks status='revoked_by_consent'.
 4. Ejecutar RF-CON-012: invalidar caches (operacion no-ACID; fallo es warning).
-5. INSERT AccessAudit final con trace_id, operacion='CONSENT_REVOKE_COMPLETE'.
+5. INSERT AccessAudit final con `action_type='revoke'`, `resource_type='consent_grant'`.
 6. COMMIT.
 7. En cualquier excepcion de pasos 2-3-5: ROLLBACK; retornar 500 REVOCATION_FAILED.
 
@@ -48,7 +48,7 @@
 |---------|-----------|-----------------|
 | ConsentGrant | UPDATE | status, revoked_at |
 | CareLink | UPDATE | status, revoked_at |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

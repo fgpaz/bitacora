@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-EXP-001</title>
+  <style>
+    :root{--sage:#4f6860;--sage-soft:#e0e9e4;--paper:#fff8f1;--paper-2:#f4ebdf;--ink:#27221f;--muted:#6a625c;--accent:#b67864;--line:#d8cabd;--ok:#5d7b6f;--error:#a05d4c;--vw:398px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(182,120,100,.14),transparent 35%),linear-gradient(180deg,#fbf5ed,#efe4d8)}
+    button,a{font:inherit} button{cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(255,248,241,.92);border:1px solid rgba(216,202,189,.96);border-radius:24px;box-shadow:0 18px 38px rgba(39,34,31,.08);backdrop-filter:blur(8px)}
+    .hero,.sidebar,.shell,.summary,.notice,.screen,.nav button,.card,.actions,.cards{display:grid;gap:12px}
+    .hero,.sidebar,.shell{padding:24px}
+    .eyebrow,.chip,.meta span,.tag,.badge,.pill{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip,.pill{background:rgba(79,104,96,.12);color:var(--sage)}
+    .tag{background:rgba(182,120,100,.12);color:var(--accent)}
+    .badge{background:rgba(93,123,111,.12);color:var(--ok)}
+    h1,h2,h3{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3.05rem);max-width:13ch}
+    h2{font-size:clamp(1.7rem,2vw,2.25rem);max-width:15ch}
+    h3{font-size:1.08rem}
+    p,span,small,strong{margin:0;line-height:1.55}
+    p,span,small{color:var(--muted)}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(233,223,213,.88)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:rgba(216,202,189,.96);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(216,202,189,.96);border-radius:15px;background:rgba(244,235,223,.95);color:var(--ink);text-align:left}
+    .nav button.on{background:rgba(79,104,96,.12);border-color:rgba(79,104,96,.42)}
+    .summary,.notice,.card{padding:16px;border-radius:18px;border:1px solid rgba(216,202,189,.96);background:rgba(244,235,223,.95)}
+    .notice.err{background:rgba(182,120,100,.1);border-color:rgba(182,120,100,.32)}
+    .notice.ok{background:rgba(93,123,111,.1);border-color:rgba(93,123,111,.32)}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(216,202,189,.96)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}
+    .meta span{background:rgba(233,223,213,.8);color:var(--muted)}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--paper),var(--paper-2));border:1px solid rgba(194,178,163,.86);box-shadow:0 20px 46px rgba(39,34,31,.12);min-height:760px}
+    .viewport.desktop{--vw:960px;min-height:680px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(216,202,189,.96);background:rgba(255,248,241,.96)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+    .toolbar button{padding:10px 12px;border-radius:999px;border:1px solid rgba(194,178,163,.96);background:rgba(255,255,255,.75);color:var(--ink);font-weight:700}
+    .toolbar button.on{background:var(--sage-soft);border-color:rgba(79,104,96,.42)}
+    .cards{gap:10px}
+    .progress{height:10px;border-radius:999px;background:rgba(223,233,228,.7);overflow:hidden}
+    .progress > span{display:block;height:100%;width:56%;border-radius:999px;background:linear-gradient(90deg,#5f7b72,#b67864)}
+    .actions{grid-template-columns:1fr}
+    .btn,.ghost-link,.ghost{display:inline-flex;align-items:center;justify-content:center;padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700;text-decoration:none}
+    .btn{background:linear-gradient(180deg,#607b72,#4f6860);border-color:rgba(79,104,96,.56);color:#faf4ed}
+    .btn[disabled]{background:rgba(79,104,96,.34);border-color:rgba(79,104,96,.18);cursor:not-allowed}
+    .ghost,.ghost-link{background:rgba(255,248,241,.96);border-color:rgba(194,178,163,.96);color:var(--ink)}
+    .foot{font-size:.85rem;color:var(--muted);max-width:62ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .actions{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.viewport.desktop .screen{padding:30px}}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">EXP-001 · Prototipo local</div>
+      <h1>Descargar tus datos tiene que sentirse claro, no técnico.</h1>
+      <p>Este slice toma la salida de `VIS-001` y la convierte en un gesto simple: revisar alcance, confirmar período y recibir un handoff breve mientras el archivo se prepara.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel sidebar">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>La exportación conserva la misma calma editorial del timeline.</p>
+        </section>
+        <section>
+          <div class="chip">Frames</div>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section class="summary">
+          <strong>Entrada natural</strong>
+          <span>Este flujo nace desde el timeline, pero se lee como paso propio para no mezclar lectura con descarga.</span>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Exportación CSV del paciente.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 398 px</span><span>11:55 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Referencia canónica local de `EXP-001`: alcance simple, período visible, feedback breve de preparación y error recuperable.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={
+      "EXP-001-S01-DEFAULT":"S01 · Alcance base",
+      "EXP-001-S01-PERIOD":"S01 · Período elegido",
+      "EXP-001-S02-GENERATING":"S02 · Preparando archivo",
+      "EXP-001-S02-SUCCESS":"S03 · Descarga iniciada",
+      "EXP-001-S03-ERROR":"S03 · Error recuperable"
+    };
+    const state={frame:"EXP-001-S01-DEFAULT",mode:"mobile",period:"Últimos 30 días"};
+    const nav=document.getElementById("nav"),screen=document.getElementById("screen"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    function setHead(a,b,c,d){
+      title.textContent=a;
+      subtitle.textContent=b;
+      chip.textContent=c;
+      meta.innerHTML=`<span>${d}</span><span>${state.mode==="mobile"?"Mobile-first":"Desktop"}</span><span>${state.frame}</span>`;
+    }
+    function setFrame(frame){state.frame=frame; render();}
+    function navHtml(){
+      nav.innerHTML=Object.entries(labels).map(([id,label])=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${label}<br><small>${id}</small></button>`).join("");
+    }
+    function periodControls(withAction){
+      const options=["Últimos 7 días","Últimos 30 días","Últimos 90 días"];
+      return `
+        <div class="toolbar">
+          ${options.map(option=>`<button class="${state.period===option?"on":""}" type="button" data-period="${option}">${option}</button>`).join("")}
+        </div>
+        ${withAction?`<div class="actions"><button class="btn" type="button" data-action="download">Descargar CSV</button><button class="ghost" type="button" data-action="cancel">Cancelar</button></div>`:""}
+      `;
+    }
+    function scopeCards(){
+      return `
+        <div class="cards">
+          <div class="card"><strong>Qué incluye</strong><span>Tus registros de humor y los factores diarios del período elegido.</span></div>
+          <div class="card"><strong>Formato</strong><span>Un archivo CSV simple para abrir o guardar donde quieras.</span></div>
+          <div class="card"><strong>Tono del paso</strong><span>Salida clara y controlada, sin lenguaje técnico ni legalista.</span></div>
+        </div>
+      `;
+    }
+    function defaultFrame(){
+      setHead("S01 · Alcance visible","La persona entiende qué va a salir antes de descargar.","Derecho simple","S01");
+      return `
+        <div class="tag">Exportar tus registros</div>
+        <h2>Exportar tus registros</h2>
+        <p>Podés descargar un CSV con tus datos del período elegido.</p>
+        ${scopeCards()}
+        <div class="card"><strong>Período sugerido</strong><span>${state.period}</span></div>
+        ${periodControls(false)}
+        <div class="actions">
+          <button class="btn" type="button" data-action="goto-period">Elegir período y descargar</button>
+          <a class="ghost-link" href="./PROTOTYPE-VIS-001.html">Volver a tu timeline</a>
+        </div>
+      `;
+    }
+    function periodFrame(){
+      setHead("S01 · Período elegido","El alcance sigue visible y la acción principal queda única.","Control simple","S01");
+      return `
+        <div class="tag">Exportar tus registros</div>
+        <h2>Elegí el alcance de tu archivo.</h2>
+        <p>La descarga sigue siendo un solo paso, con el período visible antes de empezar.</p>
+        ${scopeCards()}
+        <div class="notice ok"><strong>Período actual</strong><span>${state.period}</span></div>
+        ${periodControls(true)}
+      `;
+    }
+    function generatingFrame(){
+      setHead("S02 · Preparando archivo","El handoff es breve y suficiente para no dejar espera muda.","Preparando","S02");
+      return `
+        <div class="tag">Preparando tu archivo</div>
+        <h2>Estamos consolidando tu historial.</h2>
+        <p>El archivo se está preparando con el período que elegiste: ${state.period}.</p>
+        <div class="card">
+          <strong>Descarga en curso</strong>
+          <span>La interfaz mantiene una sola dirección: ya no tenés que decidir nada más en este paso.</span>
+          <div class="progress" aria-hidden="true"><span></span></div>
+        </div>
+        <div class="notice ok"><strong>Preparando tu CSV</strong><span>El proceso sigue en una sola columna, sin consola ni detalle técnico.</span></div>
+        <div class="actions">
+          <button class="btn" type="button" disabled>Descargando...</button>
+          <button class="ghost" type="button" data-action="goto-success">Ver handoff</button>
+        </div>
+      `;
+    }
+    function successFrame(){
+      setHead("S03 · Descarga iniciada","La confirmación cierra el gesto sin pantalla extra innecesaria.","Handoff factual","S03");
+      return `
+        <div class="badge">CSV listo</div>
+        <h2>La descarga ya empezó.</h2>
+        <p>Tu archivo se está descargando con el período ${state.period.toLowerCase()}.</p>
+        <div class="card"><strong>Qué salió</strong><span>Un CSV simple con tus registros y factores del período elegido.</span></div>
+        <div class="actions">
+          <a class="ghost-link" href="./PROTOTYPE-VIS-001.html">Volver al timeline</a>
+          <button class="ghost" type="button" data-action="goto-error">Ver error recuperable</button>
+        </div>
+      `;
+    }
+    function errorFrame(){
+      setHead("S03 · Error recuperable","El problema queda localizado y deja un reintento claro.","Reintento simple","S03");
+      return `
+        <div class="tag">No se preparó el archivo</div>
+        <h2>No pudimos preparar este CSV.</h2>
+        <p>Probá de nuevo. El alcance del archivo sigue siendo el mismo y no tenés que reentender el paso.</p>
+        <div class="notice err"><strong>Fallo de preparación</strong><span>El error no se convierte en jerga técnica ni rompe la calma del flujo.</span></div>
+        <div class="card"><strong>Período que sigue seleccionado</strong><span>${state.period}</span></div>
+        <div class="actions">
+          <button class="btn" type="button" data-action="download">Probar de nuevo</button>
+          <button class="ghost" type="button" data-action="goto-period">Revisar período</button>
+        </div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="EXP-001-S01-DEFAULT") return defaultFrame();
+      if(state.frame==="EXP-001-S01-PERIOD") return periodFrame();
+      if(state.frame==="EXP-001-S02-GENERATING") return generatingFrame();
+      if(state.frame==="EXP-001-S02-SUCCESS") return successFrame();
+      return errorFrame();
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 960 px":"Móvil · 398 px";
+      screen.innerHTML=frameHtml();
+    }
+    document.addEventListener("click",event=>{
+      const mode=event.target.closest("[data-mode]");
+      if(mode){
+        state.mode=mode.dataset.mode;
+        document.querySelectorAll("[data-mode]").forEach(button=>button.classList.toggle("on",button.dataset.mode===state.mode));
+        return render();
+      }
+      const frame=event.target.closest("[data-frame]");
+      if(frame) return setFrame(frame.dataset.frame);
+      const period=event.target.closest("[data-period]");
+      if(period){
+        state.period=period.dataset.period;
+        return render();
+      }
+      const action=event.target.closest("[data-action]");
+      if(!action) return;
+      const a=action.dataset.action;
+      if(a==="goto-period") return setFrame("EXP-001-S01-PERIOD");
+      if(a==="download") return setFrame("EXP-001-S02-GENERATING");
+      if(a==="cancel") return setFrame("EXP-001-S01-DEFAULT");
+      if(a==="goto-success") return setFrame("EXP-001-S02-SUCCESS");
+      if(a==="goto-error") return setFrame("EXP-001-S03-ERROR");
+    });
+    render();
+  </script>
+</body>
+</html>

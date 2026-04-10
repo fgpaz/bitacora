@@ -64,8 +64,7 @@ sequenceDiagram
 ## RF candidatos
 - RF-VIN-020: Revocar CareLink por paciente
 - RF-VIN-021: Invalidar caches de safe_projection del profesional
-- RF-VIN-022: Registrar audit de revocacion
-- RF-VIN-023: Verificar ownership del CareLink antes de revocar
+- RF-VIN-022: Verificar ownership del CareLink antes de revocar
 
 ## Bottlenecks y mitigaciones
 | Riesgo | Mitigacion |

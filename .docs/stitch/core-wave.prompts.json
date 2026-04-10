@@ -1,0 +1,127 @@
+{
+  "waveTitle": "Bitacora Core Coverage Wave",
+  "defaults": {
+    "deviceType": "MOBILE",
+    "modelId": "GEMINI_3_FLASH",
+    "designProfile": "patient",
+    "designSystemDisplayName": "Bitacora Patient Design System",
+    "style": "Use the already-synced Bitacora patient design system as the visual authority. Preserve one calm column, editorial warmth, fast personal action and factual confirmation. Do not introduce dashboards, hospital cues or celebratory microcopy."
+  },
+  "slices": {
+    "reg-001": {
+      "projectTitle": "Bitacora REG-001 Prototype",
+      "outputSlug": "reg-001",
+      "presets": {
+        "core": [
+          "s01-entry",
+          "s02-default",
+          "s03-confirm"
+        ],
+        "full": [
+          "s01-entry",
+          "s02-default",
+          "s02-submitting",
+          "s02-error",
+          "s02-consent",
+          "s02-session",
+          "s03-confirm"
+        ]
+      },
+      "screens": {
+        "s01-entry": {
+          "title": "REG-001 entry",
+          "goal": "Contextualized entry to a fast mood check.",
+          "prompt": "Create the entry screen for Bitacora fast mood logging on the web. Keep a single calm column, one short title and a brief line that this is a quick personal record, not an evaluation. Make the path toward the scale immediate and lightweight."
+        },
+        "s02-default": {
+          "title": "REG-001 default",
+          "goal": "Scale visible and ready for one quick gesture.",
+          "prompt": "Create the main fast mood logging screen for Bitacora as a compact single-task screen. Use only Spanish copy. Outside the scale values, the only visible texts allowed are: '¿Cómo te sentís ahora?', 'Elegí un valor y lo registramos enseguida.' and 'Registrar valor'. Show a clear seven-point scale from -3 to +3 and one primary CTA 'Registrar valor' that becomes available after choosing a value. No extra fields, no interpretive text, no privacy panel, no mention of professionals, no header title, no links and no bottom navigation."
+        },
+        "s02-submitting": {
+          "title": "REG-001 submitting",
+          "goal": "Brief immediate save feedback.",
+          "prompt": "Create the saving state for Bitacora fast mood logging. Preserve the same layout and selected value, add a short factual feedback message near the action area and avoid turning the slice into a loading screen."
+        },
+        "s02-error": {
+          "title": "REG-001 error",
+          "goal": "Recoverable localized save failure.",
+          "prompt": "Create the recoverable error state for Bitacora fast mood logging. Keep the same scale layout, preserve the selected value, show a short error near the primary action and allow retry without extra ceremony."
+        },
+        "s02-consent": {
+          "title": "REG-001 consent blocked",
+          "goal": "Consent missing or revoked with clear next action.",
+          "prompt": "Create the blocked state for Bitacora fast mood logging when consent is missing or revoked. Keep the same calm shell, replace the action zone with a brief explanation that consent must be reviewed before logging again, and offer one clear next step without alarmism."
+        },
+        "s02-session": {
+          "title": "REG-001 session expired",
+          "goal": "Dignified re-entry after session expiry.",
+          "prompt": "Create the session-expired state for Bitacora fast mood logging. Preserve the same calm shell and keep the state compact. Use only Spanish copy. Preferred notice: 'Tu sesión terminó. Volvé a ingresar para continuar.' Show exactly one clear next action and keep the rest of the screen quiet. Do not use the heading 'Sesión Finalizada'. Do not explain encryption, automatic closures, shared devices or unauthorized access."
+        },
+        "s03-confirm": {
+          "title": "REG-001 confirmation",
+          "goal": "Factual saved state without interruption.",
+          "prompt": "Create the confirmation state after saving a Bitacora mood value. Use only Spanish copy. Preferred title: 'Registro guardado'. Preferred supporting line: 'Tu valor ya quedó registrado.' Show only that factual confirmation and, if really needed, one quiet close or continue action. Do not add quotes, slogans, bottom navigation, professionals, access rights, previous records or two competing buttons."
+        }
+      }
+    },
+    "reg-002": {
+      "projectTitle": "Bitacora REG-002 Prototype",
+      "outputSlug": "reg-002",
+      "presets": {
+        "core": [
+          "s01-entry",
+          "s02-partial",
+          "s03-ready",
+          "s03-confirm"
+        ],
+        "full": [
+          "s01-entry",
+          "s02-partial",
+          "s02-medication",
+          "s03-ready",
+          "s03-submitting",
+          "s03-error",
+          "s03-confirm"
+        ]
+      },
+      "screens": {
+        "s01-entry": {
+          "title": "REG-002 entry",
+          "goal": "Check-in entry that feels short and readable.",
+          "prompt": "Create the entry screen for Bitacora daily factors check-in on the web as a simple intro screen. All visible text must stay in Spanish. Outside the CTA, the only visible texts allowed are: 'Completá tu check-in de hoy' and 'Solo pedimos lo necesario para darle contexto a tus registros.' Use one CTA in Spanish: 'Empezar'. Never use English headings or CTA labels such as 'Daily Factors' or 'Complete'. Do not add quotes, privacy paragraphs, time estimates, progress tabs, labels, bottom navigation or extra sections."
+        },
+        "s02-partial": {
+          "title": "REG-002 partial",
+          "goal": "Grouped blocks visible without cognitive overload.",
+          "prompt": "Create the main grouped-form state for Bitacora daily factors check-in. Show concise blocks for sleep, physical activity, social activity, anxiety and irritability, with labels above controls and one dominant direction through the form. Keep it compact, readable and non-moralizing."
+        },
+        "s02-medication": {
+          "title": "REG-002 medication conditional",
+          "goal": "Medication block appears only when needed.",
+          "prompt": "Create the conditional medication-visible state for Bitacora daily factors check-in. Preserve the same grouped layout, reveal the medication block only when the person indicates it applies, and make the appearance feel natural and non-technical."
+        },
+        "s03-ready": {
+          "title": "REG-002 ready",
+          "goal": "Form ready to save with one clear final action.",
+          "prompt": "Create the ready-to-save state for Bitacora daily factors check-in. Show the grouped form completed enough to continue, keep one primary CTA 'Guardar check-in' and one quiet secondary action 'Salir por ahora', and make the end of the task feel clear without heaviness."
+        },
+        "s03-submitting": {
+          "title": "REG-002 submitting",
+          "goal": "Short save feedback near the final action.",
+          "prompt": "Create the save-in-progress state for Bitacora daily factors check-in. Preserve the same final area, block the primary action, keep the grouped content visible and add a brief factual saving message near the CTA."
+        },
+        "s03-error": {
+          "title": "REG-002 error",
+          "goal": "Localized final-area error with retry.",
+          "prompt": "Create the recoverable error state for Bitacora daily factors check-in. Keep the same grouped layout and the final rail, show a short error close to the save action and allow retry without making the form feel broken."
+        },
+        "s03-confirm": {
+          "title": "REG-002 confirmation",
+          "goal": "Factual save confirmation after the check-in.",
+          "prompt": "Create the confirmation state after saving a Bitacora daily factors check-in as a minimal completion screen. Use only Spanish copy. Outside one optional quiet continuity cue, the only visible texts allowed are: 'Registro guardado' and 'Tu check-in ya quedó guardado.'. Do not add cryptographic explanations, timeline rhetoric, slogans, IDs, privacy paragraphs, bottom navigation or celebratory feedback."
+        }
+      }
+    }
+  }
+}

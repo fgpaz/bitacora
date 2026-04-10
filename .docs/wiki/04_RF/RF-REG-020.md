@@ -23,14 +23,16 @@
 | anxiety | bool | Request body | Requerido |
 | irritability | bool | Request body | Requerido |
 | medication_taken | bool | Request body | Requerido |
-| medication_time | time | Request body | Requerido si medication_taken=true, RF-REG-021 |
+| medication_time | time | Request body | Requerido si medication_taken=true; horario aproximado normalizado por RF-REG-025 |
 
 ## Proceso (Happy Path)
 1. Verificar consent activo (RF-REG-004).
 2. Validar todos los campos (RF-REG-021).
-3. Ejecutar UPSERT via RF-REG-022.
-4. Cifrar payload y generar safe_projection (RF-REG-023).
-5. Retornar 201 (creacion) o 200 (actualizacion) con safe_projection.
+3. Validar y normalizar `medication_time` aproximado via RF-REG-025.
+4. Ejecutar UPSERT via RF-REG-022.
+5. Cifrar payload y generar safe_projection (RF-REG-023).
+6. Registrar AccessAudit via RF-REG-024.
+7. Retornar 201 (creacion) o 200 (actualizacion) con safe_projection.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -48,13 +50,13 @@
 
 ## Casos especiales y variantes
 - Si ya existe DailyCheckin del dia: actualizar via RF-REG-022 (no error).
-- medication_time requerido solo si medication_taken=true.
+- `medication_time` representa una hora aproximada y se normaliza a bloques de 15 minutos.
 
 ## Impacto en modelo de datos
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | DailyCheckin | INSERT o UPDATE | Todos los campos |
-| AccessAudit | INSERT | trace_id, patient_id, operacion='CHECKIN_UPSERT' |
+| AccessAudit | INSERT (delegado a RF-REG-024) | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

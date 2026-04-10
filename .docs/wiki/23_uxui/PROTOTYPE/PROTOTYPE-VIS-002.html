@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-VIS-002</title>
+  <style>
+    :root{--sage:#5a7269;--paper:#fbf6ef;--sand:#f1e7dc;--ink:#292420;--muted:#6d655f;--accent:#b77763;--line:#daccc0}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(183,119,99,.14),transparent 34%),linear-gradient(180deg,#faf4ec,#efe4d8)}
+    button,a{font:inherit} p,small,span,strong{margin:0;line-height:1.5} p,small,span{color:var(--muted)}
+    .app{max-width:1320px;margin:0 auto;padding:22px;display:grid;gap:22px}
+    .panel{background:rgba(251,246,239,.94);border:1px solid rgba(218,204,192,.94);border-radius:24px;box-shadow:0 18px 38px rgba(41,36,32,.08)}
+    .hero,.side,.main,.card,.nav button,.fallback{display:grid;gap:12px}
+    .hero,.side,.main{padding:24px}
+    .eyebrow,.chip,.meta span{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(90,114,105,.12);color:var(--sage)}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    h1{font-size:clamp(2rem,4vw,3rem);max-width:15ch} h2{font-size:1.05rem}
+    .layout{display:grid;gap:18px;grid-template-columns:minmax(270px,320px) minmax(0,1fr)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;border-radius:999px;background:rgba(236,226,216,.92)}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;font-weight:700}
+    .toggle button.on{background:var(--paper);border-color:var(--line);color:var(--ink)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:rgba(244,236,227,.96);color:var(--ink);text-align:left;cursor:pointer}
+    .nav button.on{background:rgba(90,114,105,.12);border-color:rgba(90,114,105,.35)}
+    .card,.fallback{padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(244,236,227,.96)}
+    .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}.meta span{background:rgba(236,226,216,.92)}
+    .stage{display:grid;gap:14px}
+    .frame{width:min(100%,1120px);height:760px;border:1px solid rgba(194,178,163,.9);border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 18px 44px rgba(41,36,32,.12)}
+    .frame.mobile{width:min(100%,420px);height:820px}
+    iframe{width:100%;height:100%;border:0;background:#fff}
+    .direct{display:flex;gap:10px;flex-wrap:wrap}
+    .direct a{display:inline-flex;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700}
+    .pill{display:inline-flex;width:fit-content;padding:5px 9px;border-radius:999px;background:rgba(90,114,105,.12);color:var(--sage);font-size:.78rem;font-weight:700}
+    .pill.warn{background:rgba(183,119,99,.12);color:var(--accent)}
+    .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+    .tile{padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;display:grid;gap:10px}
+    .foot{font-size:.85rem;text-align:center;max-width:64ch;justify-self:center}
+    @media (max-width:980px){.app{padding:14px}.layout{grid-template-columns:1fr}.frame{width:min(100%,420px);height:820px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">VIS-002 · Wrapper basado en Stitch</div>
+      <h1>La referencia navegable usa Stitch para el tablero profesional y solo conserva un fallback donde el servicio no respondió.</h1>
+      <p>Este HTML organiza los frames reales de Stitch y deja el estado `ready` como único respaldo local, porque fue el único que siguió en timeout tras varios reintentos.</p>
+    </section>
+    <section class="layout">
+      <aside class="panel side">
+        <section>
+          <div class="chip">Viewport</div>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="desktop" type="button">Desktop</button>
+            <button data-mode="mobile" type="button">Móvil</button>
+          </div>
+          <p>El slice es desktop-first. La vista móvil sirve solo para inspección de densidad.</p>
+        </section>
+        <section><div class="chip">Frames</div><div class="nav" id="nav"></div></section>
+        <section class="card"><strong>Regla</strong><span>Los frames `loading`, `pagination`, `empty` y `error` vienen de Stitch. El `ready` queda como respaldo local hasta tener una salida real del servicio.</span></section>
+      </aside>
+      <section class="panel main">
+        <div class="head">
+          <div><h2 id="title">Frame</h2><p id="subtitle">Descripción</p></div>
+          <div class="chip" id="status">Stitch primary</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="frame" id="frame"><iframe id="preview" title="Preview VIS-002"></iframe><div class="fallback" id="fallback" hidden></div></div>
+          <div class="direct"><a id="open" href="#" target="_blank" rel="noopener noreferrer">Abrir HTML directo</a></div>
+          <p class="foot">Wrapper canónico de `VIS-002`: dashboard sobrio, cambio de página, vacío y error basados en Stitch, con un único fallback local para `ready`.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const readyHtml=`
+      <div class="pill">Fallback local</div>
+      <h2>Dashboard de pacientes</h2>
+      <p>Solo aparecen personas con acceso activo a sus datos.</p>
+      <div class="grid">
+        <article class="tile"><div class="pill warn">Alerta básica</div><strong>Mara S.</strong><span>Último registro: ayer</span><span>Sueño inestable</span></article>
+        <article class="tile"><div class="pill">Visible</div><strong>Tomás B.</strong><span>Último registro: hoy</span><span>Sin alertas básicas</span></article>
+        <article class="tile"><div class="pill warn">Alerta básica</div><strong>Elena F.</strong><span>Último registro: hace 2 días</span><span>Irritabilidad alta</span></article>
+      </div>
+    `;
+    const frames=[
+      {id:"VIS-002-S01-LOADING",label:"S01 · Loading",subtitle:"Shell de carga sobrio.",src:"../../../../artifacts/stitch/vis-002/2026-04-09T00-41-03-976Z/s01-loading.html",source:"Stitch"},
+      {id:"VIS-002-S01-READY",label:"S01 · Ready",subtitle:"Vista principal del tablero.",html:readyHtml,source:"Fallback local"},
+      {id:"VIS-002-S01-PAGINATION",label:"S01 · Página 2",subtitle:"Cambio de página sin ruido.",src:"../../../../artifacts/stitch/vis-002/2026-04-09T00-41-03-771Z/s01-pagination.html",source:"Stitch"},
+      {id:"VIS-002-S02-EMPTY",label:"S02 · Vacío",subtitle:"Ausencia de pacientes visibles.",src:"../../../../artifacts/stitch/vis-002/2026-04-09T00-23-00-523Z/s02-empty.html",source:"Stitch"},
+      {id:"VIS-002-S03-ERROR",label:"S03 · Error",subtitle:"Fallo recuperable con reintento.",src:"../../../../artifacts/stitch/vis-002/2026-04-09T00-23-00-523Z/s03-error.html",source:"Stitch"}
+    ];
+    const state={frame:frames[1],mode:"desktop"};
+    const nav=document.getElementById("nav"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),meta=document.getElementById("meta"),preview=document.getElementById("preview"),open=document.getElementById("open"),frame=document.getElementById("frame"),fallback=document.getElementById("fallback"),status=document.getElementById("status");
+    function renderNav(){nav.innerHTML=frames.map(item=>`<button class="${state.frame.id===item.id?"on":""}" data-frame="${item.id}" type="button">${item.label}<br><small>${item.id}</small></button>`).join("");}
+    function render(){renderNav();title.textContent=state.frame.label;subtitle.textContent=state.frame.subtitle;status.textContent=state.frame.source;meta.innerHTML=`<span>${state.frame.id}</span><span>${state.mode==="desktop"?"Desktop-first":"Mobile preview"}</span><span>Fuente: ${state.frame.source}</span>`;frame.classList.toggle("mobile",state.mode==="mobile");if(state.frame.src){preview.hidden=false;fallback.hidden=true;preview.src=state.frame.src;open.href=state.frame.src;open.style.display="inline-flex";}else{preview.hidden=true;fallback.hidden=false;fallback.innerHTML=state.frame.html;open.removeAttribute("href");open.style.display="none";}}
+    document.addEventListener("click",e=>{const mode=e.target.closest("[data-mode]");if(mode){state.mode=mode.dataset.mode;document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode));return render();}const hit=e.target.closest("[data-frame]");if(!hit)return;state.frame=frames.find(item=>item.id===hit.dataset.frame)||frames[1];render();});
+    render();
+  </script>
+</body>
+</html>

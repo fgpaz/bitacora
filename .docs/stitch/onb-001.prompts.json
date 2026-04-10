@@ -1,0 +1,94 @@
+{
+  "projectTitle": "Bitacora ONB-001 Prototype",
+  "outputSlug": "onb-001",
+  "deviceType": "MOBILE",
+  "modelId": "GEMINI_3_FLASH",
+  "designProfile": "patient",
+  "designSystemDisplayName": "Bitacora Patient Design System",
+  "presets": {
+    "core": [
+      "s01-entry",
+      "s02-auth",
+      "s03-default",
+      "s04-mood",
+      "s05-confirm"
+    ],
+    "full": [
+      "s01-entry",
+      "s01-expired",
+      "s02-auth",
+      "s02-auth-error",
+      "s03-default",
+      "s03-ready",
+      "s03-submitting",
+      "s03-error",
+      "s03-version-conflict",
+      "s03-resume",
+      "s04-mood",
+      "s05-confirm"
+    ]
+  },
+  "style": "Use the already-synced Bitacora patient design system as the visual authority. Preserve intimate editorial warmth, one calm column, patient-first ownership and low-friction onboarding continuity. Do not introduce hospital, SaaS dashboard or wellness aesthetics.",
+  "screens": {
+    "s01-entry": {
+      "title": "S01 entry",
+      "goal": "Invited entry with patient-owned framing.",
+      "prompt": "Create the invited onboarding entry for Bitacora. Show Bitacora first, the invitation as context only, one short title about entering your own space, three calm summary cards, primary CTA 'Continuar' and one quiet secondary action. Avoid hospital, admin and surveillance cues."
+    },
+    "s01-expired": {
+      "title": "S01 expired",
+      "goal": "Expired invitation with dignity.",
+      "prompt": "Create the expired invitation state for Bitacora invited onboarding. Use only Spanish copy. Preferred title: 'Esta invitación ya no está disponible'. Add one brief dignified explanation and one low-prominence action to return. No alarmism, no punitive tone, no poetic phrasing such as 'El tiempo ha pasado' and no extra security section."
+    },
+    "s02-auth": {
+      "title": "S02 auth",
+      "goal": "Short auth continuation without losing context.",
+      "prompt": "Create the auth continuation screen for Bitacora invited onboarding. One calm column, one email field with the invitation email, one short explanation 'Estás siguiendo la invitación que ya abriste.', one primary CTA 'Continuar' and nothing more. Use only Spanish copy and keep the wording functional and short. It must not feel like a separate account flow, must avoid lyrical phrasing like 'Continúa tu camino' and must not add privacy or help sections."
+    },
+    "s02-auth-error": {
+      "title": "S02 auth error",
+      "goal": "Recoverable auth failure.",
+      "prompt": "Create the auth error state for Bitacora invited onboarding. Keep the same layout as the auth continuation screen, add a brief recoverable error message near the action area, preserve the field and allow retry. No blame, no technical jargon."
+    },
+    "s03-default": {
+      "title": "S03 default consent",
+      "goal": "Consent as a brief control pause.",
+      "prompt": "Create the default consent screen for Bitacora onboarding. Use only Spanish copy and keep the layout very compact: title 'Revisá el consentimiento', one short support line 'Para registrar cómo te sentís, primero necesitás revisar y aceptar esta versión.', then exactly three short control bullets: 'Necesitás este consentimiento para registrar datos.', 'Tus registros siguen bajo tu control.', 'El profesional no obtiene acceso automático por aceptar esta pantalla.'. Then show a visible versioned consent text area with readable scrolling, one explicit checkbox 'Leí el consentimiento y acepto esta versión.' and a primary CTA 'Aceptar y seguir' disabled until the text was reviewed and the checkbox is selected. Include one quiet secondary action 'Salir por ahora'. Do not create decorative trust cards, legal walls, help links, close icons, top navigation or English headings."
+    },
+    "s03-ready": {
+      "title": "S03 ready consent",
+      "goal": "Consent ready to submit.",
+      "prompt": "Create the ready-to-submit consent state for Bitacora onboarding. Keep exactly the same compact layout as the default consent screen. Outside the consent text area, the only visible texts allowed are: 'Revisá el consentimiento', 'Para registrar cómo te sentís, primero necesitás revisar y aceptar esta versión.', 'Necesitás este consentimiento para registrar datos.', 'Tus registros siguen bajo tu control.', 'El profesional no obtiene acceso automático por aceptar esta pantalla.', 'Leí el consentimiento y acepto esta versión.', 'Aceptar y seguir' and 'Salir por ahora'. The checkbox must already be selected and the primary CTA enabled. Use only Spanish copy. Do not rename the title, do not add cards, icons, links or extra navigation."
+    },
+    "s03-submitting": {
+      "title": "S03 submitting consent",
+      "goal": "Brief processing state during consent submit.",
+      "prompt": "Create the consent submitting state for Bitacora onboarding. Preserve exactly the same compact layout as the ready state, keep the reviewed text visible, block the primary CTA while the request is in progress and add the short factual notice 'Registrando consentimiento...' near the action area. Use only Spanish copy. No spinner domination, no new cards, no extra CTA and no extra navigation."
+    },
+    "s03-error": {
+      "title": "S03 consent error",
+      "goal": "Recoverable consent submit failure.",
+      "prompt": "Create the recoverable consent error state for Bitacora onboarding. Keep exactly the same compact consent layout, show the short specific error 'No pudimos registrar tu consentimiento. Probá de nuevo.' near the action area, preserve the reviewed text and the checkbox state, and allow retry without restarting the step. Use only Spanish copy. Do not add cards, icons, links or extra navigation."
+    },
+    "s03-version-conflict": {
+      "title": "S03 version conflict",
+      "goal": "Consent version conflict.",
+      "prompt": "Create the consent version conflict state for Bitacora onboarding. Keep exactly the same compact consent layout and the same title 'Revisá el consentimiento'. Outside the consent text area, the only visible texts allowed are: 'Revisá el consentimiento', 'El consentimiento cambió. Revisá la versión actual antes de seguir.', 'Necesitás este consentimiento para registrar datos.', 'Tus registros siguen bajo tu control.', 'El profesional no obtiene acceso automático por aceptar esta pantalla.', 'Leí el consentimiento y acepto esta versión.', 'Aceptar y seguir' and 'Salir por ahora'. Reset the checkbox. Use only Spanish copy. Do not replace the screen with a new title, do not add multiple CTAs, cards, icons or extra navigation."
+    },
+    "s03-resume": {
+      "title": "S03 resume",
+      "goal": "Return to consent after prior abandonment.",
+      "prompt": "Create the consent resume state for Bitacora onboarding after the person returns to continue later. Keep exactly the same compact consent layout, add one brief line 'Este es el punto donde continuás.', preserve the same short support line, the same three control bullets and the versioned text, and keep the experience dignified and uninterrupted. Use only Spanish copy. Do not make this step feel like starting over and do not add icons, links or extra navigation."
+    },
+    "s04-mood": {
+      "title": "S04 first mood",
+      "goal": "Immediate first value.",
+      "prompt": "Create the first mood registration screen for Bitacora. Show the direct question '¿Cómo te sentís ahora?', a clear seven-point scale from -3 to +3, the minimal supporting line 'Elegí un valor y lo registramos enseguida.' and one primary CTA 'Registrar valor' enabled after choosing an option. Use only Spanish copy. Avoid therapy tone, reflective introductions and interpreted emotional journeys. Do not add bottom navigation, trust links or extra onboarding elements."
+    },
+    "s05-confirm": {
+      "title": "S05 confirmation",
+      "goal": "Serene confirmation after first mood.",
+      "prompt": "Create the initial confirmation screen for Bitacora after the first mood entry as a minimal completion screen. Use only Spanish copy. Outside one optional quiet continuity cue, the only visible texts allowed are: 'Registro guardado' and 'Tu primer registro ya quedó guardado.'. No applause, no congratulatory tone, no gamification, no summary cards, no extra buttons, no bottom navigation and no poetic wording such as 'Tu primera reflexión...' or 'Ir al refugio'."
+    }
+  }
+}

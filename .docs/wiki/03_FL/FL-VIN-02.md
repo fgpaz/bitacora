@@ -1,7 +1,7 @@
 # FL-VIN-02: Auto-vinculacion paciente a profesional
 
 ## Goal
-Un paciente se vincula a un profesional usando un codigo de vinculacion que el profesional comparte (ej: en consultorio).
+Un paciente se vincula a un profesional usando un `BindingCode` efimero que el profesional comparte.
 
 ## Scope
 **In:** Paciente ingresa codigo, se crea CareLink directo.
@@ -11,17 +11,18 @@ Un paciente se vincula a un profesional usando un codigo de vinculacion que el p
 | Actor | Rol en el flujo |
 |-------|----------------|
 | Paciente | Ingresa codigo de vinculacion |
-| Profesional | Previamente genero el codigo desde su dashboard |
+| Profesional | Emite el codigo desde su dashboard y elige su TTL por emision |
 | Modulo Vinculos | Valida codigo, crea CareLink |
 | Capa Seguridad | Audit |
 
 ## Precondiciones
 - Paciente autenticado con ConsentGrant granted
-- Profesional tiene un codigo de vinculacion activo
+- Profesional tiene un `BindingCode` activo
 
 ## Postcondiciones
 - CareLink creado en estado `active`
 - `can_view_data` default `false`
+- `BindingCode` marcada como `used`
 - AccessAudit registrado
 
 ## Secuencia principal
@@ -34,7 +35,7 @@ sequenceDiagram
     participant DB as bitacora_db
 
     P->>WEB: "Vincular con profesional" → ingresa codigo
-    WEB->>API: POST /api/v1/care-links/bind {code: "ABC123"}
+    WEB->>API: POST /api/v1/care-links/bind {code: "BIT-ABC12"}
     API->>API: Validar codigo → resolver professional_id
     alt Codigo invalido o expirado
         API-->>WEB: 404 INVALID_CODE
@@ -57,23 +58,25 @@ sequenceDiagram
 
 ## Architecture slice
 - **Modulos:** Auth → Vinculos → Seguridad
-- **Patron:** Codigo alfanumerico con TTL (24-72h), generado por profesional
+- **Patron:** `BindingCode` por emision con presets `15m / 3h / 24h / 72h`, default `15m`
 
 ## Data touchpoints
 | Entidad | Operacion | Estado |
 |---------|-----------|--------|
+| BindingCode | INSERT → UPDATE | issued → used / expired |
 | CareLink | INSERT | active (can_view_data: false) |
 | AccessAudit | INSERT | append-only |
 
 ## RF candidatos
-- RF-VIN-010: Generar codigo de vinculacion para profesional
-- RF-VIN-011: Validar codigo y resolver professional_id
+- RF-VIN-004: `can_view_data` default false (invariante compartida)
+- RF-VIN-010: Generar BindingCode para auto-vinculacion
+- RF-VIN-011: Validar BindingCode y resolver professional_id
 - RF-VIN-012: Crear CareLink por auto-vinculacion
 
 ## Bottlenecks y mitigaciones
 | Riesgo | Mitigacion |
 |--------|-----------|
-| Fuerza bruta de codigos | Codigos alfanumericos 8+ chars + rate limit + expiracion |
+| Fuerza bruta de codigos | Formato `BIT-XXXXX` + rate limit + expiracion por emision |
 
 ## RF handoff checklist
 - [x] Actores y ownership explicitos

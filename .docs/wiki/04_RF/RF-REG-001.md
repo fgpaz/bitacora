@@ -27,7 +27,7 @@
 3. Verificar ventana de idempotencia 1 min (RF-REG-005).
 4. Cifrar payload completo y generar safe_projection (RF-REG-003).
 5. INSERT MoodEntry con estado IMMUTABLE.
-6. INSERT AccessAudit con trace_id, patient_id, operacion='MOOD_CREATE'.
+6. INSERT AccessAudit con `action_type='create'`, `resource_type='mood_entry'`, `resource_id=mood_entry_id`.
 7. Retornar 201 con safe_projection.
 
 ## Outputs
@@ -53,7 +53,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | MoodEntry | INSERT | mood_entry_id, patient_id, encrypted_payload, safe_projection, key_version, encrypted_at, created_at_utc |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin

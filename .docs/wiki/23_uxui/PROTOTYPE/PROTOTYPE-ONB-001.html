@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE-ONB-001</title>
+  <style>
+    :root{--p:#5e766e;--s:#c8b7ae;--a:#b67864;--bg:#f6f1ea;--bg2:#fffaf4;--txt:#2e2a28;--mut:#655e59;--bd:#d7ccc1;--ring:#bfae9d;--vw:390px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%}
+    body{font-family:"Segoe UI","Trebuchet MS",sans-serif;color:var(--txt);background:radial-gradient(circle at top left,rgba(200,183,174,.3),transparent 34%),linear-gradient(180deg,#fbf7f2,#efe6db)}
+    button,input{font:inherit} button{cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:24px;display:grid;gap:24px}
+    .panel{background:rgba(255,250,244,.86);border:1px solid rgba(215,204,193,.9);border-radius:24px;box-shadow:0 18px 38px rgba(46,42,40,.08);backdrop-filter:blur(8px)}
+    .hero{padding:28px;display:grid;gap:14px}
+    .eyebrow,.chip,.meta span,.tag{display:inline-flex;width:fit-content;padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:700}
+    .eyebrow,.chip{background:rgba(94,118,110,.11);color:var(--p)}
+    .hero h1,.screen h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.02}
+    .hero h1{font-size:clamp(2.1rem,4vw,3.4rem);max-width:12ch}
+    .hero p,.screen p,.card span,.notice p,.field small,.helper{margin:0;line-height:1.56;color:var(--mut)}
+    .hero-grid,.workspace,.consent-grid,.grid{display:grid;gap:18px}
+    .hero-grid{grid-template-columns:1.4fr 1fr;align-items:end}
+    .card,.notice,.field,.consent-box,.summary,.mood{padding:16px;border-radius:18px;border:1px solid rgba(215,204,193,.92);background:rgba(246,241,234,.95)}
+    .card strong,.notice strong,.field label,.summary strong,.consent-box strong{display:block;margin-bottom:8px}
+    .workspace{grid-template-columns:minmax(270px,310px) minmax(0,1fr)}
+    .sidebar{padding:20px;display:grid;gap:20px;position:sticky;top:18px}
+    .sidebar h3,.sidebar h4{margin:0;font-size:.86rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+    .toggle{display:inline-flex;gap:6px;padding:4px;background:rgba(232,222,211,.8);border-radius:999px;width:fit-content}
+    .toggle button{padding:8px 12px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--mut);font-weight:700}
+    .toggle button.on{background:var(--bg2);border-color:rgba(215,204,193,.9);color:var(--txt)}
+    .nav{display:grid;gap:8px}
+    .nav button{padding:11px 12px;border:1px solid rgba(215,204,193,.92);border-radius:15px;background:rgba(246,241,234,.94);color:var(--txt);text-align:left}
+    .nav button.on{background:rgba(94,118,110,.12);border-color:rgba(94,118,110,.42)}
+    .shell{padding:20px;display:grid;gap:18px}
+    .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid rgba(215,204,193,.9)}
+    .head h3{margin:0 0 6px;font-size:1rem}
+    .meta{display:flex;flex-wrap:wrap;gap:8px}.meta span{background:rgba(232,222,211,.72);color:var(--mut)}
+    .stage{display:grid;justify-items:center;gap:16px}
+    .viewport{width:min(100%,var(--vw));padding:12px;border-radius:30px;background:linear-gradient(180deg,var(--bg2),var(--bg));border:1px solid rgba(191,174,157,.86);box-shadow:0 20px 46px rgba(46,42,40,.12);min-height:760px}
+    .viewport.desktop{--vw:1040px;min-height:700px}
+    .device{display:flex;justify-content:space-between;font-size:.82rem;color:var(--mut);margin-bottom:10px}
+    .screen{min-height:calc(100% - 26px);padding:22px;border-radius:24px;border:1px solid rgba(215,204,193,.92);background:rgba(255,250,244,.95);display:grid;gap:18px}
+    .screen h2{font-size:clamp(1.7rem,2vw,2.2rem);max-width:18ch}
+    .tag{background:rgba(200,183,174,.22);color:var(--mut)}
+    .notice.err{background:rgba(182,120,100,.1);border-color:rgba(182,120,100,.34);color:#7d4c40}
+    .notice.ok{background:rgba(94,118,110,.1);border-color:rgba(94,118,110,.34)}
+    .grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+    .field input,.consent-scroll{width:100%;padding:14px;border-radius:14px;border:1px solid rgba(191,174,157,.92);background:rgba(255,250,244,.96);color:var(--txt)}
+    .field small{display:block;margin-top:8px}
+    .consent-grid{grid-template-columns:1fr;gap:16px}
+    .consent-scroll{max-height:250px;overflow:auto;line-height:1.58}
+    .consent-scroll p{margin:0 0 14px}
+    .consent-scroll p:last-child{margin-bottom:0}
+    .check{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:18px;border:1px solid rgba(215,204,193,.92);background:rgba(246,241,234,.95)}
+    .check input{margin-top:3px;width:18px;height:18px;accent-color:var(--p)}
+    .actions,.moods{display:grid;gap:10px}
+    .btn,.ghost,.mood{padding:14px 16px;border-radius:14px;border:1px solid transparent;font-weight:700}
+    .btn{background:var(--p);border-color:rgba(94,118,110,.6);color:#f9f4ef}
+    .btn[disabled]{background:rgba(94,118,110,.38);border-color:rgba(94,118,110,.2);cursor:not-allowed}
+    .ghost,.mood{background:rgba(255,250,244,.96);border-color:rgba(191,174,157,.92);color:var(--txt)}
+    .mood{display:grid;gap:4px;text-align:left}.mood small{color:var(--mut);font-weight:500}
+    .mood.on{background:rgba(94,118,110,.12);border-color:rgba(94,118,110,.46)}
+    .foot{font-size:.85rem;color:var(--mut);max-width:58ch;text-align:center;line-height:1.45}
+    @media (min-width:940px){.viewport.desktop .screen{padding:30px}.viewport.desktop .consent-grid{grid-template-columns:1.1fr .8fr}.viewport.desktop .actions.inline{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}}
+    @media (max-width:980px){.app{padding:14px}.hero-grid,.workspace{grid-template-columns:1fr}.sidebar{position:static}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel hero">
+      <div class="eyebrow">ONB-001 · Prototipo local</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Onboarding invitado con casi nula fricción.</h1>
+          <p>Slice completo <strong>S01 → S05</strong> con foco de observación en <strong>S02 → S03 → S04</strong>. La invitación queda como contexto, el consentimiento hace explícito el control y el primer registro aparece enseguida.</p>
+        </div>
+        <div class="card">
+          <strong>Cómo usarlo</strong>
+          <span>Navegá por frames o seguí las acciones naturales del flujo. El prototipo ya incluye happy path y estados sensibles obligatorios.</span>
+        </div>
+      </div>
+    </section>
+    <section class="workspace">
+      <aside class="panel sidebar">
+        <section>
+          <h3>Viewport</h3>
+          <div class="toggle" role="group" aria-label="Selector de viewport">
+            <button class="on" data-mode="mobile" type="button">Móvil</button>
+            <button data-mode="desktop" type="button">Desktop</button>
+          </div>
+          <p>Mantiene una sola columna serena; el ancho extra de desktop agrega aire, no ruido.</p>
+        </section>
+        <section>
+          <h4>Frames</h4>
+          <div class="nav" id="nav"></div>
+        </section>
+        <section>
+          <h4>Hipótesis observables</h4>
+          <p>La invitación no se siente dominio del profesional, el consentimiento no parece trámite y la llegada al primer valor no se corta.</p>
+        </section>
+      </aside>
+      <section class="panel shell">
+        <div class="head">
+          <div><h3 id="title">Frame</h3><p id="subtitle">Slice navegable listo para observación.</p></div>
+          <div class="chip" id="chip">Listo para observación</div>
+        </div>
+        <div class="meta" id="meta"></div>
+        <div class="stage">
+          <div class="viewport" id="viewport">
+            <div class="device"><span id="device">Móvil · 390 px</span><span>09:41 · ▮▮▮</span></div>
+            <div class="screen" id="screen"></div>
+          </div>
+          <p class="foot">Referencia canónica mínima del gate <code>Prototype</code>: enlazada, navegable y con estados sensibles visibles.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const labels={"ONB-001-S01-ENTRY":"S01 · Entrada","ONB-001-S01-EXPIRED":"S01 · Invitación expirada","ONB-001-S02-AUTH":"S02 · Auth","ONB-001-S02-AUTH-ERROR":"S02 · Falla de auth","ONB-001-S03-DEFAULT":"S03 · Consentimiento default","ONB-001-S03-READY":"S03 · Consentimiento listo","ONB-001-S03-SUBMITTING":"S03 · Consentimiento en envío","ONB-001-S03-ERROR":"S03 · Error recuperable","ONB-001-S03-VERSION-CONFLICT":"S03 · Cambio de versión","ONB-001-S03-RESUME":"S03 · Reanudación","ONB-001-S04-MOOD":"S04 · Primer registro","ONB-001-S05-CONFIRM":"S05 · Confirmación"};
+    const groups=[["ONB-001-S01-ENTRY","ONB-001-S01-EXPIRED"],["ONB-001-S02-AUTH","ONB-001-S02-AUTH-ERROR"],["ONB-001-S03-DEFAULT","ONB-001-S03-READY","ONB-001-S03-SUBMITTING","ONB-001-S03-ERROR","ONB-001-S03-VERSION-CONFLICT","ONB-001-S03-RESUME"],["ONB-001-S04-MOOD"],["ONB-001-S05-CONFIRM"]];
+    const state={frame:"ONB-001-S01-ENTRY",mode:"mobile",email:"ana@correo.com",scrolled:false,checked:false,mood:""};
+    const nav=document.getElementById("nav"),viewport=document.getElementById("viewport"),screen=document.getElementById("screen"),title=document.getElementById("title"),subtitle=document.getElementById("subtitle"),chip=document.getElementById("chip"),meta=document.getElementById("meta"),device=document.getElementById("device");
+    const esc=(v)=>String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+    const ready=()=>state.scrolled&&state.checked;
+    function setFrame(f){state.frame=f;if(f==="ONB-001-S03-DEFAULT"){state.scrolled=false;state.checked=false}if(f==="ONB-001-S03-READY"||f==="ONB-001-S03-SUBMITTING"||f==="ONB-001-S03-ERROR"){state.scrolled=true;state.checked=true}if(f==="ONB-001-S03-VERSION-CONFLICT"){state.scrolled=true;state.checked=false}if(f==="ONB-001-S03-RESUME"){state.scrolled=false;state.checked=false}if(f==="ONB-001-S04-MOOD")state.mood="";render()}
+    function navHtml(){nav.innerHTML=groups.flat().map(id=>`<button class="${state.frame===id?"on":""}" data-frame="${id}" type="button">${labels[id]}<br><small>${id}</small></button>`).join("")}
+    function setHead(a,b,c,d,e){title.textContent=a;subtitle.textContent=b;chip.textContent=c;meta.innerHTML=`<span>${d}</span><span>${e}</span><span>${state.frame}</span>`}
+    const btn=(label,act,disabled=false)=>`<button class="btn" type="button" data-action="${act}" ${disabled?"disabled":""}>${label}</button>`;
+    const ghost=(label,act)=>`<button class="ghost" type="button" data-action="${act}">${label}</button>`;
+    function invite(entry){
+      setHead(entry?"S01 · Entrada por invitación":"S01 · Invitación expirada",entry?"La invitación queda como contexto, no como dominio.":"Salida clara y digna cuando el enlace ya no sirve.",entry?"Paciente primero":"Estado sensible","S01",entry?"Happy path":"Error visible");
+      return entry?`
+        <div class="tag">Bitácora</div>
+        <h2>Entrás a tu espacio para empezar sin vueltas.</h2>
+        <p>Tu profesional te compartió una invitación para abrir Bitácora. Desde acá seguís vos, con calma y con control sobre tus registros.</p>
+        <div class="grid">
+          <div class="summary"><strong>Qué pasa ahora</strong><span>Entrás, revisás lo importante y llegás rápido a tu primer registro.</span></div>
+          <div class="summary"><strong>Qué no cambia</strong><span>Bitácora sigue siendo tu espacio. La invitación no mueve el centro de la experiencia.</span></div>
+          <div class="summary"><strong>Qué evitamos</strong><span>Sin tutorial largo, sin formulario pesado y sin tono de admisión clínica.</span></div>
+        </div>
+        <div class="notice"><strong>Invitación vigente</strong><p>Vas a poder revisar el consentimiento antes de registrar cómo te sentís. Nada se comparte automáticamente por entrar acá.</p></div>
+        <div class="actions">${btn("Continuar","goto-auth")}${ghost("Ver invitación expirada","goto-expired")}</div>
+      `:`
+        <div class="tag">Bitácora</div>
+        <h2>Esta invitación ya no está disponible.</h2>
+        <p>No pudimos abrir este ingreso. Si necesitás una nueva invitación, podés pedirla sin perder tu lugar en Bitácora.</p>
+        <div class="notice err"><strong>Qué podés hacer ahora</strong><p>Pedí una nueva invitación o volvé más tarde con un enlace vigente. No registramos ningún cambio en tus datos.</p></div>
+        <div class="actions">${ghost("Volver al ingreso vigente","goto-entry")}</div>
+      `;
+    }
+    function auth(error){
+      setHead(error?"S02 · Falla de autenticación":"S02 · Continuidad de ingreso",error?"Auth breve con recuperación rápida.":"Auth breve sin romper el hilo del onboarding.",error?"Recuperación rápida":"Baja fricción","S02",error?"Error visible":"Happy path");
+      return `
+        <div class="tag">Paso breve</div>
+        <h2>${error?"No pudimos confirmar tu ingreso.":"Entrá para seguir justo donde estabas."}</h2>
+        <p>${error?"Probá de nuevo con el mismo correo de la invitación. No perdiste el contexto ni el lugar al que ibas.":"Usá el mismo correo de la invitación. Después seguís directo al consentimiento y al primer registro."}</p>
+        ${error?`<div class="notice err"><strong>No pudimos iniciar tu acceso.</strong><p>Revisá el correo o probá otra vez. Si el problema sigue, pedí una nueva invitación.</p></div>`:`<div class="notice"><strong>Continuidad preservada</strong><p>Este paso existe solo para confirmarte y llevarte al consentimiento sin abrir un trámite aparte.</p></div>`}
+        <div class="field"><label for="auth-email">Correo de la invitación</label><input id="auth-email" type="email" value="${esc(state.email)}"><small>La misma dirección te evita pasos extra y conserva el contexto de ingreso.</small></div>
+        <div class="actions">${btn("Continuar","submit-auth")}${ghost(error?"Volver al auth normal":"Ver falla de auth",error?"goto-auth":"goto-auth-error")}</div>
+      `;
+    }
+    function consent(kind){
+      const cfg={
+        default:["S03 · Consentimiento en pausa breve","El control se vuelve explícito sin romper la continuidad.","Pausa breve","Happy path",""],
+        ready:["S03 · Consentimiento listo para seguir","La acción principal aparece cuando lectura y confirmación ya están resueltas.","Listo para seguir","Happy path",""],
+        submitting:["S03 · Envío en curso","Feedback breve y sin celebraciones durante el envío.","En curso","Estado obligatorio","<div class='notice ok'><strong>Registrando consentimiento...</strong><p>La continuidad sigue intacta y evitamos doble envío.</p></div>"],
+        error:["S03 · Reintento sin reinicio","El error vive cerca del área de acción y no obliga a repetir la lectura.","Error recuperable","Estado obligatorio","<div class='notice err'><strong>No pudimos registrar tu consentimiento.</strong><p>Probá de nuevo. Conservamos tu lectura y tu lugar en este paso.</p></div>"],
+        version:["S03 · Cambio de versión","La nueva versión obliga a revisar sin volver opaco el motivo.","Versión vigente","Estado obligatorio","<div class='notice err'><strong>El consentimiento cambió.</strong><p>Revisá la versión actual antes de seguir. Nada se registró con la versión anterior.</p></div>"],
+        resume:["S03 · Reanudación del consentimiento","Retomar no debería pedir pasos anteriores ni contexto extra.","Continuidad preservada","Estado obligatorio","<div class='notice ok'><strong>Retomamos donde habías quedado.</strong><p>Volviste directo al consentimiento para seguir sin repetir la apertura ni el ingreso.</p></div>"]
+      }[kind];
+      setHead(cfg[0],cfg[1],cfg[2],"S03",cfg[3]);
+      const help=state.scrolled?"Ya llegaste al final del texto. Si querés, podés marcar la casilla y seguir.":"Llegá al final del consentimiento para habilitar la acción principal.";
+      return `
+        <div class="tag">Consentimiento</div>
+        <h2>Revisá el consentimiento.</h2>
+        <p>Para registrar cómo te sentís, primero necesitás revisar y aceptar esta versión.</p>
+        ${cfg[4]}
+        <div class="grid">
+          <div class="summary"><strong>Necesitás este paso</strong><span>Para registrar cómo te sentís, primero necesitás revisar y aceptar esta versión.</span></div>
+          <div class="summary"><strong>Tu control sigue acá</strong><span>Tus registros siguen bajo tu control. Aceptar este paso no activa acceso automático para tu profesional.</span></div>
+          <div class="summary"><strong>Qué revisás ahora</strong><span>Tenés la versión vigente a la vista, en la misma pantalla y sin salir del flujo.</span></div>
+        </div>
+        <div class="consent-grid">
+          <div class="consent-box">
+            <strong>Consentimiento vigente</strong>
+            <div class="meta"><span>Versión CON-2026-04</span><span>Actualizado hoy</span><span>Lectura integrada</span></div>
+            <div class="consent-scroll" id="consent-scroll">
+              <p>Este consentimiento te permite registrar información personal sobre cómo te sentís dentro de Bitácora. El objetivo es que puedas usar tu espacio personal con claridad y sin ambigüedad sobre qué se guarda y qué no.</p>
+              <p>Registrar este consentimiento no otorga acceso automático a tus datos a la persona profesional que te invitó. Cualquier acceso posterior debe respetar las reglas vigentes de compartición y control definidas para tu cuenta.</p>
+              <p>Podés revisar esta versión completa antes de aceptar. Si la versión cambiara antes de tu confirmación, Bitácora te lo va a mostrar de forma explícita para que vuelvas a leerla antes de seguir.</p>
+              <p>Tus registros se guardan dentro de tu espacio personal. Este paso existe para volver legible qué habilita el consentimiento y qué decisiones siguen siendo tuyas en adelante.</p>
+              <p>Si no querés seguir ahora, podés salir y retomar este mismo paso más tarde sin repetir la apertura de invitación ni perder el contexto del onboarding.</p>
+            </div>
+          </div>
+          <div class="actions">
+            <div class="summary"><strong>Resumen de control</strong><span>Necesitás esta aceptación para empezar a registrar. Nada cambia de forma silenciosa por aceptar.</span></div>
+            <label class="check"><input id="consent-check" type="checkbox" ${state.checked?"checked":""}><span><strong>Leí el consentimiento y acepto esta versión.</strong><span>La confirmación es explícita y queda asociada a la versión vigente.</span></span></label>
+            <div class="helper">${help}</div>
+            <div class="actions ${state.mode==="desktop"?"inline":""}">${btn(kind==="submitting"?"Registrando consentimiento...":"Aceptar y seguir","submit-consent",kind==="submitting"||!ready())}${ghost("Salir por ahora","goto-entry")}</div>
+          </div>
+        </div>
+      `;
+    }
+    function mood(){
+      setHead("S04 · Primer registro de humor","El primer valor aparece enseguida, sin volver a explicar el sistema.",state.mood?"Valor elegido":"Valor inmediato","S04","Happy path");
+      const options=[["muy-abajo","Muy abajo","Necesito registrar un día difícil."],["abajo","Abajo","No estoy tan bien como quisiera."],["medio","Más o menos","Quiero dejar un punto intermedio."],["bien","Bien","Estoy mejor hoy."],["muy-bien","Muy bien","Quiero registrar que me siento muy bien."]];
+      return `
+        <div class="tag">Primer registro</div>
+        <h2>¿Cómo te sentís ahora?</h2>
+        <p>Ya estás usando Bitácora. Elegí una opción para dejar tu primer registro sin pasos extra.</p>
+        <div class="grid moods">
+          ${options.map(([v,l,d])=>`<button class="mood ${state.mood===v?"on":""}" type="button" data-mood="${v}"><span>${l}</span><small>${d}</small></button>`).join("")}
+        </div>
+        <div class="actions">${btn("Registrar","submit-mood",!state.mood)}${ghost("Volver al consentimiento","goto-consent-ready")}</div>
+      `;
+    }
+    function confirm(){
+      setHead("S05 · Confirmación serena","El cierre confirma el inicio sin elogios ni dramatización.","Continuidad serena","S05","Happy path");
+      return `
+        <div class="tag">Bitácora</div>
+        <h2>Tu primer registro ya quedó guardado.</h2>
+        <p>Podés seguir usando Bitácora con la misma calma y el mismo control que tuviste hasta acá.</p>
+        <div class="notice ok"><strong>Inicio resuelto</strong><p>Sin celebración, sin pantalla puente y sin cambiar el tono del recorrido: ya empezaste.</p></div>
+        <div class="grid">
+          <div class="summary"><strong>Qué se confirma</strong><span>El consentimiento quedó registrado y tu primer valor también.</span></div>
+          <div class="summary"><strong>Qué se preserva</strong><span>Tu espacio sigue siendo propio y la experiencia sigue contenida.</span></div>
+          <div class="summary"><strong>Qué no hacemos</strong><span>No hay aplausos ni tono terapéutico. Solo una confirmación clara.</span></div>
+        </div>
+        <div class="actions">${ghost("Volver al inicio del slice","goto-entry")}</div>
+      `;
+    }
+    function frameHtml(){
+      if(state.frame==="ONB-001-S01-ENTRY") return invite(true);
+      if(state.frame==="ONB-001-S01-EXPIRED") return invite(false);
+      if(state.frame==="ONB-001-S02-AUTH") return auth(false);
+      if(state.frame==="ONB-001-S02-AUTH-ERROR") return auth(true);
+      if(state.frame==="ONB-001-S03-DEFAULT") return consent("default");
+      if(state.frame==="ONB-001-S03-READY") return consent("ready");
+      if(state.frame==="ONB-001-S03-SUBMITTING") return consent("submitting");
+      if(state.frame==="ONB-001-S03-ERROR") return consent("error");
+      if(state.frame==="ONB-001-S03-VERSION-CONFLICT") return consent("version");
+      if(state.frame==="ONB-001-S03-RESUME") return consent("resume");
+      if(state.frame==="ONB-001-S04-MOOD") return mood();
+      return confirm();
+    }
+    function bind(){
+      const email=document.getElementById("auth-email");
+      if(email) email.addEventListener("input",e=>state.email=e.target.value);
+      const scroll=document.getElementById("consent-scroll");
+      if(scroll){
+        scroll.addEventListener("scroll",()=>{if(Math.ceil(scroll.scrollTop+scroll.clientHeight)>=scroll.scrollHeight&&!state.scrolled){state.scrolled=true;render()}});
+        if(state.scrolled) scroll.scrollTop=scroll.scrollHeight;
+      }
+      const check=document.getElementById("consent-check");
+      if(check) check.addEventListener("change",e=>{state.checked=e.target.checked;render()});
+    }
+    function render(){
+      navHtml();
+      viewport.classList.toggle("desktop",state.mode==="desktop");
+      device.textContent=state.mode==="desktop"?"Desktop · 1040 px":"Móvil · 390 px";
+      screen.innerHTML=frameHtml();
+      bind();
+    }
+    document.addEventListener("click",e=>{
+      const frame=e.target.closest("[data-frame]"); if(frame) return setFrame(frame.dataset.frame);
+      const mode=e.target.closest("[data-mode]"); if(mode){state.mode=mode.dataset.mode; document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===state.mode)); return render();}
+      const action=e.target.closest("[data-action]"); if(action){
+        const a=action.dataset.action;
+        if(a==="goto-auth") setFrame("ONB-001-S02-AUTH");
+        if(a==="goto-expired") setFrame("ONB-001-S01-EXPIRED");
+        if(a==="goto-entry") setFrame("ONB-001-S01-ENTRY");
+        if(a==="goto-auth-error") setFrame("ONB-001-S02-AUTH-ERROR");
+        if(a==="goto-consent-ready") setFrame("ONB-001-S03-READY");
+        if(a==="submit-auth") setFrame("ONB-001-S03-DEFAULT");
+        if(a==="submit-consent"&&ready()) setFrame("ONB-001-S04-MOOD");
+        if(a==="submit-mood"&&state.mood) setFrame("ONB-001-S05-CONFIRM");
+      }
+      const moodButton=e.target.closest("[data-mood]"); if(moodButton){state.mood=moodButton.dataset.mood; render();}
+    });
+    render();
+  </script>
+</body>
+</html>

@@ -13,7 +13,7 @@ El profesional visualiza un dashboard resumen de todos sus pacientes vinculados,
 | Profesional | Consulta dashboard |
 | Modulo Auth | Valida JWT, resuelve professional_id |
 | Modulo Vinculos | Lista CareLinks activos con can_view_data = true |
-| Modulo Visualizacion | Resumen de safe_projection por paciente |
+| Modulo Visualizacion | Lista pacientes accesibles y expone queries por paciente para resumen y alertas |
 | Capa Seguridad | Registra audit de acceso a datos de paciente |
 
 ## Precondiciones
@@ -22,7 +22,7 @@ El profesional visualiza un dashboard resumen de todos sus pacientes vinculados,
 
 ## Postcondiciones
 - Dashboard renderizado
-- AccessAudit registrado por cada paciente cuyos datos se acceden
+- AccessAudit registrado por cada paciente cuyos datos se acceden en `/dashboard`, `/summary` o `/alerts`
 
 ## Secuencia principal
 
@@ -37,13 +37,13 @@ sequenceDiagram
     WEB->>API: GET /api/v1/professional/dashboard?page=1
     API->>API: Auth → professional_id
     API->>DB: SELECT CareLinks WHERE professional_id AND status=active AND can_view_data=true
-    loop Por cada paciente vinculado
-        API->>DB: SELECT latest safe_projection FROM mood_entries (ultimos 7 dias)
-        API->>DB: INSERT AccessAudit (professional.read_summary, patient_id, trace_id)
+    API-->>WEB: {patients: [{pseudonym_id, patient_ref, care_link_id}, ...]}
+    loop Por cada paciente visible
+        WEB->>API: GET /api/v1/professional/patients/{patient_ref}/summary
+        WEB->>API: GET /api/v1/professional/patients/{patient_ref}/alerts
+        API->>DB: INSERT AccessAudit por cada request con datos expuestos
     end
-    API->>API: Calcular alertas (ej: paciente con 3+ dias en -3)
-    API-->>WEB: {patients: [{name_hash, last_mood, trend_7d, alert: "3 dias en -3"}, ...]}
-    WEB-->>P: Dashboard con lista de pacientes + alertas
+    WEB-->>P: Dashboard con lista de pacientes + resumen + alertas
 ```
 
 ## Paths alternativos / errores
@@ -51,7 +51,7 @@ sequenceDiagram
 | Condicion | Resultado | HTTP |
 |-----------|----------|------|
 | Sin CareLinks activos | Dashboard vacio "Sin pacientes vinculados" | 200 |
-| CareLink activo pero can_view_data = false | Paciente visible pero sin datos (solo nombre) | 200 |
+| CareLink activo pero can_view_data = false | Paciente oculto silenciosamente | 200 |
 | Consent del paciente revocado | CareLink no aparece (filtrado automatico) | 200 |
 
 ## Architecture slice
@@ -63,7 +63,7 @@ sequenceDiagram
 | Entidad | Operacion |
 |---------|-----------|
 | CareLink | READ (filtro active + can_view_data) |
-| MoodEntry.safe_projection | READ (por paciente) |
+| MoodEntry.safe_projection | READ (via `/summary` y `/alerts`) |
 | AccessAudit | INSERT (por paciente accedido) |
 
 ## RF candidatos

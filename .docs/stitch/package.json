@@ -1,0 +1,35 @@
+{
+  "name": "bitacora-stitch-mode-a",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Google Stitch Mode A helpers for Bitacora UX prototyping",
+  "scripts": {
+    "build-design-pack": "node stitch-mode-a.mjs build-design-pack",
+    "check-auth": "node stitch-mode-a.mjs check-auth",
+    "list-projects": "node stitch-mode-a.mjs list-projects",
+    "list-slices:core": "node stitch-mode-a.mjs list-slices --config core-wave.prompts.json",
+    "list-slices:patientwave": "node stitch-mode-a.mjs list-slices --config patient-wave-a.prompts.json",
+    "list-slices:remainingwave": "node stitch-mode-a.mjs list-slices --config remaining-wave-b.prompts.json",
+    "sync-design:onb001": "node stitch-mode-a.mjs sync-design-system --config onb-001.prompts.json",
+    "sync-design:reg001": "node stitch-mode-a.mjs sync-design-system --config core-wave.prompts.json --slice reg-001",
+    "sync-design:reg002": "node stitch-mode-a.mjs sync-design-system --config core-wave.prompts.json --slice reg-002",
+    "generate:onb001": "node stitch-mode-a.mjs generate-onb-001",
+    "generate:reg001": "node stitch-mode-a.mjs generate-prototype --config core-wave.prompts.json --slice reg-001",
+    "generate:reg002": "node stitch-mode-a.mjs generate-prototype --config core-wave.prompts.json --slice reg-002",
+    "generate:vin002": "node stitch-mode-a.mjs generate-prototype --config patient-wave-a.prompts.json --slice vin-002",
+    "generate:vin004": "node stitch-mode-a.mjs generate-prototype --config patient-wave-a.prompts.json --slice vin-004",
+    "generate:vin003": "node stitch-mode-a.mjs generate-prototype --config patient-wave-a.prompts.json --slice vin-003",
+    "generate:con002": "node stitch-mode-a.mjs generate-prototype --config patient-wave-a.prompts.json --slice con-002",
+    "generate:vis001": "node stitch-mode-a.mjs generate-prototype --config patient-wave-a.prompts.json --slice vis-001",
+    "generate:exp001": "node stitch-mode-a.mjs generate-prototype --config patient-wave-a.prompts.json --slice exp-001",
+    "generate:vin001": "node stitch-mode-a.mjs generate-prototype --config remaining-wave-b.prompts.json --slice vin-001",
+    "generate:vis002": "node stitch-mode-a.mjs generate-prototype --config remaining-wave-b.prompts.json --slice vis-002",
+    "generate:tg001": "node stitch-mode-a.mjs generate-prototype --config remaining-wave-b.prompts.json --slice tg-001",
+    "generate:tg002": "node stitch-mode-a.mjs generate-prototype --config remaining-wave-b.prompts.json --slice tg-002",
+    "audit-artifacts": "node stitch-mode-a.mjs audit-artifacts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0"
+  }
+}

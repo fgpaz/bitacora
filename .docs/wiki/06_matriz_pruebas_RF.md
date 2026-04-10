@@ -1,0 +1,105 @@
+# 06 — Matriz de Pruebas RF
+
+## Modulo REG
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-REG-001 | TP-REG | Crea MoodEntry con score valido | Rechaza score invalido o falta de consentimiento |
+| RF-REG-002 | TP-REG | Acepta score entre -3 y +3 | Rechaza score fuera de rango |
+| RF-REG-003 | TP-REG | Cifra payload y construye safe_projection de MoodEntry | Falla cerrado si falta la clave |
+| RF-REG-004 | TP-REG | Permite registrar con ConsentGrant vigente | Bloquea escritura clinica sin grant activo |
+| RF-REG-005 | TP-REG | Reusa el registro existente dentro de la ventana de idempotencia | Evita duplicado fuera de la ventana o con score distinto |
+| RF-REG-010 | TP-REG | Acepta webhook Telegram con firma valida | Rechaza firma invalida o body malformado |
+| RF-REG-011 | TP-REG | Resuelve TelegramSession linked por chat_id | Falla si la sesion no existe o esta unlinked |
+| RF-REG-012 | TP-REG | Crea MoodEntry desde callback Telegram | Rechaza callback malformado o sin consentimiento |
+| RF-REG-013 | TP-REG | Avanza la secuencia de factores por Telegram | Corta la secuencia ante timeout o respuesta invalida |
+| RF-REG-014 | TP-REG | Informa guidance si el chat no esta vinculado | No crea datos y audita el rechazo si falta sesion |
+| RF-REG-015 | TP-REG | Redirige a la web si falta consentimiento via Telegram | No crea datos y audita el bloqueo |
+| RF-REG-020 | TP-REG | Crea o actualiza DailyCheckin con payload valido | Rechaza checkin sin consentimiento o datos invalidos |
+| RF-REG-021 | TP-REG | Valida factores diarios y normaliza hora aproximada | Rechaza sleep_hours u horario de medicacion invalidos |
+| RF-REG-022 | TP-REG | Inserta el primer DailyCheckin del dia | Actualiza el existente y reporta error si falla DB |
+| RF-REG-023 | TP-REG | Cifra DailyCheckin y excluye medication_time de safe_projection | Falla cerrado si no hay clave disponible |
+| RF-REG-024 | TP-REG | Registra audit de alta o actualizacion de DailyCheckin | Falla cerrado si no puede persistir AccessAudit |
+| RF-REG-025 | TP-REG | Persiste medicacion con horario aproximado normalizado | Rechaza falta de horario cuando medication_taken=true |
+
+## Modulo CON
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-CON-001 | TP-CON | Devuelve consentimiento activo autenticado y patient_status | Falla si no existe configuracion activa |
+| RF-CON-002 | TP-CON | Registra ConsentGrant con version vigente | Rechaza version desactualizada o grant duplicado |
+| RF-CON-003 | TP-CON | Permite escritura clinica con grant activo | Bloquea POST clinicos sin consentimiento |
+| RF-CON-010 | TP-CON | Revoca consentimiento con confirmacion explicita | Rechaza revocacion sin confirmacion o sin grant activo |
+| RF-CON-011 | TP-CON | Revoca CareLinks asociados al revocar consentimiento | Hace no-op si no hay links activos o falla el cascade |
+| RF-CON-012 | TP-CON | Invalida caches de safe_projection tras revocacion | Deja warning si cache no responde sin romper la revocacion |
+| RF-CON-013 | TP-CON | Ejecuta revocacion atomica de consentimiento y links | Hace rollback total si falla una etapa ACID |
+
+## Modulo VIN
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-VIN-001 | TP-VIN | Crea CareLink invitado o PendingInvite segun exista el paciente | Rechaza invitacion duplicada o email invalido |
+| RF-VIN-002 | TP-VIN | Resuelve patient_id por email hash normalizado | Retorna null si el email no existe |
+| RF-VIN-003 | TP-VIN | Activa CareLink invitado del paciente owner | Rechaza aceptacion por no-owner o status invalido |
+| RF-VIN-004 | TP-VIN | Fuerza can_view_data=false en toda creacion de CareLink | Ignora cualquier intento de crearlo en true |
+| RF-VIN-010 | TP-VIN | Genera BindingCode con preset valido y TTL esperado | Rechaza ttl_preset fuera del catalogo |
+| RF-VIN-011 | TP-VIN | Valida BindingCode y resuelve professional_id | Rechaza codigo inexistente, expirado o usado |
+| RF-VIN-012 | TP-VIN | Auto-vincula al paciente con BindingCode valido | Rechaza codigo invalido, expirado o link duplicado |
+| RF-VIN-020 | TP-VIN | Revoca CareLink por decision del paciente | Rechaza revocacion por no-owner o status invalido |
+| RF-VIN-021 | TP-VIN | Invalida cache al revocar un vinculo | Deja warning sin revertir la revocacion si falla cache |
+| RF-VIN-022 | TP-VIN | Verifica ownership correcto del CareLink | Rechaza accesso sin ownership o link inexistente |
+| RF-VIN-023 | TP-VIN | Habilita o deshabilita can_view_data por el paciente owner | Rechaza cambio por professional o link no activo |
+
+## Modulo VIS
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-VIS-001 | TP-VIS | Devuelve timeline de MoodEntry en rango valido | Rechaza rango invalido o sin autenticacion |
+| RF-VIS-002 | TP-VIS | Devuelve DailyCheckin en rango valido | Rechaza rango invalido o sin autenticacion |
+| RF-VIS-003 | TP-VIS | Pagina periodos largos con cursor valido | Rechaza cursor o page_size invalidos |
+| RF-VIS-010 | TP-VIS | Lista solo pacientes visibles del profesional | Oculta pacientes con can_view_data=false o rol invalido |
+| RF-VIS-011 | TP-VIS | Calcula resumen de 7 dias para paciente visible | Falla cerrado si no hay CareLink visible o auditoria |
+| RF-VIS-012 | TP-VIS | Calcula alertas LOW_MOOD_STREAK cuando corresponde | No genera alertas con dias no consecutivos o falla audit |
+| RF-VIS-013 | TP-VIS | Pagina lista de pacientes del dashboard | Rechaza cursores inconsistentes o page_size excesivo |
+| RF-VIS-014 | TP-VIS | Genera audit por cada paciente expuesto al profesional | Falla cerrado si no puede persistir el batch de audit |
+
+## Modulo EXP
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-EXP-001 | TP-EXP | Genera CSV con headers estandarizados y filas por dia | Rechaza rango invalido o falla de descifrado |
+| RF-EXP-002 | TP-EXP | Descifra payloads por key_version correcta | Falla si falta la clave requerida |
+| RF-EXP-003 | TP-EXP | Hace streaming de datasets grandes sin buffer completo | Reporta error si el stream se interrumpe |
+
+## Modulo TG
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-TG-001 | TP-TG | Genera pairing code BIT-XXXXX con TTL de 15 minutos | Rechaza solicitud sin consentimiento o JWT valido |
+| RF-TG-002 | TP-TG | Vincula chat_id con /start y codigo activo | Responde guidance si el codigo es invalido, expirado o duplicado |
+| RF-TG-003 | TP-TG | Garantiza unicidad de chat_id por paciente | Rechaza chat_id ya vinculado a otra cuenta |
+| RF-TG-010 | TP-TG | Ejecuta scheduler y detecta recordatorios vencidos | Tolera error de DB o planificacion inconsistente |
+| RF-TG-011 | TP-TG | Envia mensaje con keyboard inline correcto | Reporta fallo si falta token o no existe chat |
+| RF-TG-012 | TP-TG | Omite envio cuando hay consent revocado o session unlinked | Rechaza ejecucion con datos de sesion invalidos |
+
+## Modulo SEC
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-SEC-001 | TP-SEC | Intercepta acceso profesional y audita lectura permitida | Bloquea acceso si no existe permiso o falla audit |
+| RF-SEC-002 | TP-SEC | Genera pseudonym_id estable a partir de actor_id y salt | Falla si no existe salt configurado |
+| RF-SEC-003 | TP-SEC | No retorna datos cuando la auditoria falla | Falla cerrado ante cualquier error de audit |
+
+## Modulo ONB
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-ONB-001 | TP-ONB | Crea usuario local y reanuda PendingInvite valida | Rechaza JWT invalido o evita duplicar usuario existente |
+| RF-ONB-002 | TP-ONB | Detecta correctamente usuario nuevo vs existente | Reporta error si falla la consulta local |
+| RF-ONB-003 | TP-ONB | Fuerza consentimiento y consume PendingInvite vigente | Bloquea acceso a datos si el usuario sigue registered |
+| RF-ONB-004 | TP-ONB | Registra el primer MoodEntry tras consentimiento | Rechaza primer registro con score invalido o sin consent |
+| RF-ONB-005 | TP-ONB | Transiciona a active tras el primer MoodEntry | Hace no-op si ya estaba active o loguea estado inesperado |
+
+---
+
+*Fuente: `.docs/wiki/04_RF.md` y `.docs/wiki/04_RF/RF-*.md`*

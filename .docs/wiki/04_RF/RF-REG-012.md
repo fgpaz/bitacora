@@ -29,7 +29,7 @@
 4. Ejecutar RF-REG-005 (verificar idempotencia).
 5. Ejecutar RF-REG-003 (cifrar payload con channel='telegram').
 6. INSERT MoodEntry con channel='telegram'.
-7. INSERT AccessAudit con trace_id, patient_id, operacion='MOOD_CREATE_TELEGRAM'.
+7. INSERT AccessAudit con `action_type='create'`, `resource_type='mood_entry'`, `resource_id=mood_entry_id`.
 8. Responder al bot para confirmar registro al usuario.
 
 ## Outputs
@@ -53,7 +53,7 @@
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
 | MoodEntry | INSERT | mood_entry_id, patient_id, encrypted_payload, safe_projection (channel='telegram'), key_version, encrypted_at, created_at_utc |
-| AccessAudit | INSERT | trace_id, patient_id, operacion, created_at |
+| AccessAudit | INSERT | trace_id, actor_id, patient_id, action_type, resource_type, resource_id, created_at_utc |
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin
