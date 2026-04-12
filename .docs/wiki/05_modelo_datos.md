@@ -15,7 +15,7 @@
 - `CareLink` (Wave 30)
 - `TelegramSession` (Phase 31)
 - `TelegramPairingCode` (Phase 31)
-- `ReminderConfig` (Phase 31 — entidades + ReminderWorker implementados; SendTelegramMessageAsync es stub)
+- `ReminderConfig` (Phase 31 — entidades + ReminderWorker implementados; SendTelegramMessageAsync hace POST real a Telegram Bot API via HttpClient)
 
 La autoridad activa para planificar su materializacion pendiente vive en `.docs/plans/wave-prod/`. `.docs/raw/plans/wave-1/` se conserva solo como antecedente historico.
 

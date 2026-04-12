@@ -1,0 +1,24 @@
+# mkey configuration for bitácora secrets management
+# Vault: teslita (personal Gabriel Paz)
+# Usage: mkey pull bitacora prod   (or: mkey pull bitacora dev)
+#
+# Infisical workspace: multi-tedi (shared project for mios ecosystem)
+# Org: vendimia-tech (7195b15e-b26f-4d5b-b3c1-655c658a097e)
+# Workspace ID: 7a878e77-355e-43ae-b34d-a65785eaeb2c
+# Environments: prod, qa, dev, staging
+# Contains: Supabase JWT_SECRET, Telegram bot tokens, DB credentials,
+#   Dokploy app IDs, and all other mios ecosystem secrets
+
+project: bitacora
+vault: teslita
+default_env: prod
+infisical_project_id: 7a878e77-355e-43ae-b34d-a65785eaeb2c
+infisical:
+  org_id: "7195b15e-b26f-4d5b-b3c1-655c658a097e"
+  workspace_id: "7a878e77-355e-43ae-b34d-a65785eaeb2c"
+  environment: prod
+  secret_path: "/"
+sops:
+  age_recipients:
+    - "age1dqg4eyvkxcrcsk576gq70qfawmaj5r08hh2nlkvgrwegywlpuf9sp8sv22"
+  encrypted_file: "infra/secrets.enc.env"
