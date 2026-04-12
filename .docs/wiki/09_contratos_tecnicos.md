@@ -35,18 +35,34 @@
 | GET | /health | Liveness | Confirma proceso HTTP vivo |
 | GET | /health/ready | Readiness | Valida config critica y conectividad PostgreSQL antes de abrir trafico |
 
+### Endpoints de Vinculos (Wave 30)
+
+| Metodo | Ruta | RF | Descripcion |
+|--------|------|----|-------------|
+| GET | /api/v1/vinculos | RF-VIN-010 | Lista de vinculos del paciente autenticado |
+| GET | /api/v1/vinculos/active | RF-VIN-010 | Lista de vinculos activos con permiso de vista |
+| POST | /api/v1/vinculos/accept | RF-VIN-003 | Aceptar vinculo mediante BindingCode |
+| DELETE | /api/v1/vinculos/{id} | RF-VIN-020 | Revocar vinculo |
+| PATCH | /api/v1/vinculos/{id}/view-data | RF-VIN-023 | Habilitar o deshabilitar `can_view_data` |
+
 ### Superficie canonica diferida
 
 | Metodo | Ruta | RF | Descripcion |
 |--------|------|----|-------------|
 | GET | /api/v1/mood-entries | RF-VIS-001 | Timeline del paciente |
 | GET | /api/v1/daily-checkins | RF-VIS-002 | Consultar factores diarios |
-| POST | /api/v1/care-links/bind | RF-VIN-012 | Auto-vincularse con BindingCode |
-| POST | /api/v1/care-links/{id}/accept | RF-VIN-003 | Aceptar invitacion existente |
-| DELETE | /api/v1/care-links/{id} | RF-VIN-020 | Revocar vinculo |
-| PATCH | /api/v1/care-links/{id} | RF-VIN-023 | Habilitar o deshabilitar `can_view_data` |
-| POST | /api/v1/telegram/pairing | RF-TG-001 | Generar codigo de vinculacion Telegram |
-| GET | /api/v1/export/csv | RF-EXP-001 | Export CSV |
+| POST | /api/v1/care-links/bind | RF-VIN-012 | Auto-vincularse con BindingCode (endpoint profesional emite codigo) |
+| POST | /api/v1/care-links | RF-VIN-001 | Emitir invitacion de vinculo |
+
+### Endpoints profesionales implementados
+
+| Metodo | Ruta | RF | Descripcion |
+|--------|------|----|-------------|
+| POST | /api/v1/professional/invites | RF-VIN-001 | Emitir invitacion de vinculo por email (hash) |
+| GET | /api/v1/professional/patients | RF-VIN-010 | Lista pacientes vinculados al profesional |
+| GET | /api/v1/professional/patients/{patientId}/summary | RF-VIS-010 | Resumen clinico del paciente para profesional |
+| GET | /api/v1/professional/patients/{patientId}/timeline | RF-VIS-011 | Timeline del paciente para profesional |
+| GET | /api/v1/professional/patients/{patientId}/alerts | RF-VIS-012 | Alertas del paciente para profesional |
 
 ## Convenciones de contrato
 
@@ -59,13 +75,26 @@
 - La revocacion de consentimiento hoy solo opera sobre `ConsentGrant`; las cascadas sobre vinculos y caches siguen diferidas.
 - El bus de eventos permanece en `NoOp` mientras `EventBusSettings:HostAddress` siga vacio.
 
+### Invariantes de compliance transversales
+
+1. **ConsentRequiredMiddleware** es el hard gate para POST /mood-entries y POST /daily-checkins; cualquier intento sin consentimiento activo genera 403 + AccessAudit outcome=Denied.
+2. **AccessAudit.append-only**: la unica operacion valida sobre access_audits es INSERT. UPDATE y DELETE estan prohibidas a nivel de aplicacion y esquema.
+3. **PseudonymizationService fail-closed**: si BITACORA_PSEUDONYM_SALT falta o no resuelve, toda operacion que dependa del servicio de pseudonimizacion retorna 500.
+4. **Sin fuga a Telegram**: ninguna respuesta HTTP dirigida al bot Telegram ni ningun mensaje del bot puede contener encrypted_payload, safe_projection con datos clinicos, o cualquier campo derivable de registros clinicos del paciente.
+5. **Export CSV es owner-only**: GET /api/v1/export/csv solo acepta JWT del paciente owner; no se serve a contextos profesionales aunque CareLink.can_view_data=true.
+6. **Retencion韧性**: crisis (mood_score=-3) >= 5 anos; AccessAudit >= 2 anos; ConsentGrant permanente.
+
 ### Campos de respuesta hoy consumidos por frontend
+
+Los contratos de respuesta listados en esta seccion son consumidos por `frontend/` (existente bajo `frontend/`).
 
 - `POST /api/v1/auth/bootstrap` retorna `userId`, `status`, `needsConsent` y `resumePendingInvite`.
 - `GET /api/v1/consent/current` retorna `version`, `text`, `sections` y `patientStatus`.
 - `POST /api/v1/consent` retorna `consentGrantId`, `status`, `grantedAtUtc`, `needsFirstEntry` y `resumePendingInvite`.
 
 ## Patron de errores
+
+Los códigos listados abajo mezclan contrato activo y contrato canónico diferido. Los errores ligados a vínculos, Telegram, export y lecturas profesionales siguen siendo superficie futura hasta que esos módulos existan en runtime.
 
 Todas las respuestas de error siguen este envelope:
 
@@ -116,11 +145,20 @@ Todas las respuestas de error siguen este envelope:
 
 ## Detail docs
 
-| Doc | Tema |
-|-----|------|
-| `09_contratos/CT-AUTH.md` | Flujo completo Supabase Auth, JWT, session revocation |
-| `09_contratos/CT-AUDIT.md` | Audit log, pseudonimizacion, trace_id, fail-closed |
-| `09_contratos/CT-ERRORS.md` | Catalogo de errores tipados reutilizados |
+| Doc | Tema | Estado |
+|-----|------|--------|
+| `09_contratos/CT-AUTH.md` | Flujo completo Supabase Auth, JWT, session revocation, consent como gate | Activo |
+| `09_contratos/CT-AUDIT.md` | Audit log, pseudonimizacion, trace_id, fail-closed | Activo |
+| `09_contratos/CT-ERRORS.md` | Catalogo de errores tipados reutilizados con sections por modulo | Activo |
+| `09_contratos/CT-VINCULOS.md` | Contrato de vinculos profesional-paciente, binding codes | **En produccion (Wave 30)** |
+| `09_contratos/CT-VISUALIZACION-Y-EXPORT.md` | Contrato de visualizacion paciente y profesional, export CSV | **Canonico diferido** |
+| `09_contratos/CT-TELEGRAM-RUNTIME.md` | Runtime Telegram: pairing, webhook /start, invariante no-fuga | **Canonico diferido** |
+
+## Decision register
+
+| Fecha | Decision | Doc |
+|-------|----------|-----|
+| 2026-04-10 | **Hardening exceptions register + go/no-go** | `.docs/raw/decisiones/2026-04-10-wave-prod-hardening-exceptions-register.md` |
 
 ## Sync gates
 

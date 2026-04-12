@@ -14,7 +14,7 @@
 
 ## Estado de materializacion actual
 
-La migracion `InitialCore` ya fue generada y materializa estas tablas:
+La migracion `InitialCore` y la migracion `AddBindingCodesAndCareLinks` ya fueron generadas y materializan estas tablas:
 
 - `users`
 - `mood_entries`
@@ -23,8 +23,10 @@ La migracion `InitialCore` ya fue generada y materializa estas tablas:
 - `pending_invites`
 - `access_audits`
 - `encryption_key_versions`
+- `binding_codes` (Wave 30)
+- `care_links` (Wave 30)
 
-`binding_codes`, `care_links`, `telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` siguen en el canon de alcance, pero todavia no existen en la base fisica de esta ola.
+`telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` siguen en el canon de alcance, pero todavia no existen en la base fisica de esta ola.
 
 T01 congela para produccion una topologia backend-only: una DB dedicada `bitacora-db` y una app `bitacora-api`. La creacion live en Dokploy depende de materializar localmente `infra/.env` con credenciales de control-plane.
 
@@ -44,11 +46,11 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | daily_checkins | Registro | Upsert | `UNIQUE(patient_id, checkin_date)`. | Materializada |
 | consent_grants | Consent | State machine | `pending → granted → revoked`. | Materializada |
 | pending_invites | Vinculos | Temporal/state machine | TTL 7 dias, sin acceso clinico. | Materializada |
-| binding_codes | Vinculos | Temporal | `ttl_preset` por codigo; un activo por profesional a nivel app. | Diferida |
-| care_links | Vinculos | State machine | `invited → active → revoked_*`; `can_view_data` default false. | Diferida |
-| telegram_sessions | Telegram | CRUD | `UNIQUE(chat_id)`. | Diferida |
-| telegram_pairing_codes | Telegram | Temporal | TTL 15 min. | Diferida |
-| reminder_configs | Telegram | CRUD | Horarios por paciente. | Diferida |
+| binding_codes | Vinculos | Temporal | `ttl_preset` por codigo; un activo por profesional a nivel app. | Materializada (Wave 30) |
+| care_links | Vinculos | State machine | `invited → active → revoked_*`; `can_view_data` default false. | Materializada (Wave 30) |
+| telegram_sessions | Telegram | CRUD | `UNIQUE(chat_id)`. | Materializada |
+| telegram_pairing_codes | Telegram | Temporal | TTL 15 min. | Materializada |
+| reminder_configs | Telegram | CRUD | Horarios por paciente. | Materializada |
 | access_audits | Seguridad | Append-only | `trace_id + pseudonym_id`, sin UPDATE/DELETE. | Materializada |
 | encryption_key_versions | Seguridad | Append-only | Key material en vault/env, no en DB. | Materializada |
 
@@ -71,12 +73,12 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | mood_entries | INDEX(patient_id, created_at_utc) | Timeline queries | Materializado |
 | daily_checkins | UNIQUE(patient_id, checkin_date) | Un checkin por dia | Materializado |
 | pending_invites | INDEX(professional_id, invitee_email_hash, status) | Reutilizacion/duplicados de invitacion | Materializado |
-| binding_codes | UNIQUE(code) | Lookup del codigo | Diferido |
-| binding_codes | INDEX(professional_id, used, expires_at) | Invalida codigo activo del profesional | Diferido |
-| care_links | INDEX(professional_id, status) | Dashboard profesional | Diferido |
-| care_links | INDEX(patient_id, status) | Lista de vinculos del paciente | Diferido |
+| binding_codes | UNIQUE(code) | Lookup del codigo | Materializado (Wave 30) |
+| binding_codes | INDEX(professional_id, used, expires_at) | Invalida codigo activo del profesional | Materializado (Wave 30) |
+| care_links | INDEX(professional_id, status) | Dashboard profesional | Materializado (Wave 30) |
+| care_links | INDEX(patient_id, status) | Lista de vinculos del paciente | Materializado (Wave 30) |
 | access_audits | INDEX(patient_id, created_at_utc) | Consulta de auditoria | Materializado |
-| telegram_sessions | UNIQUE(chat_id) | Lookup desde webhook | Diferido |
+| telegram_sessions | UNIQUE(chat_id) | Lookup desde webhook | Materializado |
 
 ## Retencion
 
