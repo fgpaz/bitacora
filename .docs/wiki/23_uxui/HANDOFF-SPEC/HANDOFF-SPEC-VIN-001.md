@@ -55,15 +55,13 @@ Este documento fija el alcance implementable de `VIN-001` para frontend.
 
 ## Blockers explícitos
 
-- CareLink endpoint de invitación es futuro — contrato marcado como especulativo;
-- no existe runtime CareLink activo;
+- ninguno — el endpoint `POST /api/v1/professional/invites` existe en runtime (verificado mi-lsp 2026-04-12);
 - la validación UX real sigue diferida a `Phase 60`.
 
 ## Dependencias para implementación
 
-- `T04`: shell profesional, sesión, cliente API, routing base;
-- endpoint de CareLink (`POST /api/v1/carelinks/invite`) pendiente de definición;
-- cuando exista runtime, los contratos backend se actualizan en `UI-RFC-VIN-001.md`.
+- `T04`: shell profesional, sesion, cliente API, routing base;
+- cuando la evidencia de runtime contradiga el contrato, se actualiza en `UI-RFC-VIN-001.md`.
 
 ## Done when de handoff
 

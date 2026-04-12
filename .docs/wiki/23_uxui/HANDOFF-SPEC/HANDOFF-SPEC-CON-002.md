@@ -54,17 +54,13 @@ Este documento fija el alcance implementable de `CON-002` para frontend.
 
 ## Blockers explícitos
 
-- endpoint de revocación de consentimiento es futuro — contrato marcado como especulativo;
-- la cascada a vínculos depende de que existan los endpoints de CareLink;
-- no existe runtime de consentimiento todavía;
+- ninguno — los endpoints de consentimiento existen en runtime (verificado mi-lsp 2026-04-12);
 - la validación UX real sigue diferida a `Phase 60`.
 
 ## Dependencias para implementación
 
-- `T04`: shell paciente, sesión, cliente API, routing base;
-- endpoint de consentimiento (`DELETE /api/v1/consent`) pendiente de definición;
-- detalle de la cascada a vínculos requiere coordinación con T05 cuando existan endpoints CareLink;
-- cuando exista runtime, los contratos backend se actualizan en `UI-RFC-CON-002.md`.
+- `T04`: shell paciente, sesion, cliente API, routing base;
+- cuando la evidencia de runtime contradiga el contrato, se actualiza en `UI-RFC-CON-002.md`.
 
 ## Done when de handoff
 

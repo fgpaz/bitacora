@@ -53,16 +53,13 @@ Este documento fija el alcance implementable de `EXP-001` para frontend.
 
 ## Blockers explícitos
 
-- endpoint de exportación CSV es futuro — contrato marcado como especulativo;
-- no existe runtime de mood entries todavía;
+- ninguno — los endpoints `GET /api/v1/export/patient-summary` y `GET /api/v1/export/patient-summary/csv` existen en runtime (verificado mi-lsp 2026-04-12);
 - la validación UX real sigue diferida a `Phase 60`.
 
 ## Dependencias para implementación
 
-- `T04`: shell paciente, sesión, cliente API, routing base;
-- endpoint de exportación (`POST /api/v1/mood-entries/export`) pendiente de definición;
-- formato del CSV pendiente de definición con T05;
-- cuando exista runtime, los contratos backend se actualizan en `UI-RFC-EXP-001.md`.
+- `T04`: shell paciente, sesion, cliente API, routing base;
+- cuando la evidencia de runtime contradiga el contrato, se actualiza en `UI-RFC-EXP-001.md`.
 
 ## Done when de handoff
 

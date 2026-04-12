@@ -53,16 +53,14 @@ Este documento fija el alcance implementable de `VIN-004` para frontend.
 
 ## Blockers explícitos
 
-- CareLink endpoint de acceso es futuro — contrato marcado como especulativo;
-- no existe runtime CareLink activo;
+- ninguno — los endpoints `PATCH /api/v1/vinculos/{id}/view-data`, `GET /api/v1/vinculos`, `GET /api/v1/vinculos/active` existen en runtime (verificado mi-lsp 2026-04-12);
 - la validación UX real sigue diferida a `Phase 60`.
 
 ## Dependencias para implementación
 
-- `T04`: shell paciente, sesión, cliente API, routing base;
+- `T04`: shell paciente, sesion, cliente API, routing base;
 - patrón de guardado (explícito o auto-save) pendiente de definición en T04;
-- endpoint de CareLink (`PATCH /api/v1/carelinks/<id>/access`) pendiente de definición;
-- cuando exista runtime, los contratos backend se actualizan en `UI-RFC-VIN-004.md`.
+- cuando la evidencia de runtime contradiga el contrato, se actualiza en `UI-RFC-VIN-004.md`.
 
 ## Done when de handoff
 

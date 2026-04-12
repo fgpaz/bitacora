@@ -55,15 +55,13 @@ Este documento fija el alcance implementable de `VIS-002` para frontend.
 
 ## Blockers explícitos
 
-- CareLink endpoints de pacientes son futuros — contratos marcados como especulativos;
-- no existe runtime CareLink activo;
+- ninguno — los endpoints de `professional/patients` existen en runtime (verificado mi-lsp 2026-04-12);
 - la validación UX real sigue diferida a `Phase 60`.
 
 ## Dependencias para implementación
 
-- `T04`: shell profesional, sesión, cliente API, routing base;
-- endpoints de CareLink (`GET /api/v1/carelinks/patients`) pendientes de definición;
-- cuando exista runtime, los contratos backend se actualizan en `UI-RFC-VIS-002.md`.
+- `T04`: shell profesional, sesion, cliente API, routing base;
+- cuando la evidencia de runtime contradiga el contrato, se actualiza en `UI-RFC-VIS-002.md`.
 
 ## Done when de handoff
 

@@ -53,16 +53,14 @@ Este documento fija el alcance implementable de `VIS-001` para frontend.
 
 ## Blockers explícitos
 
-- endpoint de timeline es futuro — contrato marcado como especulativo;
-- no existe runtime de mood entries todavía;
+- ninguno — los endpoints `GET /api/v1/visualizacion/timeline` y `GET /api/v1/visualizacion/summary` existen en runtime (verificado mi-lsp 2026-04-12);
 - la validación UX real sigue diferida a `Phase 60`.
 
 ## Dependencias para implementación
 
-- `T04`: shell paciente, sesión, cliente API, routing base;
+- `T04`: shell paciente, sesion, cliente API, routing base;
 - librería del chart pendiente de definición técnica;
-- endpoint de timeline (`GET /api/v1/mood-entries/timeline`) pendiente de definición;
-- cuando exista runtime, los contratos backend se actualizan en `UI-RFC-VIS-001.md`.
+- cuando la evidencia de runtime contradiga el contrato, se actualiza en `UI-RFC-VIS-001.md`.
 
 ## Done when de handoff
 
