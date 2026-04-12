@@ -11,7 +11,7 @@
  * States: checking | allowed | denied | error
  */
 import { useEffect, useState } from 'react';
-import type { ExportConstraint } from '@/lib/api/professional';
+import { getExportConstraints, type ExportConstraint } from '@/lib/api/professional';
 import styles from './ExportGate.module.css';
 
 interface Props {
@@ -24,16 +24,15 @@ export function ExportGate({ patientId }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real implementation this calls the backend constraints endpoint.
-    // Since export is owner-only, the backend will return allowed:false for
-    // any professional user. We simulate that here.
-    // TODO: replace with real call once backend exports /constraints for professionals.
-    setLoading(false);
-    setConstraint({
-      export_type: 'full',
-      allowed: false,
-      reason: 'La exportacion de datos es solo para el paciente propietario. Solo el paciente puede descargar sus propios registros.',
-    });
+    getExportConstraints(patientId)
+      .then((c) => {
+        setConstraint(c);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+        setLoading(false);
+      });
   }, [patientId]);
 
   if (loading) {
