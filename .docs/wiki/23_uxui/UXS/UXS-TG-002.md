@@ -94,5 +94,12 @@ Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sens
 
 ---
 
+## Nota de estado runtime y validación
+
+- `TelegramSession` y `ReminderConfig` existen en runtime (Phase 30+): entities, tablas, seam webhook y `ReminderWorker` activos segun `TECH-TELEGRAM.md`
+- la validacion UX real queda diferida a `Phase 60`
+- `UI-RFC-TG-002.md` y `HANDOFF-SPEC-TG-002.md` actuan como contrato conversacional para implementacion backend/telegram
+- los estados declarados en este documento (reminder_sent, reply_submitting, reply_success, reply_error) fueron heredados en el arbol de estados del UI-RFC
+
 **Estado:** `UXS` activo para `TG-002`.
 **Siguiente capa gobernada:** futuro `../PROTOTYPE/PROTOTYPE-TG-002.md` y `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.

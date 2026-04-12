@@ -62,7 +62,7 @@ Eso implica:
 | --- | --- | --- |
 | documento fuente | `./PROTOTYPE-VIN-002.md` | dueño del alcance del slice |
 | referencia navegable mínima | `./PROTOTYPE-VIN-002.html` | fuente canónica local mientras Stitch no deje un resultado usable |
-| intento Stitch | `../../../raw/plans/2026-04-08-stitch-first-wave-paciente.md` | el fallback local queda habilitado si la corrida no produce salida estable |
+| intento Stitch previo | `../../../raw/plans/2026-04-08-stitch-first-wave-paciente.md` | referencia de intención previa, no evidencia visual; el fallback local queda habilitado si la corrida no produce salida estable |
 
 ### Referencia canónica actual
 

@@ -91,5 +91,12 @@ Este `UXR` está bien planteado si:
 
 ---
 
+## Nota de estado runtime y validación
+
+- `TelegramSession` y `ReminderConfig` existen en runtime (Phase 30+): entities, tablas, seam webhook y `ReminderWorker` activos segun `TECH-TELEGRAM.md`
+- la validacion UX real queda diferida a `Phase 60`
+- `UI-RFC-TG-002.md` y `HANDOFF-SPEC-TG-002.md` actuan como contrato conversacional para implementacion backend/telegram
+- este documento mantiene su valor como investigacion y no necesita modificacion de contenido
+
 **Estado:** `UXR` activo para `TG-002`.
 **Siguiente capa gobernada:** `../UXI/UXI-TG-002.md`, `../UJ/UJ-TG-002.md`, `../VOICE/VOICE-TG-002.md` y `../UXS/UXS-TG-002.md`.

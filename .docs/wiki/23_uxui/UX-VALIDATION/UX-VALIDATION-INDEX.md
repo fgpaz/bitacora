@@ -6,56 +6,56 @@ Este índice lista el estado de validación UX de cada slice visible.
 
 No reemplaza `21_matriz_validacion_ux.md` ni los futuros `UX-VALIDATION-*`. Su función es centralizar el punto de entrada de la familia `UX-VALIDATION` dentro de `23_uxui`.
 
-## Documentos activos
+## Documentos activos — sesión 2026-04-10
 
-Todavía no existen documentos `UX-VALIDATION-*` cerrados con evidencia real.
+Se crearon los primeros documentos `UX-VALIDATION-*` backed por evidencia de la sesión de validación 2026-04-10. Todos reflejan estado **`blocked`** — validación intentada pero no ejecutada por faltarle al entorno credentials y sesiones interactivas.
 
-La familia queda iniciada con este índice y con las cohortes `A` a `G` ya preparadas.
-
-## Cohortes preparadas
-
-| Slice | Estado | Base disponible | Próximo artefacto |
+| Slice | Estado | Base disponible | Resultado de la sesión 2026-04-10 |
 | --- | --- | --- | --- |
-| `ONB-001` | waiting evidence | prototipo + operativo | `UX-VALIDATION-ONB-001.md` |
-| `REG-001` | waiting evidence | prototipo + operativo | `UX-VALIDATION-REG-001.md` |
-| `REG-002` | waiting evidence | prototipo + operativo | `UX-VALIDATION-REG-002.md` |
-| `VIN-002` | waiting evidence | prototipo + operativo | `UX-VALIDATION-VIN-002.md` |
-| `VIN-004` | waiting evidence | prototipo + operativo | `UX-VALIDATION-VIN-004.md` |
-| `VIN-003` | waiting evidence | prototipo + operativo | `UX-VALIDATION-VIN-003.md` |
-| `CON-002` | waiting evidence | prototipo + operativo | `UX-VALIDATION-CON-002.md` |
-| `VIS-001` | waiting evidence | prototipo + operativo | `UX-VALIDATION-VIS-001.md` |
-| `EXP-001` | waiting evidence | prototipo + operativo | `UX-VALIDATION-EXP-001.md` |
-| `VIN-001` | waiting evidence | prototipo + operativo | `UX-VALIDATION-VIN-001.md` |
-| `VIS-002` | waiting evidence | prototipo + operativo | `UX-VALIDATION-VIS-002.md` |
-| `TG-001` | waiting evidence | prototipo + operativo | `UX-VALIDATION-TG-001.md` |
-| `TG-002` | waiting evidence | prototipo + operativo | `UX-VALIDATION-TG-002.md` |
+| `ONB-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
+| `REG-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
+| `REG-002` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
+| `VIN-002` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
+| `VIN-004` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
+| `VIN-003` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
+| `CON-002` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
+| `VIS-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
+| `EXP-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
+| `VIN-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
+| `VIS-002` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
+| `TG-001` | blocked | prototipo + operativo listo | validación bloqueada por TG-VAL-001 + TG-VAL-002 |
+| `TG-002` | blocked | prototipo + operativo listo | validación bloqueada por TG-VAL-001 + TG-VAL-002 |
 
-## Waiver ejecutado
+## Defectos críticos abiertos
 
-La cobertura documental restante de profesional y Telegram se completó bajo waiver explícito para cerrar el mapa UX visible del MVP, sin evidencia UX real.
+| Defecto | Severidad | Slice afectada | Owner |
+| --- | --- | --- | --- |
+| `WEB-VAL-001` | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | runtime/frontend config |
+| `WEB-VAL-002` | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | QA / validation harness |
+| `TG-VAL-001` | Critical | TG-001, TG-002 | runtime/secret provisioning |
+| `TG-VAL-002` | Critical | TG-001, TG-002 | QA / Telegram E2E setup |
+| `WEB-VAL-003` | High | todas las rutas web | frontend runtime hardening |
+| `TG-VAL-003` | High | TG-002 | backend runtime / QA |
 
-Ese waiver no promueve ningún slice a `validated`: todos siguen esperando sesiones reales.
+## Waiver en vigor
 
-## Waiver vigente de entrada a UI
+La cobertura documental de profesional y Telegram se completó bajo waiver explícito el 2026-04-08. Ese waiver no promueve ningún slice a `validated`.
 
-También existe un waiver explícito de entrada a UI en `.docs/raw/decisiones/03_decision_entrada_ui_con_validacion_diferida.md`.
-
-Ese waiver permite avanzar en documentación UI antes de la validación, pero no cambia la deuda de esta familia:
-
-- todos los slices siguen `waiting evidence`;
-- ningún `UX-VALIDATION-*` debe crearse sin observación real;
-- la validación queda diferida a una etapa posterior sobre código funcional.
+También existe un waiver de entrada a UI en `.docs/raw/decisiones/03_decision_entrada_ui_con_validacion_diferida.md`. Permite avanzar en documentación UI antes de la validación, pero no cambia la deuda de esta familia.
 
 ## Regla de creación
 
-Un `UX-VALIDATION-*` solo puede crearse cuando:
+Un `UX-VALIDATION-*` solo puede pasar a `validated` cuando:
 
 - existe prototipo enlazado y testeable;
 - hubo evidencia moderada u observada suficiente;
 - los hallazgos y severidades están explícitos;
+- ningún crítico permanece abierto;
 - el retorno a `VOICE` o `UXS` quedó resuelto o claramente marcado.
+
+Los documentos creados en esta sesión respetan esa regla: todos reflejan estado `blocked` con defectos abiertos documentados honestamente.
 
 ---
 
-**Estado:** familia `UX-VALIDATION` iniciada.
-**Siguiente capa gobernada:** futuros `UX-VALIDATION-*` por slice y luego `UI-RFC-*`.
+**Estado:** familia `UX-VALIDATION` con documentos creados para 7 slices — todos `blocked`.
+**Siguiente capa gobernada:** ejecución de cohortes reales para cerrar defectos y promover a `validated`.

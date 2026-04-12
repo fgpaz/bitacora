@@ -78,5 +78,12 @@ Y está mal calibrado si se percibe como:
 
 ---
 
+## Nota de estado runtime y validación
+
+- `TelegramSession` existe en runtime (Phase 30+): entity, tabla, seam webhook y `ReminderWorker` materializados segun `TECH-TELEGRAM.md`
+- la validacion UX real queda diferida a `Phase 60`
+- `UI-RFC-TG-001.md` y `HANDOFF-SPEC-TG-001.md` actuan como contrato conversacional para implementacion backend/telegram
+- las sensaciones declaradas en este documento (rapidez, guia, seguridad) fueron incorporadas en los contratos de copy del UI-RFC
+
 **Estado:** `UXI` activo para `TG-001`.
 **Siguiente capa gobernada:** `../UJ/UJ-TG-001.md`, `../VOICE/VOICE-TG-001.md` y `../UXS/UXS-TG-001.md`.

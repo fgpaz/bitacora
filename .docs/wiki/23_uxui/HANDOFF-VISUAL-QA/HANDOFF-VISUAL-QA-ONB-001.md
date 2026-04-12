@@ -74,5 +74,14 @@ Una deriva visual aquí puede alterar percepción de control, claridad y privaci
 
 ---
 
-**Estado:** checklist visual activa para cierre de implementación.
+**Estado:** checklist visual activa para cierre de implementacion. Implementacion着陆 pero validacion UX no completa.
 **Consumidor principal:** frontend + QA visual.
+
+## Notas de implementacion
+
+- `OnboardingFlow` component lands en `/onboarding` con estados: `auth -> consent -> bridge`.
+- `AuthBootstrapInterstitial` con variants `default` e `invite_context`.
+- `ConsentGatePanel` renderiza en `/consent` (route separada).
+- `NextActionBridgeCard` como puente al primer registro.
+- `PatientPageShell` usado como shell unico para todos los estados.
+- Validacion UX y visual QA pendientes de ejecutarse.

@@ -141,5 +141,12 @@ El prototipo está listo si:
 
 ---
 
+## Nota de estado runtime y validación
+
+- `TelegramSession` existe en runtime (Phase 30+): entity, tabla, seam webhook y `ReminderWorker` materializados segun `TECH-TELEGRAM.md`
+- la validacion UX real queda diferida a `Phase 60`
+- `UI-RFC-TG-001.md` y `HANDOFF-SPEC-TG-001.md` actuan como contrato conversacional para implementacion backend/telegram
+- este prototipo mantiene su valor como referencia visual Stitch y HTML local, pero no constituye evidencia de validacion hasta que exista runtime
+
 **Estado:** prototipo enlazado, navegable y testeable para `TG-001`.
 **Siguiente capa gobernada:** futuro `../UX-VALIDATION/UX-VALIDATION-TG-001.md`.

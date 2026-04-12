@@ -19,7 +19,8 @@ Este documento depende de:
 
 Y prepara directamente:
 
-- futuro `../PROTOTYPE/PROTOTYPE-REG-001.md`
+- `../PROTOTYPE/PROTOTYPE-REG-001.md`
+- `../UI-RFC/UI-RFC-REG-001.md`
 - futuro `../UX-VALIDATION/UX-VALIDATION-REG-001.md`
 
 ## Slice y paso dueño
@@ -92,4 +93,4 @@ Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sens
 ---
 
 **Estado:** `UXS` activo para `REG-001`.
-**Siguiente capa gobernada:** futuro `../PROTOTYPE/PROTOTYPE-REG-001.md` y `../UX-VALIDATION/UX-VALIDATION-REG-001.md`.
+**Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-REG-001.md`, `../UI-RFC/UI-RFC-REG-001.md` y futuro `../UX-VALIDATION/UX-VALIDATION-REG-001.md`.

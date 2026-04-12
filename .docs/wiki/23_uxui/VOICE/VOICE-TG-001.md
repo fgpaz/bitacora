@@ -81,5 +81,12 @@ La voz de este slice está bien calibrada si se percibe como breve, clara y cohe
 
 ---
 
+## Nota de estado runtime y validación
+
+- `TelegramSession` existe en runtime (Phase 30+): entity, tabla, seam webhook y `ReminderWorker` materializados segun `TECH-TELEGRAM.md`
+- la validacion UX real queda diferida a `Phase 60`
+- `UI-RFC-TG-001.md` y `HANDOFF-SPEC-TG-001.md` actuan como contrato conversacional para implementacion backend/telegram
+- la terminologia aprobada y el phrasing prohibido de este documento fueron incorporados directamente en los contratos de copy del UI-RFC y HANDOFF-SPEC
+
 **Estado:** `VOICE` activo para `TG-001`.
 **Siguiente capa gobernada:** `../UXS/UXS-TG-001.md` y futuro `../PROTOTYPE/PROTOTYPE-TG-001.md`.

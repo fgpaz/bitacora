@@ -23,11 +23,12 @@ Este índice depende de:
 
 La regla general de esta etapa sigue siendo `strict Stitch only`.
 
-Excepción aprobada:
+Excepciones aprobadas:
 
 - `ONB-001` abre `UI-RFC` y `HANDOFF-*` por authority pack manual `2026-04-10`;
-- esta excepción no cambia el estado de validación UX del slice;
-- esta excepción no habilita automáticamente `REG-001`, `REG-002` ni el resto de los slices.
+- `VIN-001..004`, `VIS-001..002`, `EXP-001`, `CON-002` abren `UI-RFC` y `HANDOFF-*` bajo autoridad T3;
+- estas excepciones no cambian el estado de validación UX de ningún slice;
+- estas excepciones no habilitan automáticamente `REG-001` ni `REG-002`.
 
 ## Secciones obligatorias de un `UI-RFC-*`
 
@@ -45,32 +46,32 @@ Todo `UI-RFC-*` debe fijar:
 
 | Orden | Slice | Estado UI-RFC actual | Gate vigente | Bloqueo | Siguiente acción |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `ONB-001` | `UI-RFC abierto` | authority pack manual aprobado | no | consumir `UI-RFC-ONB-001.md` + `HANDOFF-*` en `T04/T05` |
-| 2 | `REG-001` | `auditado con hallazgos` | strict Stitch only | sí | rerun Stitch corregido + nueva auditoría manual |
-| 3 | `REG-002` | `auditado con hallazgos` | strict Stitch only | sí | rerun Stitch corregido + nueva auditoría manual |
-| 4 | `VIN-002` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun con design pack derivado y auditar |
-| 5 | `VIN-004` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun con design pack derivado y auditar |
-| 6 | `VIN-003` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun con design pack derivado y auditar |
-| 7 | `CON-002` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun con design pack derivado y auditar |
-| 8 | `VIS-001` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun bajo design pack derivado y auditar |
-| 9 | `EXP-001` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun con design pack derivado y auditar |
-| 10 | `VIN-001` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun bajo design pack derivado y auditar |
-| 11 | `VIS-002` | `pendiente de auditoría` | strict Stitch only | pendiente | completar cobertura y auditar |
-| 12 | `TG-001` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun bajo design pack derivado y auditar |
-| 13 | `TG-002` | `pendiente de auditoría` | strict Stitch only | pendiente | rerun bajo design pack derivado y auditar |
+| 1 | `ONB-001` | `UI-RFC abierto` | authority pack manual aprobado | no | handoff completo disponible |
+| 2 | `REG-001` | `UI-RFC abierto` | authority T2 | no | handoff completo disponible |
+| 3 | `REG-002` | `UI-RFC abierto` | authority T2 | no | handoff completo disponible |
+| 4 | `VIN-001` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 5 | `VIN-002` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 6 | `VIN-003` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 7 | `VIN-004` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 8 | `VIS-001` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 9 | `VIS-002` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 10 | `EXP-001` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 11 | `CON-002` | `UI-RFC abierto` | authority T3 | no | handoff completo disponible |
+| 12 | `TG-001` | `UI-RFC abierto` | gap map 2026-04-10 | no | consumir en backend/telegram |
+| 13 | `TG-002` | `UI-RFC abierto` | gap map 2026-04-10 | no | consumir en backend/telegram |
 
 ## Cola operativa después de ONB
 
 1. `REG-001`
 2. `REG-002`
-3. `VIN-002`
-4. `VIN-004`
+3. `VIN-001`
+4. `VIN-002`
 5. `VIN-003`
-6. `CON-002`
+6. `VIN-004`
 7. `VIS-001`
-8. `EXP-001`
-9. `VIN-001`
-10. `VIS-002`
+8. `VIS-002`
+9. `EXP-001`
+10. `CON-002`
 11. `TG-001`
 12. `TG-002`
 
@@ -90,10 +91,13 @@ Cada `UI-RFC-*` abierto debe enlazar:
 La familia `UI-RFC` queda:
 
 - iniciada a nivel global;
-- abierta en `ONB-001` bajo excepción explícita;
-- todavía bloqueada o pendiente en el resto de los slices.
+- abierta en los 13 slices visibles del MVP;
+- `ONB-001` conserva su authority pack manual como antecedente de apertura;
+- `REG-001` y `REG-002` quedan abiertos bajo autoridad T2;
+- `VIN-001..004`, `VIS-001..002`, `EXP-001`, `CON-002` quedan abiertos bajo autoridad T3;
+- `TG-001` y `TG-002` quedan abiertos bajo autoridad T4.
 
 ---
 
-**Estado:** índice operativo actualizado con `ONB-001` abierto para contrato técnico UI.
-**Siguiente capa gobernada:** `UI-RFC-ONB-001.md` y futuros `UI-RFC-*` cuando sus gates se destraben.
+**Estado:** índice operativo actualizado con los 13 slices visibles del MVP abiertos para contrato técnico UI.
+**Siguiente capa gobernada:** sus respectivos `UI-RFC-*` y `HANDOFF-*`.

@@ -92,5 +92,12 @@ Este `UJ` está bien modelado si:
 
 ---
 
+## Nota de estado runtime y validación
+
+- `TelegramSession` existe en runtime (Phase 30+): entity, tabla, seam webhook y `ReminderWorker` materializados segun `TECH-TELEGRAM.md`
+- la validacion UX real queda diferida a `Phase 60`
+- `UI-RFC-TG-001.md` y `HANDOFF-SPEC-TG-001.md` actuan como contrato conversacional para implementacion backend/telegram
+- los pasos criticos declarados en este documento (S01: generacion del codigo) fueron heredados en los estados y triggers del UI-RFC
+
 **Estado:** `UJ` activo para `TG-001`.
 **Siguiente capa gobernada:** `../VOICE/VOICE-TG-001.md` y `../UXS/UXS-TG-001.md`.

@@ -21,6 +21,7 @@ Este documento depende de:
 
 Y prepara directamente:
 
+- `../UI-RFC/UI-RFC-REG-001.md`
 - futuro `../UX-VALIDATION/UX-VALIDATION-REG-001.md`
 
 ## Slice cubierto

@@ -17,7 +17,8 @@ Este documento depende de:
 Y prepara directamente:
 
 - `../UXS/UXS-REG-001.md`
-- futuro `../PROTOTYPE/PROTOTYPE-REG-001.md`
+- `../UI-RFC/UI-RFC-REG-001.md`
+- `../PROTOTYPE/PROTOTYPE-REG-001.md`
 
 ## Regla verbal central
 
@@ -83,4 +84,4 @@ La voz de este slice está bien calibrada si se percibe como breve, clara y cohe
 ---
 
 **Estado:** `VOICE` activo para `REG-001`.
-**Siguiente capa gobernada:** `../UXS/UXS-REG-001.md` y futuro `../PROTOTYPE/PROTOTYPE-REG-001.md`.
+**Siguiente capa gobernada:** `../UXS/UXS-REG-001.md`, `../UI-RFC/UI-RFC-REG-001.md` y `../PROTOTYPE/PROTOTYPE-REG-001.md`.
