@@ -1,5 +1,17 @@
 namespace Shared.Contract.Export;
 
+public enum ExportType
+{
+    MoodEntries,
+    DailyCheckins,
+    Full
+}
+
+public sealed record ExportConstraintDto(
+    ExportType ExportType,
+    bool Allowed,
+    string? Reason);
+
 /// <summary>
 /// Structured export of a patient's mood and check-in data for a date range.
 /// Privacy-aware: only safe projections (no encrypted payloads).

@@ -48,6 +48,49 @@ public static class ExportEndpoints
             .WithCommonOpenApi("ExportPatientSummary", Tag);
 
         // Owner-only CSV export (RF-EXP-002)
+        // GET /api/v1/export/{patientId}/constraints — returns export eligibility for a patient
+        // Auth: any authenticated user (professional or patient)
+        // Professional: always returns allowed=false with reason (export is owner-only)
+        // Patient: returns allowed=true if viewing own data
+        app.MapGet("/api/v1/export/{patientId}/constraints", async Task<IResult>(
+                HttpContext httpContext,
+                [FromRoute] Guid patientId,
+                [FromServices] CurrentAuthenticatedPatientResolver currentPatientResolver,
+                [FromServices] CurrentAuthenticatedProfessionalResolver currentProfessionalResolver,
+                [FromServices] IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                ResolvedPatientContext patientCtx;
+                try
+                {
+                    patientCtx = await currentPatientResolver.ResolveAsync(httpContext, cancellationToken);
+                }
+                catch (BitacoraException ex) when (ex.Code == "FORBIDDEN")
+                {
+                    var professionalCtx = await currentProfessionalResolver.ResolveAsync(httpContext, cancellationToken);
+                    var response = await mediator.Send(
+                        new GetExportConstraintsQuery(
+                            patientId,
+                            professionalCtx.User.UserId,
+                            IsProfessional: true,
+                            httpContext.GetTraceId()),
+                        cancellationToken);
+                    return Results.Ok(response);
+                }
+
+                var result = await mediator.Send(
+                    new GetExportConstraintsQuery(
+                        patientId,
+                        patientCtx.User.UserId,
+                        IsProfessional: false,
+                        httpContext.GetTraceId()),
+                    cancellationToken);
+                return Results.Ok(result);
+            })
+            .RequireAuthorization()
+            .Produces<ExportConstraintDto>(StatusCodes.Status200OK)
+            .WithCommonOpenApi("GetExportConstraints", Tag);
+
         app.MapGet("/api/v1/export/patient-summary/csv", async Task<IResult>(
                 HttpContext httpContext,
                 [FromQuery] DateOnly from,
