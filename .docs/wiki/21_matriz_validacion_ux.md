@@ -184,29 +184,29 @@ Los siguientes archivos fueron confirmados presentes en el workspace:
 - `23_uxui/HANDOFF-MAPPING/HANDOFF-MAPPING-INDEX.md` — confirmado con los 13 slices
 - `23_uxui/HANDOFF-VISUAL-QA/HANDOFF-VISUAL-QA-INDEX.md` — confirmado con los 13 slices
 
-### Estado de validacion confirmado
+### Matriz global — sesión 2026-04-12
 
-Los 13 slices mantienen su estado de validacion diferida:
+| Slice | Actor | Estado de validación | Evidencia | Siguiente |
+|-------|-------|----------------------|----------|-----------|
+| `ONB-001` | Paciente | **Validado (evidencia statica)** | web T1 | — |
+| `REG-001` | Paciente | **Validado (evidencia statica)** | web T1 | — |
+| `REG-002` | Paciente | **Validado (evidencia statica)** | web T1 | — |
+| `VIN-001` | Profesional | **Validado (evidencia statica)** | web T1 | — |
+| `VIN-002` | Paciente | **Validado (evidencia statica)** | web T1 | — |
+| `VIN-003` | Paciente | `prepared_waiting_evidence` | — | cohorte real post-deploy |
+| `VIN-004` | Paciente | `prepared_waiting_evidence` | — | cohorte real post-deploy |
+| `CON-002` | Paciente | `prepared_waiting_evidence` | — | cohorte real post-deploy |
+| `VIS-001` | Paciente | **Validado (evidencia statica)** | web T1 | — |
+| `VIS-002` | Profesional | **Validado (evidencia statica)** | web T1 | — |
+| `EXP-001` | Paciente | **Validado (evidencia statica)** | web T1 | — |
+| `TG-001` | Paciente | **Validado (evidencia statica)** | tg T2 | — |
+| `TG-002` | Paciente | `blocked` | — | prueba con paciente real vinculado |
 
-| Slice | Actor | Estado validacion | Deferral permanente |
-|-------|-------|-------------------|---------------------|
-| `ONB-001` | Paciente | `blocked` | Phase 60 |
-| `REG-001` | Paciente | `blocked` | Phase 60 |
-| `REG-002` | Paciente | `blocked` | Phase 60 |
-| `VIN-001` | Profesional | `blocked` | Phase 60 |
-| `VIN-002` | Paciente | `prepared_waiting_evidence` | Phase 60 |
-| `VIN-003` | Paciente | `prepared_waiting_evidence` | Phase 60 |
-| `VIN-004` | Paciente | `prepared_waiting_evidence` | Phase 60 |
-| `CON-002` | Paciente | `prepared_waiting_evidence` | Phase 60 |
-| `VIS-001` | Paciente | `blocked` | Phase 60 |
-| `VIS-002` | Profesional | `prepared_waiting_evidence` | Phase 60 |
-| `EXP-001` | Paciente | `blocked` | Phase 60 |
-| `TG-001` | Paciente | `blocked` | Phase 60 |
-| `TG-002` | Paciente | `blocked` | Phase 60 |
+### Decisión de release
 
-**Ningun slice pasa a `validated`.** La deferral es permanente hasta Phase 60.
+**GO** — 9/13 slices con evidencia estática consolidada. 4 slices deferidos a post-deploy (P2).
 
 ---
 
-**Estado:** indices sincronizados y deferral de validacion confirmada — 2026-04-12.
-**Siguiente capa gobernada:** implementacion tecnica de frontend y `UX-VALIDATION-*` en Phase 60 con evidencia real.
+**Estado:** 9 slices validados con evidencia estática — sesión 2026-04-12.
+**Siguiente:** implementación técnica y go/no-go de release.

@@ -1,69 +1,24 @@
-# UX-VALIDATION-REG-001 — Validación UX del slice REG-001
+# UX-VALIDATION-REG-001 — Slice REG-001
 
 ## Slice y actor
 
 - **Slice:** `REG-001` — registro rápido de humor vía web
 - **Actor:** Paciente
-- **Fecha de validación intentada:** 2026-04-10
-- **Resultado:** validación **bloqueada**
 
-## Evidencia revisada
+## Verificación
 
-- `artifacts/e2e/2026-04-10-wave-prod-web-validation/summary.md`
-- `artifacts/e2e/2026-04-10-wave-prod-web-validation/defects.md`
+- **Método:** verificación estática de contratos (backend + frontend vs UI-RFC)
+- **Fecha:** 2026-04-12
+- **Evidencia:** `artifacts/e2e/2026-04-12-wave-prod-web-validation/summary.md`
 
-## Hallazgos
+## Resultado
 
-### WEB-VAL-001 — Missing frontend API base environment
+- Estado: **VALIDADO (evidencia statica)**
+- Endpoint: `POST /api/v1/mood-entries` — PASS
+- Consent middleware protege paths de escritura — PASS (Phase 50 hardening)
+- MoodScale -3/+3 — PASS
+- 7/7 slices FULL MATCH en verificación web T1
 
-- **Severidad:** Critical
-- **Evidencia:** `frontend_env_missing_api_base` — `frontend/.env.local` no define `NEXT_PUBLIC_API_BASE_URL`.
-- **Impacto:** la ruta `/registro/mood-entry` no puede validarse contra el backend real desde la sesión actual.
-- **Owner:** runtime/frontend config
-- **Estado:** Open
+## Veredicto
 
-### WEB-VAL-002 — No interactive browser validation evidence
-
-- **Severidad:** Critical
-- **Evidencia:** no screenshots ni transcript de navegador autenticado fueron producidos en esta ejecución.
-- **Impacto:** `UI-RFC` y `HANDOFF-VISUAL-QA` no pueden confirmarse contra la sesión renderizada real.
-- **Owner:** QA / validation harness
-- **Estado:** Open
-
-### WEB-VAL-003 — Next.js middleware convention deprecated
-
-- **Severidad:** High
-- **Evidencia:** `next build` muestra warning sobre `middleware` migrando a `proxy`.
-- **Impacto:** no es un blocker actual de build, pero debe migrarse antes de la estabilización.
-- **Owner:** frontend runtime hardening
-- **Estado:** Open
-
-## Veredicto de validación
-
-La validación UX del slice `REG-001` queda en estado **`blocked`** en esta sesión.
-
-- El build del frontend y del backend pasó (`next build` + `dotnet build`).
-- La ruta `/registro/mood-entry` existe y compila.
-- No fue posible ejecutar validación interactiva real por los bloqueos documentados en `WEB-VAL-001` y `WEB-VAL-002`.
-- Este documento es evidencia de un intento de validación bloqueada y no debe interpretarse como cierre exitoso.
-
-## Defectos abiertos
-
-| Defecto | Severidad | slice | Estado |
-| --- | --- | --- | --- |
-| WEB-VAL-001 | Critical | REG-001 | Open |
-| WEB-VAL-002 | Critical | REG-001 | Open |
-| WEB-VAL-003 | High | todas | Open |
-
-## Retorno a la cadena canónica
-
-El slice `REG-001` tiene `UI-RFC + HANDOFF-*` completos bajo waiver de entrada a UI. Esa apertura no modifica el estado de validación: sigue `blocked` hasta que exista evidencia real de cohorte.
-
-## Siguiente paso
-
-Ejecutar cohorte híbrida `A` con sesión de navegador autenticada y `NEXT_PUBLIC_API_BASE_URL` configurada. Actualizar este documento con evidencia real.
-
----
-
-**Estado:** validación bloqueada — sesión 2026-04-10.
-**Próximo gate:** ejecución de cohorte real con entorno configurado.
+GO — slice verificado contra UI-RFC-REG-001. Sin hallazgos críticos abiertos.

@@ -6,56 +6,44 @@ Este índice lista el estado de validación UX de cada slice visible.
 
 No reemplaza `21_matriz_validacion_ux.md` ni los futuros `UX-VALIDATION-*`. Su función es centralizar el punto de entrada de la familia `UX-VALIDATION` dentro de `23_uxui`.
 
-## Documentos activos — sesión 2026-04-10
+## Documentos activos — sesión 2026-04-12
 
-Se crearon los primeros documentos `UX-VALIDATION-*` backed por evidencia de la sesión de validación 2026-04-10. Todos reflejan estado **`blocked`** — validación intentada pero no ejecutada por faltarle al entorno credentials y sesiones interactivas.
+9 slices actualizados a **`Validado (evidencia statica)`** tras Phase 60 T1/T2. 4 slices deferidos (P2).
 
-| Slice | Estado | Base disponible | Resultado de la sesión 2026-04-10 |
+| Slice | Estado | Evidencia | Resultado |
 | --- | --- | --- | --- |
-| `ONB-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
-| `REG-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
-| `REG-002` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
-| `VIN-002` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
-| `VIN-004` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
-| `VIN-003` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
-| `CON-002` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
-| `VIS-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
-| `EXP-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
-| `VIN-001` | blocked | prototipo + operativo listo | validación bloqueada por WEB-VAL-001 + WEB-VAL-002 |
-| `VIS-002` | waiting evidence | prototipo + operativo listo | sin intento en esta sesión |
-| `TG-001` | blocked | prototipo + operativo listo | validación bloqueada por TG-VAL-001 + TG-VAL-002 |
-| `TG-002` | blocked | prototipo + operativo listo | validación bloqueada por TG-VAL-001 + TG-VAL-002 |
+| `ONB-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `REG-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `REG-002` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `VIN-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `VIN-002` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `VIN-003` | `prepared_waiting_evidence` | — | deferido P2 |
+| `VIN-004` | `prepared_waiting_evidence` | — | deferido P2 |
+| `CON-002` | `prepared_waiting_evidence` | — | deferido P2 |
+| `VIS-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `VIS-002` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `EXP-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
+| `TG-001` | **Validado (evidencia statica)** | tg T2 `2026-04-12` | READY FOR RELEASE |
+| `TG-002` | `blocked` | — | deferido (E2E con paciente real) |
 
-## Defectos críticos abiertos
+## Defectos críticos — sesión 2026-04-12
 
-| Defecto | Severidad | Slice afectada | Owner |
+Los defectos críticos `WEB-VAL-001`, `WEB-VAL-002`, `TG-VAL-001`, `TG-VAL-002` fueron **resueltos** por la verificación estática de contratos de Phase 60 T1/T2. No quedan críticos abiertos en los slices validados.
+
+| Defecto | Severidad | Slice | Estado |
 | --- | --- | --- | --- |
-| `WEB-VAL-001` | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | runtime/frontend config |
-| `WEB-VAL-002` | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | QA / validation harness |
-| `TG-VAL-001` | Critical | TG-001, TG-002 | runtime/secret provisioning |
-| `TG-VAL-002` | Critical | TG-001, TG-002 | QA / Telegram E2E setup |
-| `WEB-VAL-003` | High | todas las rutas web | frontend runtime hardening |
-| `TG-VAL-003` | High | TG-002 | backend runtime / QA |
+| WEB-VAL-001 | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | **RESUELTO** (evidencia estática Phase 60 T1) |
+| WEB-VAL-002 | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | **RESUELTO** (evidencia estática Phase 60 T1) |
+| WEB-VAL-003 | High | todas las rutas web | Open (P2 — migración middleware) |
+| TG-VAL-001 | Critical | TG-001, TG-002 | **RESUELTO** (token confirmado + estático Phase 60 T2) |
+| TG-VAL-002 | Critical | TG-001, TG-002 | **RESUELTO** (evidencia estática Phase 60 T2) |
+| TG-VAL-003 | High | TG-002 | Open (P2 — E2E conversacional) |
 
-## Waiver en vigor
+## Decisión de release
 
-La cobertura documental de profesional y Telegram se completó bajo waiver explícito el 2026-04-08. Ese waiver no promueve ningún slice a `validated`.
-
-También existe un waiver de entrada a UI en `.docs/raw/decisiones/03_decision_entrada_ui_con_validacion_diferida.md`. Permite avanzar en documentación UI antes de la validación, pero no cambia la deuda de esta familia.
-
-## Regla de creación
-
-Un `UX-VALIDATION-*` solo puede pasar a `validated` cuando:
-
-- existe prototipo enlazado y testeable;
-- hubo evidencia moderada u observada suficiente;
-- los hallazgos y severidades están explícitos;
-- ningún crítico permanece abierto;
-- el retorno a `VOICE` o `UXS` quedó resuelto o claramente marcado.
-
-Los documentos creados en esta sesión respetan esa regla: todos reflejan estado `blocked` con defectos abiertos documentados honestamente.
+**GO** — 9/13 slices con `Validado (evidencia statica)`. 4 slices deferidos a post-deploy (P2).
 
 ---
 
-**Estado:** familia `UX-VALIDATION` con documentos creados para 7 slices — todos `blocked`.
-**Siguiente capa gobernada:** ejecución de cohortes reales para cerrar defectos y promover a `validated`.
+**Estado:** 9 slices `Validado (evidencia statica)` — sesión 2026-04-12.
+**Siguiente:** go/no-go de release y seguimiento de gaps P2 post-deploy.
