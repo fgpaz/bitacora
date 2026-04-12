@@ -2,9 +2,9 @@
 
 ## Estado actual
 
-`Diferido — no implementado en Wave 30`.
+`Parcialmente implementado — endpoint POST /api/v1/professional/invites existe con desvios del canon original`.
 
-Este flujo describe la invitacion directa del profesional y sigue siendo canon objetivo del MVP. La emision de `POST /api/v1/care-links` aun no existe en el runtime.
+Este flujo describe la invitacion directa del profesional y sigue siendo canon objetivo del MVP. La invitacion directa a paciente ya registrado crea `CareLink` en estado `invited` (via `POST /api/v1/professional/invites`). La invitacion a paciente no registrado crea `PendingInvite` (no hace ambos en la misma transaccion como preveia el canon). La aceptacion formal del vinculo (pasos 56-68 del flujo) queda fuera del alcance del endpoint existente y sera cubierta por FL-VIN-02 cuando se implemente.
 
 ## Goal
 Un profesional emite una invitacion de vinculo para un paciente, generando un `CareLink` en estado `invited` si el paciente ya existe o una `PendingInvite` si todavia no tiene cuenta.

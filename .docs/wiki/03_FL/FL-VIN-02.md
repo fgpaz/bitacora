@@ -2,9 +2,9 @@
 
 ## Estado actual
 
-`Diferido — no implementado en Wave 30`.
+`Parcialmente implementado — endpoint POST /api/v1/vinculos/accept existe; generacion de BindingCode por profesional queda diferida`.
 
-El flujo de auto-vinculacion mediante `POST /api/v1/vinculos/accept` existe en runtime, pero la generacion y exposicion de `BindingCode` por el profesional queda diferida.
+El flujo de auto-vinculacion existe parcialmente via `POST /api/v1/vinculos/accept`. El paciente puede vincularse con un `BindingCode` valido que el profesional comparta. La generacion del codigo por el profesional (`POST /api/v1/professional/binding-codes`) queda diferida.
 
 ## Goal
 Un paciente se vincula a un profesional usando un `BindingCode` efimero que el profesional comparte.
