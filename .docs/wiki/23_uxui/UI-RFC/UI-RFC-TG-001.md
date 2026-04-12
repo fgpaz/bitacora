@@ -153,16 +153,19 @@ No entendimos ese mensaje. Usá el comando /start junto con el código.
 
 ## Contratos backend que el bot debe consumir
 
-### Verificación y creación de vínculo
+### Verificación y creación de vínculo (vía webhook)
 
-- request: `POST /api/v1/telegram/pairing/confirm`
-  - body: `{ "code": string, "chat_id": number }`
-  - header: `X-Telegram-Bot-Token: <token>`
-- respuesta esperada:
-  - `200`: `{ "status": "linked", "patient_id": string }`
-  - `410`: `{ "error": "code_expired" }`
-  - `404`: `{ "error": "code_invalid" }`
-  - `409`: `{ "error": "chat_already_linked" }`
+> **Nota:** No existe un endpoint REST `POST /api/v1/telegram/pairing/confirm`. La confirmación de vínculo ocurre únicamente a través del webhook. El bot de Telegram envía `/start CODE` como un update de Telegram; este update se reenvía al webhook que internamente procesa el código.
+
+- request: `POST /api/v1/telegram/webhook`
+  - header: `X-Telegram-Webhook-Secret: <token>` (obligatorio; fail-closed)
+  - body: `{ "update": "/start BIT-XXXXX", "chat_id": "<telegram_chat_id>", "trace_id": "<guid>" }`
+- respuesta esperada (siempre HTTP 200 para Telegram):
+  - `200`: `{ "accepted": true, "error_code": null, "bot_message": "Te vinculaste exitosamente a Bitácora" }` (caso exito)
+  - `200`: `{ "accepted": false, "error_code": "code_invalid|code_expired|chat_already_linked", "bot_message": null }` (caso fail-closed — error interno, no se revela detalle)
+- **Comportamiento fail-closed:** si el secreto del webhook no coincide, retorna HTTP 200 con `accepted=false` y `error_code=FORBIDDEN` sin `bot_message`. El bot no envía respuesta al usuario.
+
+### Lectura de sesión (para saber si ya está vinculado)
 
 ### Lectura de sesión (para saber si ya está vinculado)
 
