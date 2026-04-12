@@ -3,6 +3,7 @@
  * All calls use Authorization: Bearer <access_token>.
  */
 import { bitacoraFetch } from './client';
+import { sha256Hex } from '../sha256';
 
 export interface ProfessionalPatient {
   id: string;
@@ -84,9 +85,10 @@ export async function getProfessionalPatients(): Promise<ProfessionalPatientList
 export async function createProfessionalInvite(
   payload: InviteRequest,
 ): Promise<InviteResponse> {
+  const emailHash = await sha256Hex(payload.email);
   return bitacoraFetch<InviteResponse>('/professional/invites', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ EmailHash: emailHash }),
   });
 }
 
