@@ -51,13 +51,36 @@ Bot: "Registrado. Tu humor hoy: +1. ¡Buen dia!"
 - No se persiste en DB (efimero)
 - Si el paciente no completa los factores, solo se registra el MoodEntry
 
-## Recordatorios (RF-TG-010..012)
+## Recordatorios (RF-TG-010..012) — Phase 31+
 
 - Background hosted service (.NET IHostedService)
 - Timer cada 1 minuto: query ReminderConfig WHERE next_fire_at <= now()
-- Skip si ConsentGrant revocado o TelegramSession unlinked
-- Telegram API rate limit: max 30 mensajes/segundo
-- Retry con backoff exponencial (max 3 intentos)
+
+### Fail-closed reminder logic (T3-RL-02, T3-RL-03)
+
+```
+1. check ConsentGrant activo → skip si revoked (T3-RL-03)
+2. check TelegramSession.linked → skip si unlinked (T3-RL-03)
+3. check throttle: ya se envio recordatorio hoy? → skip si ya se envio (T3-RL-02)
+4. retry loop: max 3 intentos con backoff exponencial
+5. AccessAudit solo si envio exitoso
+6. Nunca registrar encrypted_payload en logs de recordatorio
+```
+
+### Reminder throttle (T3-RL-02)
+
+**Max 1 recordatorio por paciente por dia**, independientemente de la configuracion en ReminderConfig.
+
+El throttle se aplica en el ReminderWorker a nivel de scheduling. Si ReminderConfig tiene configurado multiple recordatorios en el mismo dia, solo el primero se ejecuta; los demais se skipping sin generar AccessAudit de intento.
+
+### Recordatorio skip conditions
+
+| Condition | Accion | AccessAudit |
+|-----------|--------|-------------|
+| ConsentGrant revocado | Skip | No (T3-RL-03: no generar audit de intento) |
+| TelegramSession unlinked | Skip | No |
+| Ya se envio recordatorio hoy (throttle) | Skip | No |
+| Telegram API falla (max 3 retries) | Skip con warning | No |
 
 ## Vinculacion (RF-TG-001..003)
 
@@ -70,15 +93,17 @@ Bot: "Cuenta vinculada. Ya podes registrar tu humor desde aca."
 
 ## Runtime safety limits
 
-| Limite | Valor | Justificacion |
-|--------|-------|---------------|
-| Rate limit envio | 30 msg/segundo (Telegram Bot API) | Evitar bloqueo de API |
-| Retry en recordatorios | Max 3 intentos con backoff exponencial | Evitar spam en outage |
-| TTL estado conversacional | 10 minutos de inactividad | No persiste estado efimero en DB |
-| Pairing code TTL | 15 minutos | Limitar ventana de ataque |
-| chat_id unico | Un `chat_id` por paciente | Rechazar vinculacion multiple |
-| Datos clinicos en respuestas bot | Prohibido | encrypted_payload, safe_projection, y cualquier derivado no puede salir por Telegram |
-| Webhook signature | HMAC-SHA256 requerido | Rechazar payloads sin firma valida |
+| Limite | Valor | Regla | Justificacion |
+|--------|-------|-------|---------------|
+| Rate limit envio | 30 msg/segundo (Telegram Bot API) | SendTelegramMessageAsync con semaforo | Evitar bloqueo de API |
+| Retry en recordatorios | Max 3 intentos con backoff exponencial | ReminderWorker | Evitar spam en outage |
+| TTL estado conversacional | 10 minutos de inactividad | ConversationStateDictionary | No persiste estado efimero en DB |
+| Pairing code TTL | 15 minutos | ReminderWorker genera codigo | Limitar ventana de ataque |
+| chat_id unico | Un `chat_id` por paciente | TelegramSession unique constraint | Rechazar vinculacion multiple |
+| Recordatorios por paciente/dia | Max 1 | T3-RL-02 throttle en ReminderWorker | No saturar al paciente |
+| Consent check por recordatorio | ConsentGrant activo | T3-RL-03 ReminderWorker checkea antes de cada envio | Revocacion inmediata |
+| Datos clinicos en respuestas bot | Prohibido | T3-11衍生 | encrypted_payload, safe_projection, y cualquier derivado no puede salir por Telegram |
+| Webhook signature | HMAC-SHA256 requerido + header X-Telegram-Bot-Api-Secret-Token | TECH-ROLLOUT-Y-OPERABILIDAD.md | Rechazar payloads sin firma valida |
 
 ## Invariantes de no-fuga (Telegram y canales externos)
 

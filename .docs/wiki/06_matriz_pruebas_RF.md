@@ -152,6 +152,9 @@ Estos gates no corresponden a un modulo RF unico pero son ejecutados en el smoke
 | GATE-SMOKE-VIS-PROF-001 | `GET /api/v1/professional/patients/{patientId}/summary` con JWT professional + CareLink valido | 200 | no 2xx |
 | GATE-FAIL-004 | `GET /health/ready` sin ConnectionStrings__BitacoraDb reachable | 503 | 200 |
 | GATE-RL-001 | `POST /api/v1/auth/bootstrap` 11 veces en 1 min desde misma IP | 429 + Retry-After header | otro status |
+| GATE-SMOKE-TG-001 | ReminderWorker: 2 recordatorios configurados para mismo paciente/dia, solo 1 se envia | Log: "reminder skipped by throttle", AccessAudit no generado | mas de 1 envio |
+| GATE-SMOKE-TG-002 | ReminderWorker: ConsentGrant revocado antes de envio | Log: "reminder skipped: consent revoked", AccessAudit no generado | se genera intento de envio |
+| GATE-SMOKE-TG-003 | ReminderWorker: TelegramSession unlinked antes de envio | Log: "reminder skipped: session unlinked", AccessAudit no generado | se genera intento de envio |
 
 ---
 

@@ -65,4 +65,56 @@ See `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` for the complete fail-closed gate c
 
 **Validation de UI es actividad terminal.** No se marca ninguna fase como completa hasta que la validacion UX tenga evidencia.
 
+## Rollout Order (Phase 30 → 31 → 40 → 41 → 50 → 60)
+
+Consulte `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` para el catalogo completo de gates de rollout.
+
+### Phase 30 — Backend basico
+
+- [ ] Secrets en Dokploy: `SUPABASE_JWT_SECRET`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`, `ConnectionStrings__BitacoraDb`
+- [ ] `bitacora-db` deployado y reachable
+- [ ] Migraciones aplicadas via `infra/runbooks/manual-migrations.md`
+- [ ] `GET /health/ready` retorna 200
+- [ ] `infra/smoke/backend-smoke.ps1` pasa GATE-SMOKE-001..006 (exit 0)
+
+### Phase 31 — Telegram webhook + recordatorios
+
+- [ ] `TELEGRAM_BOT_TOKEN` y `BITACORA_TELEGRAM_WEBHOOK_SECRET_TOKEN` en Dokploy
+- [ ] Webhook registrado en Telegram Bot API
+- [ ] Smoke Telegram pasa: GATE-SMOKE-013 (pairing), GATE-SMOKE-014 (session), GATE-SMOKE-015 (webhook)
+- [ ] ReminderWorker activo: GATE-SMOKE-TG-001..003 pasando
+
+### Phase 40 — Frontend web Next.js 16
+
+- [ ] Secrets Next.js: `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_JWT_SECRET`
+- [ ] Deployment a Vercel o Dokploy
+- [ ] Smoke web pasa: GATE-SMOKE-007..012 (exit 0)
+- [ ] **UX validation evidencia en wiki**
+
+### Phase 41 — Profesional dashboard
+
+- [ ] Smoke profesional pasa: GATE-SMOKE-VIN-PROF-001..002, GATE-SMOKE-VIS-PROF-001
+- [ ] **UX validation evidencia en wiki**
+
+### Phase 50 — Alertas y notificaciones push
+
+- [ ] Canal push configurado y consentido
+- [ ] Smoke notificaciones pasando
+
+### Phase 60 — UX validation terminal
+
+- [ ] Evidencia de todas las surfaces integrada en wiki
+- [ ] Decision de go/no-go documentada
+
+## Phase Readiness Checklist (antes de abrir trafico)
+
+Por cada phase, verificar:
+
+1. **Secrets:** todas las variables requeridas para la phase estan en Dokploy
+2. **Migraciones:** aplicadas antes del deploy, nunca en startup
+3. **Readiness:** `GET /health/ready` retorna 200
+4. **Smoke:** `infra/smoke/backend-smoke.ps1` pasa con exit 0
+5. **UX validation:** evidencia documentada en wiki (Phase 40, 41, 60)
+6. **Rollback plan:** restauracion desde backup si smoke falla
+
 See `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` for the full rollout gate catalog.

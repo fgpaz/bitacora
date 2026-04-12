@@ -60,6 +60,9 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | T3-11 | ConsentRequiredMiddleware es el unico gate de escritura clinica: todo POST a `/api/v1/mood-entries` o `/api/v1/daily-checkins` sin ConsentGrant activo retorna 403 y genera AccessAudit con outcome=Denied. |
 | T3-12 | PseudonymizationService fail-closed: si BITACORA_PSEUDONYM_SALT no resuelve, el servicio lanza excepcion y toda operacion que dependa de ella falla con 500. |
 | T3-14 | Encryption key fail-closed: si BITACORA_ENCRYPTION_KEY no esta disponible o no resuelve a 32 bytes, GET /health/ready queda en `not_ready`. Ningun dato clinico se escribe sin cifrar. |
+| T3-RL-01 | Rate limiting fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + Retry-After. |
+| T3-RL-02 | Telegram reminder throttle: max 1 recordatorio por paciente por dia (sin importar la configuracion en ReminderConfig). |
+| T3-RL-03 | Consent revocado corta inmediatamente el recordatorio: ReminderWorker checkea ConsentGrant activo antes de cada envio. |
 
 ## Modulos internos
 
@@ -86,6 +89,19 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | Dominio web | `bitacora.nuestrascuentitas.com` | `frontend/` existe con implementacion inicial bajo `frontend/`; deployment completo a `bitacora.nuestrascuentitas.com` planeado para Phase 40. Mientras tanto, `GET /` en `Bitacora.Api` redirige a `/scalar/v1`. |
 | Frontend | Next.js 16 | Implementacion inicial existente en `frontend/`; deployment a production diferido a Phase 40 |
 
+## Orden de rollout (Phase 30 → 31 → 40 → 41 → 50 → 60)
+
+| Phase | Superficie | Gate previo requerido |
+|-------|-----------|----------------------|
+| 30 | Backend basico: Auth, Consent, Registro, Vinculos, Visualizacion, Export | Secrets en Dokploy + migraciones + GATE-SMOKE-001..006 |
+| 31 | Telegram webhook + recordatorios (ReminderWorker activo) | GATE-SMOKE-013..015 + smoke Telegram |
+| 40 | Frontend web Next.js 16 (bitacora.nuestrascuentitas.com) | GATE-SMOKE-007..012 + profesional endpoints + UX validation |
+| 41 | Profesional dashboard (profesionales.nuestrascuentitas.com) | UX validation Phase 40 + profesional endpoints |
+| 50 | Alertas y notificaciones push | Notificaciones push validacion + consent actualizado |
+| 60 | UX validation terminal de todas las superficies | Toda evidencia de UX recolectada |
+
+**Regla:** ninguna phase se abre si la anterior no tiene smoke passing + evidencia de UX.
+
 ## Observabilidad minima
 
 | Aspecto | Implementacion |
@@ -96,7 +112,8 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | Liveness | `GET /health` |
 | Readiness | `GET /health/ready` valida connection string, `SUPABASE_JWT_SECRET`, clave de cifrado, salt y conectividad PostgreSQL |
 | Smoke operativo | `infra/smoke/backend-smoke.ps1` cubre la superficie backend completa (auth, consent, registro, vinculos, visualizacion, export, telegram) sin staging |
-| Datos de salud | Ningun log operacional, traza ni telemetry puede contener `encrypted_payload`, `safe_projection` con datos clinicos, o cualquier identificador directo del paciente. Solo `pseudonym_id` y `trace_id`. |
+| trace_id propagation | Requerido en todo request/response; se inyecta en logs y AccessAudit |
+| Datos de salud | Prohibido en logs, trazas y telemetry: `encrypted_payload`, `safe_projection` con datos clinicos, identificadores directos del paciente. Solo `pseudonym_id` y `trace_id`. |
 
 ## Invariantes operacionales
 
