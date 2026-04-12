@@ -103,6 +103,51 @@ graph TB
 - **Retencion:** crisis 5 anos, audit 2 anos, supresion por anonimizacion + destruccion de clave.
 - **trace_id end-to-end:** obligatorio en toda operacion. Si falta, se genera al ingreso.
 
+## Invariantes de privacidad
+
+1. **Clasificacion de datos:** todos los datos del sistema se clasifican en tres niveles:
+   - **SENSIBLE (Salud):** MoodEntry, DailyCheckin, encrypted_payload de cualquier entidad. Regulados por Ley 25.326 (proteccion de datos), Ley 26.529 (derechos del paciente) y Ley 26.657 (salud mental). Requiere consentimiento informado explícito y cifrado app-layer obligatorio.
+   - **PII (Identidad):** email, email_hash, chat_id de TelegramSession, nombre en encrypted_payload. Regulados por Ley 25.326. Cifrado app-layer y hash para lookup.
+   - **OPERACIONAL:** safe_projection, trace_id, pseudonym_id. No contiene PII ni datos clinicos; usado para queries y logs. Trata como informacion sensible por principio de minimizacion.
+2. **Dato clinico es sensible por defecto:** MoodEntry, DailyCheckin, y cualquier encrypted_payload se tratan como dato sensible bajo Ley 25.326, 26.529 y 26.657.
+3. **PII cifrado app-layer:** email, nombre, DNI, telefono del paciente residen en `encrypted_payload`; `email_hash` es el unico lookup posible sin descifrar.
+4. **safe_projection no contiene PII:** nunca incluye texto libre, notas clinicas, datos de contacto o identificadores directos. Solo campos operacionalmente necesarios para queries.
+5. **Descifrado solo en memoria:** el material de descifrado no sale del proceso .NET. No se escreve ciphertext en logs, telemetria, ni respuestas AI.
+6. **Sin fuga a canales externos:** ningun dato clinico (cifrado o no) puede transmitirse a Telegram, email, notificaciones push u otros canales distinta de la respuesta HTTP autenticada al paciente owner. Esta restriccion incluye: encrypted_payload completo, safe_projection con datos clinicos, timestamps de registros individuales, y cualquier agregado derivable de registros de salud. El bot Telegram solo confirma acciones y solicita proximo input; nunca devuelve datos clinicos ni informacion derivada.
+7. **TelegramSession.chat_id es PII:** la vinculacion genera un registro que asocia chat_id con patient_id. Se trata con igual rigor que cualquier otro PII bajo Ley 25.326.
+
+## Invariantes de consentimiento
+
+1. **Hard gate antes del primer registro:** ningun MoodEntry ni DailyCheckin puede crearse sin que ConsentGrant.status = 'granted' activo. ConsentRequiredMiddleware lo enforce en el seam HTTP.
+2. **Consentimiento informado es versionado:** el texto vigente no se persist en DB; ConsentGrant registra consent_version y timestamps como evidencia legal.
+3. **Revocacion reactiva (no cascada automatica):** revoke de consentimiento hoy revierte el ConsentGrant; las cascadas sobre CareLink, caches y sesiones Telegram siguen diferidas.
+4. **Sin lectura profesional sin CareLink.can_view_data=true:** el profesional necesita vinculo activo y permiso explicito del paciente para leer datos.
+5. **Invitacion no otorga acceso:** PendingInvite solo preserva contexto de onboarding; no confiere acceso clinico bajo ninguna circunstancia.
+
+## Invariantes de auditoria
+
+1. **AccessAudit es append-only:** sin UPDATE ni DELETE en la tabla access_audits. Registro indeleble.
+2. **Toda operacion transaccional genera audit:** con el mismo trace_id de la peticion.
+3. **actor_id solo en AccessAudit:** en ninguna otra tabla ni en logs operacionales aparece el identificador real del actor; solo pseudonym_id.
+4. **Fail-closed sobre escritura de audit:** si INSERT en access_audits falla, la operacion de negocio completa falla. No se retornan datos.
+5. **trace_id obligatorio:** generado al ingreso si no existe en el header X-Trace-Id. Se propaga en toda la cadena.
+6. **Export CSV genera audit:** toda generacion de export persiste action_type='export' sobre resource_type='mood_entry' con el patient_id del dueño.
+
+## Retencion y supresion
+
+| Entidad | Retencion minima | Supresion |
+|---------|------------------|-----------|
+| AccessAudit | 2 anos | No se suprime; archivo regulatorio |
+| MoodEntry (crisis: mood_score = -3) | 5 anos | Solo anonimizacion + destruccion de clave |
+| MoodEntry (regular) | Segun consentimiento del paciente |Anonimizacion + destruccion de clave |
+| ConsentGrant | Permanente | No corresponde; evidencia legal |
+| PendingInvite | 7 dias maximo desde emision | Auto-expira o se revoca |
+| BindingCode | Hasta expiracion o uso | No persiste tras uso o expiracion |
+| TelegramPairingCode | 15 minutos maximo | Auto-expira |
+| User (post-supresion) | Registro anonymized con audit retenido | Pseudonimizacion irreversible tras supresion |
+
+> Supresion = UPDATE del registro User a status='anonymized', destruccion de la clave de cifrado para sus encrypted_payloads, y retencion del AccessAudit bajo las reglas de retencion de auditoria.
+
 ## Secuencia: registro de humor via Telegram
 
 ```mermaid

@@ -22,6 +22,7 @@ Cada entidad clinica (MoodEntry, DailyCheckin) tiene dos representaciones:
 - Cifrado con AES-256-GCM antes de llegar a PostgreSQL
 - Solo se descifra en memoria de la aplicacion
 - Nunca se expone en logs, telemetria, ni AI
+- **Nunca se incluye en respuestas Telegram ni notificaciones push**
 
 ### safe_projection
 - Vista sanitizada con datos operacionales minimos para queries
@@ -29,11 +30,19 @@ Cada entidad clinica (MoodEntry, DailyCheckin) tiene dos representaciones:
 - **DailyCheckin:** `{sleep_hours: decimal, has_physical: bool, has_social: bool, has_anxiety: bool, has_irritability: bool, has_medication: bool}`
 - No contiene PII ni texto libre
 - Usada por timeline, dashboard, alertas y correlaciones
+- ** safe_projection no es dato clinico en texto plano, pero siguetratandose como informacion sensible; no se incluye en logs operativos**
 
 ### Cuando se descifra encrypted_payload
 1. Export CSV (RF-EXP-001) — descifra row-by-row en stream
 2. Vista de detalle de un registro individual (no MVP, futuro)
 3. Nunca para queries de visualizacion (usan safe_projection)
+4. **Nunca para respuestas Telegram, emails o cualquier canal externo**
+
+## Cifrado en transito
+
+- **TLS obligatorio:** todo tráfico HTTP hacia Bitacora.Api (incluido webhook Telegram) requiere HTTPS. Dokploy + Traefik manejan TLS en el edge.
+- **Interno .NET → PostgreSQL:** la conexion usa SSL mode `require`; los secretos jamas cruzan en texto plano.
+- **Bot Telegram:** el webhook requiere endpoint público HTTPS. El bot token se inyecta por variable de entorno (`TelegramBotToken`); nunca se escreve en logs ni se incluye en trazas.
 
 ## Gestion de claves
 
@@ -74,6 +83,15 @@ Cada entidad clinica (MoodEntry, DailyCheckin) tiene dos representaciones:
 Los campos PII (first_name, last_name, email, dni, phone) se cifran con el mismo patron AES pero sin safe_projection — se descifran solo cuando se necesita mostrar el nombre del paciente.
 
 `email_hash = SHA256(email)` se almacena para lookup sin descifrar.
+
+## Invariantes de no-fuga (Telegram y canales externos)
+
+1. **encrypted_payload no sale del proceso .NET** bajo ninguna circunstancia. No se incluiye en respuestas HTTP distintas de la del owner autenticado.
+2. **safe_projection no se incluiye en respuestas del bot Telegram.** El bot solo confirma acciones y pide siguiente input; nunca devuelve datos clinicos.
+3. **Export CSV es solo para el paciente owner.** El endpoint RF-EXP-001 requiere JWT del paciente; no se acepta en contexto profesional aunque tenga CareLink activo.
+4. **Descifrado para export ocurre en memoria y se transmite como attachment**; no se almacena descifrado en disco ni en caches intermedias.
+5. **Logs de modulo Telegram no contienen safe_projection ni encrypted_payload.** Solo ID de sesion y trace_id para correlacion.
+6. **Bot token jamas en logs ni telemetria.** `TelegramBotToken` es un secreto inyectado por variable de entorno; no se include en trazas, logs ni respuestas de error. Cualquier error de Telegram se loguea solo con `trace_id` y `chat_id` (este ultimo si existe en sesion vinculada).
 
 ## Sync gates
 

@@ -1,5 +1,7 @@
 # 07 — Baseline Tecnica
 
+> **Nota de sensibilidad:** Bitacora procesa datos de salud mental bajo regimen de tres leyes argentinas: Ley 25.326 (Proteccion de Datos Personales), Ley 26.529 (Derechos del Paciente) y Ley 26.657 (Salud Mental). Toda decision de implementacion, configuracion de infraestructura o cambios en flujo de datos debe respetar这三个 invariantes como requisito no negociable.
+
 ## Servicio
 
 | Campo | Valor |
@@ -94,6 +96,7 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | Liveness | `GET /health` |
 | Readiness | `GET /health/ready` valida connection string, `SUPABASE_JWT_SECRET`, clave de cifrado, salt y conectividad PostgreSQL |
 | Smoke operativo | `infra/smoke/backend-smoke.ps1` cubre la superficie backend completa (auth, consent, registro, vinculos, visualizacion, export, telegram) sin staging |
+| Datos de salud | Ningun log operacional, traza ni telemetry puede contener `encrypted_payload`, `safe_projection` con datos clinicos, o cualquier identificador directo del paciente. Solo `pseudonym_id` y `trace_id`. |
 
 ## Invariantes operacionales
 

@@ -228,15 +228,15 @@ erDiagram
     User }o--|| EncryptionKeyVersion : "key_version"
 ```
 
-## Invariantes de privacidad
+## Clasificacion de datos
 
-1. **Dato clinico sensible por defecto:** MoodEntry y DailyCheckin son datos sensibles bajo Ley 25.326, 26.529 y 26.657. Todo acceso o persistencia debe respear estas invariantes.
-2. **encrypted_payload: cifrado AES-256-GCM antes de PostgreSQL.** Ningun campo clinico se inscribe en texto plano. La unica excepcion es safe_projection (ver siguiente invariante).
-3. **safe_projection no contiene PII, texto libre ni identificadores directos.** Solo campos operacionalmente necesarios: mood_score, channel, created_at para MoodEntry; sleep_hours, flags booleanos para DailyCheckin.
-4. **key_version para trazabilidad de rotacion.** Cada registro lleva la version de clave con la que fue cifrado. Rotacion futura no requiere re-cifrado inmediato de records historicos.
-5. **Descifrado solo en memoria de aplicacion.** El material de descifrado reside en variable de entorno o vault; nunca en logs, trazas ni respuestas HTTP.
-6. **email_hash para lookup sin descifrado.** SHA256(email) permite identificacion del usuario sin exponer PII en tablas clinicas.
-7. **TelegramSession.chat_id es PII.** La vinculacion Telegram genera un registro que asocia chat_id con patient_id. Este mapeo debe tratarse con igual rigor que cualquier otro PII.
+| Nivel | Entidades | Regimen legal |
+|-------|-----------|---------------|
+| SENSIBLE (Salud) | MoodEntry, DailyCheckin, encrypted_payload de cualquier entidad | Ley 25.326, 26.529, 26.657 |
+| PII (Identidad) | User.encrypted_email, TelegramSession.chat_id | Ley 25.326 |
+| OPERACIONAL | safe_projection de cualquier entidad, AccessAudit, EncryptionKeyVersion, ConsentGrant | -- |
+
+> Toda entidad marcada SENSIBLE o PII requiere cifrado app-layer y no puede transmitirse a canales externos no autenticados.
 
 ## Invariantes de supresion y retencion
 
