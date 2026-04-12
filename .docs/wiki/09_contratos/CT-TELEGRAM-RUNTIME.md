@@ -1,7 +1,7 @@
 # CT-TELEGRAM-RUNTIME: Runtime de Telegram
 
 > Root: `09_contratos_tecnicos.md` — seccion Superficie canonica diferida.
-> **Estado: IMPLEMENTADO (Phase 31 gap-closing).** Todos los endpoints REST de Telegram estan materializados. El ReminderWorker (scheduler) esta implementado, pero `SendTelegramMessageAsync` es un stub (no llama a la API de Telegram real).
+> **Estado: IMPLEMENTADO (Phase 31 gap-closing).** Todos los endpoints REST de Telegram estan materializados. El ReminderWorker (scheduler) esta implementado. `SendTelegramMessageAsync` hace POST real a Telegram Bot API via `HttpClient` usando `TELEGRAM_BOT_TOKEN` (TECH-TELEGRAM.md line 118).
 
 ---
 
@@ -166,12 +166,12 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 | Campo | Detalle |
 |-------|---------|
 | Intervalo | 60 segundos |
-| Estado | **Implementado (stub de Telegram API)** |
+| Estado | **Implementado** |
 
 **Logica del worker:**
 
 1. Query: `ReminderConfig WHERE enabled=true AND next_fire_at_utc <= now_utc`
-2. Por cada recordatorio: invoca `SendReminderCommand`
+2. Por cada recordatorio: invoca `SendReminderCommand` (que internamente llama a `SendTelegramMessageAsync`)
 3. Errores de un recordatorio no bloquean el procesamiento de los demas
 
 **SendReminderCommand (RF-TG-010..012):**
@@ -184,7 +184,7 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 | Envio exitoso | `AdvanceNextFire()` + audit ok |
 | Envio fallido | Retorna error, no avanza next_fire |
 
-**PENDIENTE:** `SendTelegramMessageAsync` es un stub que solo loguea. La integracion real con la API de Telegram (`TELEGRAM_BOT_TOKEN`) no esta wireada.
+**ESTADO:** `SendTelegramMessageAsync` implementada en `SendReminderCommand.cs:118`. Hace POST real a `https://api.telegram.org/bot{token}/sendMessage` via `HttpClient` con timeout de 10s. Si `TELEGRAM_BOT_TOKEN` no esta configurado, loguea warning y retorna `false` (comportamiento fail-closed para el worker).
 
 ---
 
@@ -225,8 +225,8 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 | POST /api/v1/telegram/pairing | **Implementado** | |
 | GET /api/v1/telegram/session | **Implementado** | |
 | POST /api/v1/telegram/webhook | **Implementado** | |
-| ReminderWorker | **Implementado** | Pero `SendTelegramMessageAsync` es stub |
-| Integracion real Telegram Bot API | **PENDIENTE** | `TELEGRAM_BOT_TOKEN` no conectado a HTTP client |
+| ReminderWorker | **Implementado** | `SendTelegramMessageAsync` con HTTP POST real a Telegram Bot API |
+| Integracion real Telegram Bot API | **Implementado** | `TELEGRAM_BOT_TOKEN` usado en `SendReminderCommand.cs:118` via `SendViaTelegramApiAsync` |
 | Registro humor via Telegram | **PENDIENTE** | `ProcessMoodInputAsync` confirmando recepcion nomas |
 
 ---
