@@ -71,6 +71,23 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | T3-TG-01 | Telegram API client retry con exponential backoff: 1s, 2s, 4s antes de fallar. |
 | T3-TG-02 | SendReminderCommand y HandleWebhookUpdateCommand invocan SaveChangesAsync para persistir AccessAudit antes de retornar. |
 
+## Runtime hardening (Phase 50)
+
+The following rules were hardened in Phase 50 (T2/T3/T4) and reflect current runtime behavior:
+
+| Rule | Descripcion |
+|------|-------------|
+| T3-TG-01 | Telegram API retry con exponential backoff: 1s, 2s, 4s antes de fallar. Implementado en `SendReminderCommand.cs`. |
+| T3-TG-02 | `SendReminderCommand` y `HandleWebhookUpdateCommand` invocan `SaveChangesAsync` para persistir `AccessAudit` antes de retornar. |
+| T3-11b | `ConsentRequiredMiddleware` cubre todas las rutas POST clinicas de forma generica via policy `clinical-write` (no solo endpoints explícitos). |
+| T3-SEC-10 | `ExportEndpoints` — `/constraints` autoriza profesional antes de verificar `CareLink`. `ProfessionalDataAccessAuthorizer` fail-closed: 403 si no tiene vinculo activo. |
+| T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After`. |
+| T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
+| T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
+| T3-SEC-11 | Frontend `middleware.ts` extrae `user_metadata.role` del JWT y enforce rol `professional` para rutas profesionales; falla 403 si el rol no corresponde. |
+
+---
+
 ## Modulos internos
 
 | Modulo | Responsabilidad | Entidades principales | Estado |

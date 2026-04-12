@@ -188,6 +188,18 @@ JWT.sub (supabase_user_id)
 
 ---
 
+### Rate limiting policy
+
+| Contexto | Policy | Limite | Aplicado a |
+|----------|--------|--------|------------|
+| Auth bootstrap | `auth` | 10 req/IP/min | `POST /api/v1/auth/bootstrap` |
+| Clinical writes | `write` | 30 req/IP/min | `POST /mood-entries`, `POST /daily-checkins` |
+| Health/ready | `auth` | 10 req/IP/min | `GET /health`, `GET /health/ready` |
+
+El rate limiter esta registrado antes del health check endpoint en Program.cs, por lo que `/health/ready` queda sujeto a la politica `auth`. Exceso de limite retorna 429 + `Retry-After` header.
+
+---
+
 ## Consentimiento como gate de autorizacion
 
 - `POST /api/v1/auth/bootstrap` **no** requiere consentimiento; crea o reactiva el usuario.

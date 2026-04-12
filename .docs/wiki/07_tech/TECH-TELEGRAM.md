@@ -96,7 +96,15 @@ Bot: "Cuenta vinculada. Ya podes registrar tu humor desde aca."
 | Limite | Valor | Regla | Justificacion |
 |--------|-------|-------|---------------|
 | Rate limit envio | 30 msg/segundo (Telegram Bot API) | SendTelegramMessageAsync con semaforo | Evitar bloqueo de API |
-| Retry en recordatorios | Max 3 intentos con backoff exponencial | ReminderWorker | Evitar spam en outage |
+### Retry en recordatorios
+
+**Exponential backoff:** `SendTelegramMessageAsync` implements 3 retries with exponential backoff — 1s, 2s, 4s — before returning false. Errores de un recordatorio no bloquean el procesamiento de los demas.
+
+| Attempt | Delay |
+|---------|-------|
+| 1 | 1s |
+| 2 | 2s |
+| 3 | 4s |
 | TTL estado conversacional | 10 minutos de inactividad | ConversationStateDictionary | No persiste estado efimero en DB |
 | Pairing code TTL | 15 minutos | ReminderWorker genera codigo | Limitar ventana de ataque |
 | chat_id unico | Un `chat_id` por paciente | TelegramSession unique constraint | Rechazar vinculacion multiple |

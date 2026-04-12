@@ -186,6 +186,10 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 
 **ESTADO:** `SendTelegramMessageAsync` implementada en `SendReminderCommand.cs:118`. Hace POST real a `https://api.telegram.org/bot{token}/sendMessage` via `HttpClient` con timeout de 10s. Si `TELEGRAM_BOT_TOKEN` no esta configurado, loguea warning y retorna `false` (comportamiento fail-closed para el worker).
 
+**Retry policy:** `SendTelegramMessageAsync` implements exponential backoff on failure: 1s, 2s, 4s (3 retries total) before returning false. Errores de un recordatorio no bloquean el procesamiento de los demas.
+
+**Audit persistence:** `SendReminderCommand` y `HandleWebhookUpdateCommand` invocan `SaveChangesAsync` para persistir `AccessAudit` inmediatamente antes de retornar, garantizando que el audit existe aunque el commandComplete.
+
 ---
 
 ## Invariantes de Autorizacion

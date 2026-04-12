@@ -37,7 +37,8 @@
 2. **PseudonymizationService.fail-closed:** si BITACORA_PSEUDONYM_SALT no resuelve → 500 PSEUDONYM_SALT_MISSING, ninguna operacion que dependa del servicio prosigue.
 3. **Audit de bloqueo por falta de consentimiento:** ConsentRequiredMiddleware genera AccessAudit outcome=Denied sobre consent_grant; es la evidencia de que el sistema denego acceso por no tener consentimiento.
 4. **Export CSV genera audit de tipo 'export':** action_type='export' sobre resource_type='mood_entry' con patient_id del dueño. Diferido hasta que modulo Export exista en runtime.
-5. **Retencion:** AccessAudit >= 2 anos. tabla append-only sin TTL ni auto-expiracion. Archivo regulatorio bajo Ley 25.326.
+5. **SaveChangesAsync requerido:** todos los handlers que generan AccessAudit (incluyendo SendReminderCommand y HandleWebhookUpdateCommand) invocan SaveChangesAsync explicitamente para garantizar persistencia inmediata antes de retornar. Si el INSERT de audit falla, la operacion completa falla (fail-closed).
+6. **Retencion:** AccessAudit >= 2 anos. tabla append-only sin TTL ni auto-expiracion. Archivo regulatorio bajo Ley 25.326.
 
 ### Operaciones que generan audit
 
