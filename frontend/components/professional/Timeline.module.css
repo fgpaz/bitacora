@@ -129,3 +129,185 @@
 @media (prefers-reduced-motion: reduce) {
   .skeletonRow { animation-duration: 0.01ms; }
 }
+
+/* ─── Chart ─────────────────────────────────────────────────────────────────── */
+
+.chartWrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: var(--space-md);
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  min-height: 160px;
+}
+
+/* ─── Period filter ─────────────────────────────────────────────────────────── */
+
+.periodFilter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}
+
+.filterLabel {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground-muted);
+  margin-right: var(--space-xs);
+}
+
+.presetBtn {
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.presetBtn:hover:not(.presetBtnActive) {
+  background: rgba(94, 118, 110, 0.08);
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.presetBtnActive {
+  background: var(--brand-primary);
+  color: #fff;
+  border-color: var(--brand-primary);
+}
+
+.filterDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 var(--space-xs);
+}
+
+.customLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+}
+
+.dateInput {
+  padding: 4px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+.applyBtn {
+  padding: 4px 12px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--brand-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+  margin-left: auto;
+}
+
+.applyBtn:hover {
+  opacity: 0.85;
+}
+
+/* ─── Empty state ──────────────────────────────────────────────────────────── */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) var(--space-md);
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* ─── Skeleton chart ───────────────────────────────────────────────────────── */
+
+.skeletonChart {
+  height: 160px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted) 25%,
+    var(--surface) 50%,
+    var(--surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  margin-bottom: var(--space-md);
+}
+
+/* ─── Retry button ─────────────────────────────────────────────────────────── */
+
+.retryBtn {
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--brand-primary);
+  background: transparent;
+  border: 1px solid var(--brand-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.retryBtn:hover {
+  background: rgba(94, 118, 110, 0.08);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .periodFilter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .applyBtn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonRow,
+  .skeletonChart {
+    animation-duration: 0.01ms;
+  }
+}

@@ -66,3 +66,97 @@
   outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
 }
+
+/* ─── Status Cards ────────────────────────────────────────────────────────── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--brand-primary);
+}
+
+.cardConflict {
+  border-left-color: var(--semantic-warning, #d97706);
+}
+
+.cardTitle {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.cardText {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--foreground-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ─── Meta info (PendingStatusCard) ──────────────────────────────────────── */
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: var(--space-sm) 0 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.metaKey {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground-muted);
+}
+
+.metaValue {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+}
+
+/* ─── Link Button (ConflictResolutionCard) ────────────────────────────────── */
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  background: transparent;
+  border: 1px solid var(--brand-primary);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.linkButton:hover {
+  color: var(--surface);
+  background: var(--brand-primary);
+}
+
+.linkButton:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}

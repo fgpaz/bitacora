@@ -11,10 +11,13 @@ export interface ProfessionalPatient {
   display_name: string;
   created_at: string;
   status: 'active' | 'pending' | 'inactive';
+  hasRecentAlert?: boolean;
 }
 
 export interface ProfessionalPatientListResponse {
   patients: ProfessionalPatient[];
+  total?: number;
+  hasMore?: boolean;
 }
 
 export interface InviteRequest {
@@ -80,6 +83,15 @@ export async function getProfessionalPatients(): Promise<ProfessionalPatientList
   return bitacoraFetch<ProfessionalPatientListResponse>('/professional/patients');
 }
 
+export async function getProfessionalPatientsPaginated(
+  page: number,
+  pageSize: number,
+): Promise<ProfessionalPatientListResponse> {
+  return bitacoraFetch<ProfessionalPatientListResponse>(
+    `/professional/patients?page=${page}&pageSize=${pageSize}`,
+  );
+}
+
 /* ─── Invites ──────────────────────────────────────────────────────────── */
 
 export async function createProfessionalInvite(
@@ -108,6 +120,22 @@ export async function getPatientTimeline(
   );
 }
 
+function toDateOnly(d: Date): string {
+  return d.toISOString().split('T')[0]!;
+}
+
+export async function getPatientTimelineByPeriod(
+  patientId: string,
+  from: Date,
+  to: Date,
+): Promise<TimelineResponse> {
+  const fromStr = toDateOnly(from);
+  const toStr = toDateOnly(to);
+  return bitacoraFetch<TimelineResponse>(
+    `/professional/patients/${patientId}/timeline?from=${fromStr}&to=${toStr}`,
+  );
+}
+
 export async function getPatientAlerts(patientId: string): Promise<AlertsResponse> {
   return bitacoraFetch<AlertsResponse>(`/professional/patients/${patientId}/alerts`);
 }
@@ -118,4 +146,46 @@ export async function getExportConstraints(patientId: string): Promise<ExportCon
   // Patient-owner-only endpoint; for professionals this will return allowed:false
   // with a reason explaining the limitation.
   return bitacoraFetch<ExportConstraint>(`/export/${patientId}/constraints`);
+}
+
+export type PeriodPreset = '7d' | '30d' | '90d' | 'custom';
+
+export interface PeriodSelection {
+  preset: PeriodPreset;
+  from: string; // ISO date string yyyy-MM-dd
+  to: string;   // ISO date string yyyy-MM-dd
+}
+
+export async function downloadExportCsv(
+  _patientId: string,
+  from: string,
+  to: string,
+): Promise<void> {
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000';
+  const url = `${apiBase}/api/v1/export/patient-summary/csv?from=${from}&to=${to}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    let message = `HTTP ${response.status}`;
+    try {
+      const json = await response.json();
+      message = json?.error?.message ?? message;
+    } catch { /* ignore */ }
+    throw new Error(message);
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = objectUrl;
+  anchor.download = `bitacora-export-${from}-${to}.csv`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(objectUrl);
 }

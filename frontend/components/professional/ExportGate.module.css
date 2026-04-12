@@ -39,11 +39,6 @@
   margin-top: var(--space-sm);
 }
 
-.allowed {
-  font-family: var(--font-body);
-  color: var(--foreground);
-}
-
 .errorState {
   padding: var(--space-md);
   color: var(--brand-accent);
@@ -79,4 +74,206 @@
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation-duration: 0.01ms; }
+}
+
+/* ─── Allowed state ─────────────────────────────────────────────────────── */
+
+.allowed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  font-family: var(--font-body);
+  color: var(--foreground);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  margin: 0;
+}
+
+/* ─── Period selector ─────────────────────────────────────────────────── */
+
+.periodSelector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.presets {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.presetBtn {
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.presetBtn:hover {
+  border-color: var(--brand-accent);
+  color: var(--foreground);
+}
+
+.presetBtnActive {
+  border-color: var(--brand-accent);
+  background: color-mix(in srgb, var(--brand-accent) 12%, transparent);
+  color: var(--brand-accent);
+  font-weight: 600;
+}
+
+.customRange {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-xs);
+}
+
+.dateLabel {
+  font-size: 0.8125rem;
+  color: var(--foreground-muted);
+  white-space: nowrap;
+}
+
+.dateInput {
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--brand-accent);
+}
+
+/* ─── Selected range ──────────────────────────────────────────────────── */
+
+.selectedRange {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.8125rem;
+  color: var(--foreground-muted);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}
+
+.rangeIcon {
+  color: var(--foreground-muted);
+  flex-shrink: 0;
+}
+
+/* ─── Action bar ──────────────────────────────────────────────────────── */
+
+.actionBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+}
+
+.scopeBlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.8125rem;
+  color: var(--foreground-muted);
+}
+
+.scopeIcon {
+  color: var(--brand-accent);
+  flex-shrink: 0;
+}
+
+.scopeText {
+  line-height: 1.4;
+}
+
+.downloadBtn {
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--brand-accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  width: 100%;
+}
+
+.downloadBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.downloadBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.downloadBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorInline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-size: 0.8125rem;
+  color: var(--brand-accent);
+  width: 100%;
+}
+
+.retryBtn {
+  padding: var(--space-xs) var(--space-md);
+  background: transparent;
+  color: var(--brand-accent);
+  border: 1px solid var(--brand-accent);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s ease;
+}
+
+.retryBtn:hover {
+  background: color-mix(in srgb, var(--brand-accent) 10%, transparent);
 }

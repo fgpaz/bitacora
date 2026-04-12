@@ -32,6 +32,12 @@
   margin-bottom: var(--space-xs);
 }
 
+.cardHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .cardName {
   font-family: var(--font-body);
   font-weight: 600;
@@ -113,4 +119,62 @@
 
 @media (prefers-reduced-motion: reduce) {
   .skeletonName, .skeletonEmail { animation-duration: 0.01ms; }
+}
+
+/* Alert badge */
+.alertBadge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--brand-accent);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pageInfo {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--foreground-muted);
+}
+
+.totalCount {
+  color: var(--foreground-muted);
+}
+
+.pageButtons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.pageBtn {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  padding: 4px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--brand-secondary);
+}
+
+.pageBtn:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
