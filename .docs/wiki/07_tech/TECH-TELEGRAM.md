@@ -6,7 +6,7 @@
 
 `Implementado (Phase 30+)`.
 
-El runtime de Telegram esta materializado: webhook entrypoint, pairing code, session state y `ReminderWorker` activo. `SendTelegramMessageAsync` hace POST real a Telegram Bot API via `HttpClient`. Los recordatorios scheduler (RF-TG-010..012) quedan diferidos a Phase 31+.
+El runtime de Telegram esta materializado: webhook entrypoint, pairing code, session state y `ReminderWorker` activo. `SendTelegramMessageAsync` hace POST real a Telegram Bot API via `HttpClient`. Los recordatorios scheduler (RF-TG-010..012) estan implementados en Phase 30+.
 
 ## Configuracion dual (T3-3)
 

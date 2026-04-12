@@ -1,8 +1,8 @@
 # 05 — Modelo de Datos
 
-## Estado de implementación actual
+## Estado de implementacion actual
 
-`Wave 1` del runtime backend ya materializa en código y en la migración `InitialCore` este subconjunto del canon:
+`Wave 1 + Wave 30 + Phase 31` del runtime backend:
 
 - `User`
 - `ConsentGrant`
@@ -11,8 +11,13 @@
 - `PendingInvite`
 - `AccessAudit`
 - `EncryptionKeyVersion`
+- `BindingCode` (Wave 30)
+- `CareLink` (Wave 30)
+- `TelegramSession` (Phase 31)
+- `TelegramPairingCode` (Phase 31)
+- `ReminderConfig` (Phase 31 — entidades + ReminderWorker implementados; SendTelegramMessageAsync es stub)
 
-Las entidades `BindingCode`, `CareLink`, `TelegramSession`, `TelegramPairingCode` y `ReminderConfig` siguen siendo parte del canon funcional, pero todavía no forman parte del runtime generado bajo `src/` ni de la base física inicial.
+La autoridad activa para planificar su materializacion pendiente vive en `.docs/plans/wave-prod/`. `.docs/raw/plans/wave-1/` se conserva solo como antecedente historico.
 
 ## Entidades principales
 
@@ -94,25 +99,21 @@ Las entidades `BindingCode`, `CareLink`, `TelegramSession`, `TelegramPairingCode
 
 > Invariante: `PendingInvite` no otorga acceso clinico. Solo preserva contexto hasta que el paciente se registre y otorgue consentimiento.
 
-## Entidades canonicas aun no materializadas
-
-Las siguientes entidades siguen vigentes en el modelo canonico y en `04_RF`, pero no existen todavia en la migracion `InitialCore` ni en el codigo del runtime:
-
-### BindingCode (Codigo temporal de auto-vinculacion)
+### BindingCode (Codigo temporal de auto-vinculacion — Wave 30)
 
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
 | binding_code_id | UUID | PK |
 | professional_id | UUID | FK → User (role=`professional`) |
 | code | string | Codigo con formato `BIT-XXXXX` |
-| ttl_preset | enum | `15m` / `3h` / `24h` / `72h` |
+| ttl_preset | string | `15m` / `3h` / `24h` / `72h` |
 | expires_at | timestamp | Momento exacto de expiracion |
 | used | bool | Default `false` |
 | created_at_utc | timestamp | |
 
 > Invariante: el TTL es configurable por emision de codigo, no por profesional ni por `CareLink`.
 
-### CareLink (Vinculo profesional-paciente)
+### CareLink (Vinculo profesional-paciente — Wave 30)
 
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
@@ -128,37 +129,50 @@ Las siguientes entidades siguen vigentes en el modelo canonico y en `04_RF`, per
 
 > Invariante T3-11: `can_view_data` nace siempre en `false`.
 
-### TelegramSession (Vinculacion Telegram)
+## Entidades materializadas en Phase 31
+
+### TelegramSession (Vinculacion Telegram — Phase 31)
 
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
 | telegram_session_id | UUID | PK |
 | patient_id | UUID | FK → User |
-| chat_id | bigint | ID del chat de Telegram (UNIQUE) |
-| status | enum | `linked` → `unlinked` |
-| linked_at | timestamp | |
-| unlinked_at | timestamp? | |
+| chat_id | string | ID del chat de Telegram (UNIQUE cuando status=linked) |
+| status | enum | `Linked` → `Unlinked` |
+| linked_at_utc | timestamp | |
+| unlinked_at_utc | timestamp? | |
+| created_at_utc | timestamp | |
 
-### TelegramPairingCode (Temporal)
+> Invariante: un `chat_id` solo puede estar vinculado a un paciente a la vez. Partial unique index sobre `(chat_id, status='linked')`.
+
+### TelegramPairingCode (Temporal — Phase 31)
 
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
-| pairing_code_id | UUID | PK |
-| patient_id | UUID | FK → User |
+| telegram_pairing_code_id | UUID | PK |
 | code | string | Codigo alfanumerico con formato `BIT-XXXXX` |
+| patient_id | UUID | FK → User |
 | expires_at | timestamp | TTL 15 min |
 | used | bool | Default `false` |
+| consumed_at | timestamp? | |
+| created_at_utc | timestamp | |
 
-### ReminderConfig (Recordatorios)
+> Invariante: un solo codigo activo por paciente; generar uno nuevo invalida el anterior. TTL rigido de 15 minutos para minimizar exposicion de PII.
+
+### ReminderConfig (Recordatorios — Phase 31)
 
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
 | reminder_config_id | UUID | PK |
 | patient_id | UUID | FK → User |
-| time_of_day | time | Hora del recordatorio |
-| is_active | bool | |
-| last_fired_at | timestamp? | |
-| next_fire_at | timestamp? | |
+| hour_utc | int | Hora del recordatorio (0-23 UTC) |
+| minute_utc | int | Minuto (0-59 UTC) |
+| enabled | bool | Si el recordatorio esta activo |
+| next_fire_at_utc | timestamp? | Proximo disparo |
+| created_at_utc | timestamp | |
+| disabled_at_utc | timestamp? | |
+
+> Invariante: `enabled=false` no se calcula automaticamente al desvincular la sesion Telegram; el registro persiste hasta que el paciente lo desactive explicitamente. El `ReminderWorker` procesa configs con `next_fire_at_utc <= now` cada 60 segundos. `SendTelegramMessageAsync` esta implementada en `SendReminderCommand.cs:118`.
 
 ### AccessAudit (Auditoria — append-only)
 
@@ -214,18 +228,25 @@ erDiagram
     User }o--|| EncryptionKeyVersion : "key_version"
 ```
 
-## Reglas de retencion
+## Invariantes de privacidad
 
-| Entidad | Retencion | Justificacion |
-|---------|-----------|---------------|
-| AccessAudit | 2 anos minimo | Compliance auditoria |
-| MoodEntry (crisis: mood_score = -3) | 5 anos minimo | Ley 26.657 salud mental |
-| MoodEntry (regular) | Segun consentimiento | Definido con el paciente |
-| ConsentGrant | Permanente | Evidencia legal |
-| PendingInvite | 7 dias maximo | Invitacion temporal previa al alta |
-| BindingCode | Hasta expiracion o uso | Artefacto temporal |
-| TelegramPairingCode | 15 min maximo | Artefacto temporal |
-| User (post-supresion) | Anonimizado, audit retenido | Ley 25.326 |
+1. **Dato clinico sensible por defecto:** MoodEntry y DailyCheckin son datos sensibles bajo Ley 25.326, 26.529 y 26.657. Todo acceso o persistencia debe respear estas invariantes.
+2. **encrypted_payload: cifrado AES-256-GCM antes de PostgreSQL.** Ningun campo clinico se inscribe en texto plano. La unica excepcion es safe_projection (ver siguiente invariante).
+3. **safe_projection no contiene PII, texto libre ni identificadores directos.** Solo campos operacionalmente necesarios: mood_score, channel, created_at para MoodEntry; sleep_hours, flags booleanos para DailyCheckin.
+4. **key_version para trazabilidad de rotacion.** Cada registro lleva la version de clave con la que fue cifrado. Rotacion futura no requiere re-cifrado inmediato de records historicos.
+5. **Descifrado solo en memoria de aplicacion.** El material de descifrado reside en variable de entorno o vault; nunca en logs, trazas ni respuestas HTTP.
+6. **email_hash para lookup sin descifrado.** SHA256(email) permite identificacion del usuario sin exponer PII en tablas clinicas.
+7. **TelegramSession.chat_id es PII.** La vinculacion Telegram genera un registro que asocia chat_id con patient_id. Este mapeo debe tratarse con igual rigor que cualquier otro PII.
+
+## Invariantes de supresion y retencion
+
+1. **MoodEntry (crisis: mood_score = -3) retencion minima 5 anos** bajo Ley 26.657 salud mental. No se elimina ni anonimiza automaticamente; la supresion requiere destruccion de clave + anonimizacion.
+2. **AccessAudit retencion minima 2 anos** como archivo regulatorio bajo Ley 25.326. No aplica DELETE ni UPDATE.
+3. **ConsentGrant es permanente:** evidencia legal de consentimiento informado. No se elimina aunque el paciente revoque.
+4. **User post-supresion: status='anonymized', audit retenido.** El email y PII se hacen irreversibles. EncryptionKeyVersion para ese usuario pierde material. AccessAudit se retiene por su propio periodo regulatorio.
+5. **PendingInvite expira en 7 dias.** No requiere accion de supresion; expira por TTL.
+6. **BindingCode expira segun ttl_preset.** Una vez usado o expirado, no se reutiliza.
+7. **TelegramPairingCode expira en 15 minutos.** Vinculacion rapida con TTL rigido para minimizar exposicion de PII.
 
 ---
 

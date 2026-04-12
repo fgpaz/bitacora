@@ -327,4 +327,49 @@ $results.Add((Invoke-Step -Name "daily-checkin" -Method "POST" -Url "$resolvedBa
         medicationTime   = $null
     } -ExpectedStatusCodes @(200, 201) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
 
+# =====================================================================
+# NEW SURFACES — Vinculos (patient-facing)
+# =====================================================================
+
+$results.Add((Invoke-Step -Name "vinculos-list" -Method "GET" -Url "$resolvedBaseUrl/api/v1/vinculos" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "vinculos-active" -Method "GET" -Url "$resolvedBaseUrl/api/v1/vinculos/active" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+
+# =====================================================================
+# NEW SURFACES — Visualizacion (patient-facing)
+# =====================================================================
+
+$fromDate = [DateOnly]::new((Get-Date).Year, (Get-Date).Month, 1).ToString("yyyy-MM-dd")
+$toDate = [DateOnly]::new((Get-Date).Year, (Get-Date).Month, [Math]::Min((Get-Date).Day, 28)).ToString("yyyy-MM-dd")
+$results.Add((Invoke-Step -Name "visualizacion-timeline" -Method "GET" -Url "$resolvedBaseUrl/api/v1/visualizacion/timeline?from=$fromDate&to=$toDate" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "visualizacion-summary" -Method "GET" -Url "$resolvedBaseUrl/api/v1/visualizacion/summary?from=$fromDate&to=$toDate" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+
+# =====================================================================
+# NEW SURFACES — Export (patient-facing)
+# =====================================================================
+
+$results.Add((Invoke-Step -Name "export-patient-summary" -Method "GET" -Url "$resolvedBaseUrl/api/v1/export/patient-summary?from=$fromDate&to=$toDate" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "export-patient-summary-csv" -Method "GET" -Url "$resolvedBaseUrl/api/v1/export/patient-summary/csv?from=$fromDate&to=$toDate" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+
+# =====================================================================
+# NEW SURFACES — Telegram pairing (requires consent + patient auth)
+# =====================================================================
+
+$results.Add((Invoke-Step -Name "telegram-pairing" -Method "POST" -Url "$resolvedBaseUrl/api/v1/telegram/pairing" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+$results.Add((Invoke-Step -Name "telegram-session" -Method "GET" -Url "$resolvedBaseUrl/api/v1/telegram/session" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+
+# =====================================================================
+# NEW SURFACES — Telegram webhook (X-Telegram-Webhook-Secret auth)
+# NOTE: Webhook smoke uses the secret token; if BITACORA_TELEGRAM_WEBHOOK_SECRET_TOKEN
+# is not configured the endpoint still returns HTTP 200. Secret validation is fail-closed
+# (business-logic): missing or mismatched secret returns HTTP 200 with Accepted=false and
+# ErrorCode=FORBIDDEN — the update is never dispatched. Only when expectedToken is null/empty
+# (not configured) is validation skipped entirely. This smoke validates the endpoint shape.
+# =====================================================================
+
+$telegramWebhookSecret = Get-Setting -EnvValues $envValues -Name "BITACORA_TELEGRAM_WEBHOOK_SECRET_TOKEN" -Fallback ""
+if (-not [string]::IsNullOrWhiteSpace($telegramWebhookSecret)) {
+    $webhookHeaders = @{ "X-Telegram-Webhook-Secret" = $telegramWebhookSecret }
+    $results.Add((Invoke-Step -Name "telegram-webhook" -Method "POST" -Url "$resolvedBaseUrl/api/v1/telegram/webhook" -Headers $webhookHeaders -Body @{ Update = "smoke-test"; ChatId = $null; TraceId = [guid]::NewGuid().ToString() } -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+}
+
 $results | Format-Table -AutoSize

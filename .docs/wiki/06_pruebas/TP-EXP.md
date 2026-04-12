@@ -8,10 +8,18 @@
 ## Estado de ejecucion actual
 
 - `Parcialmente implementado` en el runtime actual (Phase 31+).
-- `GET /api/v1/export/patient-summary` (JSON) e implementada.
+- `GET /api/v1/export/patient-summary` (JSON) implementada.
 - `GET /api/v1/export/patient-summary/csv` implementada (CSV owner-only).
 - El CSV se genera en memoria (no streaming); los datos se extraen de `safe_projection` exclusivamente; no hay descifrado de `encrypted_payload`.
 - **Restriccion critica: export es owner-only.** Profesionales NO pueden exportar datos de pacientes aunque tengan `can_view_data=true`. Esta restriccion es enforceada a nivel de API y reflejada explicitamente en `ExportGate` del frontend.
+
+## Gap conocido para Phase 41
+
+- `GET /api/v1/export/{patientId}/constraints` — **NO existe en backend** (404).
+  - Consumido por `frontend/lib/api/professional.ts:115–118` (`getExportConstraints`).
+  - El frontend espera que retorne `ExportConstraint` con `allowed:false` para profesionales.
+  - **Impacto:** profesionales ven un estado de export sin podervalidar constraints real desde el backend.
+  - **Target:** implementar en Phase 41 como parte de FL-EXP-01.
 
 ## Cobertura RF
 
