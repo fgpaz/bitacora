@@ -4,6 +4,7 @@ using NuestrasCuentitas.Bitacora.Application.Common;
 using NuestrasCuentitas.Bitacora.Application.Interfaces;
 using NuestrasCuentitas.Bitacora.Application.Commands.Registro;
 using NuestrasCuentitas.Bitacora.DataAccess.Interface.Repositories;
+using NuestrasCuentitas.Bitacora.DataAccess.Interface.Transactions;
 using NuestrasCuentitas.Bitacora.Domain.Entities;
 using NuestrasCuentitas.Bitacora.Domain.Enums;
 
@@ -29,6 +30,7 @@ public sealed class HandleWebhookUpdateCommandHandler(
     IConsentGrantRepository consentGrantRepository,
     IAccessAuditRepository accessAuditRepository,
     IPseudonymizationService pseudonymizationService,
+    IBitacoraUnitOfWork unitOfWork,
     IMediator mediator,
     ILogger<HandleWebhookUpdateCommandHandler> logger)
     : ICommandHandler<HandleWebhookUpdateCommand, HandleWebhookUpdateResponse>
@@ -217,5 +219,6 @@ public sealed class HandleWebhookUpdateCommandHandler(
             DateTime.UtcNow);
 
         await accessAuditRepository.AddAsync(audit, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

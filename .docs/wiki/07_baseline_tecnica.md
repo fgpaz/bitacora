@@ -58,11 +58,18 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 |-------|-------------|
 | T3-10 | Toda falla de seguridad bloquea la operacion. Authentication y Authorization devuelven 401/403 respectivamente. |
 | T3-11 | ConsentRequiredMiddleware es el unico gate de escritura clinica: todo POST a `/api/v1/mood-entries` o `/api/v1/daily-checkins` sin ConsentGrant activo retorna 403 y genera AccessAudit con outcome=Denied. |
+| T3-11b | ConsentRequiredMiddleware cubre todas las rutas POST clinicas de forma generica via policy `clinical-write` (no solo mood-entries y daily-checkins listadas explicitamente). |
 | T3-12 | PseudonymizationService fail-closed: si BITACORA_PSEUDONYM_SALT no resuelve, el servicio lanza excepcion y toda operacion que dependa de ella falla con 500. |
 | T3-14 | Encryption key fail-closed: si BITACORA_ENCRYPTION_KEY no esta disponible o no resuelve a 32 bytes, GET /health/ready queda en `not_ready`. Ningun dato clinico se escribe sin cifrar. |
 | T3-RL-01 | Rate limiting fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + Retry-After. |
 | T3-RL-02 | Telegram reminder throttle: max 1 recordatorio por paciente por dia (sin importar la configuracion en ReminderConfig). |
 | T3-RL-03 | Consent revocado corta inmediatamente el recordatorio: ReminderWorker checkea ConsentGrant activo antes de cada envio. |
+| T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
+| T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
+| T3-SEC-10 | ProfessionalDataAccessAuthorizer fail-closed: lanza 403 en vez de revelar datos cuando el profesional no tiene CareLink autorizado con el paciente. No hay fuga de existencia. |
+| T3-SEC-11 | Frontend middleware extrae `user_metadata.role` del JWT y enforce rol `professional` para rutas profesionales; falla 403 si el rol no corresponde. |
+| T3-TG-01 | Telegram API client retry con exponential backoff: 1s, 2s, 4s antes de fallar. |
+| T3-TG-02 | SendReminderCommand y HandleWebhookUpdateCommand invocan SaveChangesAsync para persistir AccessAudit antes de retornar. |
 
 ## Modulos internos
 
@@ -111,7 +118,7 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | Pseudonimizacion | `pseudonym_id` en logs operacionales; `actor_id` solo en `AccessAudit` |
 | Liveness | `GET /health` |
 | Readiness | `GET /health/ready` valida connection string, `SUPABASE_JWT_SECRET`, clave de cifrado, salt y conectividad PostgreSQL |
-| Smoke operativo | `infra/smoke/backend-smoke.ps1` cubre la superficie backend completa (auth, consent, registro, vinculos, visualizacion, export, telegram) sin staging |
+| Smoke operativo | `infra/smoke/backend-smoke.ps1` cubre la superficie backend completa (auth, consent, registro, vinculos, visualizacion, export, telegram, profesional timeline/alerts) sin staging |
 | trace_id propagation | Requerido en todo request/response; se inyecta en logs y AccessAudit |
 | Datos de salud | Prohibido en logs, trazas y telemetry: `encrypted_payload`, `safe_projection` con datos clinicos, identificadores directos del paciente. Solo `pseudonym_id` y `trace_id`. |
 

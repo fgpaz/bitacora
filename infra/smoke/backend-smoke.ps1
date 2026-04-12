@@ -358,7 +358,27 @@ $results.Add((Invoke-Step -Name "telegram-pairing" -Method "POST" -Url "$resolve
 $results.Add((Invoke-Step -Name "telegram-session" -Method "GET" -Url "$resolvedBaseUrl/api/v1/telegram/session" -Headers $authHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
 
 # =====================================================================
-# NEW SURFACES — Telegram webhook (X-Telegram-Webhook-Secret auth)
+# NEW SURFACES — Professional Visualizacion (requires professional JWT)
+# NOTE: These gates require a professional JWT (role=professional in user_metadata).
+# The smoke script uses a patient JWT by default. Professional smoke gates are
+# skipped unless BITACORA_SMOKE_PROF_SUB is configured.
+# =====================================================================
+
+$profSub = Get-Setting -EnvValues $envValues -Name "BITACORA_SMOKE_PROF_SUB" -Fallback ""
+if (-not [string]::IsNullOrWhiteSpace($profSub)) {
+    $profEmail = Get-Setting -EnvValues $envValues -Name "BITACORA_SMOKE_PROF_EMAIL" -Fallback "prof@bitacora.nuestrascuentitas.com"
+    $profJwt = New-SmokeJwt -Secret $resolvedJwtSecret -Subject $profSub -EmailAddress $profEmail
+    $profHeaders = @{ Authorization = "Bearer $profJwt" }
+
+    # GATE-SMOKE-VIS-PROF-002: patient timeline via professional endpoint
+    $results.Add((Invoke-Step -Name "vis-prof-timeline" -Method "GET" -Url "$resolvedBaseUrl/api/v1/professional/patients/$resolvedSmokeSub/timeline?from=$fromDate&to=$toDate" -Headers $profHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+
+    # GATE-SMOKE-VIS-PROF-003: patient alerts via professional endpoint
+    $results.Add((Invoke-Step -Name "vis-prof-alerts" -Method "GET" -Url "$resolvedBaseUrl/api/v1/professional/patients/$resolvedSmokeSub/alerts?from=$fromDate&to=$toDate" -Headers $profHeaders -ExpectedStatusCodes @(200) -ResolvedIp $resolvedIp -AllowInvalidCertificate $allowInvalidCertificate))
+}
+
+# =====================================================================
+# Telegram webhook (X-Telegram-Webhook-Secret auth)
 # NOTE: Webhook smoke uses the secret token; if BITACORA_TELEGRAM_WEBHOOK_SECRET_TOKEN
 # is not configured the endpoint still returns HTTP 200. Secret validation is fail-closed
 # (business-logic): missing or mismatched secret returns HTTP 200 with Accepted=false and

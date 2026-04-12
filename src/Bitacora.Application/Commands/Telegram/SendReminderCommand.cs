@@ -136,21 +136,68 @@ public sealed class SendReminderCommandHandler(
         CancellationToken cancellationToken)
     {
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-        var response = await client.PostAsJsonAsync(
-            $"https://api.telegram.org/bot{token}/sendMessage",
-            new { chat_id = chatId, text = message },
-            cancellationToken);
 
-        if (!response.IsSuccessStatusCode)
+        // Retry with exponential backoff for transient Telegram API failures
+        var attempt = 0;
+        var delays = new[] { TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4) };
+
+        while (true)
         {
-            logger.LogWarning(
-                "Telegram API returned {StatusCode} for reminder send, trace {TraceId}",
-                response.StatusCode,
-                traceId);
-            return false;
-        }
+            try
+            {
+                var response = await client.PostAsJsonAsync(
+                    $"https://api.telegram.org/bot{token}/sendMessage",
+                    new { chat_id = chatId, text = message },
+                    cancellationToken);
 
-        return true;
+                if (response.IsSuccessStatusCode)
+                    return true;
+
+                // Non-success without retry on non-transient errors (4xx client errors)
+                if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+                {
+                    logger.LogWarning(
+                        "Telegram API returned client error {StatusCode} for reminder send (no retry), trace {TraceId}",
+                        response.StatusCode,
+                        traceId);
+                    return false;
+                }
+
+                // 5xx server errors — will retry
+                logger.LogWarning(
+                    "Telegram API returned {StatusCode}, attempt {Attempt}, trace {TraceId}",
+                    response.StatusCode,
+                    attempt + 1,
+                    traceId);
+            }
+            catch (HttpRequestException ex)
+            {
+                logger.LogWarning(
+                    "Telegram API request failed: {Message}, attempt {Attempt}, trace {TraceId}",
+                    ex.Message,
+                    attempt + 1,
+                    traceId);
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                logger.LogWarning(
+                    "Telegram API request timed out, attempt {Attempt}, trace {TraceId}",
+                    attempt + 1,
+                    traceId);
+            }
+
+            if (attempt >= delays.Length)
+            {
+                logger.LogWarning(
+                    "Telegram API retry limit reached after {MaxAttempts} attempts, trace {TraceId}",
+                    delays.Length,
+                    traceId);
+                return false;
+            }
+
+            await Task.Delay(delays[attempt], cancellationToken);
+            attempt++;
+        }
     }
 
     private async Task WriteAuditAsync(
@@ -170,5 +217,6 @@ public sealed class SendReminderCommandHandler(
             DateTime.UtcNow);
 
         await accessAuditRepository.AddAsync(audit, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

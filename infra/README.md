@@ -93,7 +93,7 @@ Consulte `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` para el catalogo completo de g
 
 ### Phase 41 — Profesional dashboard
 
-- [ ] Smoke profesional pasa: GATE-SMOKE-VIN-PROF-001..002, GATE-SMOKE-VIS-PROF-001
+- [ ] Smoke profesional pasa: GATE-SMOKE-VIN-PROF-001..002, GATE-SMOKE-VIS-PROF-001..003
 - [ ] **UX validation evidencia en wiki**
 
 ### Phase 50 — Alertas y notificaciones push

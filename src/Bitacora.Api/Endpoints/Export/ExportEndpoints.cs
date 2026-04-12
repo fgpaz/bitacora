@@ -57,6 +57,7 @@ public static class ExportEndpoints
                 [FromRoute] Guid patientId,
                 [FromServices] CurrentAuthenticatedPatientResolver currentPatientResolver,
                 [FromServices] CurrentAuthenticatedProfessionalResolver currentProfessionalResolver,
+                [FromServices] ProfessionalDataAccessAuthorizer authorizer,
                 [FromServices] IMediator mediator,
                 CancellationToken cancellationToken) =>
             {
@@ -67,7 +68,10 @@ public static class ExportEndpoints
                 }
                 catch (BitacoraException ex) when (ex.Code == "FORBIDDEN")
                 {
+                    // Professional access — authorize before revealing any patient data exists
                     var professionalCtx = await currentProfessionalResolver.ResolveAsync(httpContext, cancellationToken);
+                    await authorizer.AuthorizeAsync(professionalCtx.User.UserId, patientId, cancellationToken);
+
                     var response = await mediator.Send(
                         new GetExportConstraintsQuery(
                             patientId,

@@ -334,6 +334,11 @@ app.MapScalarApiReference(options =>
 app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 app.MapGet("/swagger", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" })).ExcludeFromDescription();
+
+// ── Rate Limiter ──────────────────────────────────────────────────────────────
+app.UseRateLimiter();
+
+// Health/ready mapped AFTER rate limiter so it is protected by rate limiting
 app.MapGet("/health/ready", async Task<IResult>(ReadinessProbe readinessProbe, CancellationToken cancellationToken) =>
     {
         var report = await readinessProbe.CheckAsync(cancellationToken);
@@ -342,9 +347,6 @@ app.MapGet("/health/ready", async Task<IResult>(ReadinessProbe readinessProbe, C
             : Results.Json(report, statusCode: StatusCodes.Status503ServiceUnavailable);
     })
     .ExcludeFromDescription();
-
-// ── Rate Limiter ──────────────────────────────────────────────────────────────
-app.UseRateLimiter();
 
 app.UseMiddleware<TraceIdMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();

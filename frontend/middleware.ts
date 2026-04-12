@@ -35,6 +35,17 @@ function decodeJwtExpiry(token: string): number | null {
   }
 }
 
+function decodeJwtRole(token: string): string | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof payload.user_metadata?.role === 'string' ? payload.user_metadata.role : null;
+  } catch {
+    return null;
+  }
+}
+
 function isExpired(exp: number): boolean {
   // Add 30-second grace period — treat as expired slightly before actual TTL
   return Date.now() / 1000 > exp - 30;
@@ -120,11 +131,10 @@ export async function middleware(request: NextRequest) {
 
   // ── 5. Group-specific guard ─────────────────────────────────────────────────
   if (requiredGroup === 'professional') {
-    // TODO: wire to real Supabase custom-claims / metadata role when available.
-    // For now, any valid token grants access to professional routes (dev + real-auth bridge).
-    // After custom-claims are wired in Bitacora.Api, enforce:
-    // const role = decodeJwtRole(supabaseToken);
-    // if (role !== 'professional') return redirectToRoot(request);
+    const role = decodeJwtRole(supabaseToken);
+    if (role !== 'professional') {
+      return redirectToRoot(request);
+    }
   }
 
   return response;

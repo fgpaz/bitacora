@@ -151,6 +151,8 @@ Estos gates no corresponden a un modulo RF unico pero son ejecutados en el smoke
 | GATE-SMOKE-VIN-PROF-001 | `POST /api/v1/professional/invites` con JWT professional valido | 201 | no 2xx |
 | GATE-SMOKE-VIN-PROF-002 | `GET /api/v1/professional/patients` con JWT professional valido | 200 | no 2xx |
 | GATE-SMOKE-VIS-PROF-001 | `GET /api/v1/professional/patients/{patientId}/summary` con JWT professional + CareLink valido | 200 | no 2xx |
+| GATE-SMOKE-VIS-PROF-002 | `GET /api/v1/professional/patients/{patientId}/timeline?from=&to=` con JWT professional + CareLink valido | 200 | no 2xx |
+| GATE-SMOKE-VIS-PROF-003 | `GET /api/v1/professional/patients/{patientId}/alerts?from=&to=` con JWT professional + CareLink valido | 200 | no 2xx |
 | GATE-FAIL-004 | `GET /health/ready` sin ConnectionStrings__BitacoraDb reachable | 503 | 200 |
 | GATE-RL-001 | `POST /api/v1/auth/bootstrap` 11 veces en 1 min desde misma IP | 429 + Retry-After header | otro status |
 | GATE-SMOKE-TG-001 | ReminderWorker: 2 recordatorios configurados para mismo paciente/dia, solo 1 se envia | Log: "reminder skipped by throttle", AccessAudit no generado | mas de 1 envio |

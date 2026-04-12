@@ -80,14 +80,17 @@ public static class TelegramEndpoints
             var expectedToken = configuration["Telegram:WebhookSecretToken"];
             if (!string.IsNullOrWhiteSpace(expectedToken))
             {
-                if (!expectedToken.Equals(webhookSecret ?? string.Empty, StringComparison.Ordinal))
-                {
-                    logger.LogWarning("TelegramWebhook: invalid or missing secret token");
-                    return Results.Ok(new TelegramWebhookResponse(
-                        Accepted: false,
-                        ErrorCode: "FORBIDDEN",
-                        BotMessage: null));
-                }
+            // Intentional 200 return: Telegram stops re-delivery only on HTTP 2xx.
+            // Fail-closed denies (no bot message) return 200 with null BotMessage,
+            // which is indistinguishable from a silent success from Telegram's perspective.
+            if (!expectedToken.Equals(webhookSecret ?? string.Empty, StringComparison.Ordinal))
+            {
+                logger.LogWarning("TelegramWebhook: invalid or missing secret token");
+                return Results.Ok(new TelegramWebhookResponse(
+                    Accepted: false,
+                    ErrorCode: "FORBIDDEN",
+                    BotMessage: null));
+            }
             }
 
             var command = new HandleWebhookUpdateCommand(

@@ -28,7 +28,7 @@ public static class AuthEndpoints
 
                 return Results.Ok(response);
             })
-            .RequireAuthorization("write")
+            .RequireAuthorization("auth")
             .Produces<BootstrapPatientResponse>(StatusCodes.Status200OK)
             .WithCommonOpenApi("BootstrapPatient", Tag);
     }
