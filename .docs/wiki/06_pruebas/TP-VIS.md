@@ -5,6 +5,14 @@
 - RF cubiertos: RF-VIS-001..003, RF-VIS-010..014
 - Flujos origen: FL-VIS-01, FL-VIS-02
 
+## Estado de ejecucion actual
+
+- `Parcialmente implementado` en el runtime actual (Phase 31+).
+- Endpoints profesionales implementados: `GET /api/v1/professional/patients`, `GET /api/v1/professional/patients/{patientId}/summary`, `GET /api/v1/professional/patients/{patientId}/timeline`, `GET /api/v1/professional/patients/{patientId}/alerts`.
+- Todos los endpoints profesionales requieren `CareLink` con `can_view_data=true` (authorization via `ProfessionalDataAccessAuthorizer`).
+- La lista de pacientes profesionales se serve via `/api/v1/professional/patients`; no existe un endpoint `/professional/dashboard` dedicado.
+- La superficie de exportacion para profesionales NO esta permitida (owner-only); `ExportGate` en frontend hace esta restriccion explicita.
+
 ## Cobertura RF
 
 | TC ID | RF | Tipo | Escenario |
@@ -22,36 +30,51 @@
 ```gherkin
 Scenario: Paciente consulta timeline con paginacion valida
   Given patient autenticado con datos clinicos en el rango solicitado
-  When GET /api/v1/mood-entries y GET /api/v1/daily-checkins con cursor valido
-  Then se retorna solo informacion del paciente autenticado
+  When GET /api/v1/visualizacion/timeline?from=2026-04-01&to=2026-04-07
+  Then se retorna {days: [...]} con mood_entry y daily_checkin por dia
   And se respetan los limites de paginacion
 
-Scenario: Dashboard profesional lista solo pacientes visibles
+Scenario: Profesional lista sus pacientes vinculados
   Given professional autenticado
-  And tiene dos CareLinks activos con can_view_data=true
-  And tiene un CareLink activo con can_view_data=false
-  When GET /api/v1/professional/dashboard
-  Then solo aparecen los dos pacientes visibles
-  And se registra AccessAudit por cada paciente expuesto
+  And tiene CareLinks activos y pendientes
+  When GET /api/v1/professional/patients
+  Then se retornan pacientes vinculados con status, display_name y email
+  And se ocultan pacientes con CareLink en estado que no permite acceso
 
-Scenario: Profesional obtiene summary y alerts de un paciente visible
+Scenario: Profesional obtiene summary de un paciente visible
   Given professional autenticado con CareLink activo y can_view_data=true
-  And el paciente tiene entradas clinicas en los ultimos 30 dias
-  When GET /api/v1/professional/patients/PAT-0042/summary
-  Then se calcula avg_mood, min_mood, max_mood y trend
-  When GET /api/v1/professional/patients/PAT-0042/alerts
-  Then se retorna LOW_MOOD_STREAK si hay tres dias consecutivos con mood <= -2
+  And el paciente tiene entradas clinicas en el rango
+  When GET /api/v1/professional/patients/{patientId}/summary?from=2026-03-01&to=2026-04-01
+  Then se retorna avg_mood, min_mood, max_mood, total_days, days_with_mood
+  And se retorna 403 si no existe CareLink con can_view_data=true
 
-Scenario: Auditoria fallida bloquea lectura profesional
-  Given professional autenticado con CareLink visible
-  And la escritura de AccessAudit falla
-  When GET /api/v1/professional/patients/PAT-0042/summary
-  Then se retorna 500 VIS_011_AUDIT_FAILED
-  And no se retornan datos del paciente
+Scenario: Profesional obtiene timeline de un paciente visible
+  Given professional autenticado con CareLink activo y can_view_data=true
+  When GET /api/v1/professional/patients/{patientId}/timeline?from=2026-03-01&to=2026-04-01&page=1&page_size=20
+  Then se retorna lista de entries paginada con entry_type, data y created_at
+  And se retorna 403 si no existe CareLink con can_view_data=true
+
+Scenario: Profesional obtiene alertas de un paciente visible
+  Given professional autenticado con CareLink activo y can_view_data=true
+  When GET /api/v1/professional/patients/{patientId}/alerts?from=2026-03-01&to=2026-04-01
+  Then se retorna lista de alertas con severity, type y message
+  And se retorna 403 si no existe CareLink con can_view_data=true
+
+Scenario: Profesional no puede exportar datos de paciente
+  Given professional autenticado
+  When accede a la pestana de exportacion en el detalle del paciente
+  Then se muestra estado "Exportacion no disponible"
+  And el motivo indica que la exportacion es solo para el paciente propietario
 ```
+
+## Pendiente para validacion final
+
+- La experiencia completa de navegacion profesional (lista -> detalle -> tabs) requiere validacion UX con usuarios reales.
+- El componente ExportGate refleja la restriccion owner-only a nivel de API.
+- UX validation: NO completada.
 
 ## Criterios de salida
 
-- Cobertura positiva y negativa de los 8 RF del modulo.
-- Evidencia de separacion entre dashboard, summary y alerts.
-- Evidencia de ocultamiento silencioso cuando `can_view_data=false`.
+- Cobertura positiva y negativa de los RF del modulo visualizacion.
+- Evidencia de que summary, timeline y alerts son tabs separados en PatientDetail.
+- Evidencia de que export para profesionales esta explicitamente bloqueado en la UI.

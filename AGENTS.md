@@ -14,17 +14,18 @@
 For EVERY task (`feature`, `bugfix`, `refactor`, `docs`, `infra`, `performance`):
 
 1. Start with `$ps-contexto` before proposing changes or implementation.
-2. After context load, run `$brainstorming` once before planning/execution.
-3. Close critical context gaps before execution.
-4. ALWAYS work in **Orchestrator Mode**.
-5. Close the task with `$ps-trazabilidad` before marking it complete.
+2. Run `$mi-lsp` as the first exploration tool. Validate the workspace alias/path before assuming one, then use it before raw grep/glob/read loops.
+3. After context and exploration, run `$brainstorming` once before planning/execution.
+4. Close critical context gaps before execution.
+5. ALWAYS work in **Orchestrator Mode**.
+6. Close the task with `$ps-trazabilidad` before marking it complete.
 
 ### Skill Invocation Semantics
 
 | Skill | When | Mandatory |
 |-------|------|-----------|
 | `$ps-contexto` | At the start of EVERY task | Yes — before any action |
-| `$mi-lsp` | For all code exploration under src/ | Yes — before raw grep/glob |
+| `$mi-lsp` | First exploration tool for repo and code investigation | Yes — validate workspace alias/path first; before raw grep/glob/read loops |
 | `$brainstorming` | After context, before implementation | Yes — for non-trivial tasks |
 | `$writing-plans` | Large/risky tasks, after brainstorming | Yes — for large tasks |
 | `$ps-trazabilidad` | Before closing any task | Yes — verifies sync |
@@ -50,7 +51,7 @@ For EVERY task (`feature`, `bugfix`, `refactor`, `docs`, `infra`, `performance`)
 
 - If editing `AGENTS.md` or `CLAUDE.md`, use `$ps-crear-agentsclaudemd`.
 - If the change is large, risky, or multi-module, run `$ps-auditar-trazabilidad` before final closure.
-- Use `$mi-lsp` as the mandatory semantic navigation tool for code exploration under `src/`. Fallback: rg.
+- Use `$mi-lsp` as the mandatory first exploration tool for repo and code navigation. Validate the workspace alias/path with `mi-lsp workspace list` and `mi-lsp workspace status <alias-or-path> --format toon` before assuming a workspace name. If `mi-lsp` returns `hint` or `next_hint`, follow that rerun guidance before retrying. Fallback only after `mi-lsp` has been tried.
 - No default exceptions.
 - In `$ps-contexto`, always read these docs before planning/execution:
    - `.docs/wiki/02_arquitectura.md` — service responsibilities and architecture
@@ -61,24 +62,26 @@ For EVERY task (`feature`, `bugfix`, `refactor`, `docs`, `infra`, `performance`)
 
 ### A) Standard Task Flow
 1. `$ps-contexto` — load project context
-2. `$brainstorming` — challenge and lock design decisions
-3. Orchestrated execution (subagents in parallel)
-4. Documentation synchronization
-5. `$ps-trazabilidad` — closure
+2. `$mi-lsp` — validate workspace alias/path and explore first
+3. `$brainstorming` — challenge and lock design decisions
+4. Orchestrated execution (subagents in parallel)
+5. Documentation synchronization
+6. `$ps-trazabilidad` — closure
 
 ### B) Large / Risky / Multi-Step Task Flow
 1. `$ps-contexto` — load project context
-2. `$brainstorming` — design and harden
-3. `$writing-plans` — generate wave-dispatchable plan with subdocuments
-4. Wave execution with subagents (run `$ps-trazabilidad` per batch)
-5. `$ps-trazabilidad` — final closure
-6. `$ps-auditar-trazabilidad` — read-only audit before marking done
+2. `$mi-lsp` — validate workspace alias/path and explore first
+3. `$brainstorming` — design and harden
+4. `$writing-plans` — generate wave-dispatchable plan with subdocuments
+5. Wave execution with subagents (run `$ps-trazabilidad` per batch)
+6. `$ps-trazabilidad` — final closure
+7. `$ps-auditar-trazabilidad` — read-only audit before marking done
 
 ### C) Policy-Change Flow (AGENTS.md / CLAUDE.md)
-1. `$ps-contexto` → `$brainstorming` → `$ps-crear-agentsclaudemd` → `$ps-trazabilidad`
+1. `$ps-contexto` → `$mi-lsp` → `$brainstorming` → `$ps-crear-agentsclaudemd` → `$ps-trazabilidad`
 
 ### D) Small / Trivial Task Flow
-1. `$ps-contexto` → `$brainstorming` (lock assumptions) → execute → `$ps-trazabilidad`
+1. `$ps-contexto` → `$mi-lsp` → `$brainstorming` (lock assumptions) → execute → `$ps-trazabilidad`
 
 ## 3) Project Decision Priority
 

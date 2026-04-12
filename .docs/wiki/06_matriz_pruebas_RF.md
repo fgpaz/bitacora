@@ -2,13 +2,24 @@
 
 ## Estado ejecutable actual
 
-- Runtime actual: backend-only.
+- Runtime actual: backend con superficies de Vinculos, Visualizacion, Export y Telegram implementadas en Phase 31+.
 - Gate ejecutable minimo de T01: `infra/smoke/backend-smoke.ps1`.
-- Cobertura ejecutable hoy:
+- Rate limiting activo: politica `auth` (10 req/IP/min) + fail-closed 429.
+- Cobertura ejecutable hoy (smoke gate):
   - `RF-ONB-001` baseline (`POST /api/v1/auth/bootstrap`)
   - `RF-CON-001`, `RF-CON-002`, `RF-CON-003` baseline
   - `RF-REG-001` baseline
   - `RF-REG-020` baseline
+  - `RF-VIN-001..004` — coverage via `GET /vinculos`, `GET /vinculos/active`, `POST /vinculos/accept` (smoke)
+  - `RF-VIS-001..003` — coverage via `GET /visualizacion/timeline`, `GET /visualizacion/summary` (smoke)
+  - `RF-EXP-001` — coverage via `GET /export/patient-summary` y `GET /export/patient-summary/csv` (smoke)
+  - `RF-TG-001`, `RF-TG-002` — coverage via `POST /telegram/pairing`, `GET /telegram/session` (smoke)
+- Superficie no cubierta por smoke pero con codigo implementado (requiere test unitario o E2E):
+  - `RF-REG-010..015` (Telegram webhook real)
+  - `RF-CON-011..013` (cascadas de revocacion)
+  - `RF-VIN-010..023` (profesional + alertas)
+  - `RF-TG-010..012` (scheduler y recordatorios — ReminderWorker activo con stub de Telegram API)
+  - `RF-SEC-*`
 - `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
 - Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
 
@@ -112,6 +123,36 @@
 | RF-ONB-004 | TP-ONB | Registra el primer MoodEntry tras consentimiento | Rechaza primer registro con score invalido o sin consent |
 | RF-ONB-005 | TP-ONB | Transiciona a active tras el primer MoodEntry | Hace no-op si ya estaba active o loguea estado inesperado |
 
+## Gates operacionales (smoke + fail-closed)
+
+Estos gates no corresponden a un modulo RF unico pero son ejecutados en el smoke y en los gates de rollout:
+
+| Gate | Endpoint / Accion | Criterio pass | Criterio fail |
+|------|-------------------|---------------|---------------|
+| GATE-SMOKE-001 | `GET /health` | 200 | != 200 |
+| GATE-SMOKE-002 | `GET /health/ready` | 200 | != 200 |
+| GATE-SMOKE-003 | `POST /api/v1/mood-entries` sin consent | 403 + CONSENT_REQUIRED | cualquier otro status |
+| GATE-SMOKE-004 | `POST /api/v1/consent` | 201 o 409 | otro status |
+| GATE-SMOKE-005 | `POST /api/v1/mood-entries` con consent | 200 o 201 | no 2xx |
+| GATE-SMOKE-006 | `POST /api/v1/daily-checkins` con consent | 200 o 201 | no 2xx |
+| GATE-FAIL-001 | `GET /health/ready` sin SUPABASE_JWT_SECRET | 503 o throw en startup | startup ok |
+| GATE-FAIL-002 | `GET /health/ready` sin BITACORA_ENCRYPTION_KEY valida | 503 | 200 |
+| GATE-FAIL-003 | `GET /health/ready` sin BITACORA_PSEUDONYM_SALT | 500 o throw | 200 |
+| GATE-SMOKE-007 | `GET /api/v1/vinculos` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-008 | `GET /api/v1/vinculos/active` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-009 | `GET /api/v1/visualizacion/timeline?from=&to=` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-010 | `GET /api/v1/visualizacion/summary?from=&to=` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-011 | `GET /api/v1/export/patient-summary?from=&to=` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-012 | `GET /api/v1/export/patient-summary/csv?from=&to=` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-013 | `POST /api/v1/telegram/pairing` con JWT valido y consentimiento | 200 | no 2xx |
+| GATE-SMOKE-014 | `GET /api/v1/telegram/session` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-015 | `POST /api/v1/telegram/webhook` con secret token valido | 200 | no 200 |
+| GATE-SMOKE-VIN-PROF-001 | `POST /api/v1/professional/invites` con JWT professional valido | 201 | no 2xx |
+| GATE-SMOKE-VIN-PROF-002 | `GET /api/v1/professional/patients` con JWT professional valido | 200 | no 2xx |
+| GATE-SMOKE-VIS-PROF-001 | `GET /api/v1/professional/patients/{patientId}/summary` con JWT professional + CareLink valido | 200 | no 2xx |
+| GATE-FAIL-004 | `GET /health/ready` sin ConnectionStrings__BitacoraDb reachable | 503 | 200 |
+| GATE-RL-001 | `POST /api/v1/auth/bootstrap` 11 veces en 1 min desde misma IP | 429 + Retry-After header | otro status |
+
 ---
 
-*Fuente: `.docs/wiki/04_RF.md` y `.docs/wiki/04_RF/RF-*.md`*
+*Fuente: `.docs/wiki/04_RF.md` y `.docs/wiki/04_RF/RF-*.md`, `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md`*

@@ -13,6 +13,18 @@ Executable gate: `infra/smoke/backend-smoke.ps1`
 7. positive `POST /api/v1/mood-entries`
 8. positive `POST /api/v1/daily-checkins`
 
+### Extended surfaces (Phase 30/31 backend, Phase 40/41 frontend)
+
+9. `GET /api/v1/vinculos`
+10. `GET /api/v1/vinculos/active`
+11. `GET /api/v1/visualizacion/timeline?from=&to=`
+12. `GET /api/v1/visualizacion/summary?from=&to=`
+13. `GET /api/v1/export/patient-summary?from=&to=`
+14. `GET /api/v1/export/patient-summary/csv?from=&to=`
+15. `POST /api/v1/telegram/pairing`
+16. `GET /api/v1/telegram/session`
+17. `POST /api/v1/telegram/webhook` (requires `BITACORA_TELEGRAM_WEBHOOK_SECRET_TOKEN`)
+
 ## Required environment
 
 - `BITACORA_BASE_URL`
@@ -21,6 +33,7 @@ Executable gate: `infra/smoke/backend-smoke.ps1`
 - optional `BITACORA_SMOKE_EMAIL`
 - optional `BITACORA_SMOKE_RESOLVE_IP`
 - optional `BITACORA_SMOKE_SKIP_CERT_CHECK`
+- optional `BITACORA_TELEGRAM_WEBHOOK_SECRET_TOKEN` (enables webhook smoke step)
 
 If `infra/.env` exists, the script can load it directly.
 If the smoke identity is omitted, the script generates a fresh user per run so the pre-consent rejection path remains valid on reruns.
@@ -53,3 +66,7 @@ $env:BITACORA_SMOKE_SKIP_CERT_CHECK = "true"
 - the script exits `0`
 
 If any step fails, T01 stays open.
+
+## Terminal validation note
+
+**Smoke es precondition, no actividad terminal.** El smoke gate habilita la apertura de trafico, pero ninguna fase se marca completa hasta que la validacion UX tenga evidencia. Ver `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` seccion timing de validacion terminal.

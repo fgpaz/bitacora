@@ -5,6 +5,14 @@
 - RF cubiertos: RF-EXP-001..003
 - Flujo origen: FL-EXP-01
 
+## Estado de ejecucion actual
+
+- `Parcialmente implementado` en el runtime actual (Phase 31+).
+- `GET /api/v1/export/patient-summary` (JSON) e implementada.
+- `GET /api/v1/export/patient-summary/csv` implementada (CSV owner-only).
+- El CSV se genera en memoria (no streaming); los datos se extraen de `safe_projection` exclusivamente; no hay descifrado de `encrypted_payload`.
+- **Restriccion critica: export es owner-only.** Profesionales NO pueden exportar datos de pacientes aunque tengan `can_view_data=true`. Esta restriccion es enforceada a nivel de API y reflejada explicitamente en `ExportGate` del frontend.
+
 ## Cobertura RF
 
 | TC ID | RF | Tipo | Escenario |
@@ -17,26 +25,39 @@
 ## Gherkin expandido
 
 ```gherkin
-Scenario: Export CSV completo de un rango con datos
+Scenario: Paciente exporta su historial en CSV
   Given patient autenticado con MoodEntry y DailyCheckin en el rango
-  When GET /api/v1/export/csv?from=2026-04-01&to=2026-04-07
+  When GET /api/v1/export/patient-summary/csv?from=2026-04-01&to=2026-04-07
   Then HTTP 200 con Content-Type text/csv
-  And la primera fila contiene headers estandarizados
-  And el cuerpo se envia por streaming
+  And Content-Disposition: attachment; filename="bitacora-export-YYYYMMDD-YYYYMMDD.csv"
+  And la primera fila contiene headers: fecha,mood_score,sleep_hours,physical_activity,social_activity,anxiety,irritability,medication_taken
+  And cada fila posterior contiene los datos del dia correspondiente
+
+Scenario: Export JSON completo de un rango
+  Given patient autenticado con MoodEntry y DailyCheckin en el rango
+  When GET /api/v1/export/patient-summary?from=2026-04-01&to=2026-04-07
+  Then HTTP 200 con DTO JSON que incluye entries, summary y metadata
 
 Scenario: Export con rango invalido es rechazado
   Given patient autenticado
-  When GET /api/v1/export/csv?from=2026-04-07&to=2026-04-01
-  Then se retorna 400 EXP_001_RANGE_INVALID
+  When GET /api/v1/export/patient-summary/csv?from=2026-04-07&to=2026-04-01
+  Then se retorna 400 INVALID_DATE_RANGE
 
-Scenario: Falta una key_version historica durante export
-  Given existe un registro cuyo key_version no esta disponible
-  When GET /api/v1/export/csv para un rango que lo incluye
-  Then se retorna 500 EXP_001_DECRYPT_FAILED
-  And no se entrega un CSV parcial
+Scenario: Profesional no puede exportar datos de paciente
+  Given professional autenticado con CareLink activo y can_view_data=true
+  When accede a cualquier endpoint de export para ese patientId
+  Then se retorna 403 FORBIDDEN
+  And ExportGate muestra estado "Exportacion no disponible"
 ```
+
+## Pendiente para validacion final
+
+- La experiencia de export CSV requiere validacion UX del flujo de descarga en desktop y mobile.
+- El paso de confirmacion antes de descarga (si aplica) necesita validacion.
+- UX validation: NO completada.
 
 ## Criterios de salida
 
-- Cobertura positiva y negativa de los 3 RF del modulo.
-- Evidencia de streaming real y fail-closed ante descifrado fallido.
+- Cobertura positiva y negativa de los RF del modulo export.
+- Evidencia de que CSV es owner-only y profesionales no pueden acceder.
+- Evidencia de generacion en memoria (no streaming) para datasets grandes.
