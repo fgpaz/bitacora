@@ -1,95 +1,166 @@
-# Decisión ADR-2026-04-10: Backend Domain Seam Map
+# Backend Domain Seam Map — Phase 30 T1
 
 **Fecha:** 2026-04-10
-**Alcance:** Wave-prod backend domain — seams existentes antes de agregar vínculo
-**Fuente:** T1-backend-seam-map.md (wave-prod/30-code-backend-domain)
+**Proyecto:** Bitacora — Clinical Mood Tracker
+**Workspace:** `humor` (`/mnt/c/repos/mios/humor`)
+**Slug:** bitacora.nuestrascuentitas.com
+**Fuente:** T1-backend-seam-map (wave-prod/30-code-backend-domain)
 
 ---
 
-## Domain seams
+## 1. Dominio: Entidades (Domain Entities)
 
-### Entidades (assemblies `Bitacora.Domain`)
+Todas las entidades del dominio ya existen en `src/Bitacora.Domain/Entities/`:
 
 | Entidad | Archivo | Factory | Mutaciones de estado |
 |---------|---------|---------|----------------------|
-| `User` | `src/Bitacora.Domain/Entities/User.cs` | `User.CreatePatient(supabaseUserId, encryptedEmail, emailHash, keyVersion, createdAtUtc)` | `MarkConsentGranted()`, `MarkActive()`, `RevokeSessions(revokedAtUtc)` |
-| `MoodEntry` | `src/Bitacora.Domain/Entities/MoodEntry.cs` | `MoodEntry.Create(patientId, encryptedPayload, safeProjection, keyVersion, encryptedAtUtc, createdAtUtc)` | ninguna — inmutable tras creación |
-| `ConsentGrant` | `src/Bitacora.Domain/Entities/ConsentGrant.cs` | `ConsentGrant.CreateGranted(patientId, consentVersion, createdAtUtc)` | `Revoke(revokedAtUtc)` |
-| `AccessAudit` | `src/Bitacora.Domain/Entities/AccessAudit.cs` | `AccessAudit.Create(traceId, actorId, pseudonymId, actionType, resourceType, resourceId, patientId, outcome, createdAtUtc)` | ninguna — inmutable |
-| `DailyCheckin` | `src/Bitacora.Domain/Entities/DailyCheckin.cs` | — | — |
-| `PendingInvite` | `src/Bitacora.Domain/Entities/PendingInvite.cs` | — | — |
-| `EncryptionKeyVersion` | `src/Bitacora.Domain/Entities/EncryptionKeyVersion.cs` | seed data en `AppDbContext.OnModelCreating` | — |
+| `User` | `User.cs` | `CreatePatient(...)` | `MarkConsentGranted()`, `MarkActive()`, `RevokeSessions()` |
+| `MoodEntry` | `MoodEntry.cs` | `Create(...)` | ninguna (inmutable tras creacion) |
+| `DailyCheckin` | `DailyCheckin.cs` | — | — |
+| `ConsentGrant` | `ConsentGrant.cs` | `CreateGranted(patientId, consentVersion, createdAtUtc)` | `Revoke(revokedAtUtc)` |
+| `PendingInvite` | `PendingInvite.cs` | `Create(professionalId, inviteeEmailHash, inviteToken, expiresAt, createdAtUtc)` | `MarkAsConsumed(consumedAtUtc)` |
+| `BindingCode` | `BindingCode.cs` | `Create(code, professionalId, ttlPreset, expiresAt, createdAtUtc)` | `MarkAsUsed()` |
+| `CareLink` | `CareLink.cs` | `CreateInvited(...)`, `CreateActive(...)` | `Accept(acceptedAtUtc)`, `Revoke(revokedAtUtc, revokedStatus)`, `UpdateCanViewData(canViewData, utcNow)` |
+| `AccessAudit` | `AccessAudit.cs` | `Create(...)` | ninguna (inmutable) |
+| `EncryptionKeyVersion` | `EncryptionKeyVersion.cs` | seed data en `AppDbContext.OnModelCreating` | ninguna |
+| `TelegramPairingCode` | `TelegramPairingCode.cs` | — | — |
+| `TelegramSession` | `TelegramSession.cs` | — | — |
+| `ReminderConfig` | `ReminderConfig.cs` | — | — |
 
-**Patrón de entidad:** constructors `private` + factory estática. Toda validación de dominio en factory. Entidades sin setters públicos — mutación solo via métodos de dominio.
+**Patron de entidad:** constructors `private` + factory estatica. Toda validacion de dominio en factory. Entidades sin setters publicos — mutacion solo via metodos de dominio.
+
+**Enums** en `src/Bitacora.Domain/Enums/`: `CareLinkStatus`, `PendingInviteStatus`, `ConsentStatus`, `UserRole`, `UserStatus`, `AuditActionType`, `AuditOutcome`, `TelegramSessionStatus`.
 
 ---
 
-## Application seams
+## 2. Capa de Aplicacion: Commands y Queries (Mediator)
 
-### Comandos (Mediator, `ICommandHandler`)
+### Commands (Vinculos)
 
-| Comando | Handler | Inyección | Dependencias de infraestructura |
-|---------|---------|-----------|--------------------------------|
-| `BootstrapPatientCommand` | `BootstrapPatientCommandHandler` | `IUserRepository`, `IPendingInviteRepository`, `IBitacoraUnitOfWork`, `IEncryptionService`, `ILogger` | cifrado de email, hash SHA256, búsqueda de invite |
-| `GrantConsentCommand` | `GrantConsentCommandHandler` | `IUserRepository`, `IConsentGrantRepository`, `IAccessAuditRepository`, `IBitacoraUnitOfWork`, `IPseudonymizationService`, `IConfiguration` | auditoría con seudónimo, lectura de versión activa de consentimiento |
-| `CreateMoodEntryCommand` | `CreateMoodEntryCommandHandler` | `IUserRepository`, `IMoodEntryRepository`, `IAccessAuditRepository`, `IBitacoraUnitOfWork`, `IEncryptionService`, `IPseudonymizationService` | cifrado de payload, dedupe a 1 minuto, auditoría |
+| Comando | Handler | Estado |
+|---------|---------|--------|
+| `CreateBindingCodeCommand` | `CreateBindingCodeCommandHandler` | EXISTE |
+| `AcceptCareLinkCommand` | `AcceptCareLinkCommandHandler` | EXISTE |
+| `RevokeCareLinkCommand` | `RevokeCareLinkCommandHandler` | EXISTE |
+| `UpdateCareLinkCanViewDataCommand` | `UpdateCareLinkCanViewDataCommandHandler` | EXISTE |
+| `CreatePendingInviteCommand` | `CreatePendingInviteCommandHandler` | EXISTE |
 
-### Patrón de comando
+### Queries (Vinculos)
+
+| Query | Handler | Estado |
+|-------|---------|--------|
+| `GetCareLinksByPatientQuery` | `GetCareLinksByPatientQueryHandler` | EXISTE |
+| `GetActiveCareLinksWithViewPermissionQuery` | `GetActiveCareLinksWithViewPermissionQueryHandler` | EXISTE |
+| `GetProfessionalPatientsQuery` | `GetProfessionalPatientsQueryHandler` | EXISTE |
+
+### Commands/Queries (Consent y Auth)
+
+| Command/Query | Estado |
+|---------------|--------|
+| `BootstrapPatientCommand` / `BootstrapPatientCommandHandler` | EXISTE |
+| `GrantConsentCommand` / `GrantConsentCommandHandler` | EXISTE |
+| `RevokeConsentCommand` / `RevokeConsentCommandHandler` | EXISTE |
+| `GetCurrentConsentQuery` / `GetCurrentConsentQueryHandler` | EXISTE |
+| `CreateMoodEntryCommand` / `CreateMoodEntryCommandHandler` | EXISTE |
+
+### Patron de comando/handler
+
 ```csharp
-// Estructura de un comando
 readonly record struct XxxCommand(...) : ICommand<XxxResponse>;
 sealed record XxxResponse(...);
 sealed class XxxCommandHandler(...) : ICommandHandler<XxxCommand, XxxResponse>;
 ```
 
-### Queries
-- `GetCurrentConsentQuery` / `GetCurrentConsentQueryHandler` — reside en `Application/Queries/Consent/GetCurrentConsentQuery.cs`; se invoca desde `ConsentEndpoints.cs`.
+---
+
+## 3. Capa de Datos: Interfaces de Repositorio
+
+Todas existen en `src/Bitacora.DataAccess.Interface/Repositories/`:
+
+| Interfaz | Metodos |
+|----------|---------|
+| `IBindingCodeRepository` | `FindByCodeAsync`, `FindActiveByProfessionalIdAsync`, `AddAsync`, `UpdateAsync` |
+| `ICareLinkRepository` | `GetByIdAsync`, `FindActiveByPatientAndProfessionalAsync`, `GetByPatientIdAsync`, `GetByProfessionalIdAsync`, `AddAsync`, `UpdateAsync` |
+| `IPendingInviteRepository` | `FindResumableByTokenAndEmailHashAsync`, `AddAsync` |
+| `IConsentGrantRepository` | `GetActiveByPatientAsync`, `AddAsync` |
+| `IUserRepository` | `GetBySupabaseUserIdAsync`, `GetByIdAsync`, `AddAsync`, `Update` |
+| `IMoodEntryRepository` | `FindDuplicateAsync`, `AddAsync` |
+| `IDailyCheckinRepository` | — |
+| `IAccessAuditRepository` | `AddAsync` |
+| `ITelegramPairingCodeRepository` | — |
+| `ITelegramSessionRepository` | — |
+| `IReminderConfigRepository` | — |
 
 ---
 
-## Data access seams
+## 4. Capa de Datos: Implementaciones EF
 
-### DbContext
+Todas existen en `src/Bitacora.DataAccess.EntityFramework/Repositories/`:
 
-**Archivo:** `src/Bitacora.DataAccess.EntityFramework/Persistence/AppDbContext.cs`
-
-- DbSets: `Users`, `MoodEntries`, `DailyCheckins`, `ConsentGrants`, `PendingInvites`, `AccessAudits`, `EncryptionKeyVersions`
-- Query filters: `MoodEntry` y `DailyCheckin` filtran por `_currentPatientId` (patrón de multitenancy por fila)
-- Seed: `EncryptionKeyVersion(1, 2026-04-09, true)` en línea 135
-
-### Repositorios (interfaces en `DataAccess.Interface`, implementaciones en `DataAccess.EntityFramework`)
-
-| Interfaz | Implementación | Métodos relevantes |
-|----------|---------------|-------------------|
-| `IUserRepository` | `UserRepository` | `GetBySupabaseUserIdAsync`, `GetByIdAsync`, `AddAsync`, `Update` |
-| `IConsentGrantRepository` | `ConsentGrantRepository` | `GetActiveByPatientAsync`, `AddAsync` |
-| `IMoodEntryRepository` | `MoodEntryRepository` | `FindDuplicateAsync`, `AddAsync` |
-| `IDailyCheckinRepository` | `DailyCheckinRepository` | — |
-| `IPendingInviteRepository` | `PendingInviteRepository` | `FindResumableByTokenAndEmailHashAsync` |
-| `IAccessAuditRepository` | `AccessAuditRepository` | `AddAsync` |
-| `IBitacoraUnitOfWork` | `EntityFrameworkBitacoraUnitOfWork` | `SaveChangesAsync` |
-
-### Unit of Work
-```csharp
-// IBitacoraUnitOfWork.SaveChangesAsync — single commit point para todos los repositorios
-```
+| Implementacion | Estado |
+|---------------|--------|
+| `BindingCodeRepository` | EXISTE |
+| `CareLinkRepository` | EXISTE |
+| `PendingInviteRepository` | EXISTE |
+| `ConsentGrantRepository` | EXISTE |
+| `UserRepository` | EXISTE |
+| `MoodEntryRepository` | EXISTE |
+| `DailyCheckinRepository` | EXISTE |
+| `AccessAuditRepository` | EXISTE |
+| `TelegramPairingCodeRepository` | EXISTE |
+| `TelegramSessionRepository` | EXISTE |
+| `ReminderConfigRepository` | EXISTE |
 
 ---
 
-## API seams
+## 5. DbContext (AppDbContext)
 
-### Minimal API endpoints (ruteo en `Program.cs` líneas 213-215)
+Archivo: `src/Bitacora.DataAccess.EntityFramework/Persistence/AppDbContext.cs`
 
-```
-POST /api/v1/auth/bootstrap          → AuthEndpoints.MapAuthEndpoints()         [Auth]
-GET  /api/v1/consent/current         → ConsentEndpoints.MapConsentEndpoints()  [Auth]
-POST /api/v1/consent                 → ConsentEndpoints.MapConsentEndpoints()  [Auth]
-DELETE /api/v1/consent/current       → ConsentEndpoints.MapConsentEndpoints()  [Auth]
-POST /api/v1/mood-entries           → RegistroEndpoints.MapRegistroEndpoints()  [Auth]
-POST /api/v1/daily-checkins          → RegistroEndpoints.MapRegistroEndpoints()  [Auth]
-```
+- **DbSets registrados:** `Users`, `MoodEntries`, `DailyCheckins`, `ConsentGrants`, `PendingInvites`, `AccessAudits`, `EncryptionKeyVersions`, `BindingCodes`, `CareLinks`, `TelegramPairingCodes`, `TelegramSessions`, `ReminderConfigs`
+- **Mapeo completo** de todas las tablas en `OnModelCreating`
+- **Indices:**
+  - `BindingCode`: `Code` (unique), `(ProfessionalId, Used, ExpiresAt)`
+  - `CareLink`: `(PatientId, ProfessionalId)`, `(ProfessionalId, Status)`
+  - `PendingInvite`: `(ProfessionalId, InviteeEmailHash, Status)`
+  - `ConsentGrant`: `(PatientId, ConsentVersion)`
+- **Query filters:** `MoodEntry` y `DailyCheckin` filtran por `_currentPatientId` (patron multitenancy por fila)
+- **Seed:** `EncryptionKeyVersion(1, 2026-04-09, true)`
 
-### Endpoint pattern
+---
+
+## 6. Endpoints de API
+
+### Vinculos Endpoints
+
+Archivo: `src/Bitacora.Api/Endpoints/Vinculos/VinculosEndpoints.cs`
+
+| Endpoint | Metodo | Ruta | Estado |
+|----------|--------|------|--------|
+| `GetVinculos` | GET | `/api/v1/vinculos` | EXISTE |
+| `GetActiveVinculosWithViewPermission` | GET | `/api/v1/vinculos/active` | EXISTE |
+| `AcceptVinculo` | POST | `/api/v1/vinculos/accept` | EXISTE |
+| `RevokeVinculo` | DELETE | `/api/v1/vinculos/{id:guid}` | EXISTE |
+| `UpdateVinculoCanViewData` | PATCH | `/api/v1/vinculos/{id:guid}/view-data` | EXISTE |
+| `CreateInvite` | POST | `/api/v1/professional/invites` | EXISTE |
+| `GetProfessionalPatients` | GET | `/api/v1/professional/patients` | EXISTE |
+
+### Consent Endpoints
+
+Archivo: `src/Bitacora.Api/Endpoints/Consent/ConsentEndpoints.cs`
+
+| Endpoint | Metodo | Ruta | Estado |
+|----------|--------|------|--------|
+| `GetCurrentConsent` | GET | `/api/v1/consent/current` | EXISTE |
+| `GrantConsent` | POST | `/api/v1/consent` | EXISTE |
+| `RevokeConsent` | DELETE | `/api/v1/consent/current` | EXISTE |
+
+### Auth Endpoints
+
+- `POST /api/v1/auth/bootstrap` (en `AuthEndpoints.cs`)
+
+### Patron de endpoint
+
 ```csharp
 app.MapPost("/api/v1/X", async Task<IResult>(
     HttpContext httpContext,
@@ -101,63 +172,52 @@ app.MapPost("/api/v1/X", async Task<IResult>(
     var response = await mediator.Send(new XxxCommand(...), cancellationToken);
     return Results.Json(response, statusCode: StatusCodes.Status201Created);
 })
-.RequireAuthorization()
+.RequireAuthorization("write")
 .Accepts<XxxRequest>("application/json")
 .WithCommonOpenApi("Xxx", Tag);
 ```
 
-### Middleware pipeline (`Program.cs` líneas 198-203)
+---
+
+## 7. Middleware Pipeline
+
+**Orden en `Program.cs` (lineas 346-354):**
+
 ```
-TraceIdMiddleware → ApiExceptionMiddleware → Correlate → Authentication → Authorization → ConsentRequiredMiddleware
+TraceIdMiddleware → ApiExceptionMiddleware → Correlate → Authentication → Authorization → RateLimiter → ConsentRequiredMiddleware
 ```
 
 ### ConsentRequiredMiddleware
-- Ubicación: `NuestrasCuentitas.Bitacora.Api.Middleware`
-- Ejecuta después de `Authorization` en el pipeline
-- Requiere que el usuario tenga `UserStatus` distinto de `Registered` para acceder a `/api/v1/mood-entries` y `/api/v1/daily-checkins`
+
+- Ubicacion: `NuestrasCuentitas.Bitacora.Api.Middleware`
+- Ejecuta despues de `Authorization` en el pipeline
+- Requiere que el usuario tenga `UserStatus` distinto de `Registered` para acceder a endpoints protegidos
+- **Verificar:** necesita confirmarse que bloquea correctamente a usuarios sin `ConsentGrant` activo
 
 ---
 
-## Auth and audit seams
+## 8. Registro de DI
 
-### Autenticación
-- JWT Bearer con clave simétrica (Supabase JWT secret)
-- Claim `sub` extraído via `GetSupabaseUserId()`
-- Revocación de sesiones via `SessionsRevokedAt` (línea 104-118 de `Program.cs`)
-
-### Autorización
-- `.RequireAuthorization()` en todos los endpoints
-- `CurrentAuthenticatedPatientResolver` resuelve el `User` autenticado desde `IUserRepository`
-
-### Auditoría de acceso
-- `AccessAudit.Create(...)` en handlers que modifican estado (`BootstrapPatientCommandHandler` NO auditúa; `GrantConsentCommandHandler` y `CreateMoodEntryCommandHandler` SÍ)
-- Campos: `TraceId`, `ActorId`, `PseudonymId`, `ActionType`, `ResourceType`, `ResourceId`, `PatientId`, `Outcome`
-- `AuditActionType` enum: valores observados `Grant`, `Create`
-
-### Cifrado
-- `IEncryptionService` (`AesEncryptionService`) — cifrado simétrico AES de payloads y email
-- `IPseudonymizationService` (`PseudonymizationService`) — generación de seudónimos para auditoría
-- Versionado de claves via `EncryptionKeyVersion` entity (key version activo embebido en cada entidad)
-
----
-
-## DI registration seams
-
-### `AddDataAccess` (`DataAccess.EntityFramework/DependencyInjection/ServiceCollectionExtensions.cs`)
+### AddDataAccess (`DataAccess.EntityFramework/DependencyInjection/ServiceCollectionExtensions.cs`)
 
 ```csharp
-services.AddDbContext<AppDbContext>(...);                          // PostgreSQL via Npgsql
-services.AddScoped<ICurrentPatientContextAccessor, NullCurrentPatientContextAccessor>();
-services.AddScoped<IUserRepository, UserRepository>();
-services.AddScoped<IConsentGrantRepository, ConsentGrantRepository>();
-services.AddScoped<IMoodEntryRepository, MoodEntryRepository>();
-services.AddScoped<IDailyCheckinRepository, DailyCheckinRepository>();
-services.AddScoped<IPendingInviteRepository, PendingInviteRepository>();
-services.AddScoped<IAccessAuditRepository, AccessAuditRepository>();
-services.AddScoped<IBitacoraUnitOfWork, EntityFrameworkBitacoraUnitOfWork>();
+services.AddDbContext<AppDbContext>(...);  // PostgreSQL via Npgsql, line 20
+services.AddScoped<ICurrentPatientContextAccessor, NullCurrentPatientContextAccessor>();  // line 28
+services.AddScoped<IUserRepository, UserRepository>();                     // line 29
+services.AddScoped<IConsentGrantRepository, ConsentGrantRepository>();     // line 30
+services.AddScoped<IMoodEntryRepository, MoodEntryRepository>();           // line 31
+services.AddScoped<IDailyCheckinRepository, DailyCheckinRepository>();     // line 32
+services.AddScoped<IPendingInviteRepository, PendingInviteRepository>();    // line 33
+services.AddScoped<IAccessAuditRepository, AccessAuditRepository>();        // line 34
+services.AddScoped<IBindingCodeRepository, BindingCodeRepository>();        // line 35
+services.AddScoped<ICareLinkRepository, CareLinkRepository>();              // line 36
+services.AddScoped<ITelegramPairingCodeRepository, TelegramPairingCodeRepository>();  // line 37
+services.AddScoped<ITelegramSessionRepository, TelegramSessionRepository>();          // line 38
+services.AddScoped<IReminderConfigRepository, ReminderConfigRepository>();  // line 39
+services.AddScoped<IBitacoraUnitOfWork, EntityFrameworkBitacoraUnitOfWork>();          // line 40
 ```
 
-### `AddInfrastructure` (`Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs`)
+### AddInfrastructure (`Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs`)
 
 ```csharp
 services.AddHttpClient("external-default", ...);
@@ -166,42 +226,77 @@ services.AddScoped<IEncryptionService, AesEncryptionService>();
 services.AddScoped<IPseudonymizationService, PseudonymizationService>();
 ```
 
-### `AddApplication` (`Application/DependencyInjection/ServiceCollectionExtensions.cs`)
+### AddApplication (`Application/DependencyInjection/ServiceCollectionExtensions.cs`)
 
 ```csharp
 services.AddMediator(options => { options.ServiceLifetime = ServiceLifetime.Scoped; });
 ```
 
-### Orden en `Program.cs` (líneas 64-67)
+### Orden en Program.cs (lineas 75-78)
+
 ```csharp
-builder.Services.AddDataAccess(builder.Configuration);   // 1° — DbContext
-builder.Services.AddInfrastructure(builder.Configuration); // 2° — infrastructure
-builder.Services.AddApplication(builder.Configuration);     // 3° — Mediator
-builder.Services.AddSetupEventBus(builder.Configuration);  // 4° — event bus
+builder.Services.AddDataAccess(builder.Configuration);        // 1o — DbContext + repos
+builder.Services.AddInfrastructure(builder.Configuration);    // 2o — infrastructure
+builder.Services.AddApplication(builder.Configuration);        // 3o — Mediator
+builder.Services.AddSetupEventBus(builder.Configuration);      // 4o — event bus
 ```
 
 ---
 
-## Migration workflow
+## 9. DTOs de Contrato
 
-- Migration assembly: `typeof(AppDbContext).Assembly.FullName` (i.e., `Bitacora.DataAccess.EntityFramework`)
-- Apply on startup condicional: `DataAccess:ApplyMigrationsOnStartup` (línea 206, solo en Development)
-- Comando de migración manual: `dotnet ef database update --project src/Bitacora.DataAccess.EntityFramework`
-- Conexión: `ConnectionStrings:BitacoraDb` en `appsettings.json`
+Archivo: `src/Shared.Contract/Vinculos/CareLinkDto.cs`
+
+| DTO | Estado |
+|-----|--------|
+| `CareLinkDto` | EXISTE |
+| `BindingCodeDto` | EXISTE |
 
 ---
 
-## Puntos de extensión para vínculo (VIN/CON)
+## 10. Migration Workflow
 
-| Seam | Punto de extensión | Acción requerida |
-|------|-------------------|-----------------|
-| Dominio | Agregar `Vincculo` entity | Crear en `Bitacora.Domain/Entities/Vincculo.cs` con factory `Create`, entidad hijo de `User` |
-| Dominio | `User` como root aggregate | Agregar colección `Vincculos` en `User` si es aggregate root |
-| App | `GrantConsentCommandHandler` | Auditar seudónimo de profesional (ya existe `AccessAudit` con `ActorId`) |
-| App | `BootstrapPatientCommandHandler` | Agregar lógica de vínculo si invite_token tiene tipo `professional` |
-| Data | `AppDbContext` | Agregar `DbSet<Vincculo>` + entity configuration con query filter |
-| Data | Repository interface | Crear `IVincculoRepository` en `DataAccess.Interface/Repositories/` |
-| Data | DI registration | `AddScoped<IVincculoRepository, VincculoRepository>()` en `ServiceCollectionExtensions` |
-| API | `ConsentEndpoints` | Ningún cambio — vínculo es dominio de Application |
-| API | Endpoint de vínculo profesional | Nuevo endpoint `POST /api/v1/professionals/{id}/link` en `RegistroEndpoints` o nuevo archivo |
-| Migration | Nueva migración EF Core | `dotnet ef migrations add AddVincculo --project src/Bitacora.DataAccess.EntityFramework` |
+- **Migration assembly:** `typeof(AppDbContext).Assembly.FullName` (i.e., `Bitacora.DataAccess.EntityFramework`)
+- **Apply on startup condicional:** `DataAccess:ApplyMigrationsOnStartup` (solo en Development, Program.cs linea 356-362)
+- **Comando de migracion manual:** `dotnet ef database update --project src/Bitacora.DataAccess.EntityFramework`
+- **Conexion:** `ConnectionStrings:BitacoraDb` en `appsettings.json`
+- **Snapshots:** `AppDbContextModelSnapshot.cs` confirma que `ConsentGrant`, `PendingInvite`, `BindingCode`, `CareLink` ya estan modelados en migraciones
+
+---
+
+## 11. Lo que REALMENTE FALTA (Gap Analysis)
+
+### 11.1 Verificar Migraciones Pendientes
+
+**Accion requerida:** Ejecutar `dotnet ef migrations list --project src/Bitacora.DataAccess.EntityFramework` para confirmar que las tablas `binding_codes`, `care_links`, `pending_invites`, `consent_grants` ya estan creadas en la base de datos.
+
+### 11.2 ConsentRequiredMiddleware — Logica de Consentimiento
+
+**Estado:** El middleware esta registrado en el pipeline (linea 354 de `Program.cs`). **Verificar** que:
+- Consulta `IConsentGrantRepository.GetActiveByPatientAsync` correctamente
+- El flujo de bootstrap (primer login) crea automaticamente un `ConsentGrant`
+- Si el usuario no tiene `ConsentGrant` activo, el middleware retorna 403 o redirige
+
+### 11.3 Endpoint de Telegram — Integracion con Vinculos
+
+El `TelegramEndpoints.cs` existe pero no se revisaron los archivos de Telegram en este task. Verificar si existe un flujo de vinculacion de paciente con profesional via Telegram bot.
+
+### 11.4 Resumen: Lo que NO existe y hay que construir
+
+Segun el analisis del codigo leido, **todo el nucleo de dominio de Vinculos y Consent ya existe**:
+
+- Entidades: `BindingCode`, `CareLink`, `PendingInvite`, `ConsentGrant`
+- Repositorios interface + implementacion EF
+- Commands y Queries Mediator
+- Endpoints REST
+- DI registration
+
+**Lo que podria requerir trabajo adicional:**
+1. Verificar que las migraciones esten aplicadas y las tablas existan
+2. Validar que `ConsentRequiredMiddleware` tenga la logica correcta de verificacion de consentimiento
+3. Confirmar el flujo de vinculacion profesional-paciente end-to-end (BindingCode -> AcceptCareLink -> CareLink)
+4. Integracion Telegram para vinculacion (si aplica)
+
+---
+
+*Documento generado como parte de T1 de Phase 30 — Bitacora MVP Backend Seam Map*
