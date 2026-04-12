@@ -220,6 +220,47 @@ fecha,mood_score,sleep_hours,physical_activity,social_activity,anxiety,irritabil
 
 ---
 
+### GET /api/v1/export/{patientId}/constraints
+
+Determina si el actor autenticado (patient o professional) tiene permiso para exportar datos del paciente. Implementado en Phase 31+.
+
+| Campo | Detalle |
+|-------|---------|
+| Autenticacion | JWT Bearer (patient o professional) |
+| Autorizacion | Patient owner siempre `allowed=true`; professional siempre `allowed=false` (export es owner-only) |
+| Estado | **Implementado** |
+
+**Query params:** Ninguno (patientId va en path).
+
+**Response 200:**
+
+```json
+{
+  "patient_id": "uuid",
+  "allowed": true,
+  "reason": null
+}
+```
+
+O para profesional:
+
+```json
+{
+  "patient_id": "uuid",
+  "allowed": false,
+  "reason": "EXPORT_IS_OWNER_ONLY"
+}
+```
+
+**Errores tipados:**
+
+| Codigo | HTTP | Trigger |
+|--------|------|---------|
+| UNAUTHORIZED | 401 | JWT invalido o expirado |
+| PATIENT_NOT_FOUND | 404 | El patientId no corresponde a un paciente en el sistema |
+
+---
+
 ## Superficies deferidas
 
 | Endpoint | Estado | Notas |
@@ -231,6 +272,7 @@ fecha,mood_score,sleep_hours,physical_activity,social_activity,anxiety,irritabil
 | GET /api/v1/professional/patients/{patientId}/alerts | **Implementado** | Requiere `CareLink.can_view_data=true` |
 | GET /api/v1/export/patient-summary | **Implementado** | DTO JSON; owner-only |
 | GET /api/v1/export/patient-summary/csv | **Implementado** | CSV con safe_projection; owner-only |
+| GET /api/v1/export/{patientId}/constraints | **Implementado** | Owner-only; professional siempre denied |
 | Descifrado de payloads (RF-EXP-002) | **Diferido** | No requerido; solo `safe_projection` |
 | Streaming CSV (RF-EXP-003) | **Diferido** | CSV sin streaming; dataset en memoria |
 | Export para profesionales | **No permitido** | Export es owner-only; profesionales ven 403; `ExportGate` lo explicita en UI |

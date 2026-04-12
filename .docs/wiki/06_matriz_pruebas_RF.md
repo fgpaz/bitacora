@@ -144,6 +144,7 @@ Estos gates no corresponden a un modulo RF unico pero son ejecutados en el smoke
 | GATE-SMOKE-010 | `GET /api/v1/visualizacion/summary?from=&to=` con JWT valido | 200 | no 2xx |
 | GATE-SMOKE-011 | `GET /api/v1/export/patient-summary?from=&to=` con JWT valido | 200 | no 2xx |
 | GATE-SMOKE-012 | `GET /api/v1/export/patient-summary/csv?from=&to=` con JWT valido | 200 | no 2xx |
+| GATE-SMOKE-016 | `GET /api/v1/export/{patientId}/constraints` con JWT valido (patient owner y professional) | 200 + `allowed` true/false segun rol | no 2xx |
 | GATE-SMOKE-013 | `POST /api/v1/telegram/pairing` con JWT valido y consentimiento | 200 | no 2xx |
 | GATE-SMOKE-014 | `GET /api/v1/telegram/session` con JWT valido | 200 | no 2xx |
 | GATE-SMOKE-015 | `POST /api/v1/telegram/webhook` con secret token valido | 200 | no 200 |
