@@ -32,6 +32,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDailyCheckinRepository, DailyCheckinRepository>();
         services.AddScoped<IPendingInviteRepository, PendingInviteRepository>();
         services.AddScoped<IAccessAuditRepository, AccessAuditRepository>();
+        services.AddScoped<IBindingCodeRepository, BindingCodeRepository>();
+        services.AddScoped<ICareLinkRepository, CareLinkRepository>();
+        services.AddScoped<ITelegramPairingCodeRepository, TelegramPairingCodeRepository>();
+        services.AddScoped<ITelegramSessionRepository, TelegramSessionRepository>();
+        services.AddScoped<IReminderConfigRepository, ReminderConfigRepository>();
         services.AddScoped<IBitacoraUnitOfWork, EntityFrameworkBitacoraUnitOfWork>();
 
         return services;

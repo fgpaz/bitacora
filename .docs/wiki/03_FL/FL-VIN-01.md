@@ -1,5 +1,11 @@
 # FL-VIN-01: Invitacion profesional a paciente
 
+## Estado actual
+
+`Diferido — no implementado en Wave 30`.
+
+Este flujo describe la invitacion directa del profesional y sigue siendo canon objetivo del MVP. La emision de `POST /api/v1/care-links` aun no existe en el runtime.
+
 ## Goal
 Un profesional emite una invitacion de vinculo para un paciente, generando un `CareLink` en estado `invited` si el paciente ya existe o una `PendingInvite` si todavia no tiene cuenta.
 

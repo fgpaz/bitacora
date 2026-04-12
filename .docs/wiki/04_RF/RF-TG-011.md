@@ -2,9 +2,10 @@
 
 ## Execution Sheet
 - Modulo: TG
-- Trigger: Invocado por RF-TG-010 por cada recordatorio due
+- Trigger: Invocado por ReminderWorker para cada recordatorio due
 - Actor: Sistema (Telegram Bot API)
 - Prioridad PDP: Usability (dentro de lo que permite Security/Privacy)
+- Estado: **Implementado (stub)** — `SendReminderCommand` procesa el flujo completo pero `SendTelegramMessageAsync` es un stub que solo loguea; no hay integracion real con Telegram Bot API
 
 ## Precondiciones detalladas
 - `chat_id` resuelto y valido (TelegramSession.status=linked)

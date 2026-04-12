@@ -4,11 +4,15 @@
 
 - RF cubiertos: RF-ONB-001..005
 - Flujo origen: FL-ONB-01
+- Rutas implementadas: `/onboarding` (patient shell), `/consent` (patient shell)
 
 ## Estado de ejecucion actual
 
-- `Wave 1` implementa bootstrap, deteccion de `PendingInvite` reanudable y transicion a `active` con el primer `MoodEntry`.
-- El consumo efectivo de `PendingInvite` y la creacion de `CareLink` posterior al consentimiento siguen diferidos hasta que exista el modulo de vinculos.
+- `Wave 1` implementa bootstrap via `OnboardingFlow` con maquina de estados en cliente: `auth -> consent -> bridge`.
+- `OnboardingFlow` consume `POST /api/v1/auth/bootstrap` y maneja errores tipados con `trace_id`.
+- `PendingInvite` reanudable detectable via `resumePendingInvite: true` en respuesta bootstrap.
+- Transicion a `active` con el primer `MoodEntry` sigue diferida al modulo de vinculos.
+- `ConsentGatePanel` renderiza el flujo de consentimiento con version vigente y manejo de conflictos.
 - T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/auth/bootstrap` contra el runtime real mediante `infra/smoke/backend-smoke.ps1`.
 
 ## Cobertura RF
@@ -17,7 +21,7 @@
 |------|----|------|-----------|
 | ONB-P01 | RF-ONB-001, RF-ONB-002 | Positivo | Bootstrap crea o resuelve usuario local sin duplicar |
 | ONB-P02 | RF-ONB-001, RF-ONB-003 | Positivo | Bootstrap reanuda PendingInvite y onboarding obliga consentimiento |
-| ONB-N01 | RF-ONB-001 | Negativo | Rechaza JWT invalido o expirado |
+| ONB-N01 | RF-ONB-001 | Negativo | Rechaza JWT invalido o expirado con mensaje humanizado |
 | ONB-N02 | RF-ONB-003 | Negativo | Bloquea acceso a datos mientras status=registered |
 | ONB-P03 | RF-ONB-004, RF-ONB-005 | Positivo | Primer MoodEntry post-consent lleva al usuario a active |
 | ONB-N03 | RF-ONB-005 | Negativo | Evento duplicado o estado inesperado no rompe la transicion |
@@ -50,8 +54,27 @@ Scenario: Primer MoodEntry activa definitivamente al usuario
   And un evento duplicado posterior no cambia el resultado
 ```
 
+## Estados de interfaz segun implementacion
+
+| Estado UI | Significado | Comportamiento |
+|-----------|-------------|----------------|
+| `loading` | skeleton `PatientPageShell loading` | se muestra mientras resuelve bootstrap |
+| `error` (auth) | JWT invalido/expirado | mensaje humanizado + `PatientPageShell error` |
+| `auth` | bootstrap resuelto, necesita consentimiento | `AuthBootstrapInterstitial` con variant |
+| `consent` | necesita consentimiento | `ConsentGatePanel` + carga de version vigente |
+| `bridge` | consentimiento ya otorgado | `NextActionBridgeCard` con `needsFirstEntry` |
+| `locked` | nunca alcanzado en ONB por diseño | diferido a RF-REG-002 |
+
+## Dependencias de validacion final
+
+- Validacion UX de `AuthBootstrapInterstitial` en variantes `default` e `invite_context`.
+- Validacion UX de `ConsentGatePanel` en escenarios `ready`, `conflict`, `error`, `submitting`.
+- Validacion UX de `NextActionBridgeCard` y navegacion al primer registro.
+- Cierre visual de `HANDOFF-VISUAL-QA-ONB-001` pendiente.
+
 ## Criterios de salida
 
 - Cobertura positiva y negativa de los 5 RF del modulo.
 - Evidencia de reanudacion automatica de PendingInvite y de transicion a active tras el primer registro.
 - Para la ola de productivizacion backend-only, al menos debe existir evidencia del smoke de bootstrap autenticado.
+- **Sin marcar validacion UX como completa** — el checklist visual sigue abierto segun `HANDOFF-VISUAL-QA-ONB-001`.

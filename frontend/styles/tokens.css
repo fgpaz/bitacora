@@ -1,0 +1,51 @@
+/* Bitacora Design Tokens — based on 11_identidad_visual.md */
+:root {
+  /* Brand */
+  --brand-primary: #5E766E;
+  --brand-secondary: #C8B7AE;
+  --brand-accent: #B67864;
+
+  /* Surfaces */
+  --surface: #F6F1EA;
+  --surface-muted: #E8DED3;
+
+  /* Foreground */
+  --foreground: #2E2A28;
+  --foreground-muted: #655E59;
+
+  /* Borders */
+  --border-subtle: #D7CCC1;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-none: none;
+  --shadow-soft: 0 1px 3px rgba(46, 42, 40, 0.08);
+
+  /* Focus */
+  --focus-ring: 0 0 0 2px var(--brand-primary);
+
+  /* Typography */
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

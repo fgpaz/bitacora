@@ -28,7 +28,7 @@ public static class ConsentEndpoints
 
                 return Results.Ok(response);
             })
-            .RequireAuthorization()
+            .RequireAuthorization("write")
             .Produces<GetCurrentConsentResponse>(StatusCodes.Status200OK)
             .WithCommonOpenApi("GetCurrentConsent", Tag);
 
@@ -52,7 +52,7 @@ public static class ConsentEndpoints
 
                 return Results.Json(response, statusCode: StatusCodes.Status201Created);
             })
-            .RequireAuthorization()
+            .RequireAuthorization("write")
             .Accepts<GrantConsentRequest>("application/json")
             .Produces<GrantConsentResponse>(StatusCodes.Status201Created)
             .WithCommonOpenApi("GrantConsent", Tag);
@@ -76,7 +76,7 @@ public static class ConsentEndpoints
 
                 return Results.Ok(response);
             })
-            .RequireAuthorization()
+            .RequireAuthorization("write")
             .Accepts<RevokeConsentRequest>("application/json")
             .Produces<RevokeConsentResponse>(StatusCodes.Status200OK)
             .WithCommonOpenApi("RevokeConsent", Tag);

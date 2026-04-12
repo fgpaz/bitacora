@@ -94,7 +94,7 @@ Los contratos de respuesta listados en esta seccion son consumidos por `frontend
 
 ## Patron de errores
 
-Los códigos listados abajo mezclan contrato activo y contrato canónico diferido. Los errores ligados a vínculos, Telegram, export y lecturas profesionales siguen siendo superficie futura hasta que esos módulos existan en runtime.
+Los codigos activos para VIN, VIS, EXP y TG ya estan materializados en runtime. Ver `CT-ERRORS.md` para el catalogo completo por modulo.
 
 Todas las respuestas de error siguen este envelope:
 
@@ -147,12 +147,12 @@ Todas las respuestas de error siguen este envelope:
 
 | Doc | Tema | Estado |
 |-----|------|--------|
-| `09_contratos/CT-AUTH.md` | Flujo completo Supabase Auth, JWT, session revocation, consent como gate | Activo |
+| `09_contratos/CT-AUTH.md` | Flujo completo Supabase Auth, JWT, session revocation, consent como gate, profesionales | Activo |
 | `09_contratos/CT-AUDIT.md` | Audit log, pseudonimizacion, trace_id, fail-closed | Activo |
-| `09_contratos/CT-ERRORS.md` | Catalogo de errores tipados reutilizados con sections por modulo | Activo |
-| `09_contratos/CT-VINCULOS.md` | Contrato de vinculos profesional-paciente, binding codes | **En produccion (Wave 30)** |
-| `09_contratos/CT-VISUALIZACION-Y-EXPORT.md` | Contrato de visualizacion paciente y profesional, export CSV | **Canonico diferido** |
-| `09_contratos/CT-TELEGRAM-RUNTIME.md` | Runtime Telegram: pairing, webhook /start, invariante no-fuga | **Canonico diferido** |
+| `09_contratos/CT-ERRORS.md` | Catalogo de errores tipados con sections activas (VIN, VIS, EXP, TG) | Activo |
+| `09_contratos/CT-VINCULOS.md` | Contrato de vinculos paciente y profesional, binding codes, estado production | Activo |
+| `09_contratos/CT-VISUALIZACION-Y-EXPORT.md` | Contrato de visualizacion paciente y profesional, export CSV owner-only | Activo |
+| `09_contratos/CT-TELEGRAM-RUNTIME.md` | Runtime Telegram: pairing, webhook /start, secreto, invariante no-fuga | Activo |
 
 ## Decision register
 

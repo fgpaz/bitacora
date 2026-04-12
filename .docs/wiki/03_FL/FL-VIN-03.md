@@ -1,7 +1,10 @@
 # FL-VIN-03: Revocacion de vinculo por paciente
 
-## Goal
-El paciente revoca un vinculo con un profesional, cortando inmediatamente el acceso a sus datos.
+## Estado actual
+
+`Implementado — endpoint DELETE /api/v1/vinculos/{id}`.
+
+La revocacion por paciente existe en runtime bajo `/api/v1/vinculos/{id}`. Requiere cuerpo `{"Confirmed": true}` en el request. El estado resultante es `revoked_by_patient`. La invalidacion de caches sigue diferida.
 
 ## Scope
 **In:** Revocacion de CareLink, cascade de cache, audit.
@@ -36,10 +39,9 @@ sequenceDiagram
     P->>WEB: "Revocar vinculo con Dr. X"
     WEB-->>P: Confirmacion: "Dr. X perdera acceso a tus datos"
     P->>WEB: Confirma
-    WEB->>API: DELETE /api/v1/care-links/{link_id}
+    WEB->>API: DELETE /api/v1/vinculos/{link_id} {"Confirmed": true}
     API->>DB: UPDATE CareLink SET status = revoked_by_patient, revoked_at = now()
-    API->>API: Invalidar cache de safe_projection para este profesional
-    API->>DB: INSERT AccessAudit (carelink.revoked, trace_id)
+    API->>DB: INSERT AccessAudit (carelink.revoke, trace_id)
     API-->>WEB: 200 {revoked: true}
     WEB-->>P: "Vinculo revocado. Dr. X ya no puede ver tus datos."
 ```

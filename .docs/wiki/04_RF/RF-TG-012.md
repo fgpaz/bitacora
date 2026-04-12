@@ -2,9 +2,10 @@
 
 ## Execution Sheet
 - Modulo: TG
-- Trigger: Invocado por RF-TG-010 antes de cada envio de recordatorio
+- Trigger: Invocado por `SendReminderCommand` antes de cada envio de recordatorio
 - Actor: Sistema
 - Prioridad PDP: Privacy > Security (skip silencioso protege la privacidad)
+- Estado: **Implementado** dentro de `SendReminderCommand`
 
 ## Precondiciones detalladas
 - patient_id conocido desde ReminderConfig

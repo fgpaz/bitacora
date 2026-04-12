@@ -14,6 +14,19 @@ public sealed class DailyCheckinRepository(AppDbContext dbContext) : IDailyCheck
             cancellationToken);
     }
 
+    public async ValueTask<IReadOnlyList<DailyCheckin>> GetByPatientAndDateRangeAsync(
+        Guid patientId,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.DailyCheckins
+            .AsNoTracking()
+            .Where(x => x.PatientId == patientId && x.CheckinDate >= from && x.CheckinDate <= to)
+            .OrderBy(x => x.CheckinDate)
+            .ToListAsync(cancellationToken);
+    }
+
     public async ValueTask AddAsync(DailyCheckin dailyCheckin, CancellationToken cancellationToken = default)
     {
         await dbContext.DailyCheckins.AddAsync(dailyCheckin, cancellationToken);

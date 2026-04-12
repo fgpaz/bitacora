@@ -5,6 +5,7 @@
 - Endpoints: GET /api/v1/mood-entries, GET /api/v1/daily-checkins (con cursor)
 - Actor: Patient (autenticado via JWT)
 - Prioridad PDP: Correctness > Usability
+- Estado: **Diferido — paginacion con cursor no implementada.**
 
 ## Precondiciones detalladas
 - JWT valido con User.status=active

@@ -283,7 +283,7 @@ Excepción operativa vigente:
 
 ### Convenciones generales
 
-- autenticación vía `Authorization: Bearer <access_token>`;
+- autenticacion via `Authorization: Bearer <access_token>`;
 - resolución de identidad por JWT de Supabase;
 - API versionada en `/api/v1`;
 - `patient_ref` opaco para vistas profesionales;
@@ -301,6 +301,70 @@ Excepción operativa vigente:
 | professional dashboard | lectura comparativa sin tono de monitoreo |
 | telegram pairing | estados de código, expiración y vínculo ya activo |
 | export | acción sensible, explícita y reversible solo donde aplique |
+
+## Rutas paciente implementadas
+
+| Ruta | Componente | Descripcion |
+|-----|------------|-------------|
+| `/onboarding` | `OnboardingFlow` | flujo bootstrap -> consent -> bridge con `PatientPageShell` |
+| `/consent` | `ConsentGatePanel` | lectura y otorgamiento de consentimiento |
+| `/registro/mood-entry` | `MoodEntryForm` | captura de mood score con `MoodScale` |
+| `/registro/daily-checkin` | `DailyCheckinForm` | check-in diario con bloques agrupados |
+
+## Inventario de componentes paciente
+
+| Componente | Props | Estados |
+|-----------|-------|---------|
+| `PatientPageShell` | `loading?`, `error?`, `children` | `loading`, `ready`, `empty`, `error` |
+| `AuthBootstrapInterstitial` | `variant: 'default' \| 'invite_context'` | `default`, `contextual_invite` |
+| `NextActionBridgeCard` | `needsFirstEntry: boolean` | `default` |
+| `ConsentGatePanel` | `consent`, `resumeInvite`, `onAccept`, `onRetry`, `errorCode`, `errorMessage`, `traceId` | `ready`, `submitting`, `conflict`, `error` |
+| `MoodEntryForm` | (sin props, consume auth via contexto) | `idle`, `submitting`, `success`, `error`, `consent`, `session` |
+| `MoodScale` | `value`, `onChange`, `disabled` | `default`, `submitting` |
+| `DailyCheckinForm` | (sin props, consume auth via contexto) | `idle`, `submitting`, `success`, `error`, `consent`, `session` |
+| `InlineFeedback` | `variant: 'confirm' \| 'error' \| 'info'`, `message`, `traceId?` | `confirm`, `error`, `info` |
+
+## Rutas profesionales implementadas
+
+| Ruta | Componente | Descripcion |
+|------|------------|-------------|
+| `/profesional/pacientes` | `PatientList` | Lista de pacientes vinculados al profesional |
+| `/profesional/pacientes/[patientId]` | `PatientDetail` | Detalle con tabs: Resumen, Historial, Alertas, Exportar |
+| `/profesional/invitaciones` | `InviteForm` | Formulario de invitacion por email |
+
+## Inventario de componentes profesionales
+
+| Componente | Props | Estados |
+|-----------|-------|---------|
+| `PatientList` | (consume auth via contexto) | `loading` (skeleton), `ready`, `empty`, `error` |
+| `PatientSummaryCard` | `summary: PatientSummary` | `loading`, `ready` |
+| `PatientDetail` | (consume `patientId` de params) | `loading`, `ready`, `error` |
+| `Timeline` | `patientId: string` | `loading`, `ready`, `empty`, `error` |
+| `AlertsList` | `patientId: string` | `loading`, `ready`, `empty`, `error` |
+| `ExportGate` | `patientId: string` | `checking`, `allowed`, `denied` |
+| `InviteForm` | (sin props) | `idle`, `submitting`, `success`, `error` |
+
+### Restriccion de export para profesionales
+
+`ExportGate` implementa la restriccion owner-only de exportacion a nivel de presentacion:
+- profesionales ven la pestana "Exportar" pero con estado `denied`;
+- el mensaje indica explicitamente que la exportacion es solo para el paciente propietario;
+- la misma restriccion se enforcea en backend via `ProfessionalDataAccessAuthorizer` (403 para cualquier request de export con JWT profesional).
+
+## Maquinas de estado de flujo
+
+**OnboardingFlow** (`auth -> consent -> bridge`):
+- `auth`: resuelve bootstrap; muestra `AuthBootstrapInterstitial` o `PatientPageShell loading/error`
+- `consent`: carga version vigente; renderiza `ConsentGatePanel`
+- `bridge`: consentimiento otorgado; muestra `NextActionBridgeCard`
+
+**MoodEntryForm** (`idle -> submitting -> success/error/consent/session`):
+- `consent`: redireccion a `/consent`
+- `session`: redireccion a `/ingresar`
+
+**DailyCheckinForm** (`idle -> submitting -> success/error/consent/session`):
+- `consent`: redireccion a `/consent`
+- `session`: redireccion a `/ingresar`
 
 ## Manejo de errores y estrategia de fallback
 

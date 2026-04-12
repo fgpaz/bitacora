@@ -16,4 +16,63 @@ public sealed class PendingInvite
     private PendingInvite()
     {
     }
+
+    private PendingInvite(
+        Guid pendingInviteId,
+        Guid professionalId,
+        string inviteeEmailHash,
+        string inviteToken,
+        PendingInviteStatus status,
+        DateTime expiresAt,
+        DateTime? consumedAt,
+        DateTime createdAtUtc)
+    {
+        PendingInviteId = pendingInviteId;
+        ProfessionalId = professionalId;
+        InviteeEmailHash = inviteeEmailHash;
+        InviteToken = inviteToken;
+        Status = status;
+        ExpiresAt = expiresAt;
+        ConsumedAt = consumedAt;
+        CreatedAtUtc = createdAtUtc;
+    }
+
+    public static PendingInvite Create(
+        Guid professionalId,
+        string inviteeEmailHash,
+        string inviteToken,
+        DateTime expiresAt,
+        DateTime createdAtUtc)
+    {
+        if (professionalId == Guid.Empty)
+        {
+            throw new ArgumentException("Professional id is required.", nameof(professionalId));
+        }
+
+        if (string.IsNullOrWhiteSpace(inviteeEmailHash))
+        {
+            throw new ArgumentException("Invitee email hash is required.", nameof(inviteeEmailHash));
+        }
+
+        if (string.IsNullOrWhiteSpace(inviteToken))
+        {
+            throw new ArgumentException("Invite token is required.", nameof(inviteToken));
+        }
+
+        return new PendingInvite(
+            Guid.NewGuid(),
+            professionalId,
+            inviteeEmailHash,
+            inviteToken,
+            PendingInviteStatus.Issued,
+            expiresAt,
+            consumedAt: null,
+            createdAtUtc);
+    }
+
+    public void MarkAsConsumed(DateTime consumedAtUtc)
+    {
+        Status = PendingInviteStatus.Consumed;
+        ConsumedAt = consumedAtUtc;
+    }
 }

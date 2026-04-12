@@ -1,5 +1,11 @@
 # FL-VIN-02: Auto-vinculacion paciente a profesional
 
+## Estado actual
+
+`Diferido — no implementado en Wave 30`.
+
+El flujo de auto-vinculacion mediante `POST /api/v1/vinculos/accept` existe en runtime, pero la generacion y exposicion de `BindingCode` por el profesional queda diferida.
+
 ## Goal
 Un paciente se vincula a un profesional usando un `BindingCode` efimero que el profesional comparte.
 

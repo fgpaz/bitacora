@@ -1,5 +1,16 @@
 # RF-VIN-001: Emitir invitacion de vinculo del profesional
 
+## Estado actual
+
+**Parcialmente implementado — desvios del contrato original documentados abajo.**
+
+El endpoint `POST /api/v1/professional/invites` existe en runtime con desvios respecto al contrato original:
+
+1. **Input**: acepta `emailHash` (SHA256 hex) en lugar de `patient_email` plano.
+2. **Output**: retorna `resourceType` + `resourceId` + `status` + `expiresAt` (no incluye `expires_at` flotante).
+3. **Duplicidad**: si existe `PendingInvite` vigente para la misma dupla profesional+emailHash, retorna `409 PENDING_INVITE_EXISTS` (no `CARELINK_EXISTS`).
+4. **Creacion de CareLink**: solo crea `CareLink` si el paciente ya existe; si no existe, solo crea `PendingInvite` (no hace ambos en la misma transaccion como el original).
+
 ## Execution Sheet
 | Campo | Valor |
 |-------|-------|

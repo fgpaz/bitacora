@@ -1,8 +1,8 @@
 # Wave-Prod 10 — Docs Normalización Canon Implementation Plan
 
-**Goal:** Normalize the functional and technical canon so the remaining MVP work starts from a single truthful documentation baseline.
+**Goal:** Normalize the functional and technical canon so the remaining MVP work starts from a single truthful documentation baseline, and synchronize project policy docs so future exploration starts with `mi-lsp`.
 
-**Architecture:** This phase is documentation-only. It aligns `03/04/05/06/07/08/09` with the repo state already verified in `src/Bitacora.Api`, `src/Bitacora.Domain`, `src/Bitacora.DataAccess.EntityFramework`, and the existing production bootstrap, while preserving future scope as explicit pending work rather than accidental drift.
+**Architecture:** This phase is documentation-only. It aligns `03/04/05/06/07/08/09` with the repo state already verified in `src/Bitacora.Api`, `src/Bitacora.Domain`, `src/Bitacora.DataAccess.EntityFramework`, and the existing production bootstrap, while preserving future scope as explicit pending work rather than accidental drift. It also syncs `AGENTS.md` and `CLAUDE.md` so exploration remains `mi-lsp`-first and workspace aliases are validated before use.
 
 **Tech Stack:** Markdown wiki, .NET 10 backend, PostgreSQL, Supabase Auth, Dokploy, Telegram Bot, `mi-lsp`.
 
@@ -53,7 +53,7 @@ graph TD
         T3["T3: Technical Canon Sync<br/>ps-docs"]
     end
     subgraph Wave2["Wave 2: Closure"]
-        T4["T4: TP + Runbook Crosslinks<br/>ps-docs"]
+        T4["T4: TP + Runbook + Policy Crosslinks<br/>ps-docs"]
     end
     subgraph WaveFinal["Final Wave: Traceability"]
         T5["T5: ps-trazabilidad"]
@@ -71,7 +71,7 @@ graph TD
 | T1 | 0 | ps-docs | `./10-docs-normalizacion-canon/T1-canon-gap-map.md` | A durable gap map captures current repo truth, active precedence, and docs that need normalization |
 | T2 | 1 | ps-docs | `./10-docs-normalizacion-canon/T2-functional-canon-sync.md` | `03_FL`, `04_RF`, and `05_modelo_datos.md` align with current truth and pending scope |
 | T3 | 1 | ps-docs | `./10-docs-normalizacion-canon/T3-technical-canon-sync.md` | `07/08/09` and detailed technical docs align with implemented runtime and pending seams |
-| T4 | 2 | ps-docs | `./10-docs-normalizacion-canon/T4-tp-runbook-crosslinks.md` | Test matrix, TP docs, and runbooks point to the normalized canon and active portfolio |
+| T4 | 2 | ps-docs | `./10-docs-normalizacion-canon/T4-tp-runbook-crosslinks.md` | Test matrix, TP docs, runbooks, and policy docs point to the normalized canon, active portfolio, and `mi-lsp`-first exploration rule |
 | T5 | F | — | inline | `ps-trazabilidad` closure completed |
 | T6 | F | — | inline | `ps-auditar-trazabilidad` verdict recorded |
 

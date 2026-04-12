@@ -58,6 +58,8 @@
 
 ## Cleanup periodico
 
+Las filas de tablas hoy diferidas describen el contrato operativo futuro y no deben leerse como jobs ya activos en el runtime actual.
+
 | Tabla | Accion | Frecuencia |
 |-------|--------|-----------|
 | pending_invites | UPDATE status='expired' WHERE expires_at < now() AND status='issued' | Diario (background job) |

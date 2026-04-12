@@ -21,4 +21,9 @@ public sealed class PendingInviteRepository(AppDbContext dbContext) : IPendingIn
                  x.ExpiresAt >= nowUtc,
             cancellationToken);
     }
+
+    public async Task AddAsync(PendingInvite pendingInvite, CancellationToken cancellationToken = default)
+    {
+        await dbContext.PendingInvites.AddAsync(pendingInvite, cancellationToken);
+    }
 }

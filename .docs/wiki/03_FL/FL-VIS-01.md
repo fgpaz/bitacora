@@ -32,11 +32,11 @@ sequenceDiagram
     participant DB as bitacora_db
 
     P->>WEB: Navega a "Mi timeline"
-    WEB->>API: GET /api/v1/mood-entries?from=2026-03-01&to=2026-04-08
+    WEB->>API: GET /api/v1/visualizacion/timeline?from=2026-03-01&to=2026-04-08
     API->>API: Auth → patient_id (Global Query Filter aplica)
-    API->>DB: SELECT safe_projection FROM mood_entries WHERE date BETWEEN ...
-    API->>DB: SELECT safe_projection FROM daily_checkins WHERE date BETWEEN ...
-    API-->>WEB: {mood_entries: [...], checkins: [...]}
+    API->>DB: SELECT safe_projection FROM mood_entries WHERE patient_id AND created_at BETWEEN ...
+    API->>DB: SELECT safe_projection FROM daily_checkins WHERE patient_id AND checkin_date BETWEEN ...
+    API-->>WEB: {days: [{date, mood_entry, daily_checkin}, ...]}
     WEB->>WEB: Renderizar timeline (Recharts/Nivo)
     WEB-->>P: Grafico: eje X = dias, eje Y = -3..+3, factores como barras
 ```
@@ -56,13 +56,21 @@ sequenceDiagram
 ## Data touchpoints
 | Entidad | Operacion |
 |---------|-----------|
-| MoodEntry.safe_projection | READ |
-| DailyCheckin.safe_projection | READ |
+| MoodEntry.safe_projection | READ (via GetByPatientAndDateRangeAsync) |
+| DailyCheckin.safe_projection | READ (via GetByPatientAndDateRangeAsync) |
+
+## Endpoint implementado
+- `GET /api/v1/visualizacion/timeline?from=&to=` — Combina mood entries y daily checkins en un solo response con estructura por dia.
+
+## Pendientes explícitos
+- `GET /api/v1/mood-entries` dedicado no existe (reemplazado por `/visualizacion/timeline`).
+- `GET /api/v1/daily-checkins` dedicado no existe (datos de checkin incluidos en `/visualizacion/timeline`).
+- Paginacion para rangos > 90 dias no implementada (el handler no enforce este limite).
 
 ## RF candidatos
-- RF-VIS-001: Query de mood_entries por rango de fechas (safe_projection)
-- RF-VIS-002: Query de daily_checkins por rango de fechas
-- RF-VIS-003: Paginacion para periodos largos (> 90 dias)
+- RF-VIS-001: Query de mood_entries por rango de fechas (implementado via timeline)
+- RF-VIS-002: Query de daily_checkins por rango de fechas (implementado via timeline)
+- RF-VIS-003: Paginacion para periodos largos (> 90 dias) — **Diferido**
 
 ## Bottlenecks y mitigaciones
 | Riesgo | Mitigacion |

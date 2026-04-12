@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -9,10 +10,17 @@ using OpenTelemetry.Trace;
 using Correlate.AspNetCore;
 using Correlate.DependencyInjection;
 using Scalar.AspNetCore;
+using System.Threading.RateLimiting;
 using NuestrasCuentitas.Bitacora.Api.Extensions;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Auth;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Consent;
+using NuestrasCuentitas.Bitacora.Api.Endpoints.Export;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Registro;
+using NuestrasCuentitas.Bitacora.Api.Endpoints.Visualizacion;
+using NuestrasCuentitas.Bitacora.Api.Endpoints.Vinculos;
+using NuestrasCuentitas.Bitacora.Api.Endpoints.Telegram;
+using NuestrasCuentitas.Bitacora.Api.Workers;
+using NuestrasCuentitas.Bitacora.Infrastructure.Options;
 using NuestrasCuentitas.Bitacora.Api.Health;
 using NuestrasCuentitas.Bitacora.Api.Middleware;
 using NuestrasCuentitas.Bitacora.Api.Security;
@@ -24,6 +32,7 @@ using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence;
 using NuestrasCuentitas.Bitacora.EventBus;
 using NuestrasCuentitas.Bitacora.Infrastructure.DependencyInjection;
 using System.Text;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,11 +62,13 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddCorrelate(options => options.RequestHeaders = ["X-Correlation-ID"]);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentAuthenticatedPatientResolver>();
+builder.Services.AddScoped<CurrentAuthenticatedProfessionalResolver>();
+builder.Services.AddScoped<ProfessionalDataAccessAuthorizer>();
 builder.Services.AddScoped<ReadinessProbe>();
 builder.Services.Configure<TelemetryOptions>(builder.Configuration.GetSection(TelemetryOptions.SectionName));
+builder.Services.Configure<ReminderConfig>(builder.Configuration.GetSection(ReminderConfig.SectionName));
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    // Baseline JSON policy: reject duplicate properties while preserving compatibility.
     options.SerializerOptions.AllowDuplicateProperties = false;
 });
 
@@ -65,6 +76,84 @@ builder.Services.AddDataAccess(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddSetupEventBus(builder.Configuration);
+builder.Services.AddHostedService<ReminderWorker>();
+
+// ── Rate Limiting ────────────────────────────────────────────────────────────
+// Fail-closed: requests that exceed the limit get a 429 before reaching handlers.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Policy "auth": protects /api/v1/auth/bootstrap and auth-adjacent paths.
+    // 10 requests per IP per minute. Token bucket so bursts up to 10 are allowed.
+    options.AddPolicy("auth", context =>
+        RateLimitPartition.GetTokenBucketLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 10,
+                ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+                TokensPerPeriod = 10,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    // Policy "write": all POST/PATCH/DELETE from authenticated users.
+    // 30 requests per user per minute. Fixed window resets at minute boundary.
+    options.AddPolicy("write", context =>
+    {
+        var userId = context.User.Identity?.IsAuthenticated == true
+            ? context.User.FindFirst("sub")?.Value
+              ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+              ?? "anonymous"
+            : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: userId,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    });
+
+    // Policy "webhook": Telegram webhook only. 20 req/IP/min.
+    options.AddPolicy("webhook", context =>
+        RateLimitPartition.GetTokenBucketLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 20,
+                ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+                TokensPerPeriod = 20,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(
+            """{"error":"RATE_LIMIT_EXCEEDED","message":"Demasiadas solicitudes. Intentá de nuevo en un minuto.","retryAfter":60}""",
+            cancellationToken);
+    };
+});
+
+// ── Request Size Limits ──────────────────────────────────────────────────────
+// Default: 64 KiB body for all endpoints.
+// Telegram webhook: 256 KiB (Update payload can be larger).
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 1024 * 64; // 64 KiB
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 1024 * 64; // 64 KiB default
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -128,6 +217,34 @@ builder.Services.AddOpenApi(options =>
     options.ShouldInclude = _ => true;
 });
 
+// ── CORS ──────────────────────────────────────────────────────────────────────
+// Explicit allowlist — no wildcard. Add your frontend origin(s) to AllowedOrigins.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BitacoraFrontend", policy =>
+    {
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        if (allowedOrigins.Length == 0)
+        {
+            // Fail-closed in production; permissive in development only.
+            if (builder.Environment.IsDevelopment())
+            {
+                policy.SetIsOriginAllowed(_ => true);
+            }
+            // else: empty allowlist means no CORS policy is active — fail-closed.
+        }
+        else
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowCredentials()
+                  .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                  .WithHeaders("Authorization", "Content-Type", "X-Correlation-ID")
+                  .WithExposedHeaders("X-Trace-Id")
+                  .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+        }
+    });
+});
+
 var telemetryOptions = builder.Configuration
                            .GetSection(TelemetryOptions.SectionName)
                            .Get<TelemetryOptions>() ?? new TelemetryOptions();
@@ -176,6 +293,37 @@ var app = builder.Build();
 
 #region Middleware Pipeline
 
+// ── Security Headers + HSTS ───────────────────────────────────────────────────
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        if (!context.Response.HasStarted)
+        {
+            // Security headers (OWASP Top 10 / SOC2 baseline)
+            context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+            context.Response.Headers.Append("X-Frame-Options", "DENY");
+            context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+            context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+            context.Response.Headers.Append("Content-Security-Policy",
+                "default-src 'none'; frame-ancestors 'none'; base-uri 'self'");
+            context.Response.Headers.Append("Permissions-Policy", "accelerometer=(), camera=(), geolocation=(), microphone=()");
+
+            // HSTS (production only, after HTTPS)
+            if (app.Environment.IsProduction())
+            {
+                context.Response.Headers.Append("Strict-Transport-Security",
+                    "max-age=31536000; includeSubDomains; preload");
+            }
+        }
+        return Task.CompletedTask;
+    });
+    await next();
+});
+
+// ── CORS ───────────────────────────────────────────────────────────────────────
+app.UseCors("BitacoraFrontend");
+
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
@@ -195,6 +343,9 @@ app.MapGet("/health/ready", async Task<IResult>(ReadinessProbe readinessProbe, C
     })
     .ExcludeFromDescription();
 
+// ── Rate Limiter ──────────────────────────────────────────────────────────────
+app.UseRateLimiter();
+
 app.UseMiddleware<TraceIdMiddleware>();
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.UseCorrelate();
@@ -213,6 +364,10 @@ if (app.Environment.IsDevelopment() &&
 app.MapAuthEndpoints();
 app.MapConsentEndpoints();
 app.MapRegistroEndpoints();
+app.MapVinculosEndpoints();
+app.MapVisualizacionEndpoints();
+app.MapExportEndpoints();
+app.MapTelegramEndpoints();
 
 #endregion Middleware Pipeline
 

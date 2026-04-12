@@ -1,82 +1,216 @@
-# CT-AUTH: Integracion con Supabase Auth
+# CT-AUTH: Autenticacion y Autorizacion
 
-> Root: `09_contratos_tecnicos.md` seccion autenticacion.
+> Root: `09_contratos_tecnicos.md` — seccion Autenticacion y API Surface.
+> Este contrato freeze la superficie activa y la superficie diferida.
 
-## Provider
+---
 
-| Campo | Valor |
-|-------|-------|
-| Servicio | Supabase Auth (GoTrue) |
-| Instancia | auth.tedi.nuestrascuentitas.com |
-| Compartida con | multi-tedi (misma instancia) |
-| Metodos habilitados | Magic Link, Google OAuth |
-| Password auth | Solo para QA/testing |
+## Superficie activa (runtime actual)
 
-## Flujo de autenticacion
+### POST /api/v1/auth/bootstrap
 
-```text
-1. Frontend (Next.js) inicia auth via @supabase/supabase-js
-2. Supabase Auth emite JWT con sub = supabase_user_id
-3. Frontend envia JWT como Bearer header en cada request
-4. Bitacora.Api valida JWT por clave simetrica (`Supabase:JwtSecret` o sus aliases por env)
-5. Resuelve User.supabase_user_id → User.user_id + role
-6. Inyecta contexto: {user_id, role, patient_id_or_professional_id}
+| Campo | Detalle |
+|-------|----------|
+| Autenticacion | JWT Bearer via Supabase Auth |
+| Parametro de query | `invite_token` opcional (string) |
+| Handler | `AuthEndpoints.cs` + `BootstrapPatientCommand` |
+| Consent gate | No requiere consentimiento previo |
+
+**Request:**
+
+```
+POST /api/v1/auth/bootstrap?invite_token=<opcional>
+Authorization: Bearer <jwt>
 ```
 
-## Validacion JWT
+**Response 200:**
 
-- **Metodo:** Clave simetrica (`Supabase:JwtSecret` o env `Supabase__JwtSecret` / `SUPABASE_JWT_SECRET`), no OIDC discovery.
-- **Razon:** GoTrue no sirve `.well-known/openid-configuration`. La red interna Dokploy causaria fallos DNS para discovery URLs.
-- **Claims usados:** `sub` (supabase_user_id), `email`, `exp`.
-- **Mapeo de claims:** `JwtBearer` corre con `MapInboundClaims=false` para preservar `sub` y `email` tal como los emite Supabase; por resiliencia, el runtime tambien acepta fallback a `ClaimTypes.NameIdentifier`.
-- **Validaciones adicionales implementadas:** si existe `User.sessions_revoked_at` y `jwt.iat` es anterior, el token se rechaza.
-- **Clock skew:** 30 segundos tolerados.
-
-El smoke operativo de T01 genera un JWT HS256 con `sub`, `email`, `iat` y `exp` porque esa es la forma minima que el runtime actual requiere para `POST /api/v1/auth/bootstrap`.
-
-## Variables de entorno
-
-```env
-SUPABASE_URL=https://auth.tedi.nuestrascuentitas.com
-SUPABASE_JWT_SECRET=<secret>
-SUPABASE_ANON_KEY=<anon_key>
+```json
+{
+  "userId": "uuid",
+  "status": "registered|active",
+  "needsConsent": true|false",
+  "resumePendingInvite": true|false"
+}
 ```
 
-El runtime local tambien acepta `Supabase:JwtSecret` desde `appsettings*.json` para destrabar tooling y smoke local sin exponer secretos reales.
-En produccion, el secreto debe entrar por `SUPABASE_JWT_SECRET` y quedar verificado por `GET /health/ready`.
+**Errores tipados:**
 
-## Session revocation
+| Codigo | HTTP | Trigger |
+|--------|------|---------|
+| ONB_001_JWT_INVALID | 401 | JWT sin claims minimos (`sub`, `email`) |
+| ONB_001_ENCRYPT_FAILED | 500 | Fallo al crear usuario local de forma segura |
+| PATIENT_NOT_FOUND | 404 | JWT resolve a user local inexistente |
 
-| Campo en User | Funcion |
-|---------------|---------|
-| sessions_revoked_at | Si JWT.iat < sessions_revoked_at → rechazar token |
+**Invariantes:**
 
-Permite revocacion global de sesiones sin depender de Supabase.
+- JWT se valida por clave simetrica (`SUPABASE_JWT_SECRET` / `Supabase__JwtSecret`).
+- `sub` -> `User.supabase_user_id` -> `User.user_id` + `role`.
+- Si `User.sessions_revoked_at` existe y `jwt.iat` < `sessions_revoked_at` -> rechazo.
+- Clock skew tolerado: 30 segundos.
+- El `invite_token` se procesa en bootstrap; si es valido y pertenece a un `PendingInvite`, se materializa el `CareLink` resultante.
 
-## Roles
+---
+
+## Superficie profesional activa
+
+### POST /api/v1/professional/invites
+
+| Campo | Detalle |
+|-------|---------|
+| Autenticacion | JWT Bearer (professional) |
+| Consent gate | Requiere consentimiento vigente del profesional |
+| Handler | `VinculosEndpoints.cs` + `CreatePendingInviteCommand` |
+| Estado | **Implementado** |
+
+**Request:**
+
+```json
+{
+  "emailHash": "sha256_hex"
+}
+```
+
+**Response 201:**
+
+```json
+{
+  "pendingInviteId": "uuid",
+  "status": "issued",
+  "expiresAt": "timestamp"
+}
+```
+
+**Errores tipados:**
+
+| Codigo | HTTP | Trigger |
+|--------|------|---------|
+| INVALID_BODY | 400 | Cuerpo JSON ausente o invalido |
+| FORBIDDEN | 403 | Actor no es profesional |
+| CARELINK_EXISTS | 409 | Ya existe vinculo activo o invitado con el paciente |
+
+---
+
+### GET /api/v1/professional/patients
+
+| Campo | Detalle |
+|-------|---------|
+| Autenticacion | JWT Bearer (professional) |
+| Consent gate | Requiere consentimiento vigente del profesional |
+| Handler | `VinculosEndpoints.cs` + `GetProfessionalPatientsQuery` |
+| Estado | **Implementado** |
+
+**Response 200:**
+
+```json
+{
+  "patients": [
+    {
+      "patientId": "uuid",
+      "displayName": "string",
+      "careLinkId": "uuid",
+      "status": "Active|Invited",
+      "canViewData": false,
+      "linkedAt": "timestamp|null"
+    }
+  ]
+}
+```
+
+**Nota:** solo retorna pacientes con `CareLink` activos o invitados para ese profesional. No incluye pacientes que solo tengan `PendingInvite` pendiente.
+
+---
+
+## Superficie diferida (no existe en runtime actual)
+
+### POST /api/v1/care-links
+
+| Campo | Detalle |
+|-------|----------|
+| Autenticacion | JWT Bearer (professional) |
+| Consent gate | Requiere consentimiento vigente |
+| Estado | **Diferido** — modulo VIN no existe en runtime |
+
+**Request (futuro):**
+
+```json
+{
+  "patient_email": "string"
+}
+```
+
+**Response 201 (futuro):**
+
+```json
+{
+  "resource_type": "care_link|pending_invite",
+  "resource_id": "uuid",
+  "status": "invited|issued",
+  "expires_at": "timestamp"
+}
+```
+
+**Errores tipados diferidos:**
+
+| Codigo | HTTP | Trigger |
+|--------|------|---------|
+| CARELINK_EXISTS | 409 | Ya existe vinculo activo o invitado |
+| PENDING_INVITE_EXISTS | 409 | Ya existe PendingInvite vigente |
+| FORBIDDEN | 403 | Actor no es professional |
+
+---
+
+## Modelo de Autorizacion
+
+### Roles activos
 
 | Role | Descripcion | Resolucion |
 |------|-------------|-----------|
-| patient | Paciente registrado | User.role = patient |
-| professional | Profesional (psicologo/psiquiatra) | User.role = professional |
+| patient | Paciente registrado | `User.role = patient` |
+| professional | Profesional de salud | `User.role = professional` |
 
-> No hay role `admin` ni `operator` en MVP. Operaciones administrativas son directas en DB.
+### Resolucion de contexto
 
-## Estado de alcance
+```
+JWT.sub (supabase_user_id)
+  -> User.supabase_user_id
+  -> User.user_id + role
+  -> patient_id | professional_id
+```
 
-- Implementado hoy: JWT de paciente, bootstrap local de `User`, revocacion por `sessions_revoked_at`.
-- Diferido: autenticacion Telegram, flujos profesionales y cualquier rol administrativo.
+### Middleware activos
 
-## Telegram auth
+| Middleware | Gate | Ubicacion |
+|-----------|------|-----------|
+| `ConsentRequiredMiddleware` | `POST /mood-entries`, `POST /daily-checkins` sin consentimiento -> 403 | `src/.../Middleware/` |
+| `CurrentAuthenticatedPatientResolver` | Resuelve paciente autenticado desde JWT | `src/.../Security/` |
+| `ApiExceptionMiddleware` | Maneja `BitacoraException` y errores inesperados | `src/.../Middleware/` |
 
-El bot de Telegram no usa JWT. La autenticacion es por TelegramSession:
-- chat_id → TelegramSession → patient_id
-- No hay header Bearer en webhooks de Telegram
-- La autenticacion del webhook se valida por Telegram signature (secret token)
+---
 
-## Sync gates
+## Consentimiento como gate de autorizacion
 
-Cambios en auth fuerzan revision de:
-- RF-ONB-001, RF-ONB-002 (bootstrap de User desde JWT)
-- 07_baseline_tecnica.md si cambia provider o metodo de validacion
-- Frontend si cambian claims o metodos de auth
+- `POST /api/v1/auth/bootstrap` **no** requiere consentimiento; crea o reactiva el usuario.
+- `GET /api/v1/consent/current` — cualquier JWT valido puede leer el texto.
+- `POST /api/v1/consent` — cualquier JWT valido puede otorgar.
+- `POST /api/v1/mood-entries`, `POST /api/v1/daily-checkins` — requieren `ConsentGrant.status=granted`.
+- `POST /api/v1/telegram/pairing` — requiere `ConsentGrant.status=granted`.
+- Los endpoints de vinculo, visualizacion profesional y export son **future contracts** que heredan este gate.
+
+---
+
+## Rutas paciente implementadas (frontend)
+
+| Ruta | Componente | Descripcion |
+|-----|------------|-------------|
+| `/onboarding` | `OnboardingFlow` | flujo bootstrap -> consent -> bridge |
+| `/consent` | `ConsentGatePanel` | lectura y otorgamiento de consentimiento |
+
+## Sincronizacion
+
+Cambios en este contrato fuerzan revision de:
+- `09_contratos_tecnicos.md` (seccion Autenticacion y API Surface)
+- `04_RF/RF-ONB-001`, `RF-ONB-002`
+- `07_baseline_tecnica.md` si cambia provider o metodo de validacion
+- Frontend si cambian claims, metodos de auth o flujo de bootstrap
+- `07_tech/TECH-FRONTEND-SYSTEM-DESIGN.md` (rutas paciente y componentes)

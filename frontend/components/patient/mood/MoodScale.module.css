@@ -1,0 +1,44 @@
+.scale {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) 0;
+}
+
+.option {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-subtle);
+  background-color: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+}
+
+.option.selected {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.value {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.option.selected .value {
+  color: var(--surface);
+}

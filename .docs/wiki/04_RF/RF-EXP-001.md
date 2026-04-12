@@ -2,15 +2,15 @@
 
 ## Execution Sheet
 - Modulo: EXP
-- Endpoint: GET /api/v1/export/csv?from=&to=
+- Endpoint: GET /api/v1/export/patient-summary?from=&to= y GET /api/v1/export/patient-summary/csv?from=&to=
 - Actor: Patient (autenticado via JWT)
 - Prioridad PDP: Privacy > Correctness > Usability
+- Estado: **Implementado** — ambos endpoints operativos. JSON y CSV. Operan exclusivamente sobre `safe_projection` (RF-EXP-002 diferido).
 
 ## Precondiciones detalladas
 - JWT valido con User.status=active y ConsentGrant.status=granted
 - Global Query Filter activo: solo datos del paciente autenticado
-- Datos cifrados deben descifrarse en memoria antes de escribirse al CSV (RF-EXP-002)
-- Response usa streaming para no buffear dataset en memoria (RF-EXP-003)
+- Operacion sobre `safe_projection` exclusivamente (RF-EXP-002 diferido; no hay descifrado de `encrypted_payload`)
 
 ## Inputs
 | Campo | Tipo | Requerido | Descripcion |
@@ -29,15 +29,41 @@
 6. Finalizar stream
 
 ## Outputs
-- `Content-Type: text/csv`
-- `Content-Disposition: attachment; filename="bitacora-export.csv"`
-- Cuerpo: CSV con headers estandarizados, una fila por dia
+```json
+{
+  "patient_id": "uuid",
+  "from": "2026-03-01",
+  "to": "2026-04-01",
+  "generated_at": "2026-04-11T12:00:00Z",
+  "summary": {
+    "total_days": 32,
+    "mood_entries_count": 28,
+    "checkin_entries_count": 25,
+    "avg_mood_score": 1.5,
+    "avg_sleep_hours": 6.8,
+    "anxiety_days": 12,
+    "irritability_days": 8,
+    "medication_taken_days": 20
+  },
+  "entries": [
+    {
+      "date": "2026-04-01",
+      "mood": { "score": 2, "created_at": "2026-04-01T10:00:00Z" },
+      "checkin": {
+        "sleep_hours": 7.5,
+        "physical_activity": true,
+        "social_activity": false,
+        "anxiety": true,
+        "irritability": false,
+        "medication_taken": true,
+        "medication_time": null
+      }
+    }
+  ]
+}
+```
 
-Ejemplo:
-```
-date,mood_score,sleep_hours,physical_activity,social_activity,anxiety,irritability,medication_taken,medication_time
-2026-04-01,2,7.5,true,false,1,0,true,08:00
-```
+**Nota:** Este endpoint retorna JSON estructurado, no streaming CSV. `medication_time` es siempre `null` porque no se persiste en la entidad `DailyCheckin`.
 
 ## Errores tipados
 | Codigo | HTTP | Descripcion |

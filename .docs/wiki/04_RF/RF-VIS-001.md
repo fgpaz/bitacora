@@ -2,9 +2,10 @@
 
 ## Execution Sheet
 - Modulo: VIS
-- Endpoint: GET /api/v1/mood-entries?from=&to=
+- Endpoint: GET /api/v1/visualizacion/timeline?from=&to=
 - Actor: Patient (autenticado via JWT)
 - Prioridad PDP: Privacy > Correctness > Usability
+- Estado: **Implementado** — endpoint combinado que retorna mood entries y daily checkins en una sola estructura `days`.
 
 ## Precondiciones detalladas
 - JWT valido con supabase_user_id resolvible a User.status=active
@@ -29,10 +30,26 @@
 ## Outputs
 ```json
 {
-  "data": [
-    { "mood_score": 2, "channel": "telegram", "created_at": "2026-04-01T10:00:00Z" }
-  ],
-  "count": 1
+  "days": [
+    {
+      "date": "2026-04-01",
+      "mood_entry": {
+        "mood_entry_id": "uuid",
+        "score": 2,
+        "created_at": "2026-04-01T10:00:00Z"
+      },
+      "daily_checkin": {
+        "daily_checkin_id": "uuid",
+        "date": "2026-04-01",
+        "sleep_hours": 7.5,
+        "physical_activity": true,
+        "social_activity": false,
+        "anxiety": true,
+        "irritability": false,
+        "medication_taken": true
+      }
+    }
+  ]
 }
 ```
 

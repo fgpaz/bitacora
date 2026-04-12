@@ -30,6 +30,22 @@ public sealed class MoodEntryRepository(AppDbContext dbContext) : IMoodEntryRepo
         return null;
     }
 
+    public async ValueTask<IReadOnlyList<MoodEntry>> GetByPatientAndDateRangeAsync(
+        Guid patientId,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken cancellationToken = default)
+    {
+        var fromDateTime = from.ToDateTime(TimeOnly.MinValue);
+        var toDateTime = to.ToDateTime(TimeOnly.MaxValue);
+
+        return await dbContext.MoodEntries
+            .AsNoTracking()
+            .Where(x => x.PatientId == patientId && x.CreatedAtUtc >= fromDateTime && x.CreatedAtUtc <= toDateTime)
+            .OrderBy(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     public async ValueTask AddAsync(MoodEntry moodEntry, CancellationToken cancellationToken = default)
     {
         await dbContext.MoodEntries.AddAsync(moodEntry, cancellationToken);

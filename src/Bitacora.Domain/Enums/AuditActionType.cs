@@ -8,5 +8,6 @@ public enum AuditActionType
     Delete = 4,
     Grant = 5,
     Revoke = 6,
-    Export = 7
+    Export = 7,
+    TelegramAudit = 8
 }

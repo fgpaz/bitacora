@@ -6,7 +6,16 @@ This runbook bootstraps the truthful Bitacora production surface for T01:
 
 - dedicated PostgreSQL
 - `Bitacora.Api`
-- backend-only smoke gate
+- backend smoke gate
+
+This runbook is the closed backend baseline reused by `wave-prod`.
+After T04 hardening, the smoke gate (`infra/smoke/backend-smoke.ps1`) covers these additional surfaces:
+- Vinculos (patient + professional): `GET/PATCH vinculos`, `POST vinculos/accept`, `DELETE vinculos/{id}`
+- Visualizacion (patient + professional): `timeline`, `summary`, `alerts`
+- Export: `patient-summary` (JSON + CSV)
+- Telegram: `pairing`, `session`, `webhook`
+
+The frontend (Next.js), Telegram bot hosting, and final UX validation are out of scope for this runbook.
 
 ## Preconditions
 
@@ -16,23 +25,36 @@ This runbook bootstraps the truthful Bitacora production surface for T01:
 4. DNS for `api.bitacora.nuestrascuentitas.com` points to `54.37.157.93`.
 5. If the root host will be parked on the backend, DNS for `bitacora.nuestrascuentitas.com` also points to `54.37.157.93`.
 
-## Bootstrap order
+## Rollout order (fail-closed gates)
+
+See `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` for the canonical gate catalog.
+The sequence below is the authoritative baseline for T01.
+
+### Fase 1 — Infra y DB
 
 1. Source approved secrets into local `infra/.env`.
 2. Create or discover `BITACORA_PROJECT_ID`.
 3. Create and deploy `bitacora-db`.
 4. Persist returned DB host metadata into local `infra/.env`.
 5. Build `ConnectionStrings__BitacoraDb`.
-6. Create and configure `bitacora-api`.
-7. Attach `api.bitacora.nuestrascuentitas.com`.
-8. Attach `bitacora.nuestrascuentitas.com` as a temporary parking host for the backend root route.
-9. Run explicit EF migrations.
-10. Deploy `bitacora-api`.
-11. Wait for `GET /health/ready` to return `200`.
-12. Run `infra/smoke/backend-smoke.ps1` against the public host.
-13. Verify `https://bitacora.nuestrascuentitas.com/` returns the backend redirect to `/scalar/v1`.
-14. Create or verify the daily backup job.
-15. Confirm observability defaults and incident hooks from `infra/observability/otlp-contract.md`.
+6. Run manual migrations via `infra/runbooks/manual-migrations.md`.
+7. Verify `GET /health/ready` returns 200 before proceeding.
+
+### Fase 2 — API
+
+8. Create and configure `bitacora-api`.
+9. Attach `api.bitacora.nuestrascuentitas.com`.
+10. Attach `bitacora.nuestrascuentitas.com` as a temporary parking host for the backend root route.
+11. Deploy `bitacora-api`.
+12. Wait for `GET /health/ready` to return `200`.
+13. Run `infra/smoke/backend-smoke.ps1` against the public host.
+14. Verify `https://bitacora.nuestrascuentitas.com/` returns the backend redirect to `/scalar/v1`.
+
+### Fase 3 — Post-deploy
+
+15. Create or verify the daily backup job per `infra/runbooks/backup-and-restore.md`.
+16. Confirm observability defaults and incident hooks from `infra/observability/otlp-contract.md`.
+17. **Validacion de UI es actividad terminal.** No se marca T01 como completo hasta tener evidencia de prototype validation.
 
 ## Control-plane bridge
 

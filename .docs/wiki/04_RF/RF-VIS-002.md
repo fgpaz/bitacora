@@ -5,6 +5,7 @@
 - Endpoint: GET /api/v1/daily-checkins?from=&to=
 - Actor: Patient (autenticado via JWT)
 - Prioridad PDP: Privacy > Correctness > Usability
+- Estado: **Diferido — endpoint dedicado no implementado.** Los datos de daily checkin se incluyen en `GET /api/v1/visualizacion/timeline` (RF-VIS-001).
 
 ## Precondiciones detalladas
 - JWT valido con supabase_user_id resolvible a User.status=active

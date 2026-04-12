@@ -172,6 +172,13 @@ No alcanza por sí sola:
 
 En Bitácora, la validación UX es obligatoria para `toda pantalla nueva`.
 
+Excepción operativa vigente para `wave-prod`:
+
+- el proyecto aprobó un waiver explícito de entrada a UI antes de contar con evidencia real;
+- ese waiver permite abrir `UI-RFC + HANDOFF-*` en modo pre-código cuando el slice ya tiene canon suficiente;
+- esa excepción no elimina la obligación de validar;
+- la validación UX real sigue siendo obligatoria y queda diferida a `Phase 60`, cuando exista runtime funcional y evidencia observable.
+
 También es obligatoria cuando un cambio modifica de forma sustantiva:
 
 - consentimiento;

@@ -1,7 +1,10 @@
 # FL-VIN-04: Gestion de acceso del profesional por paciente
 
-## Goal
-El paciente controla si un profesional vinculado puede ver o dejar de ver sus datos clinicos, activando o desactivando `can_view_data` sobre un `CareLink` activo.
+## Estado actual
+
+`Implementado — endpoint PATCH /api/v1/vinculos/{id}/view-data`.
+
+El control de `can_view_data` existe en runtime bajo `/api/v1/vinculos/{id}/view-data`. Requiere cuerpo `{"CanViewData": true|false}`. Solo el paciente owner puede invocar este endpoint. Solo opera sobre `CareLink` en estado `active`; de otro modo lanza 422.
 
 ## Scope
 **In:** Verificacion de ownership, cambio de `can_view_data`, audit del cambio.
@@ -34,10 +37,10 @@ sequenceDiagram
     participant DB as bitacora_db
 
     P->>WEB: "Permitir acceso a Dr. X"
-    WEB->>API: PATCH /api/v1/care-links/{id} {can_view_data: true}
-    API->>API: Verificar ownership del CareLink
+    WEB->>API: PATCH /api/v1/vinculos/{id}/view-data {"CanViewData": true}
+    API->>API: Verificar ownership del CareLink (patient owner)
     API->>DB: UPDATE CareLink SET can_view_data = true
-    API->>DB: INSERT AccessAudit (carelink.view_enabled, trace_id)
+    API->>DB: INSERT AccessAudit (carelink.update, trace_id)
     API-->>WEB: 200 {care_link_id, can_view_data: true}
     WEB-->>P: "Dr. X ya puede ver tus datos"
 ```

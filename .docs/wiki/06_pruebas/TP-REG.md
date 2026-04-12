@@ -4,11 +4,16 @@
 
 - RF cubiertos: RF-REG-001..005, RF-REG-010..015, RF-REG-020..025
 - Flujos origen: FL-REG-01, FL-REG-02, FL-REG-03
+- Rutas implementadas: `/registro/mood-entry`, `/registro/daily-checkin` (patient shell)
 
 ## Estado de ejecucion actual
 
-- `Wave 1` implementa y deja listos para prueba efectiva los flujos web: RF-REG-001..005 y RF-REG-020..025.
-- RF-REG-010..015 siguen como plan de prueba canonico para la futura capa Telegram y todavia no aplican sobre el runtime actual.
+- `Wave 1` implementa los flujos web: `MoodEntryForm` (REG-001) y `DailyCheckinForm` (REG-002) con maquina de estados en cliente.
+- `MoodEntryForm` estados: `idle | submitting | success | error | consent | session`.
+- `DailyCheckinForm` estados: `idle | submitting | success | error | consent | session`.
+- `PatientPageShell` usado como shell unico para todas las pantallas paciente.
+- `InlineFeedback` usado para errores con `trace_id` visible.
+- RF-REG-010..015 siguen como plan de prueba canonico para la futura capa Telegram.
 - T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/mood-entries` y `POST /api/v1/daily-checkins` sobre la superficie real.
 
 ## Cobertura RF
@@ -68,9 +73,29 @@ Scenario: DailyCheckin falla cerrado si la auditoria no persiste
   And no se confirma la respuesta exitosa al cliente
 ```
 
+## Estados de interfaz segun implementacion
+
+| Estado UI | Significado | Comportamiento |
+|-----------|-------------|----------------|
+| `idle` | formulario listo para interaccion | campos habilitados, CTA visible |
+| `submitting` | peticion en vuelo | CTA deshabilitada, aria-busy=true |
+| `success` | registro guardado | feedback factual + enlaces de continuidad |
+| `error` | fallo recuperable | mensaje humanizado + `InlineFeedback` con `trace_id` |
+| `consent` | falta consentimiento | redireccion a `/consent` via `PatientPageShell` |
+| `session` | sesion expirada | redireccion a `/ingresar` via `PatientPageShell` |
+
+## Dependencias de validacion final
+
+- Validacion UX de `MoodScale` ( gestos, accesibilidad, estados de foco ).
+- Validacion UX de `DailyCheckinForm` ( agrupacion de bloques, condicional medicacion ).
+- Validacion UX de flujos de error humanizado ( no mostrar codigos de error raw ).
+- Validacion UX de continuidad post-registro ( enlaces a siguiente tarea ).
+- **Sin marcar validacion UX como completa.**
+
 ## Criterios de salida
 
 - Cobertura positiva y negativa de los 17 RF del modulo.
 - Evidencia de fail-closed en cifrado y auditoria.
 - Evidencia de guidance correcto en Telegram para sesiones no vinculadas y consentimiento ausente.
 - Para la productivizacion backend-only, el smoke minimo debe demostrar rechazo pre-consent y exito post-consent para MoodEntry y DailyCheckin.
+- **Sin marcar validacion UX como completa** — los slices de registro esperan validacion.

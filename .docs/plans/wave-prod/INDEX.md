@@ -48,8 +48,17 @@ graph TD
 ```
 
 ## Current Repo Truth Captured By This Portfolio
-- The live repo has a backend-only runtime under `src/Bitacora.Api` with `MapAuthEndpoints`, `MapConsentEndpoints`, and `MapRegistroEndpoints`.
-- `CareLink` and `TelegramSession` are not implemented in `src/` today.
-- `frontend/` does not exist yet.
-- `ONB-001` is open at the documentation level; `REG-001` and `REG-002` still need pre-code closure before implementation.
-- The final validation phase is the first place where `UX-VALIDATION` should move from prepared status to evidence-backed status.
+- The live repo has a backend runtime under `src/Bitacora.Api` with **7 endpoint modules** registered in `Program.cs:364-370`: `MapAuthEndpoints`, `MapConsentEndpoints`, `MapRegistroEndpoints`, `MapVinculosEndpoints`, `MapVisualizacionEndpoints`, `MapExportEndpoints`, `MapTelegramEndpoints`.
+- `CareLink`, `BindingCode`, `TelegramSession`, `TelegramPairingCode`, and `ReminderConfig` are **fully implemented** in `src/` — entities, repositories, DbSets, and table mappings exist (`AppDbContext.cs:30-34,143-219`).
+- Professional endpoints exist in runtime: `POST /api/v1/professional/invites` (`VinculosEndpoints.cs:213`), `GET /api/v1/professional/patients` (`VinculosEndpoints.cs:260`), and `/api/v1/professional/patients/{patientId}/summary|timeline|alerts` (`VisualizacionEndpoints.cs:81-184`).
+- `frontend/` **exists** with `package.json`, `middleware.ts`, `lib/api/professional.ts`, and a built `.next/` directory. The canonical docs (`07_baseline_tecnica.md`) are stale on this point.
+- All 13 slices are open at `UI-RFC + HANDOFF` level per `23_uxui/UI-RFC/UI-RFC-INDEX.md:47-61`; `ONB-001` is not the only open slice.
+- The final validation phase (`Phase 60`) is the first place where `UX-VALIDATION` should move from prepared status to evidence-backed status per `21_matriz_validacion_ux.md`.
+
+## Decision Register
+
+| Fecha | Decision | Doc |
+|-------|----------|-----|
+| 2026-04-10 | Wave-prod canon gap map | `.docs/raw/decisiones/2026-04-10-wave-prod-canon-gap-map.md` |
+| 2026-04-10 | Wave-prod UX/UI gap map | `.docs/raw/decisiones/2026-04-10-wave-prod-uxui-gap-map.md` |
+| 2026-04-10 | **Hardening exceptions register + go/no-go** | `.docs/raw/decisiones/2026-04-10-wave-prod-hardening-exceptions-register.md` |

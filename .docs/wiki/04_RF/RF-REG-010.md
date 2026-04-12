@@ -1,5 +1,11 @@
 # RF-REG-010: Recibir y validar webhook de Telegram
 
+## Estado actual
+
+`Diferido`.
+
+Este RF describe la conducta objetivo del canal Telegram. El runtime actual no registra `POST /api/v1/telegram/webhook` y no materializa `TelegramSession`.
+
 ## Execution Sheet
 | Campo | Valor |
 |-------|-------|

@@ -8,6 +8,7 @@
 | Endpoint | POST /api/v1/telegram/pairing |
 | Actor | Patient (API) |
 | Prioridad | Security |
+| Estado | **Implementado** via `GeneratePairingCodeCommand` + `POST /api/v1/telegram/pairing` |
 
 ## Precondiciones detalladas
 - JWT valido con `User.status=active` y `ConsentGrant.status=granted`.

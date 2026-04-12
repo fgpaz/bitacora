@@ -5,6 +5,11 @@
 - RF cubiertos: RF-SEC-001..003
 - Flujo origen: FL-SEC-01
 
+## Estado de ejecucion actual
+
+- `Diferido` en el runtime actual.
+- Este TP sigue siendo canon válido para la futura lectura profesional y su fail-closed asociado, pero hoy no existe módulo `CareLink` ni superficie profesional que lo ejecute.
+
 ## Cobertura RF
 
 | TC ID | RF | Tipo | Escenario |

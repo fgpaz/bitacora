@@ -5,6 +5,8 @@
 - Mecanismo: IHostedService (BackgroundService) en .NET
 - Actor: Sistema (sin actor externo)
 - Prioridad PDP: Correctness > Usability
+- Estado: **Implementado** via `ReminderWorker` + `SendReminderCommand`
+- **PENDIENTE:** `SendTelegramMessageAsync` es un stub que solo loguea; no llama a la API de Telegram real
 
 ## Precondiciones detalladas
 - ReminderConfig existe con `is_active=true` y `next_fire_at` en el pasado o presente

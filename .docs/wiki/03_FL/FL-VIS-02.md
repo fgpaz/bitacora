@@ -6,6 +6,7 @@ El profesional visualiza un dashboard resumen de todos sus pacientes vinculados,
 ## Scope
 **In:** Listar pacientes vinculados, resumen de humor reciente, alertas basicas.
 **Out:** Detalle de un paciente (→ FL-VIS-01 con contexto profesional), export (→ FL-EXP-01).
+**Estado: IMPLEMENTADO (parcial).** Los endpoints de summary y timeline por paciente estan implementados. El endpoint de alertas (`/professional/alerts`) sigue diferido.
 
 ## Actores y ownership
 | Actor | Rol en el flujo |
@@ -34,16 +35,13 @@ sequenceDiagram
     participant DB as bitacora_db
 
     PRO->>WEB: Navega a "Mis pacientes"
-    WEB->>API: GET /api/v1/professional/dashboard?page=1
+    WEB->>API: GET /api/v1/professional/patients/{patientId}/summary?from=&to=
     API->>API: Auth → professional_id
-    API->>DB: SELECT CareLinks WHERE professional_id AND status=active AND can_view_data=true
-    API-->>WEB: {patients: [{pseudonym_id, patient_ref, care_link_id}, ...]}
-    loop Por cada paciente visible
-        WEB->>API: GET /api/v1/professional/patients/{patient_ref}/summary
-        WEB->>API: GET /api/v1/professional/patients/{patient_ref}/alerts
-        API->>DB: INSERT AccessAudit por cada request con datos expuestos
-    end
-    WEB-->>P: Dashboard con lista de pacientes + resumen + alertas
+    API->>API: ProfessionalDataAccessAuthorizer.AuthorizeAsync(professional_id, patientId)
+    API->>DB: SELECT CareLink WHERE professional_id AND patient_id AND status=active AND can_view_data=true
+    API->>DB: SELECT MoodEntry + DailyCheckin safe_projections
+    API-->>WEB: {patient_id, summary, ...}
+    WEB-->>PRO: Dashboard con resumen del paciente
 ```
 
 ## Paths alternativos / errores

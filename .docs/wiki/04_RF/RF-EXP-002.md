@@ -5,6 +5,7 @@
 - Trigger: Interno, invocado por RF-EXP-001 y RF-EXP-003 durante exportacion
 - Actor: Sistema
 - Prioridad PDP: Security > Correctness (fail-closed obligatorio)
+- Estado: **Diferido — no invocado en la implementacion actual.** El endpoint `GET /api/v1/export/patient-summary` opera exclusivamente sobre `safe_projection` y no descifra `encrypted_payload`.
 
 ## Precondiciones detalladas
 - Cada MoodEntry y DailyCheckin tiene un campo `key_version` que identifica la clave de cifrado usada

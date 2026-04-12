@@ -5,5 +5,6 @@ namespace NuestrasCuentitas.Bitacora.DataAccess.Interface.Repositories;
 public interface IMoodEntryRepository
 {
     ValueTask<MoodEntry?> FindDuplicateAsync(Guid patientId, int score, DateTime sinceUtc, CancellationToken cancellationToken = default);
+    ValueTask<IReadOnlyList<MoodEntry>> GetByPatientAndDateRangeAsync(Guid patientId, DateOnly from, DateOnly to, CancellationToken cancellationToken = default);
     ValueTask AddAsync(MoodEntry moodEntry, CancellationToken cancellationToken = default);
 }

@@ -8,6 +8,7 @@
 | Trigger | Webhook de Telegram recibe mensaje `/start BIT-XXXXX` |
 | Actor | Sistema (webhook handler) |
 | Prioridad | Security |
+| Estado | **Implementado** via `POST /api/v1/telegram/webhook` + `ConfirmPairingCommand` |
 
 ## Precondiciones detalladas
 - Webhook autenticado con Telegram secret token.

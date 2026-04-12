@@ -1,5 +1,11 @@
 # FL-REG-02: Registro de humor via Telegram
 
+## Estado actual
+
+`Diferido`.
+
+Este flujo sigue siendo canon objetivo del MVP, pero no existe runtime Telegram materializado hoy en `src/` ni endpoint `POST /api/v1/telegram/webhook` registrado en `Bitacora.Api`.
+
 ## Goal
 El paciente registra su estado animico desde el bot de Telegram con un solo tap en keyboard inline.
 

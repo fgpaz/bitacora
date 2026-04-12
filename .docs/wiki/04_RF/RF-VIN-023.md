@@ -1,5 +1,9 @@
 # RF-VIN-023: Gestionar can_view_data por paciente
 
+## Estado actual
+
+`Implementado — PATCH /api/v1/vinculos/{id}/view-data`.
+
 ## Execution Sheet
 | Campo | Valor |
 |-------|-------|
@@ -17,16 +21,34 @@
 ## Inputs
 | Campo | Tipo | Origen | Validacion |
 |-------|------|--------|-----------|
-| care_link_id | uuid | Path param | Existente, `status=active` |
-| can_view_data | bool | Request body | Valor objetivo requerido |
+| care_link_id | uuid | Path param `{id}` | Existente |
+| canViewData | bool | Request body | Valor objetivo requerido |
 | patient_id | uuid | JWT | Owner del `CareLink` |
 
 ## Proceso (Happy Path)
 1. Verificar ownership mediante RF-VIN-022.
 2. Verificar `status='active'`.
 3. UPDATE `CareLink SET can_view_data = <valor solicitado>`.
-4. INSERT `AccessAudit` con `action_type='grant'` si se habilita o `action_type='revoke'` si se deshabilita; `resource_type='care_link'`.
-5. Retornar `200` con el estado actualizado.
+4. INSERT `AccessAudit` con `action_type='update'`, `resource_type='care_link'`.
+5. Retornar `200` con `care_link_id` y `can_view_data` actualizado.
+
+## Outputs
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| careLinkId | uuid | ID del vinculo |
+| canViewData | bool | Valor actualizado |
+
+## Errores tipados
+| Codigo | HTTP | Trigger | Respuesta |
+|--------|------|---------|----------|
+| FORBIDDEN | 403 | Actor no es owner del vinculo | {error: "FORBIDDEN"} |
+| NOT_FOUND | 404 | CareLink inexistente | {error: "NOT_FOUND"} |
+| UNPROCESSABLE_ENTITY | 422 | CareLink no esta en `active` | {error: "UNPROCESSABLE_ENTITY"} |
+
+## Delta respecto al contrato original
+- Ruta: `PATCH /api/v1/vinculos/{id}/view-data` (vs contrato `PATCH /api/v1/care-links/{id}`).
+- Body requiere `{"CanViewData": bool}` (no era parte del contrato original).
+- Audit action type es `update` (no `grant`/`revoke` como preveia el contrato original).
 
 ## Outputs
 | Campo | Tipo | Descripcion |

@@ -1,4 +1,8 @@
-# RF-VIN-003: Aceptar invitacion y activar CareLink
+# RF-VIN-003: Aceptar vinculo mediante BindingCode
+
+## Estado actual
+
+`Implementado — POST /api/v1/vinculos/accept`.
 
 ## Execution Sheet
 | Campo | Valor |
@@ -6,27 +10,49 @@
 | ID | RF-VIN-003 |
 | Modulo | VIN |
 | Actor | Patient (API) |
-| Flujo fuente | FL-VIN-01 |
+| Flujo fuente | FL-VIN-02 |
 | Prioridad | Privacy |
 
 ## Precondiciones detalladas
 - Patient autenticado con JWT valido.
-- `CareLink` con `care_link_id` existe y tiene `status='invited'`.
-- El `patient_id` del JWT coincide con el `patient_id` del `CareLink` (RF-VIN-022).
+- Patient tiene `ConsentGrant.status='granted'`.
+- Existe un `BindingCode` valido segun RF-VIN-011.
 
 ## Inputs
 | Campo | Tipo | Origen | Validacion |
 |-------|------|--------|-----------|
-| care_link_id | uuid | Path param | Existente, `status=invited` |
-| patient_id | uuid | JWT | Debe ser owner del `CareLink` |
+| bindingCode | string | Request body | Formato `BIT-XXXXX`, existe y no expirado |
+| patient_id | uuid | JWT | Existente con consentimiento activo |
 
 ## Proceso (Happy Path)
-1. Verificar ownership del `CareLink` mediante RF-VIN-022.
-2. Verificar `status='invited'`; rechazar si es otro estado.
-3. UPDATE `CareLink SET status='active', accepted_at=NOW()`.
-4. Mantener `can_view_data=false` en esta etapa; la apertura de visibilidad se gestiona en RF-VIN-023.
-5. INSERT `AccessAudit` con `action_type='grant'`, `resource_type='care_link'`, `resource_id=care_link_id`.
-6. Retornar `200` con `status='active'` y `can_view_data=false`.
+1. Validar `BindingCode` y resolver `professional_id` mediante RF-VIN-011.
+2. Verificar que no existe `CareLink` activo o invitado para el par `professional_id + patient_id`.
+3. INSERT `CareLink {professional_id, patient_id, status='active', can_view_data=false, invited_at=NOW(), accepted_at=NOW()}`.
+4. UPDATE `BindingCode SET used=true WHERE code=?`.
+5. INSERT `AccessAudit` con `action_type='create'`, `resource_type='care_link'`, `resource_id=care_link_id`.
+6. Retornar `201` con `care_link_id`, `status='active'` y `can_view_data=false`.
+
+## Outputs
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| careLinkId | uuid | ID del vinculo creado |
+| status | string | `active` |
+| canViewData | bool | `false` por invariante T3-11 |
+
+## Errores tipados
+| Codigo | HTTP | Trigger | Respuesta |
+|--------|------|---------|----------|
+| BINDING_CODE_NOT_FOUND | 404 | Codigo invalido | {error: "BINDING_CODE_NOT_FOUND"} |
+| BINDING_CODE_EXPIRED | 410 | Codigo expirado | {error: "BINDING_CODE_EXPIRED"} |
+| BINDING_CODE_ALREADY_USED | 409 | Codigo ya usado | {error: "BINDING_CODE_ALREADY_USED"} |
+| CARELINK_EXISTS | 409 | CareLink duplicado | {error: "CARELINK_EXISTS"} |
+| CONSENT_REQUIRED | 403 | Sin consentimiento activo | {error: "CONSENT_REQUIRED"} |
+
+## Delta respecto al contrato original
+- El contrato congelado preveia `POST /api/v1/care-links/{id}/accept` con path param `care_link_id` para aceptar una invitacion del profesional.
+- La implementacion actual usa `POST /api/v1/vinculos/accept` con body `bindingCode` para auto-vinculacion directa.
+- La invitacion formal del profesional (RF-VIN-001) queda diferida.
+- No existe transicion de `invited` a `active` porque el vinculo se crea directamente en `active`.
 
 ## Outputs
 | Campo | Tipo | Descripcion |

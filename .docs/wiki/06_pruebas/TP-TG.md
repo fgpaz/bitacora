@@ -5,6 +5,11 @@
 - RF cubiertos: RF-TG-001..003, RF-TG-010..012
 - Flujos origen: FL-TG-01, FL-TG-02
 
+## Estado de ejecucion actual
+
+- `Diferido` en el runtime actual.
+- Este TP sigue siendo canon válido para la futura capa Telegram, pero hoy no existen pairing, `TelegramSession`, scheduler ni recordatorios materializados en `src/`.
+
 ## Cobertura RF
 
 | TC ID | RF | Tipo | Escenario |

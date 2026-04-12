@@ -5,6 +5,7 @@
 - Mecanismo: IAsyncEnumerable<CsvRow> → response HTTP chunked
 - Actor: Sistema (invocado por RF-EXP-001)
 - Prioridad PDP: Correctness > Usability
+- Estado: **Diferido — streaming CSV no implementado.** El endpoint `GET /api/v1/export/patient-summary` retorna un DTO JSON que se bufferea completamente en memoria antes de enviarse.
 
 ## Precondiciones detalladas
 - El endpoint de exportacion no debe buffear el dataset completo en memoria

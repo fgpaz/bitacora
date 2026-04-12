@@ -1,5 +1,9 @@
 # RF-VIN-020: Revocar CareLink por paciente
 
+## Estado actual
+
+`Implementado — DELETE /api/v1/vinculos/{id}`.
+
 ## Execution Sheet
 | Campo | Valor |
 |-------|-------|
@@ -11,22 +15,40 @@
 
 ## Precondiciones detalladas
 - Patient autenticado con JWT valido.
-- CareLink con care_link_id existe y tiene status='active' o 'invited'.
-- El patient_id del JWT es owner del CareLink (RF-VIN-022).
+- CareLink con `care_link_id` existe y tiene `status='active'` o `status='invited'`.
+- El `patient_id` del JWT es owner del CareLink (RF-VIN-022).
 
 ## Inputs
 | Campo | Tipo | Origen | Validacion |
 |-------|------|--------|-----------|
-| care_link_id | uuid | Path param | Existente, status activo |
+| care_link_id | uuid | Path param `{id}` | Existente |
+| confirmed | bool | Request body | Obligatorio; debe ser `true` |
 | patient_id | uuid | JWT | Owner del CareLink |
 
 ## Proceso (Happy Path)
 1. Verificar ownership (RF-VIN-022).
-2. Verificar status en ('active', 'invited').
-3. UPDATE CareLink SET status='revoked_by_patient', revoked_at=NOW().
-4. Invalidar cache del professional para ese patient (RF-VIN-021).
-5. INSERT AccessAudit con `action_type='revoke'`, `resource_type='care_link'`, `resource_id=care_link_id`.
-6. Retornar 200 con status='revoked_by_patient' y revoked_at.
+2. Verificar status en `('active', 'invited')`.
+3. UPDATE `CareLink SET status='revoked_by_patient', revoked_at=NOW()`.
+4. INSERT `AccessAudit` con `action_type='revoke'`, `resource_type='care_link'`, `resource_id=care_link_id`.
+5. Retornar `200` con `care_link_id` y `status='revoked_by_patient'`.
+
+## Outputs
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| careLinkId | uuid | ID del vinculo |
+| status | string | `revoked_by_patient` |
+
+## Errores tipados
+| Codigo | HTTP | Trigger | Respuesta |
+|--------|------|---------|----------|
+| FORBIDDEN | 403 | Actor no es owner del vinculo | {error: "FORBIDDEN"} |
+| NOT_FOUND | 404 | CareLink inexistente | {error: "NOT_FOUND"} |
+| UNPROCESSABLE_ENTITY | 422 | CareLink no esta en `active` ni `invited` | {error: "UNPROCESSABLE_ENTITY"} |
+
+## Delta respecto al contrato original
+- Requiere cuerpo `{"Confirmed": true}` (no era parte del contrato original).
+- La invalidacion de caches del profesional (RF-VIN-021) queda diferida.
+- El endpoint usa ruta `/api/v1/vinculos/{id}` (no `/care-links/{id}`).
 
 ## Outputs
 | Campo | Tipo | Descripcion |

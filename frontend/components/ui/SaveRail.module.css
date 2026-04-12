@@ -1,0 +1,35 @@
+.rail {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md);
+  background-color: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: center;
+}
+
+.cta {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--brand-primary);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-xl);
+  cursor: pointer;
+  min-width: 200px;
+  transition: opacity 0.15s ease;
+}
+
+.cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}

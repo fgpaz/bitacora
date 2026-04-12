@@ -1,0 +1,78 @@
+.form {
+  padding-bottom: calc(var(--space-2xl) + 56px);
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--foreground);
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+
+.submitArea {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-md);
+  background-color: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: center;
+}
+
+.submitBtn {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--brand-primary);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-xl);
+  cursor: pointer;
+  min-width: 200px;
+  transition: opacity 0.15s ease;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.consentState,
+.successState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--space-md);
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.consentText,
+.successText {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  color: var(--foreground);
+}
+
+.consentLink,
+.nextLink {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  text-decoration: none;
+}
+
+.backLink {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  text-decoration: none;
+}

@@ -1,0 +1,72 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--brand-primary);
+  text-decoration: none;
+  margin-bottom: var(--space-lg);
+  padding: var(--space-xs) 0;
+  transition: color 0.15s ease;
+}
+
+.back:hover { color: var(--brand-accent); }
+
+.back:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-lg);
+}
+
+.tab {
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  margin-bottom: -1px;
+}
+
+.tab:hover { color: var(--foreground); }
+
+.activeTab {
+  color: var(--brand-primary);
+  border-bottom-color: var(--brand-primary);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: -2px;
+}
+
+.tabNote {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+}
+
+.errorState {
+  padding: var(--space-lg);
+  color: var(--brand-accent);
+  font-family: var(--font-body);
+}
+
+.errorState small {
+  display: block;
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+}

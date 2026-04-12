@@ -27,6 +27,11 @@ public sealed class AppDbContext : DbContext
     public DbSet<PendingInvite> PendingInvites => Set<PendingInvite>();
     public DbSet<AccessAudit> AccessAudits => Set<AccessAudit>();
     public DbSet<EncryptionKeyVersion> EncryptionKeyVersions => Set<EncryptionKeyVersion>();
+    public DbSet<BindingCode> BindingCodes => Set<BindingCode>();
+    public DbSet<CareLink> CareLinks => Set<CareLink>();
+    public DbSet<TelegramPairingCode> TelegramPairingCodes => Set<TelegramPairingCode>();
+    public DbSet<TelegramSession> TelegramSessions => Set<TelegramSession>();
+    public DbSet<ReminderConfig> ReminderConfigs => Set<ReminderConfig>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -133,6 +138,84 @@ public sealed class AppDbContext : DbContext
             entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
             entity.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
             entity.HasData(new EncryptionKeyVersion(1, new DateTime(2026, 4, 9, 0, 0, 0, DateTimeKind.Utc), true));
+        });
+
+        modelBuilder.Entity<BindingCode>(entity =>
+        {
+            entity.ToTable("binding_codes");
+            entity.HasKey(x => x.BindingCodeId);
+            entity.Property(x => x.BindingCodeId).HasColumnName("binding_code_id");
+            entity.Property(x => x.Code).HasColumnName("code").HasMaxLength(16).IsRequired();
+            entity.Property(x => x.ProfessionalId).HasColumnName("professional_id").IsRequired();
+            entity.Property(x => x.TtlPreset).HasColumnName("ttl_preset").HasMaxLength(8).IsRequired();
+            entity.Property(x => x.ExpiresAt).HasColumnName("expires_at").IsRequired();
+            entity.Property(x => x.Used).HasColumnName("used").IsRequired();
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.HasIndex(x => new { x.ProfessionalId, x.Used, x.ExpiresAt });
+        });
+
+        modelBuilder.Entity<CareLink>(entity =>
+        {
+            entity.ToTable("care_links");
+            entity.HasKey(x => x.CareLinkId);
+            entity.Property(x => x.CareLinkId).HasColumnName("care_link_id");
+            entity.Property(x => x.ProfessionalId).HasColumnName("professional_id").IsRequired();
+            entity.Property(x => x.PatientId).HasColumnName("patient_id").IsRequired();
+            entity.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(32).IsRequired();
+            entity.Property(x => x.CanViewData).HasColumnName("can_view_data").IsRequired();
+            entity.Property(x => x.InvitedAt).HasColumnName("invited_at").IsRequired();
+            entity.Property(x => x.AcceptedAt).HasColumnName("accepted_at");
+            entity.Property(x => x.RevokedAt).HasColumnName("revoked_at");
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.HasIndex(x => new { x.PatientId, x.ProfessionalId });
+            entity.HasIndex(x => new { x.ProfessionalId, x.Status });
+        });
+
+        modelBuilder.Entity<TelegramPairingCode>(entity =>
+        {
+            entity.ToTable("telegram_pairing_codes");
+            entity.HasKey(x => x.TelegramPairingCodeId);
+            entity.Property(x => x.TelegramPairingCodeId).HasColumnName("telegram_pairing_code_id");
+            entity.Property(x => x.Code).HasColumnName("code").HasMaxLength(16).IsRequired();
+            entity.Property(x => x.PatientId).HasColumnName("patient_id").IsRequired();
+            entity.Property(x => x.ExpiresAt).HasColumnName("expires_at").IsRequired();
+            entity.Property(x => x.Used).HasColumnName("used").IsRequired();
+            entity.Property(x => x.ConsumedAt).HasColumnName("consumed_at");
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.HasIndex(x => new { x.PatientId, x.Used, x.ExpiresAt });
+        });
+
+        modelBuilder.Entity<TelegramSession>(entity =>
+        {
+            entity.ToTable("telegram_sessions");
+            entity.HasKey(x => x.TelegramSessionId);
+            entity.Property(x => x.TelegramSessionId).HasColumnName("telegram_session_id");
+            entity.Property(x => x.PatientId).HasColumnName("patient_id").IsRequired();
+            entity.Property(x => x.ChatId).HasColumnName("chat_id").HasMaxLength(64).IsRequired();
+            entity.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(16).IsRequired();
+            entity.Property(x => x.LinkedAtUtc).HasColumnName("linked_at_utc").IsRequired();
+            entity.Property(x => x.UnlinkedAtUtc).HasColumnName("unlinked_at_utc");
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.HasIndex(x => x.ChatId).IsUnique();
+            entity.HasIndex(x => new { x.PatientId, x.Status });
+        });
+
+        modelBuilder.Entity<ReminderConfig>(entity =>
+        {
+            entity.ToTable("reminder_configs");
+            entity.HasKey(x => x.ReminderConfigId);
+            entity.Property(x => x.ReminderConfigId).HasColumnName("reminder_config_id");
+            entity.Property(x => x.PatientId).HasColumnName("patient_id").IsRequired();
+            entity.Property(x => x.HourUtc).HasColumnName("hour_utc").IsRequired();
+            entity.Property(x => x.MinuteUtc).HasColumnName("minute_utc").IsRequired();
+            entity.Property(x => x.Enabled).HasColumnName("enabled").IsRequired();
+            entity.Property(x => x.NextFireAtUtc).HasColumnName("next_fire_at_utc");
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.Property(x => x.DisabledAtUtc).HasColumnName("disabled_at_utc");
+            entity.HasIndex(x => new { x.PatientId }).IsUnique();
+            entity.HasIndex(x => x.NextFireAtUtc);
         });
     }
 }
