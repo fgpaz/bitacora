@@ -149,7 +149,64 @@ Este documento se actualiza únicamente cuando:
 - un `UX-VALIDATION-*` se cierra con evidencia consolidada;
 - un slice debe reabrirse por hallazgos de validación.
 
+## Phase 11 T5 — Index + Validation Deferral Sync (2026-04-12)
+
+Esta tarea sincroniza los indices de la familia UX/UI y confirma que la deferral de validacion se mantiene intacta.
+
+### Archivos verificados
+
+Los siguientes archivos fueron confirmados presentes en el workspace:
+
+**UI-RFC (13 slices):**
+- `UI-RFC-ONB-001.md`
+- `UI-RFC-REG-001.md`, `UI-RFC-REG-002.md`
+- `UI-RFC-VIN-001.md`, `UI-RFC-VIN-002.md`, `UI-RFC-VIN-003.md`, `UI-RFC-VIN-004.md`
+- `UI-RFC-VIS-001.md`, `UI-RFC-VIS-002.md`
+- `UI-RFC-EXP-001.md`
+- `UI-RFC-CON-002.md`
+- `UI-RFC-TG-001.md`, `UI-RFC-TG-002.md`
+
+**HANDOFF-SPEC (13 slices):**
+- `HANDOFF-SPEC-ONB-001.md`
+- `HANDOFF-SPEC-REG-001.md`, `HANDOFF-SPEC-REG-002.md`
+- `HANDOFF-SPEC-VIN-001.md`, `HANDOFF-SPEC-VIN-002.md`, `HANDOFF-SPEC-VIN-003.md`, `HANDOFF-SPEC-VIN-004.md`
+- `HANDOFF-SPEC-VIS-001.md`, `HANDOFF-SPEC-VIS-002.md`
+- `HANDOFF-SPEC-EXP-001.md`
+- `HANDOFF-SPEC-CON-002.md`
+- `HANDOFF-SPEC-TG-001.md`, `HANDOFF-SPEC-TG-002.md`
+
+### Indices sincronizados
+
+- `23_uxui/INDEX.md` — confirmado con 13 slices en estado `handoff completo listo para UI`
+- `23_uxui/UI-RFC/UI-RFC-INDEX.md` — confirmado con los 13 slices abiertos bajo autoridad T2/T3/T4
+- `23_uxui/HANDOFF-SPEC/HANDOFF-SPEC-INDEX.md` — confirmado con los 13 slices
+- `23_uxui/HANDOFF-ASSETS/HANDOFF-ASSETS-INDEX.md` — confirmado con los 13 slices
+- `23_uxui/HANDOFF-MAPPING/HANDOFF-MAPPING-INDEX.md` — confirmado con los 13 slices
+- `23_uxui/HANDOFF-VISUAL-QA/HANDOFF-VISUAL-QA-INDEX.md` — confirmado con los 13 slices
+
+### Estado de validacion confirmado
+
+Los 13 slices mantienen su estado de validacion diferida:
+
+| Slice | Actor | Estado validacion | Deferral permanente |
+|-------|-------|-------------------|---------------------|
+| `ONB-001` | Paciente | `blocked` | Phase 60 |
+| `REG-001` | Paciente | `blocked` | Phase 60 |
+| `REG-002` | Paciente | `blocked` | Phase 60 |
+| `VIN-001` | Profesional | `blocked` | Phase 60 |
+| `VIN-002` | Paciente | `prepared_waiting_evidence` | Phase 60 |
+| `VIN-003` | Paciente | `prepared_waiting_evidence` | Phase 60 |
+| `VIN-004` | Paciente | `prepared_waiting_evidence` | Phase 60 |
+| `CON-002` | Paciente | `prepared_waiting_evidence` | Phase 60 |
+| `VIS-001` | Paciente | `blocked` | Phase 60 |
+| `VIS-002` | Profesional | `prepared_waiting_evidence` | Phase 60 |
+| `EXP-001` | Paciente | `blocked` | Phase 60 |
+| `TG-001` | Paciente | `blocked` | Phase 60 |
+| `TG-002` | Paciente | `blocked` | Phase 60 |
+
+**Ningun slice pasa a `validated`.** La deferral es permanente hasta Phase 60.
+
 ---
 
-**Estado:** matriz actualizada con nota de Phase 11 — 2026-04-12. Ningún slice pasa a `validated`.
-**Siguiente capa gobernada:** `23_uxui/UX-VALIDATION/*` y el orden operativo de nuevas olas cuando exista runtime funcional.
+**Estado:** indices sincronizados y deferral de validacion confirmada — 2026-04-12.
+**Siguiente capa gobernada:** implementacion tecnica de frontend y `UX-VALIDATION-*` en Phase 60 con evidencia real.
