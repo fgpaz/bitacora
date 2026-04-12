@@ -167,6 +167,12 @@ Cambios en 09 pueden forzar revision de:
 - `07_baseline_tecnica.md` si cambia auth o deploy
 - Frontend si cambian rutas o contratos de respuesta
 
+## Hardening exceptions register
+
+Ver `.docs/raw/decisiones/2026-04-10-wave-prod-hardening-exceptions-register.md` para el registro unico de excepciones aceptadas, atajos prohibidos y gates obligatorios antes de cada phase de codigo.
+
+Este documento es el unico checkpoint que las fases `30`, `31`, `40`, `41`, `50` y `60` deben satisfacer antes de avanzar.
+
 ---
 
 *Fuente: `.docs/wiki/02_arquitectura.md`, `.docs/wiki/04_RF.md`*

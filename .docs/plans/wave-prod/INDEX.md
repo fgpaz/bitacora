@@ -62,3 +62,5 @@ graph TD
 | 2026-04-10 | Wave-prod canon gap map | `.docs/raw/decisiones/2026-04-10-wave-prod-canon-gap-map.md` |
 | 2026-04-10 | Wave-prod UX/UI gap map | `.docs/raw/decisiones/2026-04-10-wave-prod-uxui-gap-map.md` |
 | 2026-04-10 | **Hardening exceptions register + go/no-go** | `.docs/raw/decisiones/2026-04-10-wave-prod-hardening-exceptions-register.md` |
+
+**Phase 20 — Hardening Specs + Gates:** cerrada (T1 compliance invariants, T2 contract freeze, T3 runtime/rollout gates, T4 hardening exceptions register).

@@ -155,6 +155,12 @@ Cambios en 07 pueden forzar revision de:
 - `08_modelo_fisico_datos.md` si cambia estrategia de migraciones o backup
 - `07_tech/TECH-FRONTEND-SYSTEM-DESIGN.md` si cambian error envelopes, auth, estados sensibles o reglas frontend de acceso
 
+## Hardening exceptions register
+
+Ver `.docs/raw/decisiones/2026-04-10-wave-prod-hardening-exceptions-register.md` para el registro unico de excepciones aceptadas, atajos prohibidos y gates obligatorios antes de cada phase de codigo.
+
+Este documento es el unico checkpoint que las fases `30`, `31`, `40`, `41`, `50` y `60` deben satisfacer antes de avanzar.
+
 ---
 
 *Fuente: `.docs/raw/decisiones/02_decisiones_arquitectura.md`, `infra/runbooks/production-bootstrap.md`, `src/Bitacora.Api/Program.cs`*
