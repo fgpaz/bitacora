@@ -30,6 +30,14 @@ public sealed class TelegramSessionRepository(AppDbContext dbContext) : ITelegra
                 cancellationToken);
     }
 
+    public async Task<TelegramSession?> GetByChatIdAsync(string chatId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.TelegramSessions
+            .FirstOrDefaultAsync(
+                x => x.ChatId == chatId && x.Status == TelegramSessionStatus.Linked,
+                cancellationToken);
+    }
+
     public async Task AddAsync(TelegramSession session, CancellationToken cancellationToken = default)
     {
         await dbContext.TelegramSessions.AddAsync(session, cancellationToken);

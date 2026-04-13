@@ -195,9 +195,13 @@ public sealed class AppDbContext : DbContext
             entity.Property(x => x.PatientId).HasColumnName("patient_id").IsRequired();
             entity.Property(x => x.ChatId).HasColumnName("chat_id").HasMaxLength(64).IsRequired();
             entity.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(16).IsRequired();
+            entity.Property(x => x.ConversationState).HasColumnName("conversation_state").HasConversion<int>().IsRequired();
+            entity.Property(x => x.PendingMoodScore).HasColumnName("pending_mood_score");
+            entity.Property(x => x.PendingFactorsJson).HasColumnName("pending_factors_json").HasMaxLength(512);
             entity.Property(x => x.LinkedAtUtc).HasColumnName("linked_at_utc").IsRequired();
             entity.Property(x => x.UnlinkedAtUtc).HasColumnName("unlinked_at_utc");
             entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.Property(x => x.UpdatedAtUtc).HasColumnName("updated_at_utc");
             entity.HasIndex(x => x.ChatId).IsUnique();
             entity.HasIndex(x => new { x.PatientId, x.Status });
         });

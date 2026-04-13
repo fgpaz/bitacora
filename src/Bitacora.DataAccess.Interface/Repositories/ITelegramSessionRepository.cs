@@ -16,6 +16,9 @@ public interface ITelegramSessionRepository
     /// <summary>Finds a linked session by Telegram chat ID.</summary>
     Task<TelegramSession?> FindLinkedByChatIdAsync(string chatId, CancellationToken cancellationToken = default);
 
+    /// <summary>Gets the linked session for a chat_id, or null if not found or not linked (RF-REG-011).</summary>
+    Task<TelegramSession?> GetByChatIdAsync(string chatId, CancellationToken cancellationToken = default);
+
     /// <summary>Adds a new Telegram session.</summary>
     Task AddAsync(TelegramSession session, CancellationToken cancellationToken = default);
 
