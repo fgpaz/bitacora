@@ -38,6 +38,7 @@ public sealed class ConsentRequiredMiddleware(RequestDelegate next)
         var nonClinicalSegments = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "/api/v1/auth",
+            "/api/v1/consent",
             "/api/v1/telegram",
             "/api/v1/export"
         };
