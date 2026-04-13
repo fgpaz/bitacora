@@ -100,7 +100,7 @@ public static class VinculosEndpoints
                     throw;
                 }
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .Accepts<AcceptBindingCodeRequest>("application/json")
             .Produces<AcceptCareLinkResponse>(StatusCodes.Status201Created)
             .Produces<BitacoraException>(StatusCodes.Status409Conflict)
@@ -150,7 +150,7 @@ public static class VinculosEndpoints
                     throw;
                 }
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .Accepts<RevokeVinculoRequest>("application/json")
             .Produces<RevokeCareLinkResponse>(StatusCodes.Status200OK)
             .Produces<BitacoraException>(StatusCodes.Status403Forbidden)
@@ -200,7 +200,7 @@ public static class VinculosEndpoints
                     throw;
                 }
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .Accepts<UpdateCanViewDataRequest>("application/json")
             .Produces<UpdateCareLinkCanViewDataResponse>(StatusCodes.Status200OK)
             .Produces<BitacoraException>(StatusCodes.Status403Forbidden)
@@ -250,7 +250,7 @@ public static class VinculosEndpoints
                     throw;
                 }
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .Accepts<CreateInviteRequest>("application/json")
             .Produces<CreatePendingInviteResponse>(StatusCodes.Status201Created)
             .Produces<BitacoraException>(StatusCodes.Status400BadRequest)

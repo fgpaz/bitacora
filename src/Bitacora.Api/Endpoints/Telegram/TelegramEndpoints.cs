@@ -37,7 +37,7 @@ public static class TelegramEndpoints
                 var result = await mediator.Send(command, cancellationToken);
                 return Results.Ok(result);
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .WithName("GenerateTelegramPairingCode")
             .WithTags(Tag)
             .WithSummary("Genera un codigo de vinculacion para Telegram")
@@ -107,7 +107,7 @@ public static class TelegramEndpoints
                 ErrorCode: result.ErrorCode,
                 BotMessage: result.BotMessage));
         })
-        .RequireAuthorization("webhook")
+        .RequireRateLimiting("webhook")
         .WithName("TelegramWebhook")
         .WithTags(Tag)
         .WithSummary("Webhook para actualizaciones entrantes del bot de Telegram")

@@ -36,7 +36,7 @@ public static class RegistroEndpoints
                     ? Results.Ok(response)
                     : Results.Json(response, statusCode: StatusCodes.Status201Created);
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .Accepts<CreateMoodEntryRequest>("application/json")
             .Produces<CreateMoodEntryResponse>(StatusCodes.Status200OK)
             .Produces<CreateMoodEntryResponse>(StatusCodes.Status201Created)
@@ -69,7 +69,7 @@ public static class RegistroEndpoints
                     ? Results.Ok(response)
                     : Results.Json(response, statusCode: StatusCodes.Status201Created);
             })
-            .RequireAuthorization("write")
+            .RequireRateLimiting("write")
             .Accepts<UpsertDailyCheckinRequest>("application/json")
             .Produces<UpsertDailyCheckinResponse>(StatusCodes.Status200OK)
             .Produces<UpsertDailyCheckinResponse>(StatusCodes.Status201Created)
