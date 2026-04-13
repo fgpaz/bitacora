@@ -65,21 +65,22 @@ Backend y Telegram operativos en produccion. Frontend desplegado en Dokploy con 
 | BITACORA_SUPABASE_JWT_SECRET | `srgGCnJ1...` | Dokploy env + Infisical vault |
 | BITACORA_ENCRYPTION_KEY | `ERJY/JsA...` | Dokploy env + Infisical vault |
 | BITACORA_PSEUDONYM_SALT | `0a6e89ad...` | Dokploy env + Infisical vault |
-| BITACORA_TELEGRAM_BOT_TOKEN | `8584097775:AAE...` | Dokploy env + Infisical vault |
+| BITACORA_TELEGRAM_BOT_TOKEN | `8609908294:AAE...` | Dokploy env + Infisical vault |
 | BITACORA_BASE_URL | `https://api.bitacora.nuestrascuentitas.com` | Dokploy env + Infisical vault |
-| TELEGRAM_BOT_TOKEN | `8584097775:AAE...` | Dokploy env + Infisical vault |
+| TELEGRAM_BOT_TOKEN | `8609908294:AAE...` | Dokploy env + Infisical vault |
 
 ## Telegram — Configuracion
 
 ```mermaid
 flowchart LR
-    A["@tedi_responde_bot"] -->|Webhook set| B["https://api.bitacora.nuestrascuentitas.com/api/v1/telegram/webhook"]
+    A["@mi_bitacora_personal_bot"] -->|Webhook set| B["https://api.bitacora.nuestrascuentitas.com/api/v1/telegram/webhook"]
     B --> C["Bitacora.Api /telegram/webhook"]
     C -->|SendReminderCommand| A
 ```
 
+- **Bot:** `@mi_bitacora_personal_bot`
+- **Token:** `8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI`
 - **Webhook:** Confirmado activo via `getWebhookInfo`
-- **Token:** `8584097775:AAEPQuUjyPSZKbU5W3btyfqAi8D4GuXk6uU`
 - **getUpdates:** No disponible (webhook activo)
 
 ## Frontend — Problema critico
