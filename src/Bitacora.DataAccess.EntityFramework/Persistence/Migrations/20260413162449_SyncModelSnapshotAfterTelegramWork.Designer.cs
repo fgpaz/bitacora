@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence;
@@ -11,9 +12,11 @@ using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence;
 namespace NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413162449_SyncModelSnapshotAfterTelegramWork")]
+    partial class SyncModelSnapshotAfterTelegramWork
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
