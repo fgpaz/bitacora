@@ -58,7 +58,7 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 |-------|-------------|
 | T3-10 | Toda falla de seguridad bloquea la operacion. Authentication y Authorization devuelven 401/403 respectivamente. |
 | T3-11 | ConsentRequiredMiddleware es el unico gate de escritura clinica: todo POST a `/api/v1/mood-entries` o `/api/v1/daily-checkins` sin ConsentGrant activo retorna 403 y genera AccessAudit con outcome=Denied. |
-| T3-11b | ConsentRequiredMiddleware cubre todas las rutas POST clinicas de forma generica via policy `clinical-write` (no solo mood-entries y daily-checkins listadas explicitamente). |
+| T3-11b | ConsentRequiredMiddleware usa deny-list explícita: todo POST a `/api/v1/mood-entries` o `/api/v1/daily-checkins` esta protegido; las demas rutas POST bajo `/api/v1/` que NO empiecen con `/api/v1/auth`, `/api/v1/consent`, `/api/v1/telegram` o `/api/v1/export` se asumen clinicas y se bloquean si no hay ConsentGrant activo. |
 | T3-12 | PseudonymizationService fail-closed: si BITACORA_PSEUDONYM_SALT no resuelve, el servicio lanza excepcion y toda operacion que dependa de ella falla con 500. |
 | T3-14 | Encryption key fail-closed: si BITACORA_ENCRYPTION_KEY no esta disponible o no resuelve a 32 bytes, GET /health/ready queda en `not_ready`. Ningun dato clinico se escribe sin cifrar. |
 | T3-RL-01 | Rate limiting fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + Retry-After. |
@@ -79,7 +79,7 @@ The following rules were hardened in Phase 50 (T2/T3/T4) and reflect current run
 |------|-------------|
 | T3-TG-01 | Telegram API retry con exponential backoff: 1s, 2s, 4s antes de fallar. Implementado en `SendReminderCommand.cs`. |
 | T3-TG-02 | `SendReminderCommand` y `HandleWebhookUpdateCommand` invocan `SaveChangesAsync` para persistir `AccessAudit` antes de retornar. |
-| T3-11b | `ConsentRequiredMiddleware` cubre todas las rutas POST clinicas de forma generica via policy `clinical-write` (no solo endpoints explícitos). |
+| T3-11b | `ConsentRequiredMiddleware` usa deny-list explícita para rutas no clinicas: `/api/v1/auth`, `/api/v1/consent`, `/api/v1/telegram`, `/api/v1/export` se excluyen; cualquier otra ruta POST bajo `/api/v1/` se trata como clinica hasta que se acredite lo contrario. |
 | T3-SEC-10 | `ExportEndpoints` — `/constraints` autoriza profesional antes de verificar `CareLink`. `ProfessionalDataAccessAuthorizer` fail-closed: 403 si no tiene vinculo activo. |
 | T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After`. |
 | T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |

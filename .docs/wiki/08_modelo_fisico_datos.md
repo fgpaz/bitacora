@@ -80,6 +80,11 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | access_audits | INDEX(patient_id, created_at_utc) | Consulta de auditoria | Materializado |
 | telegram_sessions | UNIQUE(chat_id) | Lookup desde webhook | Materializado |
 
+## Invariantes de timezone
+
+- Toda columna `*_at_utc` y `created_at_utc` en PostgreSQL usa tipo `timestamp with time zone`. Npgsql (driver PostgreSQL para .NET) requiere que los valores `DateTime` tengan `DateTimeKind.Utc`. `DateTimeKind.Unspecified` es rechazado en tiempo de query con: `Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported`.
+- La conversión de `DateOnly` a `DateTime` para comparaciones debe usar `DateTime.SpecifyKind(..., DateTimeKind.Utc)` explicitamente. `DateOnly.ToDateTime()` produce `Kind=Unspecified`.
+
 ## Retencion
 
 | Tabla | Retencion | Justificacion |
