@@ -6,7 +6,7 @@
 - Build source: `Dockerfile` en repo root
 - Service recipe mirror: `src/Bitacora.Api/Dockerfile`
 - Public host: `api.bitacora.nuestrascuentitas.com`
-- Parking host: `bitacora.nuestrascuentitas.com` -> mismo backend, redirect de `/` a `/scalar/v1`
+- Public root host moved to the dedicated frontend runtime.
 - Internal port: `8080`
 - Liveness: `GET /health`
 - Readiness: `GET /health/ready`
@@ -18,7 +18,7 @@
 2. Create a project if `BITACORA_PROJECT_ID` is still blank:
 
 ```powershell
-& $DKP POST project.create '{"name":"bitacora","description":"Backend-only production lane","environmentId":"<DOKPLOY_ENVIRONMENT_ID>"}'
+& $DKP POST project.create '{"name":"bitacora","description":"Bitacora dedicated production lane","environmentId":"<DOKPLOY_ENVIRONMENT_ID>"}'
 ```
 
 3. Create the application if `BITACORA_API_APP_ID` is blank:
@@ -58,30 +58,23 @@
 & $DKP POST domain.create '{"applicationId":"<BITACORA_API_APP_ID>","host":"api.bitacora.nuestrascuentitas.com","port":8080,"https":true,"certificateType":"letsencrypt"}'
 ```
 
-9. Create the temporary parking domain for the root host:
-
-```powershell
-& $DKP POST domain.create '{"applicationId":"<BITACORA_API_APP_ID>","host":"bitacora.nuestrascuentitas.com","port":8080,"https":true,"certificateType":"letsencrypt"}'
-```
-
-10. Deploy:
+9. Deploy:
 
 ```powershell
 & $DKP POST application.deploy '{"applicationId":"<BITACORA_API_APP_ID>"}'
 ```
 
-11. Validate with:
+10. Validate with:
    - `& $DKP status <BITACORA_API_APP_ID>`
    - `sshr exec --host turismo --cmd "docker ps --format '{{.Names}} {{.Status}}' | grep -i bitacora"`
    - `curl -f https://api.bitacora.nuestrascuentitas.com/health`
    - `curl -f https://api.bitacora.nuestrascuentitas.com/health/ready`
-   - `curl -I https://bitacora.nuestrascuentitas.com/`
+   - `curl -I https://api.bitacora.nuestrascuentitas.com/health`
 
 ## Blocking conditions
 
 - `infra/.env` missing or `DOKPLOY_API_KEY` unresolved
 - `BITACORA_PROJECT_ID` or `DOKPLOY_GITHUB_PROVIDER_ID` unknown and not discoverable via control-plane API
 - DNS for `api.bitacora.nuestrascuentitas.com` not pointed to `54.37.157.93`
-- DNS for `bitacora.nuestrascuentitas.com` missing when the parking host is part of the rollout
 - the bootstrap commit with `Dockerfile` and readiness/smoke assets is not pushed to `main`
 - readiness remains red after migrations and env wiring

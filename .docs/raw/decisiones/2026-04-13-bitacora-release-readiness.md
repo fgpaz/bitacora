@@ -3,13 +3,13 @@
 **Slug:** bitacora.nuestrascuentitas.com
 **Type:** nota-tecnica
 **Date:** 2026-04-13
-**Status:** Produccion con advertencias conocidas
+**Status:** Produccion operativa en proyecto Dokploy dedicado
 
 ---
 
 ## Resumen ejecutivo
 
-Backend y Telegram operativos en produccion. Frontend desplegado en Dokploy con build fallido por causa de Docker Hub (push denegado). El frontend debe resolverse para que el flujo de usuarios funcione end-to-end.
+Bitacora corre ahora en un proyecto Dokploy dedicado (`bitacora`) separado de `nuestrascuentitas`. Backend, frontend y Telegram estan operativos en produccion. El frontend se recreo con GitHub + nixpacks y se corrigieron dos bloqueos reales: `nixpacks` no estaba instalado en el host y el build necesitaba Node 22 + lockfile sincronizado.
 
 ## Estado de componentes
 
@@ -17,8 +17,18 @@ Backend y Telegram operativos en produccion. Frontend desplegado en Dokploy con 
 |------------|--------|-----|
 | Backend API (.NET 10) | Operativo | `https://api.bitacora.nuestrascuentitas.com` |
 | Telegram Bot (@tedi_responde_bot) | Operativo con webhook | `https://api.bitacora.nuestrascuentitas.com/api/v1/telegram/webhook` |
-| Frontend (Next.js 16) | Build fallido en Dokploy | `bitacora.nuestrascuentitas.com` |
-| Base de datos PostgreSQL | Operativa (BitacoraDb) | `postgres-compress-haptic-transmitter-ghemty:5432` |
+| Frontend (Next.js 16) | Operativo | `https://bitacora.nuestrascuentitas.com` |
+| Base de datos PostgreSQL | Operativa (BitacoraDb) | `postgres-reboot-solid-state-application-l55mww:5432` |
+
+## Dokploy actual
+
+| Recurso | ID | Nota |
+|---------|----|------|
+| Project | `18WEM8BMIq-z_wgkrNlp8` | `bitacora` |
+| Environment | `ULVQy3BehcO0VOH-J-ZVv` | `production` |
+| PostgreSQL | `BZIF_i_IftviCCVnoS9p7` | `bitacora-db` |
+| API app | `UROM_r5ETX0rvs-1WZ3bi` | `bitacora-api` |
+| Frontend app | `BRTMuvBfWtslXHnShtrnB` | `bitacora-frontend` |
 
 ## Backend API — Verificacion
 
@@ -83,51 +93,35 @@ flowchart LR
 - **Webhook:** Confirmado activo via `getWebhookInfo`
 - **getUpdates:** No disponible (webhook activo)
 
-## Frontend — Problema critico
+## Frontend — Resolucion
 
-### Causa raiz
+### Causa raiz inicial
 
-El build de Dokploy falla con `docker build` porque la imagen `node:22-alpine` no puede resolverse en el servidor de Dokploy. Error:
+El frontend viejo fallaba con `docker build` porque dependia del Dockerfile y de una imagen base desde Docker Hub. Ese problema se elimino al recrear el frontend con `buildType=nixpacks`.
 
 ```
 error getting credentials - err: exec: "docker-credential-desktop.exe": not found in $PATH
 ```
 
-El servidor de Dokploy no tiene acceso a Docker Hub con las credenciales configuradas. Esto es un problema de configuracion del servidor, no del codigo.
+Luego aparecieron dos bloqueos reales del nuevo frontend:
 
-### Soluciones posibles
+1. El host `turismo` no tenia `nixpacks` instalado (`bash: nixpacks: command not found`).
+2. El build de Next.js requeria Node 20+ y `package-lock.json` alineado con `package.json`.
 
-1. **Usar un registry privado** (Dokploytiene un registry interno que debe configurarse)
-2. **Usar GitHub Packages** con acceso autenticado
-3. **Cambiar el base image** a una que este cacheada localmente en el servidor
-4. **Build local + push manual** (alternativa temporal)
+Ambos quedaron resueltos.
 
-### Dockerfile creado
+### Resolucion aplicada
 
-```dockerfile
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install
-COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+1. Proyecto Dokploy nuevo: `bitacora`
+2. Frontend recreado con `GitHub + nixpacks`
+3. Instalacion de `nixpacks` 1.41.0 en el host `turismo`
+4. `frontend/package.json` actualizado a Node 22
+5. `frontend/package-lock.json` sincronizado
+6. `frontend/nixpacks.toml` agregado para cachear solo directorios validos
 
-FROM node:22-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-COPY --from=build /app/public ./public
-COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
-USER nextjs
-EXPOSE 3000
-ENV PORT=3000
-CMD ["node", "server.js"]
-```
+### Estado final del frontend
 
-El Dockerfile funciona correctamente en local (build exitoso, container responde en puerto 3000).
+Frontend publico en `https://bitacora.nuestrascuentitas.com` con status HTTP 200.
 
 ### next.config.js standalone
 
@@ -155,7 +149,7 @@ const nextConfig = {
 
 | ID | Severidad | Descripcion | Solucion |
 |----|----------|-------------|----------|
-| FE-DOKPLOY-01 | Alta | Docker Hub no accesible desde Dokploy | Configurar registry privado o GitHub Packages |
+| FE-DOKPLOY-01 | Resuelto | Docker Hub no accesible desde Dokploy | Frontend migrado a `nixpacks` + host preparado |
 | DB-HEALTH-01 | Baja | `/health/ready` reporta database unreachable | Falso positivo — consultas funcionan. El probe de EF no puede conectar via nombre host desde el container |
 | TELEGRAM-01 | Media | getUpdates no disponible para debugging | Usar webhook exclusively. El bot responde si el backend tiene el token |
 
@@ -181,7 +175,7 @@ ce5ba41 fix(frontend): use shared sha256 module for invite EmailHash
 - [x] Secrets en vault (prod)
 - [x] Secrets en Dokploy (prod env)
 - [x] DNS configurado (api.bitacora.nuestrascuentitas.com)
-- [ ] Frontend desplegado y funcionando
+- [x] Frontend desplegado y funcionando
 - [ ] Smoke test E2E con usuario real
 - [ ] Backup diario de PostgreSQL configurado
 - [ ] Monitoring/alerting configurado

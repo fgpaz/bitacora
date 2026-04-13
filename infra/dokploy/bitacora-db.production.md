@@ -2,6 +2,13 @@
 
 ## Target shape
 
+Current production resource ids after the 2026-04-13 cutover:
+
+- Project: `18WEM8BMIq-z_wgkrNlp8`
+- Environment: `ULVQy3BehcO0VOH-J-ZVv`
+- PostgreSQL: `BZIF_i_IftviCCVnoS9p7`
+- Internal host: `postgres-reboot-solid-state-application-l55mww`
+
 - Service name: `bitacora-db`
 - Engine: PostgreSQL
 - Database name: `bitacora_db`
