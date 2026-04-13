@@ -36,8 +36,8 @@ public sealed class MoodEntryRepository(AppDbContext dbContext) : IMoodEntryRepo
         DateOnly to,
         CancellationToken cancellationToken = default)
     {
-        var fromDateTime = from.ToDateTime(TimeOnly.MinValue);
-        var toDateTime = to.ToDateTime(TimeOnly.MaxValue);
+        var fromDateTime = DateTime.SpecifyKind(from.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+        var toDateTime = DateTime.SpecifyKind(to.ToDateTime(TimeOnly.MaxValue), DateTimeKind.Utc);
 
         return await dbContext.MoodEntries
             .AsNoTracking()
