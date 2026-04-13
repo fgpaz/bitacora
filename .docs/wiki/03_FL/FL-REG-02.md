@@ -2,9 +2,11 @@
 
 ## Estado actual
 
-`Diferido`.
+`Parcial backend`.
 
-Este flujo sigue siendo canon objetivo del MVP, pero no existe runtime Telegram materializado hoy en `src/` ni endpoint `POST /api/v1/telegram/webhook` registrado en `Bitacora.Api`.
+Endpoint existe (`TelegramEndpoints.cs:83`). Handler implementado via T3 (`HandleWebhookUpdateCommandHandler`). Flujo completo de registro de humor desde Telegram parcial — factores secuenciales (RF-REG-013) quedan diferidos.
+
+**Nota de deployment:** La migracion `20260413000001_AddTelegramConversationState` debe ser aplicada a la DB de produccion antes de desplegar el handler.
 
 ## Goal
 El paciente registra su estado animico desde el bot de Telegram con un solo tap en keyboard inline.

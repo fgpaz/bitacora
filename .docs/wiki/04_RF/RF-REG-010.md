@@ -2,9 +2,9 @@
 
 ## Estado actual
 
-`Diferido`.
+`Parcial backend`.
 
-Este RF describe la conducta objetivo del canal Telegram. El runtime actual no registra `POST /api/v1/telegram/webhook` y no materializa `TelegramSession`.
+Endpoint `POST /api/v1/telegram/webhook` registrado en `TelegramEndpoints.cs:83`. Handler `HandleWebhookUpdateCommandHandler` implementado (T3). Validacion de firma y enrutamiento de updates funcional.
 
 ## Execution Sheet
 | Campo | Valor |
