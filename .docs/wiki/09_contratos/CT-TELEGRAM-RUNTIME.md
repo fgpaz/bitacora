@@ -109,26 +109,33 @@ Procesa updates entrantes del bot Telegram (comandos `/start CODE`, inline keybo
 | Consent gate | Verifica `ConsentGrant.status=granted` antes de procesar |
 | Estado | **Implementado** |
 
-**Request body:**
+**Request body (DTO interno — traducido por el bot adapter desde el formato nativo de Telegram):**
 
 ```json
 {
-  "update": "/start BIT-ABC12",
-  "chat_id": "123456789",
-  "trace_id": "uuid"
+  "Update": "/start BIT-ABC12",
+  "ChatId": "123456789",
+  "TraceId": "uuid-generado-por-adapter",
+  "CallbackQueryId": "opcional-para-keyboard-taps"
 }
 ```
 
+**Nota arquitectural:** el webhook de Telegram Bot API apunta al **bot adapter** en `https://tg-adapter.bitacora.nuestrascuentitas.com/webhook`. El adapter transforma el JSON nativo de Telegram al DTO interno y reenvía a `POST /api/v1/telegram/webhook` con header `X-Telegram-Webhook-Secret`.
+
 **Logica implementada:**
 
-1. Parsear el payload para detectar `start_with_code`, `mood_input`, o `text_input`.
-2. Validar `chat_id` presente (fail-closed).
-3. Buscar `TelegramSession` linked por `chat_id` (fail-closed si no existe).
-4. Verificar `ConsentGrant.status=granted` para el patient_id de la sesion.
-5. Si `start_with_code`: invocar `ConfirmPairingCommand` para consumir el codigo y crear sesion.
-6. Si `mood_input`: procesar inline keyboard (-3..+3), confirmando recepcion (registro diferido a RF-REG-012).
-7. Fallback generico: "Hola! Usa /start para vincular tu cuenta o escribe tu estado de animo."
-8. Siempre retornar HTTP 200 a Telegram para detener re-delivery.
+1. Llamar `answerCallbackQuery` si `CallbackQueryId` presente (descarta spinner de botones).
+2. Parsear el payload para detectar `start_with_code`, `mood_input`, o input de factor secuencial.
+3. Validar `chat_id` presente (fail-closed).
+4. Buscar `TelegramSession` linked por `chat_id` (fail-closed si no existe).
+5. Verificar `ConsentGrant.status=granted` para el patient_id de la sesion.
+6. Si `start_with_code`: invocar `ConfirmPairingCommand` para consumir el codigo y crear sesion.
+7. Si `session.ConversationState != Idle`: invocar flujo secuencial de factores (RF-REG-013):
+   - Sueño (keyboard 4h-9h) → Actividad física (keyboard Sí/No) → Social → Ansiedad → Irritabilidad → Medicación → DailyCheckin
+   - Estado conversacional persistido en `telegram_sessions.pending_factors_json` y `conversation_state`
+8. Si `mood_input` (estado Idle): invocar RF-REG-012 (crear MoodEntry), avanzar estado a AwaitingFactorSleep, enviar keyboard de sueño.
+9. Fallback generico: "Usa /start para vincular tu cuenta o escribe tu estado de animo."
+10. Siempre retornar HTTP 200 a Telegram para detener re-delivery.
 
 **Response 200:**
 
@@ -231,7 +238,7 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 | POST /api/v1/telegram/webhook | **Implementado** | |
 | ReminderWorker | **Implementado** | `SendTelegramMessageAsync` con HTTP POST real a Telegram Bot API |
 | Integracion real Telegram Bot API | **Implementado** | `TELEGRAM_BOT_TOKEN` usado en `SendReminderCommand.cs:118` via `SendViaTelegramApiAsync` |
-| Registro humor via Telegram | **PENDIENTE** | `ProcessMoodInputAsync` confirmando recepcion nomas |
+| Registro humor via Telegram | **Implementado** | Flujo completo: mood keyboard (-3..+3) → sleep keyboard (4h-9h) → factores Sí/No → DailyCheckin. E2E verificado en producción 2026-04-14. |
 
 ---
 

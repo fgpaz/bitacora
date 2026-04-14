@@ -19,9 +19,11 @@ El runtime de Telegram esta materializado: webhook entrypoint, pairing code, ses
 
 ```env
 TELEGRAM_BOT_TOKEN=<token>
-TELEGRAM_WEBHOOK_URL=https://bitacora.nuestrascuentitas.com/api/v1/telegram/webhook
+TELEGRAM_WEBHOOK_URL=https://tg-adapter.bitacora.nuestrascuentitas.com/webhook
 TELEGRAM_USE_WEBHOOK=true  # false para dev (long-polling)
 ```
+
+**Arquitectura del webhook (produccion):** Telegram Bot API → `tg-adapter.bitacora.nuestrascuentitas.com/webhook` (bot adapter Python/FastAPI) → `api.bitacora.nuestrascuentitas.com/api/v1/telegram/webhook` (con header `X-Telegram-Webhook-Secret`). El adapter transforma el JSON nativo de Telegram al DTO interno `{Update, ChatId, TraceId, CallbackQueryId}`.
 
 ## Flujo conversacional (registro rapido)
 
@@ -31,14 +33,14 @@ Bot: "¿Como te sentis ahora?"
 → Paciente tap → Crear MoodEntry (RF-REG-012)
 
 Bot: "¿Cuantas horas dormiste?"
-[Keyboard: <4h | 4-6h | 6-8h | 8+h]
+[Keyboard: 4h | 5h | 6h | 7h | 8h | 9h]
 → Paciente tap → Acumular en estado conversacional
 
 Bot: "¿Hiciste actividad fisica?"
 [Keyboard: Si | No]
 
 Bot: "¿Tomaste la medicacion?"
-[Keyboard: Si | No | No tomo]
+[Keyboard: Sí | No]
 
 Bot: "Registrado. Tu humor hoy: +1. ¡Buen dia!"
 → Crear DailyCheckin (RF-REG-013)
@@ -46,10 +48,10 @@ Bot: "Registrado. Tu humor hoy: +1. ¡Buen dia!"
 
 ### Estado conversacional
 
-- Se mantiene en memoria (Dictionary<chatId, ConversationState>)
-- TTL: 10 minutos de inactividad → se descarta
-- No se persiste en DB (efimero)
-- Si el paciente no completa los factores, solo se registra el MoodEntry
+- Se mantiene en `telegram_sessions.conversation_state` (enum TelegramConversationState) y `telegram_sessions.pending_factors_json` (JSONB acumulador de factores)
+- Persistido en DB tras cada paso; sobrevive reinicios del contenedor
+- En memoria: Dictionary<chatId, TelegramFactorAccumulator> re-hidratado desde `pending_factors_json` si el contenedor se reinicia
+- Si el paciente no completa los factores, solo se registra el MoodEntry; `conversation_state` queda != Idle hasta completar o reiniciar
 
 ## Recordatorios (RF-TG-010..012) — Phase 31+
 
@@ -105,7 +107,7 @@ Bot: "Cuenta vinculada. Ya podes registrar tu humor desde aca."
 | 1 | 1s |
 | 2 | 2s |
 | 3 | 4s |
-| TTL estado conversacional | 10 minutos de inactividad | ConversationStateDictionary | No persiste estado efimero en DB |
+| Estado conversacional | Persistido en DB (`conversation_state` + `pending_factors_json`) | telegram_sessions | Sobrevive reinicios del contenedor |
 | Pairing code TTL | 15 minutos | ReminderWorker genera codigo | Limitar ventana de ataque |
 | chat_id unico | Un `chat_id` por paciente | TelegramSession unique constraint | Rechazar vinculacion multiple |
 | Recordatorios por paciente/dia | Max 1 | T3-RL-02 throttle en ReminderWorker | No saturar al paciente |

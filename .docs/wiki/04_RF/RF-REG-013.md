@@ -22,13 +22,13 @@
 | respuestas_secuenciales | callbacks | Telegram InlineKeyboard | Una por pregunta |
 
 ## Proceso (Happy Path)
-1. Tras confirmar MoodEntry, bot envia pregunta 1: horas de sueno (opciones: <5, 5-7, 7-9, >9).
+1. Tras confirmar MoodEntry, bot envia pregunta 1: horas de sueno (keyboard inline: 4h | 5h | 6h | 7h | 8h | 9h).
 2. Recibir callback, almacenar sleep_hours temporalmente en sesion.
 3. Preguntar actividad fisica (si/no).
 4. Preguntar actividad social (si/no).
 5. Preguntar ansiedad presente (si/no).
 6. Preguntar irritabilidad presente (si/no).
-7. Preguntar toma de medicacion (si/no). Si si, preguntar hora.
+7. Preguntar toma de medicacion (keyboard inline: Sí | No).
 8. Con todos los campos, invocar RF-REG-022 (UPSERT DailyCheckin).
 9. Confirmar registro al usuario.
 
