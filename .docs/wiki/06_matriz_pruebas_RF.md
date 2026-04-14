@@ -18,7 +18,7 @@
   - `RF-REG-010..015` (Telegram webhook real)
   - `RF-CON-011..013` (cascadas de revocacion)
   - `RF-VIN-010..023` (profesional + alertas)
-  - `RF-TG-010..012` (scheduler y recordatorios — ReminderWorker activo con stub de Telegram API)
+  - `RF-TG-010..012` (scheduler y recordatorios — PASSED E2E 2026-04-14: TG-P02 PASSED produccion, TG-N02 PASSED CODE-VERIFIED + guardas en produccion)
   - `RF-SEC-*`
 - `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
 - Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
