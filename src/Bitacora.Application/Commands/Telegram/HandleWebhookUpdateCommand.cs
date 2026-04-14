@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Mediator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -578,6 +579,13 @@ public sealed class HandleWebhookUpdateCommandHandler(
     {
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
 
+        // Telegram rejects reply_markup:null with 400 "object expected as reply markup".
+        // Use WhenWritingNull so the field is omitted entirely when no keyboard is needed.
+        var jsonOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+
         var delays = new[] { TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4) };
         var attempt = 0;
 
@@ -588,6 +596,7 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 var response = await client.PostAsJsonAsync(
                     $"https://api.telegram.org/bot{token}/sendMessage",
                     new { chat_id = chatId, text = message, reply_markup = replyMarkup },
+                    jsonOptions,
                     cancellationToken);
 
                 if (response.IsSuccessStatusCode)
