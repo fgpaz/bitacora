@@ -25,7 +25,8 @@ namespace NuestrasCuentitas.Bitacora.Application.Commands.Telegram;
 public readonly record struct HandleWebhookUpdateCommand(
     string? Payload,
     string? ChatId,
-    Guid TraceId) : ICommand<HandleWebhookUpdateResponse>;
+    Guid TraceId,
+    string? CallbackQueryId) : ICommand<HandleWebhookUpdateResponse>;
 
 public sealed record HandleWebhookUpdateResponse(
     bool Accepted,
@@ -53,6 +54,10 @@ public sealed class HandleWebhookUpdateCommandHandler(
 
     public async ValueTask<HandleWebhookUpdateResponse> Handle(HandleWebhookUpdateCommand command, CancellationToken cancellationToken)
     {
+        // Immediately acknowledge callback_query to dismiss Telegram button spinner.
+        // Safe to call unconditionally — returns early if CallbackQueryId is null or whitespace.
+        await AnswerCallbackQueryAsync(command.CallbackQueryId, command.TraceId, cancellationToken);
+
         var (messageType, code, rawText) = ParsePayload(command.Payload);
 
         // ── RF-REG-014: /start CODE routing ─────────────────────────────────
@@ -196,10 +201,10 @@ public sealed class HandleWebhookUpdateCommandHandler(
             var accumulator = new TelegramFactorAccumulator { MoodScore = score };
             _factorAccumulators[session.ChatId] = accumulator;
 
-            // RF-REG-013 step 1: ask for sleep hours
+            // RF-REG-013 step 1: ask for sleep hours with inline keyboard
             var reply = $"Registrado: {score}{dupSuffix}\n\n" +
-                        "Ahora contame un poco mas:\n" +
-                        "Cuantas horas dormiste anoche? (0-24, ejemplo: 7.5)";
+                        "Ahora contame un poco más:\n" +
+                        "¿Cuántas horas dormiste anoche?";
 
             // Advance session conversation state
             var nowUtc = DateTime.UtcNow;
@@ -207,7 +212,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
             await sessionRepository.UpdateAsync(session, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+            await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                BuildSleepKeyboard());
             await WriteAuditAsync(traceId, session.ChatId, "mood_input", moodValue,
                 AuditOutcome.Ok, null, session.PatientId, cancellationToken);
 
@@ -501,7 +507,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
     // ── Telegram API ─────────────────────────────────────────────────────────────
 
     private async Task SendTelegramMessageAsync(
-        string chatId, string message, Guid traceId, CancellationToken cancellationToken)
+        string chatId, string message, Guid traceId, CancellationToken cancellationToken,
+        object? replyMarkup = null)
     {
         var token = configuration["TELEGRAM_BOT_TOKEN"] ?? configuration["Telegram:BotToken"];
         if (string.IsNullOrWhiteSpace(token))
@@ -510,15 +517,64 @@ public sealed class HandleWebhookUpdateCommandHandler(
             return;
         }
 
-        await SendViaTelegramApiAsync(token, chatId, message, traceId, cancellationToken);
+        await SendViaTelegramApiAsync(token, chatId, message, traceId, cancellationToken, replyMarkup);
     }
+
+    /// <summary>
+    /// Calls Telegram answerCallbackQuery to dismiss the button spinner immediately.
+    /// Safe to call with null — returns early without error.
+    /// </summary>
+    private async Task AnswerCallbackQueryAsync(
+        string? callbackQueryId, Guid traceId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(callbackQueryId)) return;
+
+        var token = configuration["TELEGRAM_BOT_TOKEN"] ?? configuration["Telegram:BotToken"];
+        if (string.IsNullOrWhiteSpace(token)) return;
+
+        try
+        {
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            await client.PostAsJsonAsync(
+                $"https://api.telegram.org/bot{token}/answerCallbackQuery",
+                new { callback_query_id = callbackQueryId },
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex,
+                "answerCallbackQuery failed for id {CallbackQueryId}, trace {TraceId}",
+                callbackQueryId, traceId);
+        }
+    }
+
+    /// <summary>
+    /// Inline keyboard for sleep hours selection (4–9 h), used after mood score is recorded.
+    /// Callback data matches strings accepted by TryParseSleepHours.
+    /// </summary>
+    private static object BuildSleepKeyboard() => new
+    {
+        inline_keyboard = new[]
+        {
+            new object[]
+            {
+                new { text = "4h", callback_data = "4" },
+                new { text = "5h", callback_data = "5" },
+                new { text = "6h", callback_data = "6" },
+                new { text = "7h", callback_data = "7" },
+                new { text = "8h", callback_data = "8" },
+                new { text = "9h", callback_data = "9" },
+            }
+        }
+    };
 
     private async Task<bool> SendViaTelegramApiAsync(
         string token,
         string chatId,
         string message,
         Guid traceId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        object? replyMarkup = null)
     {
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
 
@@ -531,7 +587,7 @@ public sealed class HandleWebhookUpdateCommandHandler(
             {
                 var response = await client.PostAsJsonAsync(
                     $"https://api.telegram.org/bot{token}/sendMessage",
-                    new { chat_id = chatId, text = message },
+                    new { chat_id = chatId, text = message, reply_markup = replyMarkup },
                     cancellationToken);
 
                 if (response.IsSuccessStatusCode)

@@ -16,11 +16,18 @@
 - Existe un `TelegramPairingCode` no expirado.
 - `chat_id` no esta ya vinculado a otro paciente (RF-TG-003).
 
-## Inputs
+## Inputs (DTO interno — no es formato nativo de Telegram)
+
+El endpoint `POST /api/v1/telegram/webhook` recibe un DTO interno con header `X-Telegram-Webhook-Secret`.
+El bot adapter extrae los campos del update nativo de Telegram y los mapea a este contrato.
+
 | Campo | Tipo | Origen | Validacion |
 |-------|------|--------|-----------|
-| chat_id | bigint | Telegram Update | Requerido |
-| code | string | Texto del mensaje | Formato esperado `BIT-XXXXX` |
+| Update | string | `message.text` o `callback_query.data` del update de Telegram | Requerido para interpretar el comando |
+| ChatId | string | `message.chat.id` o `callback_query.message.chat.id` (como string) | Requerido |
+| TraceId | Guid | Generado por el adapter o cliente | Requerido, no debe ser Guid.Empty |
+| CallbackQueryId | string? | `callback_query.id` (solo en taps de inline keyboard) | Opcional; si presente, el handler llama `answerCallbackQuery` |
+| code | string | Extraido de Update cuando es `/start BIT-XXXXX` | Formato `BIT-XXXXX` |
 
 ## Proceso (Happy Path)
 1. Parsear el mensaje y extraer `code` del comando `/start BIT-XXXXX`.
@@ -79,3 +86,9 @@ Scenario: Codigo expirado es rechazado con mensaje de ayuda
 
 ## Sin ambiguedades pendientes
 Ninguna.
+
+## Notas de implementacion
+- El DTO `{Update, ChatId, TraceId, CallbackQueryId}` es un contrato interno del bot adapter; no es el formato nativo de Telegram.
+- `CallbackQueryId` permite al handler llamar `answerCallbackQuery` para descartar el spinner del boton inline inmediatamente.
+- Los botones del inline keyboard de humor usan `callback_data = "+2"`, `-1"` etc., que `ParsePayload` reconoce como `mood_input` sin cambios adicionales.
+- Los botones de horas de sueño usan `callback_data = "4"` .. `"9"`, reconocidos por `TryParseSleepHours`.

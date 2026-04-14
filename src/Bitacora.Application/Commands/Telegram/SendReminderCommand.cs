@@ -37,6 +37,9 @@ public sealed class SendReminderCommandHandler(
     ILogger<SendReminderCommandHandler> logger)
     : ICommandHandler<SendReminderCommand, SendReminderResponse>
 {
+    // System actor ID for reminder audit records (no authenticated patient in scheduler context).
+    // Same sentinel value used in HandleWebhookUpdateCommandHandler.
+    private static readonly Guid TelegramBotActorId = new("b07acc00-0000-0000-b070-000000000000");
     public async ValueTask<SendReminderResponse> Handle(SendReminderCommand command, CancellationToken cancellationToken)
     {
         if (command.ReminderConfigId == Guid.Empty)
@@ -90,9 +93,10 @@ public sealed class SendReminderCommandHandler(
             return new SendReminderResponse(false, "REMINDER_NO_SESSION", null);
         }
 
-        // 5. Send Telegram reminder — no clinical data per CT-TELEGRAM-RUNTIME invariant
-        var botMessage = "Es hora de registrar tu humor del dia. Abre la app para registrarlo.";
-        var sent = await SendTelegramMessageAsync(session.ChatId, botMessage, command.TraceId, cancellationToken);
+        // 5. Send Telegram reminder with inline mood keyboard — no clinical data per CT-TELEGRAM-RUNTIME invariant
+        var botMessage = "¿Cómo estás hoy? Tocá el número que mejor describe tu humor del día:";
+        var sent = await SendTelegramMessageAsync(session.ChatId, botMessage, command.TraceId, cancellationToken,
+            BuildMoodKeyboard());
 
         if (!sent)
         {
@@ -115,8 +119,30 @@ public sealed class SendReminderCommandHandler(
         return new SendReminderResponse(true, null, reminderEntity.NextFireAtUtc);
     }
 
+    /// <summary>
+    /// Inline keyboard for mood score selection (-3 to +3), sent with reminder messages.
+    /// Callback data matches the literals recognized by HandleWebhookUpdateCommand.ParsePayload.
+    /// </summary>
+    private static object BuildMoodKeyboard() => new
+    {
+        inline_keyboard = new[]
+        {
+            new object[]
+            {
+                new { text = "-3", callback_data = "-3" },
+                new { text = "-2", callback_data = "-2" },
+                new { text = "-1", callback_data = "-1" },
+                new { text = "0",  callback_data = "0"  },
+                new { text = "+1", callback_data = "+1" },
+                new { text = "+2", callback_data = "+2" },
+                new { text = "+3", callback_data = "+3" },
+            }
+        }
+    };
+
     private Task<bool> SendTelegramMessageAsync(
-        string chatId, string message, Guid traceId, CancellationToken cancellationToken)
+        string chatId, string message, Guid traceId, CancellationToken cancellationToken,
+        object? replyMarkup = null)
     {
         var token = configuration["TELEGRAM_BOT_TOKEN"] ?? configuration["Telegram:BotToken"];
         if (string.IsNullOrWhiteSpace(token))
@@ -125,7 +151,7 @@ public sealed class SendReminderCommandHandler(
             return Task.FromResult(false);
         }
 
-        return SendViaTelegramApiAsync(token, chatId, message, traceId, cancellationToken);
+        return SendViaTelegramApiAsync(token, chatId, message, traceId, cancellationToken, replyMarkup);
     }
 
     private async Task<bool> SendViaTelegramApiAsync(
@@ -133,7 +159,8 @@ public sealed class SendReminderCommandHandler(
         string chatId,
         string message,
         Guid traceId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        object? replyMarkup = null)
     {
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
 
@@ -147,7 +174,7 @@ public sealed class SendReminderCommandHandler(
             {
                 var response = await client.PostAsJsonAsync(
                     $"https://api.telegram.org/bot{token}/sendMessage",
-                    new { chat_id = chatId, text = message },
+                    new { chat_id = chatId, text = message, reply_markup = replyMarkup },
                     cancellationToken);
 
                 if (response.IsSuccessStatusCode)
@@ -207,7 +234,7 @@ public sealed class SendReminderCommandHandler(
 
         var audit = AccessAudit.Create(
             traceId,
-            actorId: Guid.Empty,
+            actorId: TelegramBotActorId,
             pseudonymId: pseudonymId,
             AuditActionType.TelegramAudit,
             resourceType: "TelegramReminder",

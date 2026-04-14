@@ -96,7 +96,8 @@ public static class TelegramEndpoints
             var command = new HandleWebhookUpdateCommand(
                 Payload: request.Update,
                 ChatId: request.ChatId,
-                TraceId: request.TraceId);
+                TraceId: request.TraceId,
+                CallbackQueryId: request.CallbackQueryId);
 
             var result = await mediator.Send(command, cancellationToken);
 
@@ -119,7 +120,8 @@ public static class TelegramEndpoints
 public sealed record TelegramWebhookRequest(
     string? Update,
     string? ChatId,
-    Guid TraceId);
+    Guid TraceId,
+    string? CallbackQueryId);
 
 public sealed record TelegramWebhookResponse(
     bool Accepted,
