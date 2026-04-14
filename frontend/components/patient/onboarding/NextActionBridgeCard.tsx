@@ -22,6 +22,9 @@ export function NextActionBridgeCard({ needsFirstEntry = true }: Props) {
       ) : (
         <p className={styles.note}>Ya puedes usar Bitacora.</p>
       )}
+      <Link href="/configuracion/telegram" className={styles.secondaryLink}>
+        Vincular Telegram (opcional)
+      </Link>
     </div>
   );
 }

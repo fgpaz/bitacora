@@ -35,3 +35,16 @@
   font-size: 0.9375rem;
   color: var(--foreground-muted);
 }
+
+.secondaryLink {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.secondaryLink:hover {
+  color: var(--foreground);
+}

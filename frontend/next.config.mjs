@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
 
   // ── Security headers ────────────────────────────────────────────────────────
   // Applied per-response by middleware as well; these are the Next.js-level defaults.

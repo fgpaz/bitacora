@@ -152,3 +152,26 @@ export async function upsertDailyCheckin(
     body: JSON.stringify(data),
   });
 }
+
+/* ─── Telegram ───────────────────────────────────────────────────────────── */
+
+export interface TelegramPairingResponse {
+  code: string;         // BIT-XXXXX
+  expires_at: string;   // ISO UTC timestamp
+}
+
+export interface TelegramSessionResponse {
+  linked: boolean;
+  linked_at?: string;   // ISO UTC timestamp (present when linked=true)
+  chat_id?: string;     // obfuscated, present when linked=true
+}
+
+export async function generatePairingCode(): Promise<TelegramPairingResponse> {
+  return bitacoraFetch<TelegramPairingResponse>('/telegram/pairing', {
+    method: 'POST',
+  });
+}
+
+export async function getTelegramSession(): Promise<TelegramSessionResponse> {
+  return bitacoraFetch<TelegramSessionResponse>('/telegram/session');
+}
