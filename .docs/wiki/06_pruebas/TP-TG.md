@@ -16,8 +16,8 @@
 |-------|--------|----------|-------|-----------|
 | TG-P01 | PASSED | produccion | 2026-04-14 | Pairing con BIT-RGSG2, TelegramSession linked, DailyCheckin persistido |
 | TG-N01 | PASSED | produccion | 2026-04-14 | /start con codigo invalido rechazado; consentimiento previo requerido |
-| TG-P02 | PENDIENTE | — | — | Scheduler ReminderWorker no ejecutado en este ciclo |
-| TG-N02 | PENDIENTE | — | — | Skip conditions no verificadas |
+| TG-P02 | PARCIAL | produccion | 2026-04-14 | Scheduler encuentra reminder, aplica guards (consent+session OK), falla entrega en Telegram API (chat_id de test no es real). Infra del scheduler validada. Entrega real requiere chat_id de usuario Telegram genuino. |
+| TG-N02 | CODE-VERIFIED | — | — | Skip de consent revocado y session unlinked confirmados en code review del SendReminderCommandHandler. Ejecucion E2E bloqueada por estado de test (session con chat_id no real). |
 
 ## Cobertura RF
 
