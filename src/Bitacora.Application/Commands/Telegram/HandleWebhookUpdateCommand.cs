@@ -47,6 +47,10 @@ public sealed class HandleWebhookUpdateCommandHandler(
     // Key: chat_id, Value: accumulated factor values.
     private static readonly Dictionary<string, TelegramFactorAccumulator> _factorAccumulators = new();
 
+    // System actor ID used for Telegram audit records where no authenticated patient is known.
+    // Distinct from Guid.Empty (which AccessAudit.Create rejects) and from any real patient ID.
+    private static readonly Guid TelegramBotActorId = new("b07acc00-0000-0000-b070-000000000000");
+
     public async ValueTask<HandleWebhookUpdateResponse> Handle(HandleWebhookUpdateCommand command, CancellationToken cancellationToken)
     {
         var (messageType, code, rawText) = ParsePayload(command.Payload);
@@ -671,7 +675,7 @@ public sealed class HandleWebhookUpdateCommandHandler(
 
         var audit = AccessAudit.Create(
             traceId,
-            actorId: Guid.Empty,
+            actorId: patientId ?? TelegramBotActorId,
             pseudonymId: pseudonymId,
             AuditActionType.TelegramAudit,
             resourceType: $"TelegramWebhook:{messageType}",
