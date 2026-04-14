@@ -27,6 +27,14 @@ out/
 .DS_Store
 Thumbs.db
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+*.egg-info/
+
 # Tooling
 .mi-lsp/
 .codex
