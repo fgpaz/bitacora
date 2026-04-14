@@ -5,7 +5,7 @@
 - Trigger: Invocado por ReminderWorker para cada recordatorio due
 - Actor: Sistema (Telegram Bot API)
 - Prioridad PDP: Usability (dentro de lo que permite Security/Privacy)
-- Estado: **Implementado (stub)** — `SendReminderCommand` procesa el flujo completo pero `SendTelegramMessageAsync` es un stub que solo loguea; no hay integracion real con Telegram Bot API
+- Estado: **Implementado (produccion)** — `SendReminderCommand` + `HandleWebhookUpdateCommandHandler` producen la integracion completa con Telegram Bot API (E2E verificado 2026-04-14)
 
 ## Precondiciones detalladas
 - `chat_id` resuelto y valido (TelegramSession.status=linked)
@@ -23,7 +23,7 @@
    - `chat_id`: provisto
    - `text`: "Como te sentis hoy?"
    - `reply_markup.inline_keyboard`: una fila con 7 botones [-3, -2, -1, 0, +1, +2, +3]
-   - Cada boton: `{ text: "-3", callback_data: "mood:-3" }`
+   - Cada boton: `{ text: "-3", callback_data: "-3" }` (valor numerico directo, sin prefijo)
 2. POST a `https://api.telegram.org/bot{token}/sendMessage`
 3. Si HTTP 200: exito
 4. Si HTTP 4xx/5xx: loguear error con chat_id (sin patient_id en log), lanzar excepcion
@@ -39,10 +39,20 @@
 | TG_011_BOT_TOKEN_MISSING | Variable de entorno ausente; fallo en startup |
 | TG_011_CHAT_NOT_FOUND | Telegram 400: chat_id invalido; marcar sesion para revision |
 
+## Keyboards implementados
+
+| Keyboard | Tipo | Botones | callback_data | Usado en |
+|---------|------|---------|--------------|---------|
+| Humor | InlineKeyboard | -3, -2, -1, 0, +1, +2, +3 | valor numerico directo | Recordatorio scheduler |
+| Sueño | InlineKeyboard | 4h, 5h, 6h, 7h, 8h, 9h | "4".."9" | Tras registrar mood score |
+| Sí/No | InlineKeyboard | Sí, No | "si", "no" | Cada factor binario (física, social, ansiedad, irritabilidad, medicacion) |
+
+**Nota de contrato:** el campo `reply_markup` debe omitirse del JSON cuando no corresponde un keyboard (no enviar `null`). Telegram rechaza `{"reply_markup":null}` con 400.
+
 ## Casos especiales y variantes
 - Telegram retorna 403 (bot bloqueado por usuario): marcar TelegramSession como `status=unlinked`
-- Timeout de la llamada HTTP: reintentar 1 vez, luego loguear y continuar
-- Los botones no incluyen etiquetas textuales adicionales, solo el numero
+- Timeout de la llamada HTTP: reintentar con backoff 1s/2s/4s (T3-TG-01)
+- Los botones no incluyen etiquetas textuales adicionales, solo el valor
 
 ## Impacto en modelo de datos
 - Solo lectura durante la operacion
