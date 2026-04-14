@@ -287,8 +287,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                     await sessionRepository.UpdateAsync(session, cancellationToken);
                     await unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    reply = "Tuviste actividad fisica hoy? (si/no)";
-                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                    reply = "Tuviste actividad fisica hoy?";
+                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                        BuildYesNoKeyboard());
                     return new HandleWebhookUpdateResponse(true, null, reply);
                 }
 
@@ -297,8 +298,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 {
                     if (!TryParseYesNo(rawText, out var physical))
                     {
-                        reply = "Respuesta invalida. Tuviste actividad fisica hoy? (si/no)";
-                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                        reply = "Respuesta invalida. Tuviste actividad fisica hoy?";
+                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                            BuildYesNoKeyboard());
                         return new HandleWebhookUpdateResponse(true, null, reply);
                     }
 
@@ -307,8 +309,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                     await sessionRepository.UpdateAsync(session, cancellationToken);
                     await unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    reply = "Tuviste actividad social hoy? (si/no)";
-                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                    reply = "Tuviste actividad social hoy?";
+                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                        BuildYesNoKeyboard());
                     return new HandleWebhookUpdateResponse(true, null, reply);
                 }
 
@@ -317,8 +320,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 {
                     if (!TryParseYesNo(rawText, out var social))
                     {
-                        reply = "Respuesta invalida. Tuviste actividad social hoy? (si/no)";
-                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                        reply = "Respuesta invalida. Tuviste actividad social hoy?";
+                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                            BuildYesNoKeyboard());
                         return new HandleWebhookUpdateResponse(true, null, reply);
                     }
 
@@ -327,8 +331,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                     await sessionRepository.UpdateAsync(session, cancellationToken);
                     await unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    reply = "Sentiste ansiedad hoy? (si/no)";
-                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                    reply = "Sentiste ansiedad hoy?";
+                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                        BuildYesNoKeyboard());
                     return new HandleWebhookUpdateResponse(true, null, reply);
                 }
 
@@ -337,8 +342,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 {
                     if (!TryParseYesNo(rawText, out var anxiety))
                     {
-                        reply = "Respuesta invalida. Sentiste ansiedad hoy? (si/no)";
-                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                        reply = "Respuesta invalida. Sentiste ansiedad hoy?";
+                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                            BuildYesNoKeyboard());
                         return new HandleWebhookUpdateResponse(true, null, reply);
                     }
 
@@ -347,8 +353,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                     await sessionRepository.UpdateAsync(session, cancellationToken);
                     await unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    reply = "Sentiste irritabilidad hoy? (si/no)";
-                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                    reply = "Sentiste irritabilidad hoy?";
+                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                        BuildYesNoKeyboard());
                     return new HandleWebhookUpdateResponse(true, null, reply);
                 }
 
@@ -357,8 +364,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 {
                     if (!TryParseYesNo(rawText, out var irritability))
                     {
-                        reply = "Respuesta invalida. Sentiste irritabilidad hoy? (si/no)";
-                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                        reply = "Respuesta invalida. Sentiste irritabilidad hoy?";
+                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                            BuildYesNoKeyboard());
                         return new HandleWebhookUpdateResponse(true, null, reply);
                     }
 
@@ -367,8 +375,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                     await sessionRepository.UpdateAsync(session, cancellationToken);
                     await unitOfWork.SaveChangesAsync(cancellationToken);
 
-                    reply = "Tomaste medicacion hoy? (si/no)";
-                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                    reply = "Tomaste medicacion hoy?";
+                    await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                        BuildYesNoKeyboard());
                     return new HandleWebhookUpdateResponse(true, null, reply);
                 }
 
@@ -377,8 +386,9 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 {
                     if (!TryParseYesNo(rawText, out var medication))
                     {
-                        reply = "Respuesta invalida. Tomaste medicacion hoy? (si/no)";
-                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
+                        reply = "Respuesta invalida. Tomaste medicacion hoy?";
+                        await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken,
+                            BuildYesNoKeyboard());
                         return new HandleWebhookUpdateResponse(true, null, reply);
                     }
 
@@ -567,6 +577,22 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 new { text = "7h", callback_data = "7" },
                 new { text = "8h", callback_data = "8" },
                 new { text = "9h", callback_data = "9" },
+            }
+        }
+    };
+
+    /// <summary>
+    /// Inline keyboard for binary yes/no questions (si/no factors).
+    /// Callback data matches strings accepted by TryParseYesNo.
+    /// </summary>
+    private static object BuildYesNoKeyboard() => new
+    {
+        inline_keyboard = new[]
+        {
+            new object[]
+            {
+                new { text = "Sí", callback_data = "si" },
+                new { text = "No", callback_data = "no" },
             }
         }
     };
