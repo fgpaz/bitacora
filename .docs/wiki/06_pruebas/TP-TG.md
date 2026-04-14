@@ -7,8 +7,17 @@
 
 ## Estado de ejecucion actual
 
-- `Diferido` en el runtime actual.
-- Este TP sigue siendo canon válido para la futura capa Telegram, pero hoy no existen pairing, `TelegramSession`, scheduler ni recordatorios materializados en `src/`.
+- `Parcialmente ejecutado` — TG-P01 y TG-N01 ejecutados y aprobados en produccion (E2E 2026-04-14).
+- TG-P02 y TG-N02 (scheduler/recordatorios) pendientes de ejecucion; el scheduler esta implementado pero no se ejecuto en este ciclo de prueba.
+
+### Resultados de ejecucion
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| TG-P01 | PASSED | produccion | 2026-04-14 | Pairing con BIT-RGSG2, TelegramSession linked, DailyCheckin persistido |
+| TG-N01 | PASSED | produccion | 2026-04-14 | /start con codigo invalido rechazado; consentimiento previo requerido |
+| TG-P02 | PENDIENTE | — | — | Scheduler ReminderWorker no ejecutado en este ciclo |
+| TG-N02 | PENDIENTE | — | — | Skip conditions no verificadas |
 
 ## Cobertura RF
 

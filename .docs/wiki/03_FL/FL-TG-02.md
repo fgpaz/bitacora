@@ -6,7 +6,7 @@ El sistema envia recordatorios automaticos via Telegram a los pacientes que conf
 ## Scope
 **In:** Scheduler, envio de mensaje, manejo de respuesta inline.
 **Out:** Registro de humor (→ FL-REG-02).
-**Estado: IMPLEMENTADO con stub de Telegram API.** El `ReminderWorker` y `SendReminderCommand` estan materializados. `SendTelegramMessageAsync` es un stub que solo loguea; la integracion real con la API de Telegram Bot no existe aun.
+**Estado: IMPLEMENTADO.** El `ReminderWorker` y `SendReminderCommand` estan materializados. `SendTelegramMessageAsync` invoca la API de Telegram Bot con el token configurado (`TELEGRAM_BOT_TOKEN`); la integracion es real segun CT-TELEGRAM-RUNTIME y TECH-TELEGRAM (Phase 30+). Ejecucion E2E del scheduler (TG-P02/TG-N02) pendiente de verificacion.
 
 ## Actores y ownership
 | Actor | Rol en el flujo |
@@ -42,13 +42,13 @@ sequenceDiagram
             API->>API: Disable() + audit denied
             API-->>WORKER: Sent=false
         end
-        alt Envio exitoso (stub)
-            API->>API: SendTelegramMessageAsync(chat_id, "Es hora de registrar...") -- STUB: solo loguea
+        alt Envio exitoso
+            API->>TG: SendTelegramMessageAsync(chat_id, "Es hora de registrar...")
+            TG-->>P: Mensaje de recordatorio
             API->>DB: AdvanceNextFire() + audit ok
             API-->>WORKER: Sent=true, NextFireAtUtc=...
         end
     end
-    Note over P,TG: Mensaje stub solo loguea; no llega a Telegram
 ```
 
 ## Paths alternativos / errores
@@ -76,12 +76,12 @@ sequenceDiagram
 | AccessAudit | INSERT | Implementado |
 
 ## Pendientes explícitos
-- `SendTelegramMessageAsync` es un stub que solo loguea. La integracion real con la API de Telegram Bot (`TELEGRAM_BOT_TOKEN`) no existe.
-- El mensaje de recordatorio no usa inline keyboard (-3..+3); es un texto generico "Es hora de registrar tu humor del dia."
+- El mensaje de recordatorio no usa inline keyboard (-3..+3); es un texto generico "Es hora de registrar tu humor del dia.". Keyboard inline pendiente de implementacion.
+- TG-P02 y TG-N02 (scheduler E2E) no ejecutados en el ciclo de prueba 2026-04-14.
 
 ## RF candidatos
 - RF-TG-010: Scheduler background para recordatorios (**Implementado**)
-- RF-TG-011: Enviar mensaje con keyboard inline a Telegram (**Implementado con stub**)
+- RF-TG-011: Enviar mensaje con keyboard inline a Telegram (**Implementado — texto basico; keyboard inline pendiente**)
 - RF-TG-012: Skip si consent revocado o session unlinked (**Implementado**)
 
 ## Bottlenecks y mitigaciones
