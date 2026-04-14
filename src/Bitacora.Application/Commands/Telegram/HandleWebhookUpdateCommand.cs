@@ -254,11 +254,13 @@ public sealed class HandleWebhookUpdateCommandHandler(
         Guid traceId,
         CancellationToken cancellationToken)
     {
-        // Retrieve or initialize accumulator
+        // Retrieve or initialize accumulator; re-hydrate from DB if lost on server restart
         if (!_factorAccumulators.TryGetValue(session.ChatId, out var accumulator))
         {
-            // Safety reset if accumulator was lost (server restart)
-            accumulator = new TelegramFactorAccumulator();
+            accumulator = !string.IsNullOrWhiteSpace(session.PendingFactorsJson)
+                ? JsonSerializer.Deserialize<TelegramFactorAccumulator>(session.PendingFactorsJson)
+                  ?? new TelegramFactorAccumulator()
+                : new TelegramFactorAccumulator();
             _factorAccumulators[session.ChatId] = accumulator;
         }
 
