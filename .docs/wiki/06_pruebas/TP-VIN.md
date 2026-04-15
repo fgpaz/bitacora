@@ -66,10 +66,19 @@ Scenario: Profesional no puede cambiar la visibilidad
   Then se retorna 403 FORBIDDEN
 ```
 
+### E2E 2026-04-15
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| VIN-P01 | PASSED | produccion | 2026-04-15 | GET /vinculos: HTTP 200, links=[] (smoke user sin vínculos). Evidencia: F5-03-vinculos.json |
+| VIN-P02 | PASSED | produccion | 2026-04-15 | GET /vinculos/active: HTTP 200, links=[] |
+| VIN-P03 (binding code flow) | READY | produccion | 2026-04-15 | Usuario profesional smoke disponible. Ver `infra/.env: SMOKE_PROF_*` y runbook `infra/runbooks/professional-smoke-user.md`. |
+
 ## Pendiente para validacion final
 
 - El flujo completo de invitacion profesional (crear PendingInvite + email al paciente + aceptacion con BindingCode) requiere validacion UX del puente de email y la experiencia de aceptacion del paciente.
 - La pantalla profesional de detalle de paciente aun no tiene flujo de generacion de BindingCode visible para el profesional.
+- VIN-P03 (binding code flow): usuario profesional smoke ahora disponible en producción (SMOKE_PROF_*). E2E pending ejecución.
 - UX validation: NO completada.
 
 ## Criterios de salida
