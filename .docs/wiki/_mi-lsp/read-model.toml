@@ -1,0 +1,40 @@
+version = 1
+
+[[family]]
+  name = "functional"
+  intent_keywords = ["scope", "flow", "feature", "behavior", "rf", "fl", "test", "workflow", "governance", "ordered_wiki", "spec_core", "technical"]
+  paths = [".docs/wiki/00_gobierno_documental.md"]
+
+[generic_docs]
+  paths = ["README.md", "README*.md", "docs/", ".docs/"]
+
+[reading_pack]
+  max_docs = 7
+  functional_stage_order = ["governance", "scope", "architecture", "flow", "requirements", "data", "tests"]
+  technical_stage_order = ["governance", "scope", "architecture", "technical_baseline", "technical_detail", "physical_data", "contracts"]
+  ux_stage_order = ["governance", "scope", "architecture", "ux_global", "ux_research", "ux_spec", "ux_handoff"]
+
+[governance]
+  source_doc = ".docs/wiki/00_gobierno_documental.md"
+  source_format = "markdown+yaml"
+  profile = "spec_backend"
+  effective_base = "ordered_wiki"
+  effective_overlays = ["spec_core", "technical"]
+  context_chain = ["governance"]
+  closure_chain = ["governance"]
+  audit_chain = ["governance"]
+  blocking_rules = ["missing_human_governance_doc", "missing_governance_yaml", "invalid_governance_schema", "projection_out_of_sync", "workspace_index_stale"]
+  numbering_recommended = true
+  [governance.projection]
+    output = ".docs/wiki/_mi-lsp/read-model.toml"
+    format = "toml"
+    auto_sync = true
+    versioned = true
+
+  [[governance.hierarchy]]
+    id = "governance"
+    label = "Gobierno documental"
+    layer = "00"
+    family = "functional"
+    pack_stage = "governance"
+    paths = [".docs/wiki/00_gobierno_documental.md"]
