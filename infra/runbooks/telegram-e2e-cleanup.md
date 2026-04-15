@@ -17,25 +17,25 @@ Desvincular el perfil QA @tedi_responde (telegram_chat_id=8645234680) antes de c
 ssh turismo "docker ps --format '{{.Names}}' | grep postgres"
 ```
 
-Nota: Puede haber múltiples containers. Usar el que corresponda a la instancia de Bitácora (típicamente `postgres-compress-haptic-transmitter-ghemty.1.3qbpgsjxw3fzxmax7ingvokzh` o similar).
+Nota: Puede haber múltiples containers. Identificar el correcto buscando el que contiene la DB `bitacora_db` (típicamente el nombre incluye "reboot" o "solid-state").
 
 ### 2. DELETE de la sesión Telegram anterior
 ```bash
 CONTAINER=<nombre del container del paso 1>
-ssh turismo "docker exec -i $CONTAINER psql -U bitacora -d bitacora_db -c \"DELETE FROM telegram_sessions WHERE telegram_chat_id = '8645234680';\""
+ssh turismo "docker exec -i $CONTAINER psql -U bitacora -d bitacora_db -c \"DELETE FROM telegram_sessions WHERE chat_id = '8645234680';\""
 ```
 Resultado esperado: `DELETE 1` (o `DELETE 0` si ya estaba limpio)
 
 ### 3. Verificar cleanup
 ```bash
-ssh turismo "docker exec -i $CONTAINER psql -U bitacora -d bitacora_db -c \"SELECT count(*) FROM telegram_sessions WHERE telegram_chat_id = '8645234680';\""
+ssh turismo "docker exec -i $CONTAINER psql -U bitacora -d bitacora_db -c \"SELECT count(*) FROM telegram_sessions WHERE chat_id = '8645234680';\""
 ```
 Resultado esperado: `count = 0`
 
 ### 4. Proceder con el E2E
 - Generar nuevo pairing code: `POST /api/v1/telegram/pairing-code` con JWT del smoke user
 - Enviar `/start <CÓDIGO>` via @tedi_responde al bot @mi_bitacora_personal_bot
-- Verificar vinculación: `SELECT * FROM telegram_sessions WHERE telegram_chat_id = '8645234680';`
+- Verificar vinculación: `SELECT * FROM telegram_sessions WHERE chat_id = '8645234680';`
 
 ## Notas
 - @tedi_responde es el perfil QA dedicado al smoke user actual (1e9df465-e464-48a7-b2f2-dc482ecbc7ce)
