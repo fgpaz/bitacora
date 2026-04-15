@@ -107,7 +107,7 @@ The following rules were hardened in Phase 50 (T2/T3/T4) and reflect current run
 |-----------|-----------|-----------|
 | Backend | .NET 10 (Bitacora.Api) | Runnable local hoy; target prod-first en Dokploy sobre `turismo` |
 | Base de datos | PostgreSQL (`bitacora_db` dedicada) | Local/dev y target Dokploy dedicado en el mismo VPS |
-| Auth | Supabase Auth (GoTrue) | auth.tedi.nuestrascuentitas.com |
+| Auth | Supabase Auth (GoTrue v2.177.0) | auth.bitacora.nuestrascuentitas.com (instancia dedicada, activa 2026-04-15) |
 | Reverse proxy | Traefik (via Dokploy) | Target de produccion |
 | Dominio API | `api.bitacora.nuestrascuentitas.com` | Target backend-only de T01 |
 | Dominio web | `bitacora.nuestrascuentitas.com` | `frontend/` existe con implementacion inicial bajo `frontend/`; deployment completo a `bitacora.nuestrascuentitas.com` planeado para Phase 40. Mientras tanto, `GET /` en `Bitacora.Api` redirige a `/scalar/v1`. |

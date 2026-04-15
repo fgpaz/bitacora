@@ -4,8 +4,8 @@
 
 | Campo | Valor |
 |-------|-------|
-| Provider | Supabase Auth (GoTrue) |
-| Instancia | auth.tedi.nuestrascuentitas.com |
+| Provider | Supabase Auth (GoTrue v2.177.0) |
+| Instancia | auth.bitacora.nuestrascuentitas.com (dedicada, activa 2026-04-15) |
 | Metodos | Magic Link (primario), Google OAuth |
 | Validacion JWT | Clave simetrica (`Supabase:JwtSecret` o env `Supabase__JwtSecret` / `SUPABASE_JWT_SECRET`) |
 | Header | `Authorization: Bearer <access_token>` |

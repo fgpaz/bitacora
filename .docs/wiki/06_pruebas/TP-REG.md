@@ -25,7 +25,7 @@
 
 **Metodo:** JWT HS256 forjado con `SUPABASE_JWT_SECRET` de supabase-prod para usuario smoke-test `88888888-8888-8888-8888-888888888888` (status=Active, consent activo). Evidencia completa en `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`.
 
-**Hallazgo bloqueante (auth misconfiguration):** La autenticacion browser real (magic link via `auth.tedi.nuestrascuentitas.com`) no puede completar llamadas API porque el backend valida con secret de instancia distinta. Ver gap en `CT-AUTH.md` y `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
+**GAP RESUELTO (2026-04-15):** Instancia GoTrue dedicada `auth.bitacora.nuestrascuentitas.com` desplegada y activa. Frontend reconstruido con nueva URL. Backend actualizado con nuevo JWT secret. Pendiente solo DNS para completar flujo browser real. Ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
 
 ## Cobertura RF
 

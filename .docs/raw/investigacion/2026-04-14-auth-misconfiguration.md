@@ -100,31 +100,36 @@ SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2
 ### Checklist de deployment
 
 #### Google Cloud Console (mismo proyecto GCP que tedi)
-- [ ] Ir a APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID
-- [ ] Application type: **Web application**
-- [ ] Name: `Bitácora`
-- [ ] Authorized JavaScript origins: `https://bitacora.nuestrascuentitas.com`
-- [ ] Authorized redirect URIs: `https://auth.bitacora.nuestrascuentitas.com/callback`
-- [ ] Guardar → copiar el nuevo `client_id` y `client_secret` generados
-- [ ] Reemplazar los valores placeholder en las vars de Dokploy GoTrue:
-  - `GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID=<nuevo-client-id>.apps.googleusercontent.com`
-  - `GOTRUE_EXTERNAL_GOOGLE_SECRET=<nuevo-client-secret>`
-  - `GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI=https://auth.bitacora.nuestrascuentitas.com/callback`
+- [x] Ir a APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID
+- [x] Application type: **Web application**
+- [x] Name: `Bitácora`
+- [x] Authorized JavaScript origins: `https://bitacora.nuestrascuentitas.com`
+- [x] Authorized redirect URIs: `https://auth.bitacora.nuestrascuentitas.com/callback`
+- [x] Guardado → client_id: `443713772680-skk9d6i69havjmq7kdqd3n35jpton7e5.apps.googleusercontent.com`
 
-> NO modificar el cliente `443713772680-mou4...` — ese es de tedi.
+#### Dokploy (completado 2026-04-15)
+- [x] Nueva DB Postgres para GoTrue: `BZIF_i_IftviCCVnoS9p7` (container `postgres-connect-cross-platform-transmitter-s9tn2g`)
+- [x] Nueva app GoTrue (`supabase/gotrue:v2.177.0`): `O7PVCjNNqeL05HVjuRifl` (service `app-reboot-primary-pixel-xclgrf`)
+- [x] Dominio `auth.bitacora.nuestrascuentitas.com` configurado en Traefik (responde via IP)
+- [x] 54 migraciones de GoTrue ejecutadas exitosamente — 16 tablas en schema `auth`
+- [x] Frontend: `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` actualizados, bundle reconstruido
+- [x] Backend API: `SUPABASE_JWT_SECRET` actualizado al secreto de la nueva instancia GoTrue
 
-#### Dokploy
-- [ ] Nueva app GoTrue (`supabase/gotrue:v2.177.0`) con todas las vars listadas arriba
-- [ ] Nueva DB Postgres para la instancia
-- [ ] Dominio: `auth.bitacora.nuestrascuentitas.com` → puerto 9999 del contenedor
-- [ ] Frontend: actualizar `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` + redeploy
-- [ ] Backend API: actualizar `SUPABASE_JWT_SECRET` + redeploy
+#### Pendiente (acción manual requerida)
+- [ ] **DNS**: Agregar A record `auth.bitacora.nuestrascuentitas.com` → `54.37.157.93`
 
-#### Verificación post-deploy
-- [ ] `GET https://auth.bitacora.nuestrascuentitas.com/health` → `{"status":"ok"}`
+#### Verificación post-DNS
+- [x] GoTrue responde: `GET https://54.37.157.93/health` (Host: auth.bitacora.nuestrascuentitas.com) → `{"version":"v2.177.0","name":"GoTrue",...}`
+- [ ] `GET https://auth.bitacora.nuestrascuentitas.com/health` → `{"status":"ok"}` (requiere DNS)
 - [ ] Login con Google en `bitacora.nuestrascuentitas.com` → redirect a `/onboarding` sin 401
 - [ ] Magic link desde `/ingresar` llega al email + redirige a `/onboarding`
 - [ ] `POST /api/v1/auth/bootstrap` con JWT de `auth.bitacora` → HTTP 200
+
+#### Notas de troubleshooting durante deployment
+- GoTrue migrations fallan con `type "auth.factor_type" does not exist` si se mezcla search_path.
+  Fix: `ALTER DATABASE bitacora_auth SET search_path TO auth, public` + truncar `schema_migrations` + redeploy.
+- DB Postgres para GoTrue requiere `CREATE ROLE postgres SUPERUSER LOGIN` previo a las migraciones.
+- `ALTER ROLE ... SET search_path` vía heredoc SSH se ignora silenciosamente; usar `-c` flag directo.
 
 ---
 

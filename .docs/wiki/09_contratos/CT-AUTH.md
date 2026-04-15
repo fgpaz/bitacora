@@ -218,20 +218,26 @@ El rate limiter esta registrado antes del health check endpoint en Program.cs, p
 | `/onboarding` | `OnboardingFlow` | flujo bootstrap -> consent -> bridge |
 | `/consent` | `ConsentGatePanel` | lectura y otorgamiento de consentimiento |
 
-## Auth instance de Bitácora (target architecture)
+## Auth instance de Bitácora (runtime activo)
 
 **Instancia dedicada:** `auth.bitacora.nuestrascuentitas.com` (GoTrue `supabase/gotrue:v2.177.0`)
-**Estado:** pendiente de deploy — ver plan en `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`
+**Estado:** ACTIVA desde 2026-04-15 — GoTrue corriendo, 54 migraciones aplicadas, 16 tablas en schema `auth`
 
-**Invariante objetivo:**
-- Frontend: `NEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com`
-- Backend: `SUPABASE_JWT_SECRET=<secret de auth.bitacora>` (mismo secreto que la instancia GoTrue)
+**Invariante cumplido:**
+- Frontend: `NEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com` (bundle reconstruido 2026-04-15)
+- Backend: `SUPABASE_JWT_SECRET` = secreto de `auth.bitacora.nuestrascuentitas.com` (actualizado 2026-04-15)
 - Los JWT emitidos por `auth.bitacora.nuestrascuentitas.com` son validados correctamente por el backend.
 
-**GAP actual (2026-04-14 — pendiente de cierre):**
-El frontend usa `auth.tedi.nuestrascuentitas.com` (multi-tedi, JWT secret diferente al del backend).
-Bloquea flujo web completo para usuarios reales. Fix: deploy de `auth.bitacora` + actualizacion de
-env vars en frontend y backend + redeploy.
+**Pendiente (accion manual):**
+- DNS: agregar A record `auth.bitacora.nuestrascuentitas.com` → `54.37.157.93`
+- Hasta que el DNS propague, el login desde browser fallara (GoTrue no resolvible publicamente)
+- GoTrue ya responde via IP: `GET https://54.37.157.93/health` (Host: auth.bitacora.nuestrascuentitas.com) → `{"version":"v2.177.0",...}`
+
+**Infra Dokploy:**
+- GoTrue app: `O7PVCjNNqeL05HVjuRifl` (service `app-reboot-primary-pixel-xclgrf`)
+- GoTrue DB: `BZIF_i_IftviCCVnoS9p7` (container `postgres-connect-cross-platform-transmitter-s9tn2g`)
+- Google OAuth client: `443713772680-skk9d6i69havjmq7kdqd3n35jpton7e5.apps.googleusercontent.com`
+- Redirect URI: `https://auth.bitacora.nuestrascuentitas.com/callback`
 
 Ver investigacion completa: `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`
 
