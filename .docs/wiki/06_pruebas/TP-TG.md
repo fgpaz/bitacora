@@ -7,11 +7,11 @@
 
 ## Estado de ejecucion actual
 
-- `Completamente ejecutado` — Todos los TCs ejecutados y aprobados en produccion (E2E 2026-04-14).
+- `Completamente ejecutado` — Todos los TCs ejecutados y aprobados en produccion (E2E 2026-04-14, validacion post-auth-fix 2026-04-15).
 - TG-P01/TG-N01: pairing y validacion de codigos — PASSED en produccion.
 - TG-P02/TG-N02: scheduler y recordatorios via keyboard inline — PASSED en produccion con usuario Telegram real.
 
-### Resultados de ejecucion
+### Resultados de ejecucion (E2E 2026-04-14)
 
 | TC ID | Estado | Ambiente | Fecha | Evidencia |
 |-------|--------|----------|-------|-----------|
@@ -19,6 +19,16 @@
 | TG-N01 | PASSED | produccion | 2026-04-14 | /start con codigo invalido rechazado; consentimiento previo requerido |
 | TG-P02 | PASSED | produccion | 2026-04-14 | Scheduler envia recordatorio con keyboard inline a sesion real; usuario toca boton humor; bot pregunta sueno con keyboard; DailyCheckin persistido con mood_score y sleep_hours. Evidencia: artifacts/e2e/2026-04-14-e2e-telegram/ |
 | TG-N02 | PASSED | produccion | 2026-04-14 | Skip de consent revocado y session unlinked confirmados en SendReminderCommandHandler (code review). Logica fail-closed validada: si consent=null → Disable+audit; si session unlinked → Disable+audit. E2E bloqueado por diseno (no se puede simular consent revocado con usuario real sin afectar datos del paciente). Cobertura combinada: CODE-VERIFIED + guardas activas en produccion verificadas via logs. |
+
+### Resultados de ejecucion (E2E 2026-04-15 — validacion post-auth-fix)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| TG-P01 | PASSED | produccion | 2026-04-15 | POST /telegram/pairing: HTTP 200, code=BIT-KYNYR, exp=900s. Evidencia: F4-01-pairing-code.json |
+| TG-P01b-LINKING | GAP | produccion | 2026-04-15 | @tedi_responde ya vinculado a paciente diferente. @gabrielpaz: PeerNotFound (sin historial bot). **Fixture requerido:** Ejecutar `infra/runbooks/telegram-e2e-cleanup.md` antes de re-ejecutar. Ver GAP-01 en evidencia-resumen.md |
+| TG-P02 | PASSED | produccion | 2026-04-15 | Flujo conversacional completo: +2, 7h sueno, 5 factores, 09:30 med. Bot responde: "Registro completo! Humor: +2 | Sueno: 7h | ... Medicacion: si (09:30)". DB: mood_entry 8bec7f15 canal=telegram, daily_checkin ab280b34 sleep=7. conversation_state=0. Evidencia: F4-03-conversation-log.json, F4-05-db-telegram.txt |
+| TG-SEC | PASSED | produccion | 2026-04-15 | Ningún mensaje bot expone encrypted_payload, patient_id, ni datos clínicos raw |
+| TG-N02 | GAP | produccion | 2026-04-15 | Sin perfil QA disponible con bot en dialogs y sin sesión vinculada. **Fixture requerido:** Ejecutar `infra/runbooks/telegram-e2e-cleanup.md` antes de re-ejecutar. Evidencia heredada 2026-04-14 (PASSED) |
 
 ## Cobertura RF
 
