@@ -67,10 +67,19 @@ Scenario: Profesional no puede exportar datos de paciente
   And el motivo indica que la exportacion es solo para el paciente propietario
 ```
 
+### E2E 2026-04-15
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| VIS-P01 | PASSED | produccion | 2026-04-15 | GET /visualizacion/timeline?from=2026-04-15&to=2026-04-15: HTTP 200, 1 día con MoodEntry 477cb6e4 + DailyCheckin b453c2d7. Evidencia: F6-01-timeline.json |
+| VIS-P03 | PASSED | produccion | 2026-04-15 | GET /visualizacion/summary?from=2026-04-09&to=2026-04-15: HTTP 200, avgMood=1, avgSleep=7, daysWithEntry=1. Evidencia: F6-03-summary.json |
+| VIS-OBS | RESUELTO | produccion | 2026-04-15 | GAP-05: key mismatch en GetPatientTimelineQuery y GetPatientSummaryQuery (buscaban physical_activity/medication_taken en lugar de has_physical/has_medication). Fix: 2026-04-15, commit b826356. Verificación post-deploy: medicationTaken=true, physicalActivity=true correctamente proyectados. |
+
 ## Pendiente para validacion final
 
 - La experiencia completa de navegacion profesional (lista -> detalle -> tabs) requiere validacion UX con usuarios reales.
 - El componente ExportGate refleja la restriccion owner-only a nivel de API.
+- VIS-OBS (2026-04-15): RESUELTO — key mismatch corregido en GetPatientTimelineQuery y GetPatientSummaryQuery (GAP-05, commit b826356).
 - UX validation: NO completada.
 
 ## Criterios de salida
