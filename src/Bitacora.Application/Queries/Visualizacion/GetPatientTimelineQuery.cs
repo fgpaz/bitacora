@@ -82,23 +82,23 @@ public sealed class GetPatientTimelineQueryHandler(
 
         if (root.TryGetProperty("sleep_hours", out var sh) && sh.ValueKind == JsonValueKind.Number)
             sleep = sh.GetDecimal();
-        if (root.TryGetProperty("physical_activity", out var pa) && pa.ValueKind == JsonValueKind.True)
+        if (root.TryGetProperty("has_physical", out var pa) && pa.ValueKind == JsonValueKind.True)
             physical = true;
         else if (pa.ValueKind == JsonValueKind.False)
             physical = false;
-        if (root.TryGetProperty("social_activity", out var sa) && sa.ValueKind == JsonValueKind.True)
+        if (root.TryGetProperty("has_social", out var sa) && sa.ValueKind == JsonValueKind.True)
             social = true;
         else if (sa.ValueKind == JsonValueKind.False)
             social = false;
-        if (root.TryGetProperty("anxiety", out var ax) && ax.ValueKind == JsonValueKind.True)
+        if (root.TryGetProperty("has_anxiety", out var ax) && ax.ValueKind == JsonValueKind.True)
             anxiety = true;
         else if (ax.ValueKind == JsonValueKind.False)
             anxiety = false;
-        if (root.TryGetProperty("irritability", out var ir) && ir.ValueKind == JsonValueKind.True)
+        if (root.TryGetProperty("has_irritability", out var ir) && ir.ValueKind == JsonValueKind.True)
             irritability = true;
         else if (ir.ValueKind == JsonValueKind.False)
             irritability = false;
-        if (root.TryGetProperty("medication_taken", out var mt) && mt.ValueKind == JsonValueKind.True)
+        if (root.TryGetProperty("has_medication", out var mt) && mt.ValueKind == JsonValueKind.True)
             medication = true;
         else if (mt.ValueKind == JsonValueKind.False)
             medication = false;

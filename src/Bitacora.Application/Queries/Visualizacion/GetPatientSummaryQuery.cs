@@ -59,11 +59,11 @@ public sealed class GetPatientSummaryQueryHandler(
             if (root.TryGetProperty("sleep_hours", out var sh) && sh.ValueKind == JsonValueKind.Number)
                 sleepHours.Add(sh.GetDecimal());
 
-            if (root.TryGetProperty("anxiety", out var ax) && ax.ValueKind == JsonValueKind.True)
+            if (root.TryGetProperty("has_anxiety", out var ax) && ax.ValueKind == JsonValueKind.True)
                 anxietyDays++;
-            if (root.TryGetProperty("irritability", out var ir) && ir.ValueKind == JsonValueKind.True)
+            if (root.TryGetProperty("has_irritability", out var ir) && ir.ValueKind == JsonValueKind.True)
                 irritabilityDays++;
-            if (root.TryGetProperty("medication_taken", out var mt) && mt.ValueKind == JsonValueKind.True)
+            if (root.TryGetProperty("has_medication", out var mt) && mt.ValueKind == JsonValueKind.True)
                 medicationTakenDays++;
         }
 
