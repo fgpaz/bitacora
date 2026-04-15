@@ -218,6 +218,25 @@ El rate limiter esta registrado antes del health check endpoint en Program.cs, p
 | `/onboarding` | `OnboardingFlow` | flujo bootstrap -> consent -> bridge |
 | `/consent` | `ConsentGatePanel` | lectura y otorgamiento de consentimiento |
 
+## Auth instance de Bitácora (target architecture)
+
+**Instancia dedicada:** `auth.bitacora.nuestrascuentitas.com` (GoTrue `supabase/gotrue:v2.177.0`)
+**Estado:** pendiente de deploy — ver plan en `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`
+
+**Invariante objetivo:**
+- Frontend: `NEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com`
+- Backend: `SUPABASE_JWT_SECRET=<secret de auth.bitacora>` (mismo secreto que la instancia GoTrue)
+- Los JWT emitidos por `auth.bitacora.nuestrascuentitas.com` son validados correctamente por el backend.
+
+**GAP actual (2026-04-14 — pendiente de cierre):**
+El frontend usa `auth.tedi.nuestrascuentitas.com` (multi-tedi, JWT secret diferente al del backend).
+Bloquea flujo web completo para usuarios reales. Fix: deploy de `auth.bitacora` + actualizacion de
+env vars en frontend y backend + redeploy.
+
+Ver investigacion completa: `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`
+
+---
+
 ## Sincronizacion
 
 Cambios en este contrato fuerzan revision de:

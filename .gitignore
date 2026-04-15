@@ -46,3 +46,4 @@ artifacts/
 
 # Infra local secrets
 infra/.env
+infra/client_secret_*.json

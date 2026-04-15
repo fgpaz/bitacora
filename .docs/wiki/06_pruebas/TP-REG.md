@@ -16,6 +16,17 @@
 - RF-REG-010..015 siguen como plan de prueba canonico para la futura capa Telegram.
 - T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/mood-entries` y `POST /api/v1/daily-checkins` sobre la superficie real.
 
+### Resultados de ejecucion (E2E 2026-04-14)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| REG-P01 | PASSED | produccion (API-level) | 2026-04-14 | MoodEntry `97ac6459` creado, score=2, channel=api, DB confirmado |
+| REG-P03 | PASSED | produccion (API-level) | 2026-04-14 | DailyCheckin `a3d87c3a` creado, sleep=7, physical=true, medication=true, DB confirmado |
+
+**Metodo:** JWT HS256 forjado con `SUPABASE_JWT_SECRET` de supabase-prod para usuario smoke-test `88888888-8888-8888-8888-888888888888` (status=Active, consent activo). Evidencia completa en `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`.
+
+**Hallazgo bloqueante (auth misconfiguration):** La autenticacion browser real (magic link via `auth.tedi.nuestrascuentitas.com`) no puede completar llamadas API porque el backend valida con secret de instancia distinta. Ver gap en `CT-AUTH.md` y `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
+
 ## Cobertura RF
 
 | TC ID | RF | Tipo | Escenario |

@@ -14,12 +14,17 @@
   - `RF-VIS-001..003` — coverage via `GET /visualizacion/timeline`, `GET /visualizacion/summary` (smoke)
   - `RF-EXP-001` — coverage via `GET /export/patient-summary` y `GET /export/patient-summary/csv` (smoke)
   - `RF-TG-001`, `RF-TG-002` — coverage via `POST /telegram/pairing`, `GET /telegram/session` (smoke)
+- Cobertura E2E produccion ejecutada (2026-04-14):
+  - `RF-REG-001..005` — REG-P01 PASSED: `POST /api/v1/mood-entries` score=2, MoodEntry `97ac6459` en DB, canal=api
+  - `RF-REG-020..025` — REG-P03 PASSED: `POST /api/v1/daily-checkins`, DailyCheckin `a3d87c3a` en DB, sleep=7, medication=true
+  - `RF-TG-010..012` — TG-P02 PASSED produccion, TG-N02 PASSED CODE-VERIFIED + guardas en produccion
+  - Evidencia: `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`
 - Superficie no cubierta por smoke pero con codigo implementado (requiere test unitario o E2E):
   - `RF-REG-010..015` (Telegram webhook real)
   - `RF-CON-011..013` (cascadas de revocacion)
   - `RF-VIN-010..023` (profesional + alertas)
-  - `RF-TG-010..012` (scheduler y recordatorios — PASSED E2E 2026-04-14: TG-P02 PASSED produccion, TG-N02 PASSED CODE-VERIFIED + guardas en produccion)
   - `RF-SEC-*`
+- **GAP critico (2026-04-14):** Auth misconfiguration en produccion bloquea flujo web real (ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md` y `CT-AUTH.md`)
 - `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
 - Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
 
