@@ -136,6 +136,7 @@ builder.Services.AddRateLimiter(options =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.Headers.RetryAfter = "60";
         await context.HttpContext.Response.WriteAsync(
             """{"error":"RATE_LIMIT_EXCEEDED","message":"Demasiadas solicitudes. Intentá de nuevo en un minuto.","retryAfter":60}""",
             cancellationToken);
