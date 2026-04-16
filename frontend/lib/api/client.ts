@@ -175,3 +175,71 @@ export async function generatePairingCode(): Promise<TelegramPairingResponse> {
 export async function getTelegramSession(): Promise<TelegramSessionResponse> {
   return bitacoraFetch<TelegramSessionResponse>('/telegram/session');
 }
+
+/* ─── Care Links (Vínculos profesional-paciente) ───────────────────────────── */
+
+export interface CareLink {
+  id: string;
+  professional_name: string;
+  professional_email?: string;
+  status: 'active' | 'pending' | 'revoked';
+  can_view_data: boolean;
+  created_at: string;
+}
+
+export interface GetCareLinksResponse {
+  links: CareLink[];
+}
+
+export async function getCareLinksByPatient(): Promise<GetCareLinksResponse> {
+  return bitacoraFetch<GetCareLinksResponse>('/vinculos');
+}
+
+export async function getActiveCareLinks(): Promise<GetCareLinksResponse> {
+  return bitacoraFetch<GetCareLinksResponse>('/vinculos/active');
+}
+
+export async function acceptBindingCode(bindingCode: string): Promise<{ id: string; status: string }> {
+  return bitacoraFetch('/vinculos/accept', {
+    method: 'POST',
+    body: JSON.stringify({ bindingCode }),
+  });
+}
+
+export async function revokeCareLink(id: string): Promise<void> {
+  await bitacoraFetch(`/vinculos/${id}`, { method: 'DELETE' });
+}
+
+/* ─── Patient Dashboard ──────────────────────────────────────────────────────── */
+
+export interface PatientTimelineEntry {
+  date: string; // YYYY-MM-DD
+  mood_score: number | null; // -3 a +3
+  factors?: Record<string, unknown>;
+}
+
+export interface PatientTimelineResponse {
+  entries: PatientTimelineEntry[];
+}
+
+export interface PatientSummaryResponse {
+  total_entries: number;
+  avg_mood_score: number | null;
+  last_entry_at: string | null;
+}
+
+export async function getPatientTimeline(from: Date, to: Date): Promise<PatientTimelineResponse> {
+  const fromStr = from.toISOString().split('T')[0];
+  const toStr = to.toISOString().split('T')[0];
+  return bitacoraFetch<PatientTimelineResponse>(
+    `/visualizacion/timeline?from=${fromStr}&to=${toStr}`
+  );
+}
+
+export async function getPatientSummary(from: Date, to: Date): Promise<PatientSummaryResponse> {
+  const fromStr = from.toISOString().split('T')[0];
+  const toStr = to.toISOString().split('T')[0];
+  return bitacoraFetch<PatientSummaryResponse>(
+    `/visualizacion/summary?from=${fromStr}&to=${toStr}`
+  );
+}
