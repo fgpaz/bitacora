@@ -210,6 +210,30 @@ export async function revokeCareLink(id: string): Promise<void> {
   await bitacoraFetch(`/vinculos/${id}`, { method: 'DELETE' });
 }
 
+/* ─── Telegram: desvincular y configurar recordatorio ──────────────────────── */
+
+export async function unlinkTelegram(): Promise<{ unlinked: boolean; unlinked_at_utc?: string }> {
+  return bitacoraFetch('/telegram/session', { method: 'DELETE' });
+}
+
+export interface ReminderScheduleResponse {
+  hour: number;
+  minute: number;
+  timezone: string;
+  next_fire_at_utc: string;
+}
+
+export async function setReminderSchedule(
+  hour: number,
+  minute: number,
+  timezone: string
+): Promise<ReminderScheduleResponse> {
+  return bitacoraFetch('/telegram/reminder-schedule', {
+    method: 'PUT',
+    body: JSON.stringify({ hour, minute, timezone }),
+  });
+}
+
 /* ─── Patient Dashboard ──────────────────────────────────────────────────────── */
 
 export interface PatientTimelineEntry {
