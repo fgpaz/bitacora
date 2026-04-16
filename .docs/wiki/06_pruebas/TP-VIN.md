@@ -27,6 +27,8 @@
 | VIN-P05 | RF-VIN-020, RF-VIN-021 | Positivo | Revocacion del vinculo por paciente invalida acceso y cache |
 | VIN-P06 | RF-VIN-023 | Positivo | Paciente habilita y deshabilita can_view_data |
 | VIN-N04 | RF-VIN-023 | Negativo | Professional no puede cambiar can_view_data |
+| VIN-P-WEB01 | RF-VIN-010, RF-VIN-011, RF-VIN-012 | Positivo | Aceptar invitacion desde /configuracion/vinculos en web con BindingCode |
+| VIN-P-WEB02 | RF-VIN-020, RF-VIN-021 | Positivo | Revocar vinculo desde /configuracion/vinculos en web |
 
 ## Gherkin expandido
 
@@ -64,6 +66,26 @@ Scenario: Profesional no puede cambiar la visibilidad
   And el request usa JWT del profesional
   When PATCH /api/v1/vinculos/{id}/view-data con {can_view_data: true}
   Then se retorna 403 FORBIDDEN
+
+Scenario: Aceptar invitacion desde interfaz web con BindingCode
+  Given paciente autenticado
+  And tiene una invitacion pendiente (PendingInvite)
+  When accede a /configuracion/vinculos y copia el BindingCode del email
+  And lo ingresa en el formulario y hace submit
+  Then POST /api/v1/vinculos/accept se ejecuta con {binding_code: "BIT-XXXXX"}
+  And retorna 200 con el nuevo CareLink activo
+  And el vinculo aparece en la lista con estado "Activo"
+  And can_view_data comienza en false
+
+Scenario: Revocar vinculo desde interfaz web
+  Given paciente autenticado con CareLink activo
+  When accede a /configuracion/vinculos y hace click en "Desvincular"
+  Then se abre dialogo de confirmacion
+  When confirma la revocacion
+  Then DELETE /api/v1/vinculos/{id} se ejecuta
+  And retorna 200
+  And el vinculo desaparece de la lista
+  And el profesional pierde acceso a los datos del paciente
 ```
 
 ### E2E 2026-04-15

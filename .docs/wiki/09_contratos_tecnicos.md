@@ -64,6 +64,31 @@
 | GET | /api/v1/professional/patients/{patientId}/timeline | RF-VIS-011 | Timeline del paciente para profesional |
 | GET | /api/v1/professional/patients/{patientId}/alerts | RF-VIS-012 | Alertas del paciente para profesional |
 
+### Endpoints Telegram
+
+| Metodo | Ruta | Auth | Descripcion |
+|--------|------|------|-------------|
+| DELETE | /api/v1/telegram/session | Bearer JWT (paciente) | Desvincula (soft delete) la sesion Telegram del paciente autenticado |
+| PUT | /api/v1/telegram/reminder-schedule | Bearer JWT (paciente) | Configura el horario de recordatorio del bot; convierte timezone local a UTC |
+
+**DELETE /api/v1/telegram/session**
+
+- **Auth**: Bearer JWT (patient)
+- **Rate limit**: write
+- **Response 200**: `{ unlinked: true, unlinked_at_utc: ISO }`
+- **Response 404**: `{ code: "TG_SESSION_NOT_FOUND" }`
+- **Descripcion**: Desvincula (soft delete) la sesion Telegram del paciente autenticado. No elimina historico de pairing, solo marca como inactivo.
+
+**PUT /api/v1/telegram/reminder-schedule**
+
+- **Auth**: Bearer JWT (patient)
+- **Rate limit**: write
+- **Body**: `{ hour: int(0-23), minute: int(0|30), timezone: string(IANA) }`
+- **Response 200**: `{ hour: int, minute: int, timezone: string, next_fire_at_utc: TimeOnly }`
+- **Response 400**: `{ code: "INVALID_TIMEZONE" }`
+- **Response 403**: `{ code: "TG_NO_ACTIVE_SESSION" }`
+- **Descripcion**: Configura el horario de recordatorio del bot Telegram. Convierte timezone local a UTC antes de persistir. Devuelve proximo disparo del recordatorio en UTC.
+
 ## Convenciones de contrato
 
 - `patient_ref` es un identificador opaco de API; no es una columna persistida.
@@ -127,6 +152,9 @@ Todas las respuestas de error siguen este envelope:
 | BINDING_CODE_EXPIRED | 410 | BindingCode expirado |
 | BINDING_CODE_ALREADY_USED | 409 | BindingCode ya consumido |
 | SESSION_NOT_LINKED | 200 | Webhook Telegram sin sesion vinculada |
+| TG_SESSION_NOT_FOUND | 404 | Sesion Telegram del paciente no existe |
+| TG_NO_ACTIVE_SESSION | 403 | Paciente sin sesion Telegram activa para programar recordatorio |
+| INVALID_TIMEZONE | 400 | Zona horaria IANA invalida o no soportada |
 | AUDIT_WRITE_FAILED | 500 | Fallo al persistir `AccessAudit` |
 | ENCRYPTION_FAILURE | 500 | Fallo de cifrado o clave no disponible |
 | NO_CONSENT_CONFIG | 503 | No hay consentimiento activo configurado |

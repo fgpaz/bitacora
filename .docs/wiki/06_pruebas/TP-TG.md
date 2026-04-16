@@ -38,6 +38,10 @@
 | TG-N01 | RF-TG-001, RF-TG-002, RF-TG-003 | Negativo | Rechaza generacion sin consentimiento y /start con codigo invalido o chat duplicado |
 | TG-P02 | RF-TG-010, RF-TG-011, RF-TG-012 | Positivo | Scheduler envia recordatorio con keyboard inline a sesiones validas |
 | TG-N02 | RF-TG-010, RF-TG-011, RF-TG-012 | Negativo | Skip si consentimiento revocado, session unlinked o falta token del bot |
+| TG-P05 | RF-TG-005 | Positivo | Desvincular Telegram desde UI web (/configuracion/telegram) |
+| TG-P06 | RF-TG-006 | Positivo | Configurar horario de recordatorio via PUT /reminder-schedule |
+| TG-N04 | RF-TG-005 | Negativo | DELETE /api/v1/telegram/session sin sesion activa retorna 404 |
+| TG-N05 | RF-TG-006 | Negativo | PUT /api/v1/reminder-schedule sin sesion Telegram activa retorna 403 |
 
 ## Gherkin expandido
 
@@ -62,6 +66,35 @@ Scenario: Scheduler omite recordatorios sin condiciones de envio
   When corre el scheduler
   Then no se envia mensaje al bot
   And el skip queda trazado en logs operacionales
+
+Scenario: Desvincular Telegram desde interfaz web
+  Given paciente autenticado con sesion Telegram vinculada
+  When accede a /configuracion/telegram y hace click en "Desvincular"
+  Then se abre dialogo de confirmacion
+  When confirma la revocacion
+  Then DELETE /api/v1/telegram/session retorna 200 {unlinked: true}
+  And GET /api/v1/telegram/session retorna estado no-vinculado
+  And la UI muestra pairing wizard nuevamente
+
+Scenario: Configurar horario de recordatorio
+  Given paciente autenticado con sesion Telegram vinculada
+  When accede a /configuracion/telegram y selecciona hora (ej: 20:00)
+  And hace click en "Guardar"
+  Then PUT /api/v1/reminder-schedule retorna 200
+  And reminder_configs se actualiza en BD con nueva hora
+  And scheduler enviara recordatorios a la nueva hora
+
+Scenario: Desvincular sin sesion Telegram activa
+  Given paciente autenticado SIN sesion Telegram vinculada
+  When intenta DELETE /api/v1/telegram/session
+  Then retorna 404 TG_SESSION_NOT_FOUND
+  And el estado de configuracion persiste sin cambios
+
+Scenario: Configurar horario sin sesion Telegram activa
+  Given paciente autenticado SIN sesion Telegram vinculada
+  When intenta PUT /api/v1/reminder-schedule con {hour: 20}
+  Then retorna 403 TG_NO_ACTIVE_SESSION
+  And la BD no se modifica
 ```
 
 ## Criterios de salida

@@ -19,7 +19,7 @@
 
 - `Wave 1` tiene runtime backend completo con superficies de Vinculos, Visualizacion, Export y Telegram. Estas superficies estan materializadas y operativas.
 - Alcance materializado hoy: `Auth`, `Consent`, `Registro`, `Vinculos`, `Visualizacion`, `Export`, `Telegram` y `Seguridad`.
-- `frontend/` existe en el repo con `package.json`, `middleware.ts`, `lib/api/professional.ts` y `.next/`. El runtime web completo queda diferido a Phase 40.
+- `frontend/` implementado y deployado en `bitacora.nuestrascuentitas.com` (Phase 40 EJECUTADA 2026-04-15). Incluye dashboard paciente, vinculos, logout, Telegram wizard completo, health check y error boundaries.
 - Telegram webhook y scheduler estan implementados en el backend; el bot de Telegram opera como consumidor externo.
 - T01 ya materializo la primera capa repo-local de productivizacion bajo `infra/`:
   - contrato local `infra/.env.template`
@@ -70,15 +70,19 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | T3-SEC-11 | Frontend middleware extrae `user_metadata.role` del JWT y enforce rol `professional` para rutas profesionales; falla 403 si el rol no corresponde. |
 | T3-TG-01 | Telegram API client retry con exponential backoff: 1s, 2s, 4s antes de fallar. |
 | T3-TG-02 | SendReminderCommand y HandleWebhookUpdateCommand invocan SaveChangesAsync para persistir AccessAudit antes de retornar. |
+| T3-TG-03 | `DELETE /api/v1/telegram/session` requiere auth valido + rate-limit `"write"` (5 req/IP/min). Borra TelegramSession activa para el usuario. |
+| T3-TG-04 | `PUT /api/v1/telegram/reminder-schedule` requiere auth valido + rate-limit `"write"`. Permite actualizar `reminder_timezone` (default: `America/Argentina/Buenos_Aires`) y demas configuracion de recordatorios. |
 
-## Runtime hardening (Phase 50)
+## Runtime hardening (Phase 40 y posteriores)
 
-The following rules were hardened in Phase 50 (T2/T3/T4) and reflect current runtime behavior:
+Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflejan el comportamiento runtime actual:
 
 | Rule | Descripcion |
 |------|-------------|
 | T3-TG-01 | Telegram API retry con exponential backoff: 1s, 2s, 4s antes de fallar. Implementado en `SendReminderCommand.cs`. |
 | T3-TG-02 | `SendReminderCommand` y `HandleWebhookUpdateCommand` invocan `SaveChangesAsync` para persistir `AccessAudit` antes de retornar. |
+| T3-TG-03 | `DELETE /api/v1/telegram/session` requiere auth valido + rate-limit `"write"` (5 req/IP/min). Borra TelegramSession activa para el usuario. Implementado en Phase 40. |
+| T3-TG-04 | `PUT /api/v1/telegram/reminder-schedule` requiere auth valido + rate-limit `"write"`. `reminder_timezone` persiste en `reminder_configs` (default: `America/Argentina/Buenos_Aires`). Implementado en Phase 40. |
 | T3-11b | `ConsentRequiredMiddleware` usa deny-list explícita para rutas no clinicas: `/api/v1/auth`, `/api/v1/consent`, `/api/v1/telegram`, `/api/v1/export` se excluyen; cualquier otra ruta POST bajo `/api/v1/` se trata como clinica hasta que se acredite lo contrario. |
 | T3-SEC-10 | `ExportEndpoints` — `/constraints` autoriza profesional antes de verificar `CareLink`. `ProfessionalDataAccessAuthorizer` fail-closed: 403 si no tiene vinculo activo. |
 | T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After: 60` (segundos fijo). |
@@ -110,19 +114,19 @@ The following rules were hardened in Phase 50 (T2/T3/T4) and reflect current run
 | Auth | Supabase Auth (GoTrue v2.177.0) | auth.bitacora.nuestrascuentitas.com (instancia dedicada, activa 2026-04-15) |
 | Reverse proxy | Traefik (via Dokploy) | Target de produccion |
 | Dominio API | `api.bitacora.nuestrascuentitas.com` | Target backend-only de T01 |
-| Dominio web | `bitacora.nuestrascuentitas.com` | `frontend/` existe con implementacion inicial bajo `frontend/`; deployment completo a `bitacora.nuestrascuentitas.com` planeado para Phase 40. Mientras tanto, `GET /` en `Bitacora.Api` redirige a `/scalar/v1`. |
-| Frontend | Next.js 16 | Implementacion inicial existente en `frontend/`; deployment a production diferido a Phase 40 |
+| Dominio web | `bitacora.nuestrascuentitas.com` | Frontend Next.js 16 deployado en produccion (Phase 40 EJECUTADA 2026-04-15). Ruta raiz operativa. |
+| Frontend | Next.js 16 | Deployado en `bitacora.nuestrascuentitas.com` (Phase 40 completada). Dashboard paciente, vinculos, logout, Telegram wizard, health check y error boundaries operativos. |
 
-## Orden de rollout (Phase 30 → 31 → 40 → 41 → 50 → 60)
+## Orden de rollout (Phase 30 → 31 → 40 ✓ → 41 → 50 → 60)
 
-| Phase | Superficie | Gate previo requerido |
-|-------|-----------|----------------------|
-| 30 | Backend basico: Auth, Consent, Registro, Vinculos, Visualizacion, Export | Secrets en Dokploy + migraciones + GATE-SMOKE-001..006 |
-| 31 | Telegram webhook + recordatorios (ReminderWorker activo) | GATE-SMOKE-013..015 + smoke Telegram |
-| 40 | Frontend web Next.js 16 (bitacora.nuestrascuentitas.com) | GATE-SMOKE-007..012 + profesional endpoints + UX validation |
-| 41 | Profesional dashboard (profesionales.nuestrascuentitas.com) | UX validation Phase 40 + profesional endpoints |
-| 50 | Alertas y notificaciones push | Notificaciones push validacion + consent actualizado |
-| 60 | UX validation terminal de todas las superficies | Toda evidencia de UX recolectada |
+| Phase | Superficie | Estado | Fecha |
+|-------|-----------|--------|-------|
+| 30 | Backend basico: Auth, Consent, Registro, Vinculos, Visualizacion, Export | EJECUTADA | 2026-04-10 |
+| 31 | Telegram webhook + recordatorios (ReminderWorker activo) | EJECUTADA | 2026-04-12 |
+| 40 | Frontend web Next.js 16 (bitacora.nuestrascuentitas.com) | **EJECUTADA** | **2026-04-15 / 2026-04-16** |
+| 41 | Profesional dashboard (profesionales.nuestrascuentitas.com) | Pendiente | — |
+| 50 | Alertas y notificaciones push | Pendiente | — |
+| 60 | UX validation terminal de todas las superficies | Pendiente | — |
 
 **Regla:** ninguna phase se abre si la anterior no tiene smoke passing + evidencia de UX.
 

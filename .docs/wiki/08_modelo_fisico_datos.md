@@ -26,7 +26,7 @@ La migracion `InitialCore` y la migracion `AddBindingCodesAndCareLinks` ya fuero
 - `binding_codes` (Wave 30)
 - `care_links` (Wave 30)
 
-`telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` siguen en el canon de alcance, pero todavia no existen en la base fisica de esta ola.
+`telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` fueron materializadas en Wave anterior y permanecen activas en Phase 40 (nueva columna `reminder_timezone` agregada).
 
 T01 congela para produccion una topologia backend-only: una DB dedicada `bitacora-db` y una app `bitacora-api`. La creacion live en Dokploy depende de materializar localmente `infra/.env` con credenciales de control-plane.
 
@@ -50,9 +50,27 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | care_links | Vinculos | State machine | `invited → active → revoked_*`; `can_view_data` default false. | Materializada (Wave 30) |
 | telegram_sessions | Telegram | CRUD | `UNIQUE(chat_id)`. | Materializada |
 | telegram_pairing_codes | Telegram | Temporal | TTL 15 min. | Materializada |
-| reminder_configs | Telegram | CRUD | Horarios por paciente. | Materializada |
+| reminder_configs | Telegram | CRUD | Horarios por paciente + zona horaria IANA. | Materializada |
 | access_audits | Seguridad | Append-only | `trace_id + pseudonym_id`, sin UPDATE/DELETE. | Materializada |
 | encryption_key_versions | Seguridad | Append-only | Key material en vault/env, no en DB. | Materializada |
+
+## Schema Telegram
+
+### reminder_configs (Telegram)
+
+Horarios de recordatorio del bot Telegram por paciente. Materializadas en Wave anterior.
+
+| Columna | Tipo | Constraints | Default | Descripcion |
+|---------|------|-------------|---------|-------------|
+| id | UUID | PK | gen_random_uuid() | Identificador unico |
+| patient_id | UUID | FK(users.user_id), NOT NULL | | Paciente dueno del recordatorio |
+| hour | INT | NOT NULL, [0-23] | | Hora del dia (0-23) |
+| minute | INT | NOT NULL, {0,30} | | Minuto (0 o 30) |
+| reminder_timezone | VARCHAR(64) | NOT NULL | `'America/Argentina/Buenos_Aires'` | Zona horaria IANA del paciente para el recordatorio |
+| created_at_utc | TIMESTAMP WITH TZ | NOT NULL | now() | Creacion en UTC |
+| updated_at_utc | TIMESTAMP WITH TZ | NOT NULL | now() | Ultima actualizacion en UTC |
+
+Invariante: El servicio convierte el tiempo local (hour, minute en `reminder_timezone`) a UTC antes de programar el disparo del bot.
 
 ## Cifrado en reposo
 
