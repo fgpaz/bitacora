@@ -19,12 +19,22 @@
   - `RF-REG-020..025` — REG-P03 PASSED: `POST /api/v1/daily-checkins`, DailyCheckin `a3d87c3a` en DB, sleep=7, medication=true
   - `RF-TG-010..012` — TG-P02 PASSED produccion, TG-N02 PASSED CODE-VERIFIED + guardas en produccion
   - Evidencia: `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`
+- Cobertura E2E produccion ejecutada (2026-04-15 con JWT real GoTrue):
+  - `RF-REG-001..005` — REG-P01 PASSED: `POST /api/v1/mood-entries` score=1, MoodEntry `477cb6e4` en DB, canal=api, cifrado OK
+  - `RF-REG-001` — REG-P01b PASSED (idempotencia): repeticion mismo score retorna HTTP 200, isDuplicate=true
+  - `RF-REG-020..025` — REG-P03 PASSED: `POST /api/v1/daily-checkins`, DailyCheckin `b453c2d7` en DB, sleep=7, medication=true, safe_projection OK
+  - `RF-REG-002, RF-REG-004` — REG-N01 PASSED: `POST /api/v1/mood-entries` score=99 rechazado con HTTP 422, INVALID_SCORE
+  - `RF-REG-010..013` — REG-P02 PASSED: flujo Telegram completo via @tedi_responde (+2, 7h, 5 factores, med 09:30)
+  - `RF-VIS-001..003` — VIS-P01, VIS-P03 PASSED: timeline y summary funcionan con datos reales
+  - `RF-VIN-001, RF-VIN-002, RF-VIN-004` — VIN-P01, VIN-P02 PASSED: GET /vinculos retorna [] esperado para smoke user
+  - `RF-EXP-001` — EXP-P01 PASSED: CSV export funciona con headers correctos
+  - Evidencia: `artifacts/e2e/2026-04-15-e2e-full/evidencia-resumen.md`
 - Superficie no cubierta por smoke pero con codigo implementado (requiere test unitario o E2E):
   - `RF-REG-010..015` (Telegram webhook real)
   - `RF-CON-011..013` (cascadas de revocacion)
   - `RF-VIN-010..023` (profesional + alertas)
   - `RF-SEC-*`
-- **GAP critico (2026-04-14):** Auth misconfiguration en produccion bloquea flujo web real (ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md` y `CT-AUTH.md`)
+- **GAP critico (2026-04-14) RESUELTO (2026-04-15):** Auth misconfiguration en produccion bloqueaba flujo web real. Instancia GoTrue dedicada desplegada y validada. Flujo browser real completado y verificado funcionando. (ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md` y `CT-AUTH.md`)
 - `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
 - Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
 
@@ -106,6 +116,8 @@
 | RF-TG-001 | TP-TG | Genera pairing code BIT-XXXXX con TTL de 15 minutos | Rechaza solicitud sin consentimiento o JWT valido |
 | RF-TG-002 | TP-TG | Vincula chat_id con /start y codigo activo | Responde guidance si el codigo es invalido, expirado o duplicado |
 | RF-TG-003 | TP-TG | Garantiza unicidad de chat_id por paciente | Rechaza chat_id ya vinculado a otra cuenta |
+| RF-TG-005 | TP-TG | Desvincula sesion Telegram desde UI web con confirmacion | Retorna 404 si no hay sesion activa (TG-P05, TG-N04) |
+| RF-TG-006 | TP-TG | Configura horario de recordatorio con timezone desde UI | Retorna 403 sin sesion activa; 400 con timezone invalido (TG-P06, TG-N05) |
 | RF-TG-010 | TP-TG | Ejecuta scheduler y detecta recordatorios vencidos | Tolera error de DB o planificacion inconsistente |
 | RF-TG-011 | TP-TG | Envia mensaje con keyboard inline correcto | Reporta fallo si falta token o no existe chat |
 | RF-TG-012 | TP-TG | Omite envio cuando hay consent revocado o session unlinked | Rechaza ejecucion con datos de sesion invalidos |

@@ -72,6 +72,15 @@ Scenario: Primer MoodEntry activa definitivamente al usuario
 - Validacion UX de `NextActionBridgeCard` y navegacion al primer registro.
 - Cierre visual de `HANDOFF-VISUAL-QA-ONB-001` pendiente.
 
+## Resultados de ejecucion (E2E 2026-04-15)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| ONB-P01 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | Login POST /token: HTTP 200, access_token presente, sub=988da74d. Evidencia: artifacts/e2e/2026-04-15-e2e-full/F1-01-gotrue-login.json |
+| ONB-P02 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | Bootstrap: userId=1e9df465, status=registered, needsConsent=true. Evidencia: F1-02-bootstrap.json |
+| ONB-DB | PASSED | produccion | 2026-04-15 | DB verification: users.status=Registered, supabase_user_id=sub del JWT. Evidencia: F1-03-db-user.txt |
+| ONB-N01 | PASSED | produccion | 2026-04-15 | JWT fake retorna 401 UNAUTHORIZED. Evidencia: F7 SEC-JWT |
+
 ## Criterios de salida
 
 - Cobertura positiva y negativa de los 5 RF del modulo.

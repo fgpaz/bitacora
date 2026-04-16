@@ -25,7 +25,17 @@
 
 **Metodo:** JWT HS256 forjado con `SUPABASE_JWT_SECRET` de supabase-prod para usuario smoke-test `88888888-8888-8888-8888-888888888888` (status=Active, consent activo). Evidencia completa en `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`.
 
-**GAP RESUELTO (2026-04-15):** Instancia GoTrue dedicada `auth.bitacora.nuestrascuentitas.com` desplegada y activa. Frontend reconstruido con nueva URL. Backend actualizado con nuevo JWT secret. Pendiente solo DNS para completar flujo browser real. Ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
+**GAP RESUELTO (2026-04-15):** Instancia GoTrue dedicada `auth.bitacora.nuestrascuentitas.com` desplegada y VERIFICADA FUNCIONANDO. Frontend reconstruido con nueva URL. Backend actualizado con nuevo JWT secret. Flujo browser real completado y validado. Ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
+
+### E2E 2026-04-15 (JWT real GoTrue)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| REG-P01 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | POST /mood-entries score=1: HTTP 201, moodEntryId=477cb6e4, channel=api. DB: encrypted_payload=t, safe_projection.mood_score=1. Evidencia: F3-01-mood-entry.json, F3-05-db-reg.txt |
+| REG-P01b (idempotencia) | PASSED | produccion | 2026-04-15 | Repetición mismo score: HTTP 200, isDuplicate=true, mismo moodEntryId=477cb6e4 |
+| REG-P03 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | POST /daily-checkins sleepHours=7 medicationTaken=true: HTTP 201, dailyCheckinId=b453c2d7. DB: encrypted_payload=t, medication_time NOT en safe_projection (correcto per RF-REG-023). Evidencia: F3-03-daily-checkin.json, F3-05-db-reg.txt |
+| REG-N01 | PASSED | produccion | 2026-04-15 | POST /mood-entries score=99: HTTP 422, INVALID_SCORE |
+| REG-P02 (Telegram conversacional) | PASSED | produccion | 2026-04-15 | Flujo completo via @tedi_responde: +2, 7h, 5 factores, med 09:30. Evidencia: F4-03-conversation-log.json |
 
 ## Cobertura RF
 

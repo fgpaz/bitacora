@@ -80,6 +80,7 @@ sequenceDiagram
 - TG-P02 y TG-N02 (scheduler E2E) no ejecutados en el ciclo de prueba 2026-04-14.
 
 ## RF candidatos
+- RF-TG-006: Configurar horario de recordatorio con soporte de zona horaria (**Implementado** — Phase 40, 2026-04-16)
 - RF-TG-010: Scheduler background para recordatorios (**Implementado**)
 - RF-TG-011: Enviar mensaje con keyboard inline a Telegram (**Implementado — texto basico; keyboard inline pendiente**)
 - RF-TG-012: Skip si consent revocado o session unlinked (**Implementado**)

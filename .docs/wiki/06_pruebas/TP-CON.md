@@ -61,6 +61,14 @@ Scenario: Fallo del cascade revierte toda la revocacion
   And ConsentGrant permanece en status="granted"
 ```
 
+## Resultados de ejecucion (E2E 2026-04-15)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| CON-P01 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | GET /consent/current: HTTP 200, version=2026-04-09.v1, patientStatus=none. Evidencia: F2-01-consent-current.json |
+| CON-P02 | PASSED | produccion | 2026-04-15 | POST /consent: HTTP 201, consentGrantId=32ba81be, status=consent_granted. DB verificado: consent_grants.status=Granted. Evidencia: F2-02-consent-grant.json, F2-04-db-consent.txt |
+| CON-N01 | PASSED | produccion | 2026-04-15 | POST /mood-entries sin consent: HTTP 403, code=CONSENT_REQUIRED. Gate verificado antes de otorgar consent. Evidencia: F2-3 |
+
 ## Criterios de salida
 
 - Cobertura positiva y negativa de los 7 RF del modulo.

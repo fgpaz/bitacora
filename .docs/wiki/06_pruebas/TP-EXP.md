@@ -58,6 +58,13 @@ Scenario: Profesional no puede exportar datos de paciente
   And ExportGate muestra estado "Exportacion no disponible"
 ```
 
+### E2E 2026-04-15
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| EXP-P01 | PASSED | produccion | 2026-04-15 | GET /export/patient-summary/csv?from=2026-04-01&to=2026-04-15: HTTP 200, headers CSV presentes, fila 2026-04-15 con mood=1 sleep=7. Evidencia: F6-04-export.csv |
+| EXP-P02 | PASSED | produccion | 2026-04-15 | GET /export/{userId}/constraints: HTTP 200, allowed=true para paciente. |
+
 ## Pendiente para validacion final
 
 - La experiencia de export CSV requiere validacion UX del flujo de descarga en desktop y mobile.

@@ -81,6 +81,7 @@ sequenceDiagram
 - RF-TG-001: Generar pairing code con TTL (**Implementado**)
 - RF-TG-002: Vincular chat_id via /start + code (**Implementado**)
 - RF-TG-003: Validar unicidad de chat_id por paciente (**Implementado**)
+- RF-TG-005: Desvincular sesion Telegram desde UI web (**Implementado** — Phase 40, 2026-04-16)
 
 ## Bottlenecks y mitigaciones
 | Riesgo | Mitigacion |
