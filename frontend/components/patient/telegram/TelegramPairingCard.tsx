@@ -13,7 +13,7 @@ import {
   generatePairingCode,
   getTelegramSession,
   unlinkTelegram,
-  setReminderSchedule,
+  setReminderSchedule as saveReminderScheduleApi,
   type TelegramPairingResponse,
   type TelegramSessionResponse,
   type ReminderScheduleResponse,
@@ -121,7 +121,7 @@ export function TelegramPairingCard() {
     setState('saving_schedule');
     setError(null);
     try {
-      const result = await setReminderSchedule(reminderHour, reminderMinute, BUENOS_AIRES_TZ);
+      const result = await saveReminderScheduleApi(reminderHour, reminderMinute, BUENOS_AIRES_TZ);
       setReminderSchedule(result);
       setReminderSaved(true);
       setTimeout(() => setReminderSaved(false), 3000);

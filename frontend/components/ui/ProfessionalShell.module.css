@@ -27,6 +27,8 @@
 .nav {
   display: flex;
   gap: var(--space-md);
+  align-items: center;
+  margin-left: auto;
 }
 
 .navLink {
@@ -48,6 +50,35 @@
 .navLink:focus-visible {
   outline: 2px solid var(--surface);
   outline-offset: 2px;
+}
+
+.logoutButton {
+  margin-left: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  background-color: transparent;
+  border: 1px solid var(--surface-muted);
+  border-radius: var(--radius-sm);
+  color: var(--surface-muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--surface);
+  border-color: var(--surface);
+}
+
+.logoutButton:focus-visible {
+  outline: 2px solid var(--surface);
+  outline-offset: 2px;
+}
+
+.logoutButton:active {
+  opacity: 0.8;
 }
 
 .main {

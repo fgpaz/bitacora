@@ -7,6 +7,7 @@ using NuestrasCuentitas.Bitacora.Api.Extensions;
 using NuestrasCuentitas.Bitacora.Api.Security;
 using NuestrasCuentitas.Bitacora.Application.Common;
 using NuestrasCuentitas.Bitacora.Application.Commands.Telegram;
+using NuestrasCuentitas.Bitacora.Application.Contracts.Telegram;
 using NuestrasCuentitas.Bitacora.Application.Queries.Telegram;
 using NuestrasCuentitas.Bitacora.DataAccess.Interface.Repositories;
 using Shared.Contract.Telegram;
@@ -65,6 +66,57 @@ public static class TelegramEndpoints
             .WithTags(Tag)
             .WithSummary("Estado de vinculacion Telegram del paciente autenticado")
             .Produces<TelegramSessionResponse>(StatusCodes.Status200OK);
+
+        // DELETE /api/v1/telegram/session — unlink (soft delete) the current Telegram session
+        group.MapDelete("/session", async Task<IResult>(
+                HttpContext httpContext,
+                [FromServices] CurrentAuthenticatedPatientResolver currentPatientResolver,
+                [FromServices] IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var currentPatient = await currentPatientResolver.ResolveAsync(httpContext, cancellationToken);
+                var result = await mediator.Send(
+                    new UnlinkTelegramSessionCommand(currentPatient.User.UserId),
+                    cancellationToken);
+
+                return Results.Ok(result);
+            })
+            .RequireAuthorization()
+            .RequireRateLimiting("write")
+            .WithName("UnlinkTelegramSession")
+            .WithTags(Tag)
+            .WithSummary("Desvincula la sesion Telegram del paciente autenticado")
+            .WithDescription("Soft-deletes the linked Telegram session (marks UnlinkedAt). Returns 404 if no session is linked.")
+            .Produces<UnlinkTelegramSessionResponse>(StatusCodes.Status200OK)
+            .Produces<BitacoraException>(StatusCodes.Status404NotFound);
+
+        // PUT /api/v1/telegram/reminder-schedule — configure reminder schedule with timezone support
+        group.MapPut("/reminder-schedule", async Task<IResult>(
+                HttpContext httpContext,
+                [FromBody] ConfigureReminderScheduleRequest request,
+                [FromServices] CurrentAuthenticatedPatientResolver currentPatientResolver,
+                [FromServices] IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var currentPatient = await currentPatientResolver.ResolveAsync(httpContext, cancellationToken);
+                var command = new ConfigureReminderScheduleCommand(
+                    PatientId: currentPatient.User.UserId,
+                    HourUtc: request.HourUtc,
+                    MinuteUtc: request.MinuteUtc,
+                    Timezone: request.Timezone,
+                    TraceId: httpContext.GetTraceId());
+
+                var result = await mediator.Send(command, cancellationToken);
+                return Results.Ok(result);
+            })
+            .RequireAuthorization()
+            .RequireRateLimiting("write")
+            .WithName("ConfigureReminderSchedule")
+            .WithTags(Tag)
+            .WithSummary("Configura horario de recordatorios con soporte de zona horaria")
+            .WithDescription("Creates or updates reminder configuration. Supports IANA and Windows timezone IDs. Optional timezone defaults to Etc/UTC.")
+            .Produces<ConfigureReminderScheduleResponse>(StatusCodes.Status200OK)
+            .Produces<BitacoraException>(StatusCodes.Status400BadRequest);
 
         // Webhook endpoint — Telegram sends POST with update payload
         // Rate-limited per IP (webhook policy); secret-token validated before dispatch.

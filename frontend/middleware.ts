@@ -57,7 +57,7 @@ function redirectToRoot(request: NextRequest): NextResponse {
 
 // ── Protected route patterns ───────────────────────────────────────────────────
 
-const PATIENT_ROUTES = ['/registro', '/consent', '/configuracion'];
+const PATIENT_ROUTES = ['/registro', '/consent', '/configuracion', '/dashboard'];
 const PROFESIONAL_ROUTES = ['/profesional'];
 const PUBLIC_ROUTES = ['/', '/onboarding'];
 

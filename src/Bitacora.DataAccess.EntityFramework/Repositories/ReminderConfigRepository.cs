@@ -13,6 +13,12 @@ public sealed class ReminderConfigRepository(AppDbContext dbContext) : IReminder
             .FirstOrDefaultAsync(x => x.ReminderConfigId == reminderConfigId, cancellationToken);
     }
 
+    public async Task<ReminderConfig?> FindByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.ReminderConfigs
+            .FirstOrDefaultAsync(x => x.PatientId == patientId, cancellationToken);
+    }
+
     public async Task AddAsync(ReminderConfig reminderConfig, CancellationToken cancellationToken = default)
     {
         await dbContext.ReminderConfigs.AddAsync(reminderConfig, cancellationToken);

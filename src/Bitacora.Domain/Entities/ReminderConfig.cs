@@ -13,6 +13,7 @@ public sealed class ReminderConfig
     public int HourUtc { get; private set; }
     public int MinuteUtc { get; private set; }
     public bool Enabled { get; private set; }
+    public string ReminderTimezone { get; private set; } = "Etc/UTC";
     public DateTime? NextFireAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? DisabledAtUtc { get; private set; }
@@ -27,6 +28,7 @@ public sealed class ReminderConfig
         int hourUtc,
         int minuteUtc,
         bool enabled,
+        string reminderTimezone,
         DateTime? nextFireAtUtc,
         DateTime createdAtUtc,
         DateTime? disabledAtUtc)
@@ -36,12 +38,13 @@ public sealed class ReminderConfig
         HourUtc = hourUtc;
         MinuteUtc = minuteUtc;
         Enabled = enabled;
+        ReminderTimezone = reminderTimezone ?? "Etc/UTC";
         NextFireAtUtc = nextFireAtUtc;
         CreatedAtUtc = createdAtUtc;
         DisabledAtUtc = disabledAtUtc;
     }
 
-    public static ReminderConfig CreateDefault(Guid patientId, int defaultHourUtc, int defaultMinuteUtc)
+    public static ReminderConfig CreateDefault(Guid patientId, int defaultHourUtc, int defaultMinuteUtc, string? timezone = null)
     {
         if (patientId == Guid.Empty)
         {
@@ -57,6 +60,7 @@ public sealed class ReminderConfig
             defaultHourUtc,
             defaultMinuteUtc,
             enabled: true,
+            reminderTimezone: timezone ?? "Etc/UTC",
             nextFireAtUtc: nextFire,
             createdAtUtc: nowUtc,
             disabledAtUtc: null);
@@ -74,7 +78,7 @@ public sealed class ReminderConfig
         NextFireAtUtc = null;
     }
 
-    public void Reschedule(int hourUtc, int minuteUtc, DateTime nowUtc)
+    public void Reschedule(int hourUtc, int minuteUtc, string? timezone, DateTime nowUtc)
     {
         if (!Enabled)
         {
@@ -83,6 +87,11 @@ public sealed class ReminderConfig
 
         HourUtc = hourUtc;
         MinuteUtc = minuteUtc;
+        if (!string.IsNullOrWhiteSpace(timezone))
+        {
+            ReminderTimezone = timezone;
+        }
+
         NextFireAtUtc = CalculateNextFireUtc(nowUtc, hourUtc, minuteUtc);
     }
 

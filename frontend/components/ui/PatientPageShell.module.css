@@ -45,3 +45,29 @@
   color: var(--brand-accent);
   font-family: var(--font-body);
 }
+
+.logoutButton {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background-color: transparent;
+  border: 1px solid var(--surface-muted);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.logoutButton:hover {
+  background-color: var(--surface-muted);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+.logoutButton:active {
+  background-color: var(--surface-muted);
+  opacity: 0.8;
+}

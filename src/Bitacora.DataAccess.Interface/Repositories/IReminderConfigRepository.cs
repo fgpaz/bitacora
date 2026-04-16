@@ -10,6 +10,9 @@ public interface IReminderConfigRepository
     /// <summary>Gets a reminder config by its ID.</summary>
     Task<ReminderConfig?> GetByIdAsync(Guid reminderConfigId, CancellationToken cancellationToken = default);
 
+    /// <summary>Gets a reminder config by patient ID (one-to-one relationship).</summary>
+    Task<ReminderConfig?> FindByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default);
+
     /// <summary>Adds a new reminder config.</summary>
     Task AddAsync(ReminderConfig reminderConfig, CancellationToken cancellationToken = default);
 

@@ -13,7 +13,7 @@
 
 ```
 NEXT_PUBLIC_API_BASE_URL=https://api.bitacora.nuestrascuentitas.com
-NEXT_PUBLIC_SUPABASE_URL=https://auth.tedi.nuestrascuentitas.com
+NEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<from infra/.env or infisical vault teslita>
 NODE_ENV=production
 ```
@@ -33,7 +33,7 @@ FRONTEND_APP_ID="BRTMuvBfWtslXHnShtrnB"
 
 curl -s -X POST -H "x-api-key: $DOKPLOY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "{\"applicationId\":\"$FRONTEND_APP_ID\",\"env\":\"NEXT_PUBLIC_API_BASE_URL=https://api.bitacora.nuestrascuentitas.com\nNEXT_PUBLIC_SUPABASE_URL=https://auth.tedi.nuestrascuentitas.com\nNEXT_PUBLIC_SUPABASE_ANON_KEY=<anon_key>\nNODE_ENV=production\"}" \
+  -d "{\"applicationId\":\"$FRONTEND_APP_ID\",\"env\":\"NEXT_PUBLIC_API_BASE_URL=https://api.bitacora.nuestrascuentitas.com\nNEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com\nNEXT_PUBLIC_SUPABASE_ANON_KEY=<anon_key>\nNODE_ENV=production\"}" \
   "$DOKPLOY_URL/api/application.saveEnvironment"
 ```
 

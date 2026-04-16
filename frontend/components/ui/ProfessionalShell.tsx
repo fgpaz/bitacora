@@ -6,6 +6,7 @@
  */
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import { signOut } from '../../lib/auth/client';
 import styles from './ProfessionalShell.module.css';
 
 interface Props {
@@ -22,6 +23,11 @@ export function ProfessionalShell({ children, loading }: Props) {
     );
   }
 
+  async function handleLogout() {
+    await signOut();
+    window.location.href = '/';
+  }
+
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
@@ -32,6 +38,9 @@ export function ProfessionalShell({ children, loading }: Props) {
           <Link href="/profesional/invitaciones" className={styles.navLink}>
             Invitaciones
           </Link>
+          <button onClick={handleLogout} className={styles.logoutButton}>
+            Cerrar sesión
+          </button>
         </nav>
         <div className={styles.wordmark}>Bitacora Pro</div>
       </header>

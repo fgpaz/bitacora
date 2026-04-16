@@ -5,6 +5,7 @@
  * States: loading | ready | error
  */
 import { ReactNode } from 'react';
+import { signOut } from '../../lib/auth/client';
 import styles from './PatientPageShell.module.css';
 
 interface Props {
@@ -32,9 +33,21 @@ export function PatientPageShell({ children, loading, error }: Props) {
     );
   }
 
+  async function handleLogout() {
+    await signOut();
+    window.location.href = '/';
+  }
+
   return (
     <main className={styles.shell}>
       <div className={styles.content}>{children}</div>
+      <button
+        onClick={handleLogout}
+        className={styles.logoutButton}
+        title="Cerrar sesión"
+      >
+        Cerrar sesión
+      </button>
     </main>
   );
 }
