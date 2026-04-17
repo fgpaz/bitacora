@@ -8,14 +8,23 @@ export default function HomePage() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function handleEmailChange(value: string) {
+    setEmail(value);
+    if (error) setError(null);
+  }
 
   async function handleStart() {
-    if (!email) {
+    const trimmed = email.trim();
+    if (!trimmed) {
       setError('Ingresá tu correo electronico.');
       return;
     }
-    const { error } = await signInWithMagicLink(email);
-    if (error) {
+    setSubmitting(true);
+    const { error: authError } = await signInWithMagicLink(trimmed);
+    setSubmitting(false);
+    if (authError) {
       setError('No se pudo enviar el enlace. Intentá de nuevo.');
     } else {
       setSent(true);
@@ -41,6 +50,10 @@ export default function HomePage() {
     <OnboardingEntryHero
       variant="standard"
       onStart={handleStart}
+      email={email}
+      onEmailChange={handleEmailChange}
+      error={error}
+      submitting={submitting}
     />
   );
 }
