@@ -286,3 +286,20 @@ All user-visible text must use correct Spanish orthography:
 ## 11) Alignment Rule
 
 Keep this file aligned with `AGENTS.md`. If the skill workflow policy changes, update both files in the same task.
+
+## 12) Runtime tooling
+
+### dokploy-cli
+- Script: `~/.claude/skills/dokploy-cli/scripts/dkp.ps1` (Windows) or `scripts/dkp.sh` (POSIX)
+- Auth: `DOKPLOY_API_KEY` + `DOKPLOY_URL` in `infra/.env` (searched upward from CWD)
+- Override: set `DOKPLOY_API_KEY` and `DOKPLOY_URL` directly in environment
+- Header: `x-api-key` (NOT `Authorization: Bearer`)
+- Verify: `bash ~/.claude/skills/dokploy-cli/scripts/dkp.sh doctor`
+
+### mi-key-cli (mkey)
+- Script: `~/.claude/skills/mi-key-cli/scripts/mkey.ps1` (Windows) or `scripts/mkey.sh` (POSIX)
+- Project config: `infra/mkey.yaml` (vault `teslita`, project `bitacora`, default env `prod`)
+- Verify: `bash ~/.claude/skills/mi-key-cli/scripts/mkey.sh doctor`
+- Pull secrets: `bash ~/.claude/skills/mi-key-cli/scripts/mkey.sh pull bitacora prod`
+- Set secret: `bash ~/.claude/skills/mi-key-cli/scripts/mkey.sh set bitacora <KEY> <VALUE> --env prod`
+- PowerShell note: initialize `$LASTEXITCODE = 0` before first `mkey set` in a fresh session (strict mode workaround).
