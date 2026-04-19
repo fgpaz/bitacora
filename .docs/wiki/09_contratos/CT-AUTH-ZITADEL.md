@@ -80,7 +80,7 @@ Secrets M2M + redirect URIs placeholder viven en Infisical `ZITADEL_CLIENT_<ORG>
 | `zitadel-admin-sa` | MACHINE | IAM Owner (via bootstrap) | `ZITADEL_ADMIN_PAT` |
 | `login-client` | MACHINE | Login companion | `ZITADEL_LOGIN_CLIENT_PAT` |
 
-Human admin password persiste en Infisical `ZITADEL_ADMIN_INITIAL_PASSWORD`. Debe rotarse post-MFA enrollment.
+Human admin password persiste en Infisical `ZITADEL_ADMIN_INITIAL_PASSWORD` y backup cifrado `infra/secrets.enc.env`. Fue rotada el 2026-04-19 durante el cierre de gaps; no se registra en docs, issues, logs ni chat.
 
 ## 7. Policies baseline Teslita (post T2.5)
 
@@ -88,7 +88,7 @@ Human admin password persiste en Infisical `ZITADEL_ADMIN_INITIAL_PASSWORD`. Deb
 |--------|-------------|--------|
 | Password min length | 10 | 10 |
 | Password complexity | upper + lower + number | idem |
-| MFA required admins | pending owner enrollment | yes |
+| MFA required admins | pending owner enrollment on owner device | yes |
 | Session access lifetime | default | 1h target |
 | Session refresh lifetime | default | 30d target |
 | Audit retention | default Zitadel (~90d) | 2 anos |
@@ -134,7 +134,7 @@ Estrategia: docker volume snapshot + offsite (decidida 2026-04-18, instalada 202
 
 - [x] **Login companion app** deployado: `ghcr.io/zitadel/zitadel-login:v4.9.0`, route `/ui/v2/login`, authorize real devuelve `Welcome back!`.
 - [x] Backup cron instalado en VPS y validado con snapshot manual.
-- [ ] MFA admin no enrollada: login UI ya funciona, falta QR scan del owner.
+- [ ] MFA admin no enrollada: login UI ya funciona, password humano rotado y verificado; `auth_factors/_search` devuelve `{}`. Falta enrollment del owner en su propio dispositivo. No crear passkey personal desde Playwright/Codex porque quedaria ligada al perfil de automatizacion; si se acepta un TOTP compartido, documentarlo como break-glass y guardar el secreto en Infisical.
 - [x] Client credentials grant funciona con JWT Bearer RS256 y `kid` para las 4 orgs.
 - [ ] Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` sigue corriendo; no es safe removal porque contiene `801` eventos.
 - [x] Offsite backup remote configurado y archivo listable via rclone.
