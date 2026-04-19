@@ -6,10 +6,10 @@ This runbook bootstraps the historical T01 backend production surface. For the c
 
 - dedicated PostgreSQL
 - `Bitacora.Api`
-- backend smoke gate
+- backend smoke gate (historical T01)
 
 This runbook is the closed backend baseline reused by `wave-prod`.
-After T04 hardening, the smoke gate (`infra/smoke/backend-smoke.ps1`) covers these additional surfaces:
+After T04 hardening, the legacy Supabase smoke gate (`infra/smoke/backend-smoke.ps1`) covered these additional surfaces:
 - Vinculos (patient + professional): `GET/PATCH vinculos`, `POST vinculos/accept`, `DELETE vinculos/{id}`
 - Visualizacion (patient + professional): `timeline`, `summary`, `alerts`
 - Export: `patient-summary` (JSON + CSV)
@@ -47,7 +47,7 @@ The sequence below is the authoritative baseline for T01.
 10. Attach `bitacora.nuestrascuentitas.com` as a temporary parking host for the backend root route.
 11. Deploy `bitacora-api`.
 12. Wait for `GET /health/ready` to return `200`.
-13. Run `infra/smoke/backend-smoke.ps1` against the public host.
+13. Historical T01 only: run `infra/smoke/backend-smoke.ps1` against the public host. Current post-Zitadel deploys must use `infra/smoke/zitadel-cutover-smoke.ps1`.
 14. Verify `https://bitacora.nuestrascuentitas.com/` returns the backend redirect to `/scalar/v1`.
 
 ### Fase 3 — Post-deploy

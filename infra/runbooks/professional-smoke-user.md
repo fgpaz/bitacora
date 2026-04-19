@@ -4,62 +4,25 @@
 
 El usuario profesional smoke permite ejecutar los tests del módulo VIN que requieren un profesional activo, específicamente VIN-P03 (binding code flow).
 
+> Estado post Wave B: este runbook queda en transición. Las credenciales GoTrue previas no son runtime activo y no deben documentarse ni regenerarse en plaintext. El reemplazo debe crear usuarios de prueba en Zitadel y obtener tokens por flujo OIDC controlado, sin imprimir JWTs.
+
 ## Credenciales
 
-Las credenciales están almacenadas en `infra/.env`:
-
-```
-SMOKE_PROF_EMAIL=smoke-prof@bitacora.test
-SMOKE_PROF_PASSWORD=SmokeProfTest2026!
-SMOKE_PROF_USER_ID=ccb0f939-ffce-43c2-8276-af3642f51db4
-```
+Las credenciales viven en Infisical via `mi-key-cli`. No registrar passwords, PATs, JWTs ni secrets en este archivo.
 
 ## Cómo recrear si se pierde
 
-Si la cuenta se elimina o queda inoperable en GoTrue, ejecutar:
-
-```bash
-GOTRUE_SRK=$(grep "^GOTRUE_SERVICE_ROLE_KEY=" infra/.env | cut -d= -f2)
-RESPONSE=$(curl -s -X POST \
-  https://auth.bitacora.nuestrascuentitas.com/admin/users \
-  -H "Authorization: Bearer $GOTRUE_SRK" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "smoke-prof@bitacora.test",
-    "password": "SmokeProfTest2026!",
-    "email_confirm": true,
-    "user_metadata": {
-      "role": "professional",
-      "display_name": "Smoke Professional QA"
-    }
-  }')
-echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1
-```
-
-Copiar el `id` del response y actualizar `SMOKE_PROF_USER_ID` en `infra/.env`.
+Crear o reparar el usuario en la organización Zitadel `bitacora` usando el admin flow aprobado para Teslita. El usuario debe tener rol `professional` en el project Bitacora (`369306332534145382`). Guardar cualquier secreto de prueba solo en Infisical.
 
 ## Verificación
 
 Para verificar que el usuario funciona:
 
-```bash
-# 1. Login
-PROF_TOKEN=$(curl -s -X POST \
-  "https://auth.bitacora.nuestrascuentitas.com/token?grant_type=password" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"smoke-prof@bitacora.test","password":"SmokeProfTest2026!"}' \
-  | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
-
-# 2. Bootstrap en Bitácora.Api
-curl -s -o /dev/null -w "%{http_code}\n" \
-  -X POST \
-  https://api.bitacora.nuestrascuentitas.com/api/v1/auth/bootstrap \
-  -H "Authorization: Bearer $PROF_TOKEN" \
-  -H "Content-Type: application/json"
-```
-
-Esperado: HTTP 200
+- Iniciar sesión por OIDC en `https://bitacora.nuestrascuentitas.com/ingresar`.
+- Validar que el rol profesional permita acceder a `/profesional`.
+- Validar bootstrap/API con un token real obtenido por flujo seguro; no pegar el token en logs ni evidencia.
 
 ## Historial
 
 - 2026-04-15: Usuario creado para habilitar GAP-03 (VIN-P03 test case)
+- 2026-04-19: Wave B cambió el runtime activo a Zitadel. GoTrue queda legacy/rollback.

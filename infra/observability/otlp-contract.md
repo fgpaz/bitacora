@@ -13,14 +13,14 @@
 - `pseudonym_id` for operational correlation where applicable
 - liveness via `GET /health`
 - readiness via `GET /health/ready`
-- smoke evidence via `infra/smoke/backend-smoke.ps1`
+- smoke evidence via `infra/smoke/zitadel-cutover-smoke.ps1`
 
 ## Required readiness checks
 
 `GET /health/ready` must fail when any of these is broken:
 
 - connection string missing
-- `SUPABASE_JWT_SECRET` missing
+- `ZITADEL_AUTHORITY`, `ZITADEL_AUDIENCE`, or OIDC metadata missing
 - encryption key missing or invalid
 - pseudonym salt missing
 - PostgreSQL unreachable

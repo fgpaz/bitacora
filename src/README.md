@@ -23,12 +23,12 @@ dotnet run --project Bitacora.Api
 
 ## Configuracion Local Minima
 - PostgreSQL local accesible con la cadena `ConnectionStrings:BitacoraDb`.
-- `Supabase:JwtSecret` o `SUPABASE_JWT_SECRET` para validar JWT compartidos.
+- `ZITADEL_AUTHORITY` y `ZITADEL_AUDIENCE` para validar JWT RS256 via metadata/JWKS.
 - `BITACORA_ENCRYPTION_KEY` o `Encryption:Key` con 32 bytes exactos para AES-256-GCM.
 - `BITACORA_PSEUDONYM_SALT` o `Pseudonymization:Salt` para seudonimizacion.
 - `Consent:*` vive en `appsettings*.json` y versiona el consentimiento activo.
 
-El proyecto incluye placeholders de desarrollo en `Bitacora.Api/appsettings*.json` y un ejemplo de variables en `Bitacora.Api/.env.example`.
+El proyecto incluye placeholders de desarrollo en `Bitacora.Api/appsettings*.json` y un ejemplo de variables en `Bitacora.Api/.env.example`. `SUPABASE_JWT_SECRET` queda solo para rollback de builds anteriores al cutover Zitadel.
 
 ## Runtime Local
 ```powershell

@@ -3,16 +3,17 @@
 This directory is the repo-local bootstrap layer for the current production surface:
 
 - `Bitacora.Api`
+- `frontend/` on Dokploy
 - dedicated PostgreSQL
-- backend-only smoke and operability assets
+- shared Zitadel IdP integration
+- smoke and operability assets
 
 Out of scope for this bootstrap:
 
-- `frontend/`
-- Telegram runtime
 - staging
+- a separate Telegram runtime app; Telegram remains backend-owned
 
-Pending work after this backend-only bootstrap is governed by `.docs/plans/wave-prod/`.
+Pending work after this production bootstrap is governed by `.docs/plans/wave-prod/`.
 `.docs/raw/plans/wave-1/` remains historical context only.
 
 ## Files
@@ -33,7 +34,8 @@ Use the shared `mi-key-cli` setup from `C:\repos\mios\multi-tedi` to source:
 - `DOKPLOY_API_KEY`
 - `DOKPLOY_ENVIRONMENT_ID`
 - `DOKPLOY_GITHUB_PROVIDER_ID`
-- shared auth secrets when needed for `SUPABASE_JWT_SECRET`
+- Zitadel runtime config for Bitacora
+- rollback auth secrets only while the Wave B rollback window remains open
 
 Then copy only the required values into the local untracked `infra/.env`.
 
@@ -45,11 +47,15 @@ Every production deployment must have these variables set via Dokploy:
 
 | Variable | Validation | Fail-closed |
 |----------|------------|-------------|
-| `SUPABASE_JWT_SECRET` | Non-empty string | Startup throws if missing |
+| `ZITADEL_AUTHORITY` | OIDC issuer URL | `/health/ready` returns 503 if missing |
+| `ZITADEL_AUDIENCE` | Bitacora project/audience ID | `/health/ready` returns 503 if missing |
+| `ZITADEL_WEB_CLIENT_ID` | Public web client ID | Frontend login redirect cannot start without it |
 | `BITACORA_ENCRYPTION_KEY` | 32 bytes Base64-decoded | `/health/ready` returns 503 if invalid; writes blocked |
 | `BITACORA_PSEUDONYM_SALT` | Non-empty string | Any operation needing pseudonym throws 500 |
 | `ConnectionStrings__BitacoraDb` | Valid PostgreSQL connection string | `/health/ready` returns 503 if unreachable |
 | `DataAccess:ApplyMigrationsOnStartup` | `false` in production | Migrations run via `infra/runbooks/manual-migrations.md` only |
+
+`SUPABASE_JWT_SECRET` may remain in Dokploy only for rollback to pre-cutover builds. It is not an active readiness dependency after Wave B.
 
 See `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` for the complete fail-closed gate catalog.
 
@@ -60,7 +66,7 @@ See `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` for the complete fail-closed gate c
 3. Manual migrations via runbook.
 4. `GET /health/ready` returns 200.
 5. `bitacora-api` deployed.
-6. Smoke gate `infra/smoke/backend-smoke.ps1` passes (exit 0).
+6. Smoke gate `infra/smoke/zitadel-cutover-smoke.ps1` passes (exit 0).
 7. Only then: open traffic or start next surface rollout phase.
 
 **Validation de UI es actividad terminal.** No se marca ninguna fase como completa hasta que la validacion UX tenga evidencia.
@@ -71,11 +77,11 @@ Consulte `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` para el catalogo completo de g
 
 ### Phase 30 — Backend basico
 
-- [ ] Secrets en Dokploy: `SUPABASE_JWT_SECRET`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`, `ConnectionStrings__BitacoraDb`
+- [ ] Secrets en Dokploy: `ZITADEL_AUTHORITY`, `ZITADEL_AUDIENCE`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`, `ConnectionStrings__BitacoraDb`
 - [ ] `bitacora-db` deployado y reachable
 - [ ] Migraciones aplicadas via `infra/runbooks/manual-migrations.md`
 - [ ] `GET /health/ready` retorna 200
-- [ ] `infra/smoke/backend-smoke.ps1` pasa GATE-SMOKE-001..006 (exit 0)
+- [ ] `infra/smoke/zitadel-cutover-smoke.ps1` pasa el smoke productivo post-cutover (exit 0)
 
 ### Phase 31 — Telegram webhook + recordatorios
 
@@ -86,7 +92,7 @@ Consulte `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` para el catalogo completo de g
 
 ### Phase 40 — Frontend web Next.js 16
 
-- [ ] Secrets Next.js: `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_JWT_SECRET`
+- [ ] Secrets Next.js: `ZITADEL_AUTHORITY`, `ZITADEL_WEB_CLIENT_ID`, `ZITADEL_WEB_REDIRECT_URI`, `ZITADEL_WEB_POST_LOGOUT_REDIRECT_URI`, `API_BASE_URL`
 - [ ] Deployment a Vercel o Dokploy
 - [ ] Smoke web pasa: GATE-SMOKE-007..012 (exit 0)
 - [ ] **UX validation evidencia en wiki**
@@ -113,7 +119,7 @@ Por cada phase, verificar:
 1. **Secrets:** todas las variables requeridas para la phase estan en Dokploy
 2. **Migraciones:** aplicadas antes del deploy, nunca en startup
 3. **Readiness:** `GET /health/ready` retorna 200
-4. **Smoke:** `infra/smoke/backend-smoke.ps1` pasa con exit 0
+4. **Smoke:** `infra/smoke/zitadel-cutover-smoke.ps1` pasa con exit 0
 5. **UX validation:** evidencia documentada en wiki (Phase 40, 41, 60)
 6. **Rollback plan:** restauracion desde backup si smoke falla
 

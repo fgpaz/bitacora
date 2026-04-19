@@ -1,5 +1,7 @@
 # Bitacora Auth - Production Dokploy Spec
 
+> Legacy post Wave B: Bitacora no longer uses this GoTrue app as active authentication runtime. Active IdP is Zitadel at `https://id.nuestrascuentitas.com`. Keep this file only as rollback reference until the Wave B acceptance window closes.
+
 ## Service info
 
 - Runtime: GoTrue v2.177.0 (supabase/gotrue:v2.177.0)
@@ -9,13 +11,15 @@
 - App name (Swarm): `app-reboot-primary-pixel-xclgrf`
 - Project: `bitacora` (project ID: `18WEM8BMIq-z_wgkrNlp8`)
 
-## Status (verified 2026-04-15)
+## Status (legacy, verified 2026-04-15)
 
 - `GET https://auth.bitacora.nuestrascuentitas.com/health` → `{"version":"v2.177.0","name":"GoTrue",...}` ✓
 - `applicationStatus: "done"` ✓
 - HTTPS via letsencrypt ✓
 
 ## Required environment variables
+
+These variables apply only if rolling back to the pre-Zitadel Supabase Auth build.
 
 ```
 PORT=9999
@@ -56,6 +60,8 @@ The anon key for the frontend is `GOTRUE_ANON_KEY` from `infra/.env`. It must ma
 `GOTRUE_JWT_SECRET` as the signing key with role=anon.
 
 ## Blocking conditions
+
+These conditions are legacy rollback-only:
 
 - DNS for `auth.bitacora.nuestrascuentitas.com` must point to `54.37.157.93`
 - `bitacora_auth` database and `auth` schema must exist with GoTrue migrations applied
