@@ -3,6 +3,8 @@
 **Date:** 2026-04-19  
 **Scope:** Continue Wave A Zitadel gap closure after owner enrolled passwordless methods.
 
+> 2026-04-19 final continuation: G5 and G7 were later closed. See `T5-final-green-closure.md`.
+
 ## Context Checks
 
 | Check | Result |
@@ -34,20 +36,20 @@ Verdict: G3 is GREEN via owner-managed passwordless/passkeys. No Codex/Playwrigh
 | DKIM TXT | present for `resend._domainkey.nuestrascuentitas.com` |
 | Root SPF TXT | absent via resolver `1.1.1.1` |
 
-Verdict: G7 remains AMBER until Gmail "Show original" authentication headers are provided or SPF DNS is repaired.
+Verdict at T4 time: G7 still required Gmail "Show original" authentication headers. Superseded by T5.
 
 ## G5 Guardrail
 
-G5 remains AMBER. Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` contains `801` events. No destructive action was taken in this continuation because explicit owner approval for `postgres.remove` was not provided.
+G5 at T4 time still required explicit destructive approval. Superseded by T5 after owner approval, snapshot/offsite, and removal.
 
 ## GitHub Sync
 
 | Issue | Result |
 |-------|--------|
-| `fgpaz/bitacora#18` | body updated: G3 checked; G5/G7 open |
+| `fgpaz/bitacora#18` | body updated at T4 time: G3 checked; G5/G7 still pending |
 | `fgpaz/bitacora#18` | comment added with G3 passwordless evidence |
 | `fgpaz/bitacora#19` | comment added with SMTP re-trigger evidence |
 
 ## Closure Verdict
 
-This continuation closes G3. Wave A remains not fully GREEN because G5 and G7 are still open follow-ups.
+This continuation closed G3. Final Wave A GREEN closure is superseded by T5.

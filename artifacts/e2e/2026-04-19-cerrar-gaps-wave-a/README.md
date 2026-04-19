@@ -15,16 +15,16 @@
 | G2 — Backup cron | GREEN | `.docs/raw/reports/2026-04-19-cerrar-gaps/G2-backup-offsite.md` |
 | G3 — Admin MFA/passwordless | GREEN | `passwordless/_search` returns 2 owner-managed `AUTH_FACTOR_STATE_READY` credentials |
 | G4 — Client credentials | GREEN | `.docs/raw/reports/2026-04-19-cerrar-gaps/G4-client-credentials.md` |
-| G5 — Legacy Postgres cleanup | AMBER | Non-empty eventstore; see `.docs/raw/reports/2026-04-19-cerrar-gaps/G5-legacy-postgres.md` |
+| G5 — Legacy Postgres cleanup | GREEN | Snapshot/offsite done; service/container/volume counts are `0` |
 | G6 — Offsite remote | GREEN | `rclone lsl` lists `zitadel-pg-20260419-173731.tar.gz` |
-| G7 — DKIM/SPF | AMBER | SMTP test sent; SPF TXT missing and Gmail headers pending |
+| G7 — DKIM/SPF | GREEN | Gmail headers show DKIM pass and SPF pass |
 
 ## Preflight Evidence
 
 | Check | Result |
 |-------|--------|
 | OIDC discovery | `200` |
-| Infisical pull | `82` variables after rebuild and M2M keys |
+| Infisical pull | `83` variables after rebuild, M2M keys, and admin access hardening |
 | `ZITADEL_*` keys | refreshed from Infisical |
 | Admin PAT org | `nuestrascuentitas` |
 | Tracking issue | `https://github.com/fgpaz/bitacora/issues/18` |
@@ -73,12 +73,33 @@
 | Credential states | `AUTH_FACTOR_STATE_READY` |
 | Credential names | `authenticator`, `S23ultra` |
 
+## G5 Legacy Postgres Cleanup Smoke
+
+| Check | Result |
+|-------|--------|
+| Legacy service | `postgres-bypass-wireless-bus-tupzoj` |
+| Legacy postgresId | `5e5bKMG5jBS30S7d8nn6c` |
+| Pre-cleanup event count | `801` |
+| Owner approval | explicit approval before destructive action |
+| Snapshot | `legacy-zitadel-pg18-20260419-200003.tar.gz` |
+| Snapshot size | `8,090,041` bytes |
+| Snapshot sha256 | `447bca8e914512cb7f167c31b177998c3ccfa4d7a35b3d832ae5823e3e5f4be0` |
+| Offsite path | `teslita-zitadel:/home/fgpaz/backups/zitadel/legacy` |
+| Final service/container/volume count | `0 / 0 / 0` |
+| Final OIDC/JWKS/admin PAT | `200 / 200 / 200` |
+
+## G7 DKIM/SPF Smoke
+
+| Check | Result |
+|-------|--------|
+| SMTP test endpoint | `POST /admin/v1/smtp/369306109413949798/_test` |
+| Gmail DKIM | `pass` for `@nuestrascuentitas.com`, selector `resend` |
+| Gmail SPF | `pass` for envelope sender `send.nuestrascuentitas.com` |
+| Transport TLS | TLS 1.3 observed by Gmail |
+
 ## Remaining Owner-Gated Evidence
 
-| Gap | Needed |
-|-----|--------|
-| G5 | Explicit approval before any legacy `postgres.remove` because the DB has `801` events |
-| G7 | Paste Gmail authentication headers; DNS currently shows DKIM TXT present and root SPF absent. Latest SMTP test re-triggered 2026-04-19T16:46:34-03:00 with `200` |
+None. Wave A gap closure is GREEN.
 
 ### G3 Access Safety Note
 

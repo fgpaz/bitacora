@@ -1,12 +1,12 @@
 # G7 — DKIM/SPF Verification
 
 **Date:** 2026-04-19  
-**Status:** AMBER  
+**Status:** GREEN
 **Tracking:** fgpaz/bitacora#18
 
 ## Result
 
-SMTP test mail was triggered successfully and re-triggered after G3 closure, but DKIM/SPF cannot be marked GREEN until Gmail headers are verified.
+SMTP test mail was triggered successfully and Gmail "Show original" headers verify DKIM and SPF pass.
 
 | Check | Result |
 |-------|--------|
@@ -18,15 +18,22 @@ SMTP test mail was triggered successfully and re-triggered after G3 closure, but
 | Receiver | `paz.fgabriel@gmail.com` |
 | DKIM DNS | `resend._domainkey.nuestrascuentitas.com` TXT present |
 | Root SPF DNS | no TXT/SPF record returned by resolver `1.1.1.1`; resolver fell back to SOA |
+| Gmail DKIM | `pass`, aligned signer `@nuestrascuentitas.com`, selector `resend` |
+| Gmail SPF | `pass`, envelope domain `send.nuestrascuentitas.com`, SMTP IP `23.249.215.56` |
+| Transport TLS | TLS 1.3 observed by Gmail |
 
-## Required Owner Evidence
+## Owner Evidence
 
-To close GREEN, paste the relevant Gmail "Show original" authentication lines for the latest test email:
+Relevant Gmail authentication lines, masked to avoid storing unique message tokens:
 
 ```text
-SPF: PASS/FAIL ...
-DKIM: PASS/FAIL ...
-DMARC: PASS/FAIL ...
+Authentication-Results: mx.google.com;
+  dkim=pass header.i=@nuestrascuentitas.com header.s=resend;
+  dkim=pass header.i=@amazonses.com;
+  spf=pass smtp.mailfrom=*@send.nuestrascuentitas.com
+
+Received-SPF: pass (...) client-ip=23.249.215.56;
+From: Tedi <noreply@nuestrascuentitas.com>
 ```
 
-If SPF is required to pass, add or repair the TXT record at `nuestrascuentitas.com` in DNS. DKIM already resolves publicly.
+The root domain still has no SPF TXT record, but SPF passes for the envelope sender domain used by Resend/Amazon SES. DKIM also passes with the visible From domain `nuestrascuentitas.com`, so G7 is GREEN for the Wave A SMTP delivery gate.

@@ -2,7 +2,7 @@
 
 > Root: `09_contratos_tecnicos.md` — seccion Autenticacion.
 > Sibling: `CT-AUTH.md` (Supabase Auth, runtime actual Bitacora Wave A).
-> Status: Wave A gap-closure ejecutada 2026-04-19. G1/G2/G3/G4/G6 GREEN; G5/G7 requieren evidencia/aprobacion del owner.
+> Status: Wave A gap-closure completada GREEN el 2026-04-19. G1..G7 cerrados con evidencia.
 
 ## 1. Instancia
 
@@ -105,7 +105,7 @@ Passwordless owner-managed activo para `paz.fgabriel@gmail.com`: `passwordless/_
 | Sender | `noreply@nuestrascuentitas.com` |
 | SMTP config id | `369306109413949798` (active) |
 | Test mail | enviado a `paz.fgabriel@gmail.com` via `/admin/v1/smtp/{id}/_test` |
-| DKIM/SPF | DKIM TXT presente; SPF root TXT no resuelve; headers Gmail pendientes |
+| DKIM/SPF | Gmail headers pass: DKIM `@nuestrascuentitas.com` selector `resend`, SPF pass via `send.nuestrascuentitas.com` |
 
 ## 9. Transicion desde Supabase (Wave B)
 
@@ -129,6 +129,7 @@ Estrategia: docker volume snapshot + offsite (decidida 2026-04-18, instalada 202
 - Offsite provider: rclone SFTP via Tailscale to `teslita-zitadel:/home/fgpaz/backups/zitadel`
 - Retention: 30d local / 90d offsite
 - Latest verified snapshot: `zitadel-pg-20260419-173731.tar.gz` (`10,716,399` bytes), OIDC healthcheck `200`
+- Legacy cleanup snapshot: `legacy-zitadel-pg18-20260419-200003.tar.gz` (`8,090,041` bytes, sha256 `447bca8e914512cb7f167c31b177998c3ccfa4d7a35b3d832ae5823e3e5f4be0`) copied to offsite `teslita-zitadel:/home/fgpaz/backups/zitadel/legacy`
 - Runbook: `infra/runbooks/zitadel-backup.md`
 - Recovery: `infra/runbooks/zitadel-recovery.md`
 
@@ -138,9 +139,9 @@ Estrategia: docker volume snapshot + offsite (decidida 2026-04-18, instalada 202
 - [x] Backup cron instalado en VPS y validado con snapshot manual.
 - [x] MFA/passwordless admin: login UI funciona; password humano rotado; `auth_factors/_search` devuelve `{}` y `passwordless/_search` devuelve 2 credenciales `AUTH_FACTOR_STATE_READY` enroladas por el owner en sus dispositivos.
 - [x] Client credentials grant funciona con JWT Bearer RS256 y `kid` para las 4 orgs.
-- [ ] Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` sigue corriendo; no es safe removal porque contiene `801` eventos.
+- [x] Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` removida tras snapshot/offsite: service `0`, containers `0`, volume `0`; Zitadel activo discovery/JWKS/PAT siguio `200`.
 - [x] Offsite backup remote configurado y archivo listable via rclone.
-- [ ] DKIM/SPF: test mail enviado y re-disparado 2026-04-19 16:46 ART; DKIM TXT presente, SPF root ausente, headers Gmail pendientes.
+- [x] DKIM/SPF: Gmail headers pass para DKIM `@nuestrascuentitas.com` y SPF envelope `send.nuestrascuentitas.com`.
 
 ## 12. Sincronizacion
 

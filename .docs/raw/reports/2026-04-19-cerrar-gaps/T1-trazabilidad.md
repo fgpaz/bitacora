@@ -2,9 +2,11 @@
 
 **Date:** 2026-04-19  
 **Scope:** Wave A Zitadel gap closure, runtime-sensitive infra/auth changes  
-**Verdict:** BLOCKED for full GREEN; actionable subset is traceable
+**Verdict:** Superseded by final GREEN closure
 
 > 2026-04-19 continuation: G3 was later closed via owner-managed passwordless/passkeys. See `T4-owner-passwordless-continuation.md`. Remaining blockers are G5 and G7.
+
+> 2026-04-19 final continuation: G5 and G7 were later closed. See `T5-final-green-closure.md`.
 
 ## Governance And Canon
 
@@ -44,9 +46,9 @@
 | Gap | State | Blocking reason |
 |-----|-------|-----------------|
 | G3 Admin MFA/passwordless | GREEN | Superseded by T4: owner-managed passwordless credentials ready |
-| G5 Legacy Postgres cleanup | AMBER | Legacy eventstore has `801` events; destructive remove requires approval |
-| G7 DKIM/SPF | AMBER | SMTP test sent, DKIM DNS present, SPF TXT missing and Gmail headers pending |
+| G5 Legacy Postgres cleanup | GREEN | Superseded by T5: snapshot/offsite done; service/container/volume counts are `0` |
+| G7 DKIM/SPF | GREEN | Superseded by T5: Gmail headers show DKIM pass and SPF pass |
 
 ## Closure Verdict
 
-Do not mark Wave A full GREEN yet. G1/G2/G3/G4/G6 are traceable and live-verified; G5/G7 remain owner-gated.
+Wave A gap closure is GREEN after T5. G1..G7 are traceable and live-verified.
