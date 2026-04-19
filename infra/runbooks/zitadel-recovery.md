@@ -31,8 +31,8 @@ curl -sS -X POST -H "x-api-key: $DOKPLOY_API_KEY" -H "Content-Type: application/
 
 ```bash
 # 1. Download latest snapshot
-rclone lsl <remote>:<bucket>/ | sort | tail -1
-rclone copy <remote>:<bucket>/zitadel-pg-<ts>.tar.gz /tmp/
+rclone lsl teslita-zitadel:/home/fgpaz/backups/zitadel | sort | tail -1
+rclone copy teslita-zitadel:/home/fgpaz/backups/zitadel/zitadel-pg-<ts>.tar.gz /tmp/
 
 # 2. Stop Postgres
 curl -sS -X POST -H "x-api-key: $DOKPLOY_API_KEY" \
@@ -42,10 +42,16 @@ curl -sS -X POST -H "x-api-key: $DOKPLOY_API_KEY" \
 docker run --rm -v postgres-reboot-wireless-panel-chhbwg-data:/data -v /tmp:/backup busybox \
   sh -c 'rm -rf /data/* /data/..?* /data/.[!.]* 2>/dev/null; tar -xzf /backup/zitadel-pg-<ts>.tar.gz -C /'
 
-# 4. Start Postgres + verify healthcheck
-# 5. Start Zitadel
-# 6. Validate: curl OIDC discovery = 200; PAT works against /management/v1/orgs/me
+# 4. Ensure Dokploy service mounts the named volume at /var/lib/postgresql/data
+docker service inspect postgres-reboot-wireless-panel-chhbwg \
+  --format '{{json .Spec.TaskTemplate.ContainerSpec.Mounts}}'
+
+# 5. Start Postgres + verify healthcheck
+# 6. Start Zitadel
+# 7. Validate: curl OIDC discovery = 200; PAT works against /management/v1/orgs/me
 ```
+
+Before restoring, check the tar is not the rejected 89-byte incident artifact and is larger than `ZITADEL_BACKUP_MIN_BYTES` (`1048576` by default).
 
 ## Scenario 4: Admin locked out (lost PAT + no browser login)
 

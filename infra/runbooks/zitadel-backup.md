@@ -5,11 +5,14 @@ Docker volume snapshot strategy (NO pg_dump). Script git-tracked at `infra/backu
 ## Cómo funciona
 
 1. Cron at 03:00 UTC daily on VPS turismo
-2. Stops the Zitadel Postgres container
-3. Tar-gzip snapshot of the Docker volume `postgres-reboot-wireless-panel-chhbwg-data` to `/var/backups/zitadel/zitadel-pg-<ts>.tar.gz`
-4. Restarts the container
-5. Uploads to offsite remote (rclone, provider TBD)
-6. Prunes local backups >30d, offsite >90d
+2. Verifies the Docker service mounts `postgres-reboot-wireless-panel-chhbwg-data` at `/var/lib/postgresql/data`
+3. Verifies the volume contains a real Postgres data directory before stopping anything
+4. Scales the Zitadel Postgres Swarm service to 0
+5. Tar-gzip snapshot of the Docker volume to `/var/backups/zitadel/zitadel-pg-<ts>.tar.gz`
+6. Rejects snapshots smaller than `ZITADEL_BACKUP_MIN_BYTES` (default `1048576`)
+7. Scales the service back to 1 and verifies OIDC discovery
+8. Uploads to offsite remote through rclone
+9. Prunes local backups >30d, offsite >90d
 
 Downtime per snapshot: ~30-90 seconds (acceptable at 00:00 ART low-traffic window).
 
@@ -20,8 +23,8 @@ See `infra/backups/zitadel/README.md` for detailed commands. Key steps:
 ```bash
 ssh turismo
 sudo mkdir -p /opt/zitadel-backup /var/backups/zitadel
-# Copy snapshot.sh and create .env file with volume/container/remote configured
-# Install rclone + configure remote
+# Copy snapshot.sh and create .env file with volume/service/remote configured
+# Install rclone + configure remote teslita-zitadel
 # Install cron at /etc/cron.d/zitadel-backup
 ```
 
@@ -32,7 +35,7 @@ ssh turismo
 sudo /opt/zitadel-backup/snapshot.sh
 # Verify
 ls -la /var/backups/zitadel/ | tail -5
-rclone ls <remote>:<bucket>/ | tail -5
+rclone lsl teslita-zitadel:/home/fgpaz/backups/zitadel | tail -5
 ```
 
 ## Monitoring
@@ -46,10 +49,16 @@ Alert thresholds:
 - No successful backup 72h+ → page
 - Local `/var/backups/zitadel/` full → run manual prune
 
-## Known gaps (as of 2026-04-19)
+## Current state (2026-04-19)
 
-- **Offsite remote NOT configured yet.** Snapshots only local until user picks a provider (B2/R2/Hetzner/rsync-desktop) and configures rclone. Tech debt T3.1 closure.
-- **No cron installed yet.** First manual run pending VPS setup.
+- Offsite remote configured: `teslita-zitadel:/home/fgpaz/backups/zitadel`.
+- Cron installed: `/etc/cron.d/zitadel-backup`.
+- Last verified manual backup: `zitadel-pg-20260419-173731.tar.gz`, `10,716,399` bytes, listed remotely via rclone.
+- Incident guardrails are mandatory: do not remove the mount/size/OIDC checks from `snapshot.sh`.
+
+## Incident footnote
+
+On 2026-04-19 the first install attempt exposed a bad Dokploy mount: the service mounted the named volume at `/var/lib/postgresql/18/docker`, while live data lived at `/var/lib/postgresql/data` in an anonymous volume. The service is now corrected to mount `postgres-reboot-wireless-panel-chhbwg-data:/var/lib/postgresql/data`.
 
 ## Rotation and upgrade
 
