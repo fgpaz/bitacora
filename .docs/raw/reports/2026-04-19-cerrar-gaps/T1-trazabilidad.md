@@ -4,6 +4,8 @@
 **Scope:** Wave A Zitadel gap closure, runtime-sensitive infra/auth changes  
 **Verdict:** BLOCKED for full GREEN; actionable subset is traceable
 
+> 2026-04-19 continuation: G3 was later closed via owner-managed passwordless/passkeys. See `T4-owner-passwordless-continuation.md`. Remaining blockers are G5 and G7.
+
 ## Governance And Canon
 
 | Check | Result |
@@ -41,10 +43,10 @@
 
 | Gap | State | Blocking reason |
 |-----|-------|-----------------|
-| G3 Admin MFA | BLOCKED | Requires owner QR scan and recovery code storage |
+| G3 Admin MFA/passwordless | GREEN | Superseded by T4: owner-managed passwordless credentials ready |
 | G5 Legacy Postgres cleanup | AMBER | Legacy eventstore has `801` events; destructive remove requires approval |
 | G7 DKIM/SPF | AMBER | SMTP test sent, DKIM DNS present, SPF TXT missing and Gmail headers pending |
 
 ## Closure Verdict
 
-Do not mark Wave A full GREEN yet. G1/G2/G4/G6 are traceable and live-verified; G3/G5/G7 remain owner-gated.
+Do not mark Wave A full GREEN yet. G1/G2/G3/G4/G6 are traceable and live-verified; G5/G7 remain owner-gated.
