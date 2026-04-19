@@ -23,6 +23,8 @@
 | JWKS | `200` |
 | Console | `200` |
 | Login UI v2 | `200` |
+| Real authorize redirect | `200` at `/ui/v2/login/loginname?requestId=oidc_V2_369307575725850982` |
+| Login page title | `Welcome back!` |
 | Swarm replicas | `1/1` |
 | Observed memory | `68.24MiB` |
 
@@ -34,6 +36,7 @@
   - `ZITADEL_DOKPLOY_APP_ID_LOGIN`
   - `ZITADEL_DOKPLOY_APP_NAME_LOGIN`
   - `ZITADEL_LOGIN_BASE_PATH`
+- After the Postgres mount incident in G2, the `login-client` PAT was refreshed in Infisical and the companion app was redeployed with the current token.
 
 ## Secret Handling
 

@@ -37,14 +37,15 @@
    mkey set bitacora ZITADEL_LOGIN_CLIENT_PAT "<second>" --env prod
    ```
 6. **Create remaining orgs + OAuth clients** via API (see `T2.1-organizations.md`, `T2.4-oauth-clients.md` in the plan subdocs).
-7. **Wire SMTP** via POST `/admin/v1/smtp` + `POST /admin/v1/smtp/{id}/_activate` + test mail (see T2.2 subdoc).
+7. **Wire SMTP** via POST `/admin/v1/email/smtp` + `POST /admin/v1/email/{id}/_activate` + test mail through `/admin/v1/smtp/{id}/_test` (see T2.2 subdoc).
 8. **Apply baseline policies** via PUT `/admin/v1/policies/password/complexity` (min 10 + upper + lower + number).
 9. **Install backup cron** on VPS turismo from `infra/backups/zitadel/README.md`.
-10. **Deploy login companion app** in Dokploy (`ghcr.io/zitadel/zitadel-login:v4.9.0`) with env `ZITADEL_API_URL=https://id.nuestrascuentitas.com`, `ZITADEL_SERVICE_USER_ID=<login-client-userId>`, `ZITADEL_SERVICE_USER_TOKEN=<login-client-PAT>`. Add Traefik rule to route `/ui/v2/*` to port 3000 of the companion.
+10. **Deploy login companion app** in Dokploy (`ghcr.io/zitadel/zitadel-login:v4.9.0`) with env `ZITADEL_API_URL=http://app-program-optical-matrix-xmjswe:8080`, `NEXT_PUBLIC_BASE_PATH=/ui/v2/login`, `CUSTOM_REQUEST_HEADERS=Host:id.nuestrascuentitas.com`, `ZITADEL_SERVICE_USER_TOKEN=<login-client-PAT>`. Add Traefik rule to route `/ui/v2/login` pass-through to port 3000 of the companion.
 11. **Smoke test:**
     - `curl https://id.nuestrascuentitas.com/.well-known/openid-configuration` → 200
     - `curl -H "Authorization: Bearer $ZITADEL_ADMIN_PAT" https://id.nuestrascuentitas.com/management/v1/orgs/me` → 200 with `name: nuestrascuentitas`
-    - Login via browser at `/ui/console` → redirects to `/ui/v2/login` → works
+    - Login via browser at `/ui/console` -> redirects to `/ui/v2/login` -> works
+    - `client_credentials` smoke uses machine users with user secrets, not the placeholder API apps.
 
 ## Rollback
 

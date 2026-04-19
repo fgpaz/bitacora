@@ -2,7 +2,7 @@
 
 > Root: `09_contratos_tecnicos.md` — seccion Autenticacion.
 > Sibling: `CT-AUTH.md` (Supabase Auth, runtime actual Bitacora Wave A).
-> Status: Wave A completada en modo PARTIAL 2026-04-19. Wave B integra Bitacora (ver plan Wave B).
+> Status: Wave A gap-closure ejecutada 2026-04-19. G1/G2/G4/G6 GREEN; G3/G5/G7 requieren evidencia/aprobacion del owner.
 
 ## 1. Instancia
 
@@ -17,6 +17,7 @@
 | Ecosistema | Teslita (nuestrascuentitas + bitacora + multi-tedi + gastos) |
 | Dokploy project | `teslita-shared-idp` (`AKHsAJScexTwhJBzfFRlk`) |
 | Docker app | `zFdEECmPr1hhxwL0DKu4B` (`app-program-optical-matrix-xmjswe`) |
+| Login companion | `0qRNmuYflmhQZz9vFeC8f` (`teslita-shared-zitadel-login`), image `ghcr.io/zitadel/zitadel-login:v4.9.0` |
 
 ## 2. Endpoints OIDC (validados smoke T4.1)
 
@@ -51,25 +52,25 @@ Signing algs: `RS256` (default), `RS384`, `RS512`, `ES256/384/512`, `EdDSA`.
 
 | Name | orgId | Productos |
 |------|-------|-----------|
-| `nuestrascuentitas` | `369202905795854607` | landing + marketing |
-| `bitacora` | `369203115896865039` | clinical mood tracker |
-| `multi-tedi` | `369203117457146127` | futuro (IA conversacional) |
-| `gastos` | `369203118983872783` | futuro (gastos personales) |
+| `nuestrascuentitas` | `369304228570661222` | landing + marketing |
+| `bitacora` | `369305924310925670` | clinical mood tracker |
+| `multi-tedi` | `369305928773665126` | futuro (IA conversacional) |
+| `gastos` | `369305933253181798` | futuro (gastos personales) |
 
 ## 5. OAuth Clients (per org)
 
-Cada org tiene 1 project + 2 apps (Web PKCE public + API client_credentials).
+Cada org tiene 1 project + 1 Web PKCE public app + 1 machine service account para `client_credentials`.
 
-| Org | projectId | web clientId | api clientId |
-|-----|-----------|--------------|--------------|
-| nuestrascuentitas | `369203157235925263` | `369203159148593423` | `369203161010864399` |
-| bitacora | `369203162839515407` | `369203164785737999` | `369203166698340623` |
-| multi-tedi | `369203168677986575` | `369203170624209167` | `369203172603855119` |
-| gastos | `369203174449348879` | `369203176278130959` | `369203178190668047` |
+| Org | projectId | web clientId | M2M clientId | M2M userId |
+|-----|-----------|--------------|--------------|------------|
+| nuestrascuentitas | `369306314246979942` | `369306318709784934` | `nuestrascuentitas-api-client` | `369306707119047014` |
+| bitacora | `369306332534145382` | `369306336963330406` | `bitacora-api-client` | `369306719433523558` |
+| multi-tedi | `369306350636761446` | `369306355065946470` | `multi-tedi-api-client` | `369306729382412646` |
+| gastos | `369306369645347174` | `369306374074597734` | `gastos-api-client` | `369306738643435878` |
 
-Secrets de API clients + redirect URIs placeholder viven en Infisical `ZITADEL_CLIENT_<ORG>_*`. Wave B y Wave C' etc actualizan redirect URIs reales al momento de integrar cada frontend.
+Secrets M2M + redirect URIs placeholder viven en Infisical `ZITADEL_CLIENT_<ORG>_*`. Wave B y Wave C' etc actualizan redirect URIs reales al momento de integrar cada frontend.
 
-**Note (2026-04-19):** el grant client_credentials inicial devolvio `invalid_client` en el smoke. Probable causa: project grant authorization pendiente en Zitadel v4 (requiere flag adicional en el API app). Tech debt para Wave B.
+**Note (2026-04-19):** el grant `client_credentials` queda GREEN usando machine users con user secret. Los API apps placeholder originales no se usan como secreto M2M hasta definir un caso real de API app en cada producto.
 
 ## 6. Users admin
 
@@ -87,7 +88,7 @@ Human admin password persiste en Infisical `ZITADEL_ADMIN_INITIAL_PASSWORD`. Deb
 |--------|-------------|--------|
 | Password min length | 10 | 10 |
 | Password complexity | upper + lower + number | idem |
-| MFA required admins | pending (login UI needed) | yes (post Wave A2) |
+| MFA required admins | pending owner enrollment | yes |
 | Session access lifetime | default | 1h target |
 | Session refresh lifetime | default | 30d target |
 | Audit retention | default Zitadel (~90d) | 2 anos |
@@ -97,11 +98,12 @@ Human admin password persiste en Infisical `ZITADEL_ADMIN_INITIAL_PASSWORD`. Deb
 | Campo | Valor |
 |-------|-------|
 | Provider | Resend |
-| Host:Port | smtp.resend.com:465 |
+| Host:Port | smtp.resend.com:587 |
 | TLS | true |
 | Sender | `noreply@nuestrascuentitas.com` |
-| SMTP config id | `369203306586702095` (active) |
-| Test mail | enviado a `paz.fgabriel@gmail.com` (DKIM/SPF verify pending) |
+| SMTP config id | `369306109413949798` (active) |
+| Test mail | enviado a `paz.fgabriel@gmail.com` via `/admin/v1/smtp/{id}/_test` |
+| DKIM/SPF | DKIM TXT presente; SPF root TXT no resuelve; headers Gmail pendientes |
 
 ## 9. Transicion desde Supabase (Wave B)
 
@@ -118,23 +120,25 @@ Plan: `.docs/raw/plans/2026-04-17-migracion-bitacora-zitadel-wave-b.md`.
 
 ## 10. Backup & disaster recovery
 
-Estrategia: docker volume snapshot + offsite (decidida 2026-04-18).
+Estrategia: docker volume snapshot + offsite (decidida 2026-04-18, instalada 2026-04-19).
 
 - Script: `infra/backups/zitadel/snapshot.sh` (git-tracked)
-- Cron target: 03:00 UTC diario on VPS turismo (**install pending**)
-- Offsite provider: por elegir (B2 / R2 / Hetzner / rsync desktop)
+- Cron target: 03:00 UTC diario on VPS turismo (`/etc/cron.d/zitadel-backup`)
+- Offsite provider: rclone SFTP via Tailscale to `teslita-zitadel:/home/fgpaz/backups/zitadel`
 - Retention: 30d local / 90d offsite
+- Latest verified snapshot: `zitadel-pg-20260419-173731.tar.gz` (`10,716,399` bytes), OIDC healthcheck `200`
 - Runbook: `infra/runbooks/zitadel-backup.md`
 - Recovery: `infra/runbooks/zitadel-recovery.md`
 
 ## 11. Gaps conocidos (post Wave A, 2026-04-19)
 
-- [ ] **Login companion app** (`ghcr.io/zitadel/zitadel-login:v4.9.0`) no deployado. Bloqueante para login end-user en Wave B.
-- [ ] Backup cron no instalado en VPS.
-- [ ] MFA admin no enrollada (requiere login UI).
-- [ ] Client credentials grant no funciona (project grant pending).
-- [ ] Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` sigue corriendo sin uso.
-- [ ] Offsite backup remote no configurado (user picks provider).
+- [x] **Login companion app** deployado: `ghcr.io/zitadel/zitadel-login:v4.9.0`, route `/ui/v2/login`, authorize real devuelve `Welcome back!`.
+- [x] Backup cron instalado en VPS y validado con snapshot manual.
+- [ ] MFA admin no enrollada: login UI ya funciona, falta QR scan del owner.
+- [x] Client credentials grant funciona con JWT Bearer RS256 y `kid` para las 4 orgs.
+- [ ] Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` sigue corriendo; no es safe removal porque contiene `801` eventos.
+- [x] Offsite backup remote configurado y archivo listable via rclone.
+- [ ] DKIM/SPF: test mail enviado; DKIM TXT presente, SPF root ausente, headers Gmail pendientes.
 
 ## 12. Sincronizacion
 
