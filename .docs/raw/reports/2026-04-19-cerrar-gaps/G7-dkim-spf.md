@@ -6,7 +6,7 @@
 
 ## Result
 
-SMTP test mail was triggered successfully, but DKIM/SPF cannot be marked GREEN until Gmail headers are verified.
+SMTP test mail was triggered successfully and re-triggered after G3 closure, but DKIM/SPF cannot be marked GREEN until Gmail headers are verified.
 
 | Check | Result |
 |-------|--------|
@@ -14,9 +14,10 @@ SMTP test mail was triggered successfully, but DKIM/SPF cannot be marked GREEN u
 | Active SMTP config id | `369306109413949798` |
 | Test endpoint | `POST /admin/v1/smtp/369306109413949798/_test` |
 | Test result | `200` |
+| Latest re-trigger | `2026-04-19T16:46:34-03:00`, result `200` |
 | Receiver | `paz.fgabriel@gmail.com` |
 | DKIM DNS | `resend._domainkey.nuestrascuentitas.com` TXT present |
-| Root SPF DNS | no TXT/SPF record returned by resolver `1.1.1.1` |
+| Root SPF DNS | no TXT/SPF record returned by resolver `1.1.1.1`; resolver fell back to SOA |
 
 ## Required Owner Evidence
 

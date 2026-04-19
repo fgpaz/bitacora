@@ -13,7 +13,7 @@
 | G0 — Preflight + tracking | GREEN | `.docs/raw/reports/2026-04-19-cerrar-gaps/G0-preflight.md` |
 | G1 — Login companion | GREEN | `.docs/raw/reports/2026-04-19-cerrar-gaps/G1-login-companion.md` |
 | G2 — Backup cron | GREEN | `.docs/raw/reports/2026-04-19-cerrar-gaps/G2-backup-offsite.md` |
-| G3 — Admin MFA | BLOCKED | Password rotated; no active OTP factor; requires owner-managed passkey/TOTP on owner device |
+| G3 — Admin MFA/passwordless | GREEN | `passwordless/_search` returns 2 owner-managed `AUTH_FACTOR_STATE_READY` credentials |
 | G4 — Client credentials | GREEN | `.docs/raw/reports/2026-04-19-cerrar-gaps/G4-client-credentials.md` |
 | G5 — Legacy Postgres cleanup | AMBER | Non-empty eventstore; see `.docs/raw/reports/2026-04-19-cerrar-gaps/G5-legacy-postgres.md` |
 | G6 — Offsite remote | GREEN | `rclone lsl` lists `zitadel-pg-20260419-173731.tar.gz` |
@@ -63,17 +63,26 @@
 | multi-tedi | `200` | `Bearer` | `RS256` | present |
 | gastos | `200` | `Bearer` | `RS256` | present |
 
+## G3 Admin Passwordless Smoke
+
+| Check | Result |
+|-------|--------|
+| Human admin | `paz.fgabriel@gmail.com` |
+| Automation-owned OTP factor | none; `auth_factors/_search` returned `{}` |
+| Owner-managed passwordless | 2 ready credentials |
+| Credential states | `AUTH_FACTOR_STATE_READY` |
+| Credential names | `authenticator`, `S23ultra` |
+
 ## Remaining Owner-Gated Evidence
 
 | Gap | Needed |
 |-----|--------|
-| G3 | Owner logs in from their own browser/device and enrolls passkey or TOTP; then verify `auth_factors/_search` returns a ready factor |
 | G5 | Explicit approval before any legacy `postgres.remove` because the DB has `801` events |
-| G7 | Paste Gmail authentication headers; DNS currently shows DKIM TXT present and root SPF absent |
+| G7 | Paste Gmail authentication headers; DNS currently shows DKIM TXT present and root SPF absent. Latest SMTP test re-triggered 2026-04-19T16:46:34-03:00 with `200` |
 
 ### G3 Access Safety Note
 
-During Playwright-assisted validation, the human admin password was rotated and persisted only in Infisical key `ZITADEL_ADMIN_INITIAL_PASSWORD` plus encrypted backup `infra/secrets.enc.env`. A transient OTP factor was removed after the user asked how future login would work. Live verification returned `{}` from `auth_factors/_search`, so the owner is not locked behind an automation-owned factor. Passwordless/passkey enrollment must be done on the owner's own browser/device, not through Codex Playwright, unless the owner explicitly accepts a documented break-glass shared TOTP secret in Infisical.
+During Playwright-assisted validation, the human admin password was rotated and persisted only in Infisical key `ZITADEL_ADMIN_INITIAL_PASSWORD` plus encrypted backup `infra/secrets.enc.env`. A transient OTP factor was removed after the user asked how future login would work. Live verification returned `{}` from `auth_factors/_search`, so the owner is not locked behind an automation-owned factor. The owner later enrolled passwordless/passkeys on personal devices; `passwordless/_search` returned 2 ready credentials. Codex/Playwright must not create personal passkeys for the owner.
 
 ## Secret Handling
 

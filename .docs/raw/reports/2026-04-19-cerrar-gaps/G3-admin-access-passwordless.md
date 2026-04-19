@@ -1,7 +1,7 @@
 # G3 — Admin Access, MFA, and Passwordless Gate
 
 **Date:** 2026-04-19  
-**Status:** BLOCKED by owner-managed factor enrollment  
+**Status:** GREEN via owner-managed passwordless/passkeys
 **User:** `paz.fgabriel@gmail.com` (`369304228571316582`)
 
 ## What Is Safe Now
@@ -11,6 +11,7 @@
 - Local plaintext appears only after an explicit `mkey pull bitacora prod` into ignored `infra/.env`.
 - Clipboard was cleared after the browser login operation.
 - The partially created OTP factor was removed to avoid locking the owner out.
+- The owner later enrolled passwordless/passkey credentials from personal devices.
 
 ## Live Verification
 
@@ -26,7 +27,26 @@ Result:
 {}
 ```
 
-Interpretation: no active TOTP factor is enrolled on the human admin account.
+Interpretation: no active Codex/Playwright-owned TOTP factor is enrolled on the human admin account.
+
+Command:
+
+```powershell
+POST /management/v1/users/369304228571316582/passwordless/_search
+```
+
+Result:
+
+```json
+{
+  "result": [
+    { "state": "AUTH_FACTOR_STATE_READY", "name": "authenticator" },
+    { "state": "AUTH_FACTOR_STATE_READY", "name": "S23ultra" }
+  ]
+}
+```
+
+Interpretation: owner-managed passwordless/passkey credentials are active and ready.
 
 ## Passwordless Decision
 
@@ -39,4 +59,4 @@ Accepted paths:
 
 ## Current Closure State
 
-G3 remains BLOCKED until the owner enrolls a factor on their own device or explicitly accepts a break-glass shared TOTP model.
+G3 is GREEN. The accepted closure path is owner-managed passwordless/passkeys, verified through Zitadel Management API. TOTP remains intentionally unused to avoid Codex-owned factors or shared-seed MFA.

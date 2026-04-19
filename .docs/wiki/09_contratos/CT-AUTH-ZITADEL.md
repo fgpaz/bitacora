@@ -2,7 +2,7 @@
 
 > Root: `09_contratos_tecnicos.md` — seccion Autenticacion.
 > Sibling: `CT-AUTH.md` (Supabase Auth, runtime actual Bitacora Wave A).
-> Status: Wave A gap-closure ejecutada 2026-04-19. G1/G2/G4/G6 GREEN; G3/G5/G7 requieren evidencia/aprobacion del owner.
+> Status: Wave A gap-closure ejecutada 2026-04-19. G1/G2/G3/G4/G6 GREEN; G5/G7 requieren evidencia/aprobacion del owner.
 
 ## 1. Instancia
 
@@ -82,13 +82,15 @@ Secrets M2M + redirect URIs placeholder viven en Infisical `ZITADEL_CLIENT_<ORG>
 
 Human admin password persiste en Infisical `ZITADEL_ADMIN_INITIAL_PASSWORD` y backup cifrado `infra/secrets.enc.env`. Fue rotada el 2026-04-19 durante el cierre de gaps; no se registra en docs, issues, logs ni chat.
 
+Passwordless owner-managed activo para `paz.fgabriel@gmail.com`: `passwordless/_search` devuelve 2 credenciales `AUTH_FACTOR_STATE_READY` (`authenticator`, `S23ultra`). Estas credenciales fueron enroladas por el owner en sus dispositivos, no por Codex/Playwright.
+
 ## 7. Policies baseline Teslita (post T2.5)
 
 | Policy | Valor actual | Target |
 |--------|-------------|--------|
 | Password min length | 10 | 10 |
 | Password complexity | upper + lower + number | idem |
-| MFA required admins | pending owner enrollment on owner device | yes |
+| MFA required admins | owner-managed passwordless ready; TOTP no usado | yes |
 | Session access lifetime | default | 1h target |
 | Session refresh lifetime | default | 30d target |
 | Audit retention | default Zitadel (~90d) | 2 anos |
@@ -134,11 +136,11 @@ Estrategia: docker volume snapshot + offsite (decidida 2026-04-18, instalada 202
 
 - [x] **Login companion app** deployado: `ghcr.io/zitadel/zitadel-login:v4.9.0`, route `/ui/v2/login`, authorize real devuelve `Welcome back!`.
 - [x] Backup cron instalado en VPS y validado con snapshot manual.
-- [ ] MFA admin no enrollada: login UI ya funciona, password humano rotado y verificado; `auth_factors/_search` devuelve `{}`. Falta enrollment del owner en su propio dispositivo. No crear passkey personal desde Playwright/Codex porque quedaria ligada al perfil de automatizacion; si se acepta un TOTP compartido, documentarlo como break-glass y guardar el secreto en Infisical.
+- [x] MFA/passwordless admin: login UI funciona; password humano rotado; `auth_factors/_search` devuelve `{}` y `passwordless/_search` devuelve 2 credenciales `AUTH_FACTOR_STATE_READY` enroladas por el owner en sus dispositivos.
 - [x] Client credentials grant funciona con JWT Bearer RS256 y `kid` para las 4 orgs.
 - [ ] Legacy Postgres `postgres-bypass-wireless-bus-tupzoj` sigue corriendo; no es safe removal porque contiene `801` eventos.
 - [x] Offsite backup remote configurado y archivo listable via rclone.
-- [ ] DKIM/SPF: test mail enviado; DKIM TXT presente, SPF root ausente, headers Gmail pendientes.
+- [ ] DKIM/SPF: test mail enviado y re-disparado 2026-04-19 16:46 ART; DKIM TXT presente, SPF root ausente, headers Gmail pendientes.
 
 ## 12. Sincronizacion
 
