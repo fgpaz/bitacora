@@ -1,8 +1,8 @@
 # CT-AUTH-ZITADEL: Contrato IdP Zitadel Teslita
 
 > Root: `09_contratos_tecnicos.md` — seccion Autenticacion.
-> Sibling: `CT-AUTH.md` (Supabase Auth, runtime actual Bitacora Wave A).
-> Status: Wave A gap-closure completada GREEN el 2026-04-19. G1..G7 cerrados con evidencia.
+> Sibling: `CT-AUTH.md` (Supabase Auth legacy, conservado solo para rollback temporal).
+> Status: Wave A gap-closure completada GREEN el 2026-04-19; Wave B cutover Bitacora deployado en produccion el 2026-04-19 (`b0d876c`).
 
 ## 1. Instancia
 
@@ -107,18 +107,23 @@ Passwordless owner-managed activo para `paz.fgabriel@gmail.com`: `passwordless/_
 | Test mail | enviado a `paz.fgabriel@gmail.com` via `/admin/v1/smtp/{id}/_test` |
 | DKIM/SPF | Gmail headers pass: DKIM `@nuestrascuentitas.com` selector `resend`, SPF pass via `send.nuestrascuentitas.com` |
 
-## 9. Transicion desde Supabase (Wave B)
+## 9. Cutover desde Supabase (Wave B)
 
-Bitacora Wave 1 valida JWT Supabase via clave simetrica (`SUPABASE_JWT_SECRET`). Wave B introduce dual-IdP feature flag + validacion JWKS RS256 de Zitadel. Mapeo:
+Bitacora dejo de usar Supabase Auth como runtime primario el 2026-04-19. El frontend inicia sesion con OIDC Authorization Code + PKCE contra Zitadel; el backend valida Bearer JWT con metadata OIDC y JWKS RS256. `SUPABASE_JWT_SECRET` puede permanecer en Dokploy solo como rollback temporal hasta aceptacion operativa, pero la readiness productiva ya no depende de ese secreto.
+
+La estrategia de migracion elegida fue link-on-first-login. La migracion `20260419000001_AddLegacyAuthSubject` agrega `legacy_auth_subject`, copia los 14 subjects existentes y conserva la columna fisica `supabase_user_id` como almacenamiento temporal de `auth_subject` para rollback controlado. En primer login Zitadel, si no existe match por `sub`, el backend vincula por `email_hash` y preserva el subject anterior.
+
+Mapeo activo:
 
 | Supabase claim | Zitadel claim | Handling |
 |----------------|---------------|----------|
 | sub | sub | directo (stable id) |
 | email | email | directo |
 | user_metadata.role | urn:zitadel:iam:org:project:roles | parsing custom |
-| aud | aud | formato distinto — aceptar ambos durante transicion |
+| aud | aud | audiencia Zitadel = projectId Bitacora (`369306332534145382`) |
 
 Plan: `.docs/raw/plans/2026-04-17-migracion-bitacora-zitadel-wave-b.md`.
+Evidencia de cutover: `artifacts/e2e/2026-04-19-zitadel-wave-b-cutover/README.md`.
 
 ## 10. Backup & disaster recovery
 

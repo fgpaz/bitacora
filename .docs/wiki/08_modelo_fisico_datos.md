@@ -28,6 +28,8 @@ La migracion `InitialCore` y la migracion `AddBindingCodesAndCareLinks` ya fuero
 
 `telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` fueron materializadas en Wave anterior y permanecen activas en Phase 40 (nueva columna `reminder_timezone` agregada).
 
+Wave B Zitadel agrego `legacy_auth_subject` a `users` mediante `20260419000001_AddLegacyAuthSubject`. La columna fisica `supabase_user_id` permanece como almacenamiento temporal del subject activo para rollback controlado; a nivel logico el campo se denomina `auth_subject`.
+
 T01 congela para produccion una topologia backend-only: una DB dedicada `bitacora-db` y una app `bitacora-api`. La creacion live en Dokploy depende de materializar localmente `infra/.env` con credenciales de control-plane.
 
 ## Ownership y safety stance
@@ -41,7 +43,7 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 
 | Tabla | Owner | Patron | Notas | Estado |
 |-------|-------|--------|-------|--------|
-| users | Auth | CRUD | PII cifrado + `key_version`; `email_hash` para lookup. | Materializada |
+| users | Auth | CRUD | PII cifrado + `key_version`; `email_hash` para lookup; `auth_subject` activo + `legacy_auth_subject` rollback. | Materializada |
 | mood_entries | Registro | Append-only | `encrypted_payload + safe_projection`. | Materializada |
 | daily_checkins | Registro | Upsert | `UNIQUE(patient_id, checkin_date)`. | Materializada |
 | consent_grants | Consent | State machine | `pending → granted → revoked`. | Materializada |
@@ -86,7 +88,8 @@ Invariante: El servicio convierte el tiempo local (hour, minute en `reminder_tim
 
 | Tabla | Indice | Justificacion | Estado |
 |-------|--------|---------------|--------|
-| users | UNIQUE(supabase_user_id) | Lookup desde JWT | Materializado |
+| users | UNIQUE(auth_subject) | Lookup desde JWT Zitadel; fisicamente usa `supabase_user_id` durante la ventana de rollback | Materializado |
+| users | INDEX(legacy_auth_subject) | Rollback/auditoria de subjects Supabase previos al cutover | Materializado |
 | users | INDEX(email_hash) | Busqueda por email sin descifrar | Materializado |
 | mood_entries | INDEX(patient_id, created_at_utc) | Timeline queries | Materializado |
 | daily_checkins | UNIQUE(patient_id, checkin_date) | Un checkin por dia | Materializado |

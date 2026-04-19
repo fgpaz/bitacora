@@ -23,7 +23,7 @@ graph TB
     end
 
     subgraph Backend["Bitacora.Api — Monolito modular (.NET 10)"]
-        AUTH["Modulo Auth<br/>(Supabase JWT)"]
+        AUTH["Modulo Auth<br/>(Zitadel OIDC/JWT)"]
         REG["Modulo Registro<br/>(humor + factores)"]
         CONS["Modulo Consent<br/>(hard gate + revocacion)"]
         VINC["Modulo Vinculos<br/>(profesional-paciente)"]
@@ -38,7 +38,7 @@ graph TB
     end
 
     subgraph ExtAuth["Auth externa"]
-        SUPA["Supabase Auth<br/>auth.tedi.nuestrascuentitas.com"]
+        ZITADEL["Zitadel IdP<br/>id.nuestrascuentitas.com"]
     end
 
     subgraph Infra["Infraestructura"]
@@ -47,7 +47,7 @@ graph TB
 
     WEB -->|HTTPS| AUTH
     TG -->|webhook HTTPS| TGMOD
-    AUTH -->|JWT validate| SUPA
+    AUTH -->|JWKS RS256| ZITADEL
     AUTH --> REG
     AUTH --> CONS
     AUTH --> VINC
@@ -69,7 +69,7 @@ graph TB
 |------|-----------|---------------|
 | Backend | .NET 10, monolito modular | Template fullskeleton, subagente ps-dotnet10. Un solo proceso para MVP. |
 | Frontend | Next.js 16 (React 19) | Patron del ecosistema (multi-tedi, gastos). SSR para SEO minimo. |
-| Auth | Supabase Auth (GoTrue) | Instancia compartida en auth.tedi.nuestrascuentitas.com. JWT validado por clave simetrica. |
+| Auth | Zitadel OIDC + JWT RS256 | IdP compartido en `id.nuestrascuentitas.com`. Frontend usa Authorization Code + PKCE; backend valida Bearer JWT contra JWKS. Supabase Auth queda solo como rollback temporal post-cutover Wave B. |
 | Base de datos | PostgreSQL (dedicada) | DB `bitacora_db` aislada en mismo server. Credenciales propias, backup independiente. |
 | ORM | EF Core 10 | Global Query Filters para aislamiento de datos por paciente. Migraciones automaticas. |
 | Bot | Telegram.Bot (.NET) | Webhook en prod (Traefik HTTPS), long-polling en dev. |
@@ -81,7 +81,7 @@ graph TB
 
 | Modulo | Responsabilidad | Entidades principales |
 |--------|----------------|----------------------|
-| Auth | Validar JWT Supabase, resolver identidad, inyectar contexto de paciente/profesional | User |
+| Auth | Validar JWT Zitadel, resolver identidad local, vincular `auth_subject` por email hash en primer login, inyectar contexto de paciente/profesional | User |
 | Registro | Crear MoodEntry y DailyCheckin, cifrar payload, generar safe_projection | MoodEntry, DailyCheckin |
 | Consent | Hard gate antes del primer registro, revocacion, politica de retencion | ConsentGrant |
 | Vinculos | Emitir PendingInvite y BindingCode, crear/revocar CareLink, validar acceso profesional (default false) | PendingInvite, BindingCode, CareLink |

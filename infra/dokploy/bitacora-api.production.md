@@ -47,9 +47,13 @@
 7. Save the runtime environment with:
    - `ASPNETCORE_ENVIRONMENT=Production`
    - `ConnectionStrings__BitacoraDb`
-   - `SUPABASE_JWT_SECRET`
+   - `ZITADEL_AUTHORITY=https://id.nuestrascuentitas.com`
+   - `ZITADEL_AUDIENCE=369306332534145382`
+   - `ZITADEL_PROJECT_BITACORA_ID=369306332534145382`
+   - `ZITADEL_CLIENT_BITACORA_WEB_ID=369306336963330406`
    - `BITACORA_ENCRYPTION_KEY`
    - `BITACORA_PSEUDONYM_SALT`
+   - `SUPABASE_JWT_SECRET` only during the rollback window; the active runtime does not read it
    - optional telemetry vars
 
 8. Create the public domain:

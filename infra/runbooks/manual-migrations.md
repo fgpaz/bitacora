@@ -40,9 +40,15 @@ rm -f "$envfile"
 ## Required environment
 
 - `ConnectionStrings__BitacoraDb`
-- `SUPABASE_JWT_SECRET`
+- `ZITADEL_AUTHORITY`
+- `ZITADEL_AUDIENCE`
 - `BITACORA_ENCRYPTION_KEY`
 - `BITACORA_PSEUDONYM_SALT`
+- `SUPABASE_JWT_SECRET` only if executing a rollback build
+
+## Wave B cutover note
+
+Migration `20260419000001_AddLegacyAuthSubject` was applied in production on 2026-04-19 before deploying commit `b0d876c`. It adds `users.legacy_auth_subject`, copies existing subjects for rollback, and preserves the physical `supabase_user_id` column as the active `auth_subject` storage during the rollback window.
 
 ## Order
 

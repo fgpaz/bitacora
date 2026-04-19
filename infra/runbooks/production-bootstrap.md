@@ -2,7 +2,7 @@
 
 ## Scope
 
-This runbook bootstraps the truthful Bitacora production surface for T01:
+This runbook bootstraps the historical T01 backend production surface. For the current post-Wave B surface, use `infra/dokploy/production-checklist.md`.
 
 - dedicated PostgreSQL
 - `Bitacora.Api`
@@ -58,7 +58,7 @@ The sequence below is the authoritative baseline for T01.
 
 ## Control-plane bridge
 
-Use the shared `mi-key-cli` setup from `C:\repos\mios\multi-tedi` to source control-plane values and the shared auth JWT secret.
+Use `mi-key-cli` to source control-plane values, Zitadel configuration, and rollback secrets from Infisical. Do not create plaintext secrets in the repository.
 
 Minimum operator sequence:
 
@@ -66,6 +66,7 @@ Minimum operator sequence:
 $MKEY = "$HOME\.agents\skills\mi-key-cli\scripts\mkey.ps1"
 & $MKEY doctor
 & $MKEY status
+& $MKEY pull bitacora prod
 ```
 
 Populate Bitacora `infra/.env` only with the values needed for this repo.

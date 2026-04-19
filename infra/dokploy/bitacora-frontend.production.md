@@ -13,8 +13,13 @@
 
 ```
 NEXT_PUBLIC_API_BASE_URL=https://api.bitacora.nuestrascuentitas.com
-NEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<from infra/.env or infisical vault teslita>
+API_BASE_URL=https://api.bitacora.nuestrascuentitas.com
+ZITADEL_AUTHORITY=https://id.nuestrascuentitas.com
+ZITADEL_ISSUER=https://id.nuestrascuentitas.com
+ZITADEL_WEB_CLIENT_ID=369306336963330406
+ZITADEL_PROJECT_BITACORA_ID=369306332534145382
+ZITADEL_WEB_REDIRECT_URI=https://bitacora.nuestrascuentitas.com/auth/callback
+ZITADEL_WEB_POST_LOGOUT_REDIRECT_URI=https://bitacora.nuestrascuentitas.com/
 NODE_ENV=production
 ```
 
@@ -33,7 +38,7 @@ FRONTEND_APP_ID="BRTMuvBfWtslXHnShtrnB"
 
 curl -s -X POST -H "x-api-key: $DOKPLOY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "{\"applicationId\":\"$FRONTEND_APP_ID\",\"env\":\"NEXT_PUBLIC_API_BASE_URL=https://api.bitacora.nuestrascuentitas.com\nNEXT_PUBLIC_SUPABASE_URL=https://auth.bitacora.nuestrascuentitas.com\nNEXT_PUBLIC_SUPABASE_ANON_KEY=<anon_key>\nNODE_ENV=production\"}" \
+  -d "{\"applicationId\":\"$FRONTEND_APP_ID\",\"env\":\"NEXT_PUBLIC_API_BASE_URL=https://api.bitacora.nuestrascuentitas.com\nAPI_BASE_URL=https://api.bitacora.nuestrascuentitas.com\nZITADEL_AUTHORITY=https://id.nuestrascuentitas.com\nZITADEL_ISSUER=https://id.nuestrascuentitas.com\nZITADEL_WEB_CLIENT_ID=369306336963330406\nZITADEL_PROJECT_BITACORA_ID=369306332534145382\nZITADEL_WEB_REDIRECT_URI=https://bitacora.nuestrascuentitas.com/auth/callback\nZITADEL_WEB_POST_LOGOUT_REDIRECT_URI=https://bitacora.nuestrascuentitas.com/\nNODE_ENV=production\"}" \
   "$DOKPLOY_URL/api/application.saveEnvironment"
 ```
 
@@ -60,11 +65,12 @@ curl -s -X POST -H "x-api-key: $DOKPLOY_API_KEY" \
 ```bash
 curl -f https://bitacora.nuestrascuentitas.com
 curl -I https://bitacora.nuestrascuentitas.com
+pwsh -File .\infra\smoke\zitadel-cutover-smoke.ps1
 ```
 
 ## Blocking conditions
 
 - DNS for `bitacora.nuestrascuentitas.com` must point to `54.37.157.93`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` must be set (without it the auth client fails to initialize)
+- Zitadel redirect URI must include `https://bitacora.nuestrascuentitas.com/auth/callback`
 - `output: 'standalone'` must be active in `next.config.mjs` (verified 2026-04-14)
 - Dockerfile must use `node:22-slim` (matches package.json engines.node: 22)

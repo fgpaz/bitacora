@@ -1,6 +1,6 @@
 # 07 — Baseline Tecnica
 
-> **Nota de sensibilidad:** Bitacora procesa datos de salud mental bajo regimen de tres leyes argentinas: Ley 25.326 (Proteccion de Datos Personales), Ley 26.529 (Derechos del Paciente) y Ley 26.657 (Salud Mental). Toda decision de implementacion, configuracion de infraestructura o cambios en flujo de datos debe respetar这三个 invariantes como requisito no negociable.
+> **Nota de sensibilidad:** Bitacora procesa datos de salud mental bajo regimen de tres leyes argentinas: Ley 25.326 (Proteccion de Datos Personales), Ley 26.529 (Derechos del Paciente) y Ley 26.657 (Salud Mental). Toda decision de implementacion, configuracion de infraestructura o cambios en flujo de datos debe respetar estos tres invariantes como requisito no negociable.
 
 ## Servicio
 
@@ -18,6 +18,7 @@
 ## Estado actual de implementacion
 
 - `Wave 1` tiene runtime backend completo con superficies de Vinculos, Visualizacion, Export y Telegram. Estas superficies estan materializadas y operativas.
+- `Wave B Zitadel` quedo deployada en produccion el 2026-04-19: frontend OIDC Authorization Code + PKCE, backend JWT Bearer RS256 via JWKS, y link-on-first-login por `email_hash`. Supabase Auth queda retenido solo como rollback temporal.
 - Alcance materializado hoy: `Auth`, `Consent`, `Registro`, `Vinculos`, `Visualizacion`, `Export`, `Telegram` y `Seguridad`.
 - `frontend/` implementado y deployado en `bitacora.nuestrascuentitas.com` (Phase 40 EJECUTADA 2026-04-15). Incluye dashboard paciente, vinculos, logout, Telegram wizard completo, health check y error boundaries.
 - Telegram webhook y scheduler estan implementados en el backend; el bot de Telegram opera como consumidor externo.
@@ -26,7 +27,7 @@
   - runbooks de bootstrap, migraciones, secretos, humo y backup
   - especificacion Dokploy para `bitacora-api` y `bitacora-db`
 - T04 extiende el smoke gate y los runbooks para cubrir las nuevas superficies:
-  - `infra/smoke/backend-smoke.ps1` cubre vinculos, visualizacion, export y telegram (GATE-SMOKE-007..015)
+  - `infra/smoke/backend-smoke.ps1` cubre vinculos, visualizacion, export y telegram (GATE-SMOKE-007..015) para el runtime Supabase legacy; post-cutover Zitadel se usa `infra/smoke/zitadel-cutover-smoke.ps1` como smoke no interactivo.
   - `infra/runbooks/production-bootstrap.md` referencia el scope completo de superficies
   - gates `GATE-SMOKE-007..015` documentan la cobertura operacional
 - ReminderWorker (IHostedService) registrado en Program.cs — scheduler de recordatorios activo en background
@@ -47,7 +48,7 @@ UseRateLimiter()            → fail-closed: 429 si se excede el limite por IP (
 TraceIdMiddleware           → genera trace_id al ingreso si no existe
 ApiExceptionMiddleware       → envuelve errores en envelope con trace_id
 Correlate                    → propaga X-Correlation-ID
-UseAuthentication            → valida JWT Supabase, extrae sub claim
+UseAuthentication            → valida JWT Zitadel RS256 via JWKS, extrae sub claim
 UseAuthorization             → avalia claims de autorizacion
 ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-checkins sin consentimiento activo
 ```
@@ -67,7 +68,7 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
 | T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
 | T3-SEC-10 | ProfessionalDataAccessAuthorizer fail-closed: lanza 403 en vez de revelar datos cuando el profesional no tiene CareLink autorizado con el paciente. No hay fuga de existencia. |
-| T3-SEC-11 | Frontend middleware extrae `user_metadata.role` del JWT y enforce rol `professional` para rutas profesionales; falla 403 si el rol no corresponde. |
+| T3-SEC-11 | Frontend middleware valida la sesion OIDC `bitacora_session` y deriva rol desde `urn:zitadel:iam:org:project:roles`; enforce rol `professional` para rutas profesionales; falla cerrado si el rol no corresponde. |
 | T3-TG-01 | Telegram API client retry con exponential backoff: 1s, 2s, 4s antes de fallar. |
 | T3-TG-02 | SendReminderCommand y HandleWebhookUpdateCommand invocan SaveChangesAsync para persistir AccessAudit antes de retornar. |
 | T3-TG-03 | `DELETE /api/v1/telegram/session` requiere auth valido + rate-limit `"write"` (5 req/IP/min). Borra TelegramSession activa para el usuario. |
@@ -88,7 +89,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 | T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After: 60` (segundos fijo). |
 | T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
 | T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
-| T3-SEC-11 | Frontend `middleware.ts` extrae `user_metadata.role` del JWT y enforce rol `professional` para rutas profesionales; falla 403 si el rol no corresponde. |
+| T3-SEC-11 | Frontend `middleware.ts` valida `bitacora_session`, limpia cookies legacy `sb-*` durante redirects y enforce rol `professional` para rutas profesionales. |
 
 ---
 
@@ -96,7 +97,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 
 | Modulo | Responsabilidad | Entidades principales | Estado |
 |--------|----------------|----------------------|--------|
-| Auth | Validar JWT Supabase, resolver identidad, bootstrap de paciente | User | Implementado |
+| Auth | Validar JWT Zitadel, resolver identidad, bootstrap/link-on-first-login de paciente | User | Implementado |
 | Registro | Crear MoodEntry y DailyCheckin, cifrar, `safe_projection` | MoodEntry, DailyCheckin | Implementado |
 | Consent | Hard gate, otorgamiento y revocacion de consentimiento | ConsentGrant | Implementado |
 | Vinculos | CareLink lifecycle, invitaciones profesionales, aceptacion de binding codes | CareLink, PendingInvite, BindingCode | Implementado |
@@ -111,7 +112,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 |-----------|-----------|-----------|
 | Backend | .NET 10 (Bitacora.Api) | Runnable local hoy; target prod-first en Dokploy sobre `turismo` |
 | Base de datos | PostgreSQL (`bitacora_db` dedicada) | Local/dev y target Dokploy dedicado en el mismo VPS |
-| Auth | Supabase Auth (GoTrue v2.177.0) | auth.bitacora.nuestrascuentitas.com (instancia dedicada, activa 2026-04-15) |
+| Auth | Zitadel self-hosted v4.9.0 | `id.nuestrascuentitas.com` (IdP compartido Teslita). Supabase Auth queda como rollback temporal, no como runtime primario. |
 | Reverse proxy | Traefik (via Dokploy) | Target de produccion |
 | Dominio API | `api.bitacora.nuestrascuentitas.com` | Target backend-only de T01 |
 | Dominio web | `bitacora.nuestrascuentitas.com` | Frontend Next.js 16 deployado en produccion (Phase 40 EJECUTADA 2026-04-15). Ruta raiz operativa. |
@@ -138,8 +139,8 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 | Tracing | OpenTelemetry con `trace_id` end-to-end; OTLP deshabilitado por default hasta configurar endpoint |
 | Pseudonimizacion | `pseudonym_id` en logs operacionales; `actor_id` solo en `AccessAudit` |
 | Liveness | `GET /health` |
-| Readiness | `GET /health/ready` valida connection string, `SUPABASE_JWT_SECRET`, clave de cifrado, salt y conectividad PostgreSQL |
-| Smoke operativo | `infra/smoke/backend-smoke.ps1` cubre la superficie backend completa (auth, consent, registro, vinculos, visualizacion, export, telegram, profesional timeline/alerts) sin staging |
+| Readiness | `GET /health/ready` valida connection string, autoridad/audiencia/metadata Zitadel, clave de cifrado, salt y conectividad PostgreSQL |
+| Smoke operativo | `infra/smoke/zitadel-cutover-smoke.ps1` cubre la salud productiva y el inicio OIDC; `infra/smoke/backend-smoke.ps1` queda legacy hasta reescribirlo para tokens OIDC reales |
 | trace_id propagation | Requerido en todo request/response; se inyecta en logs y AccessAudit |
 | Datos de salud | Prohibido en logs, trazas y telemetry: `encrypted_payload`, `safe_projection` con datos clinicos, identificadores directos del paciente. Solo `pseudonym_id` y `trace_id`. |
 

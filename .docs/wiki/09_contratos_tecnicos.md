@@ -4,16 +4,16 @@
 
 | Campo | Valor |
 |-------|-------|
-| Provider | Supabase Auth (GoTrue v2.177.0) |
-| Instancia | auth.bitacora.nuestrascuentitas.com (dedicada, activa 2026-04-15) |
-| Metodos | Magic Link (primario), Google OAuth |
-| Validacion JWT | Clave simetrica (`Supabase:JwtSecret` o env `Supabase__JwtSecret` / `SUPABASE_JWT_SECRET`) |
+| Provider | Zitadel self-hosted v4.9.0 |
+| Instancia | `https://id.nuestrascuentitas.com` (IdP compartido Teslita) |
+| Metodos | OIDC Authorization Code + PKCE en frontend; Bearer JWT RS256 en backend |
+| Validacion JWT | Metadata OIDC + JWKS (`ZITADEL_AUTHORITY`, `ZITADEL_AUDIENCE`) |
 | Header | `Authorization: Bearer <access_token>` |
-| Claims minimos | `sub`, `email`, `iat`, `exp` |
-| Claim mapping | `MapInboundClaims=false`; fallback a `ClaimTypes.NameIdentifier` para `sub` |
-| Resolucion | `JWT.sub -> User.supabase_user_id -> User.user_id + role` |
+| Claims minimos | `sub`, `email`, `iat`, `exp`, `iss`, `aud` |
+| Claim mapping | `MapInboundClaims=false`; roles desde `urn:zitadel:iam:org:project:roles` a `patient` / `professional` |
+| Resolucion | `JWT.sub -> User.auth_subject -> User.user_id + role`; si no existe, link-on-first-login por `email_hash` |
 
-> Detalle: `09_contratos/CT-AUTH.md`
+> Detalle activo: `09_contratos/CT-AUTH-ZITADEL.md`. `09_contratos/CT-AUTH.md` queda como contrato legacy Supabase para rollback temporal.
 
 ## API Surface
 
@@ -95,7 +95,7 @@
 - `GET /api/v1/consent/current` requiere JWT de paciente.
 - `POST /api/v1/auth/bootstrap` recibe `invite_token` por query string (`?invite_token=...`).
 - Los errores usan envelope comun con `trace_id`.
-- `GET /health/ready` responde `503` si falta `ConnectionStrings:BitacoraDb`, `SUPABASE_JWT_SECRET`, clave de cifrado valida, salt o conectividad DB.
+- `GET /health/ready` responde `503` si falta `ConnectionStrings:BitacoraDb`, autoridad/audiencia/metadata Zitadel, clave de cifrado valida, salt o conectividad DB.
 - Los writes de consentimiento y registro fallan cerrado si la auditoria no puede persistirse.
 - La revocacion de consentimiento hoy solo opera sobre `ConsentGrant`; las cascadas sobre vinculos y caches siguen diferidas.
 - El bus de eventos permanece en `NoOp` mientras `EventBusSettings:HostAddress` siga vacio.
@@ -107,7 +107,7 @@
 3. **PseudonymizationService fail-closed**: si BITACORA_PSEUDONYM_SALT falta o no resuelve, toda operacion que dependa del servicio de pseudonimizacion retorna 500.
 4. **Sin fuga a Telegram**: ninguna respuesta HTTP dirigida al bot Telegram ni ningun mensaje del bot puede contener encrypted_payload, safe_projection con datos clinicos, o cualquier campo derivable de registros clinicos del paciente.
 5. **Export CSV es owner-only**: GET /api/v1/export/csv solo acepta JWT del paciente owner; no se serve a contextos profesionales aunque CareLink.can_view_data=true.
-6. **Retencion韧性**: crisis (mood_score=-3) >= 5 anos; AccessAudit >= 2 anos; ConsentGrant permanente.
+6. **Retencion resiliente**: crisis (mood_score=-3) >= 5 anos; AccessAudit >= 2 anos; ConsentGrant permanente.
 
 ### Campos de respuesta hoy consumidos por frontend
 
@@ -175,7 +175,8 @@ Todas las respuestas de error siguen este envelope:
 
 | Doc | Tema | Estado |
 |-----|------|--------|
-| `09_contratos/CT-AUTH.md` | Flujo completo Supabase Auth, JWT, session revocation, consent como gate, profesionales | Activo |
+| `09_contratos/CT-AUTH-ZITADEL.md` | Flujo activo Zitadel OIDC PKCE, JWT RS256/JWKS, roles, rollback y migracion desde Supabase | Activo |
+| `09_contratos/CT-AUTH.md` | Flujo Supabase Auth previo, conservado para rollback temporal post-cutover Wave B | Legacy rollback |
 | `09_contratos/CT-AUDIT.md` | Audit log, pseudonimizacion, trace_id, fail-closed | Activo |
 | `09_contratos/CT-ERRORS.md` | Catalogo de errores tipados con sections activas (VIN, VIS, EXP, TG) | Activo |
 | `09_contratos/CT-VINCULOS.md` | Contrato de vinculos paciente y profesional, binding codes, estado production | Activo |
@@ -205,4 +206,4 @@ Este documento es el unico checkpoint que las fases `30`, `31`, `40`, `41`, `50`
 
 *Fuente: `.docs/wiki/02_arquitectura.md`, `.docs/wiki/04_RF.md`*
 
-> Detalle adicional IdP ecosistema (Wave A 2026-04-19): `09_contratos/CT-AUTH-ZITADEL.md`.
+> Detalle IdP activo (Wave B 2026-04-19): `09_contratos/CT-AUTH-ZITADEL.md`.

@@ -26,7 +26,8 @@ La autoridad activa para planificar su materializacion pendiente vive en `.docs/
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
 | user_id | UUID | PK |
-| supabase_user_id | string | ID externo de Supabase Auth |
+| auth_subject | string | ID externo del IdP activo (Zitadel `sub`). En DB la columna fisica `supabase_user_id` se conserva temporalmente durante la ventana de rollback Wave B. |
+| legacy_auth_subject | string? | Subject legacy previo al cutover, preservado para rollback/auditoria de migracion. |
 | encrypted_email | bytea | Email cifrado app-layer |
 | email_hash | string | HASH(email) para lookup sin descifrar |
 | key_version | int | Version de clave usada para PII en `users` |
