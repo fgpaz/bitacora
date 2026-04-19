@@ -9,7 +9,7 @@ using NuestrasCuentitas.Bitacora.Domain.Entities;
 namespace NuestrasCuentitas.Bitacora.Application.Commands.Auth;
 
 public readonly record struct BootstrapPatientCommand(
-    string SupabaseUserId,
+    string AuthSubject,
     string Email,
     string? InviteToken,
     Guid TraceId) : ICommand<BootstrapPatientResponse>;
@@ -32,22 +32,33 @@ public sealed class BootstrapPatientCommandHandler(
         BootstrapPatientCommand command,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(command.SupabaseUserId) || string.IsNullOrWhiteSpace(command.Email))
+        if (string.IsNullOrWhiteSpace(command.AuthSubject) || string.IsNullOrWhiteSpace(command.Email))
         {
             throw new BitacoraException("ONB_001_JWT_INVALID", "El token no contiene los claims requeridos.", 401);
         }
 
         var normalizedEmail = command.Email.Trim().ToLowerInvariant();
-        var current = await userRepository.GetBySupabaseUserIdAsync(command.SupabaseUserId, cancellationToken);
+        var emailHash = encryptionService.ComputeSha256(normalizedEmail);
+        var current = await userRepository.GetByAuthSubjectAsync(command.AuthSubject, cancellationToken);
+
+        if (current is null)
+        {
+            current = await userRepository.GetByEmailHashAsync(emailHash, cancellationToken);
+            if (current is not null)
+            {
+                current.LinkAuthSubject(command.AuthSubject);
+                userRepository.Update(current);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+        }
 
         if (current is null)
         {
             try
             {
                 var encryptedEmail = encryptionService.EncryptString(normalizedEmail);
-                var emailHash = encryptionService.ComputeSha256(normalizedEmail);
                 current = User.CreatePatient(
-                    command.SupabaseUserId,
+                    command.AuthSubject,
                     encryptedEmail,
                     emailHash,
                     encryptionService.GetActiveKeyVersion(),

@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using NuestrasCuentitas.Bitacora.Api.Options;
 using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence;
 
 namespace NuestrasCuentitas.Bitacora.Api.Health;
@@ -13,8 +14,10 @@ public sealed class ReadinessProbe(IConfiguration configuration, IServiceScopeFa
         var connectionString = configuration.GetConnectionString("BitacoraDb");
         checks["connection_string"] = string.IsNullOrWhiteSpace(connectionString) ? "missing" : "ok";
 
-        var jwtSecret = ResolveJwtSecret();
-        checks["supabase_jwt_secret"] = string.IsNullOrWhiteSpace(jwtSecret) ? "missing" : "ok";
+        var zitadel = ZitadelAuthenticationOptions.FromConfiguration(configuration);
+        checks["zitadel_authority"] = string.IsNullOrWhiteSpace(zitadel.Authority) ? "missing" : "ok";
+        checks["zitadel_audience"] = string.IsNullOrWhiteSpace(zitadel.Audience) ? "missing" : "ok";
+        checks["zitadel_metadata"] = string.IsNullOrWhiteSpace(zitadel.MetadataAddress) ? "missing" : "ok";
 
         checks["encryption_key"] = ValidateEncryptionKey();
 
@@ -43,13 +46,6 @@ public sealed class ReadinessProbe(IConfiguration configuration, IServiceScopeFa
             : "not_ready";
 
         return new ReadinessProbeResponse(status, checks);
-    }
-
-    private string? ResolveJwtSecret()
-    {
-        return configuration["Supabase__JwtSecret"]
-            ?? configuration["SUPABASE_JWT_SECRET"]
-            ?? configuration["Supabase:JwtSecret"];
     }
 
     private string ValidateEncryptionKey()

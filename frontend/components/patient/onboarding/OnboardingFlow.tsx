@@ -45,7 +45,7 @@ export function OnboardingFlow() {
       try {
         const token = await getAccessToken();
         if (!token) {
-          // No session — redirect to Supabase magic link entry (handled by landing)
+          window.location.href = '/ingresar';
           setLoading(false);
           return;
         }
@@ -60,11 +60,10 @@ export function OnboardingFlow() {
         const code = (err as { code?: string }).code;
         setErrorCode(code);
         if (code === 'ONB_001_JWT_INVALID' || code === 'ONB_001_JWT_EXPIRED') {
-          setError('Tu sesion no es valida. Por favor, ingresá de nuevo.');
+          setError('Tu sesión no es válida. Por favor, ingresá de nuevo.');
         } else {
-          setError('No se pudo iniciar sesion. Reintentá.');
+          setError((err as Error).message ?? 'No se pudo iniciar sesión. Reintentá.');
         }
-        setError((err as Error).message ?? 'Error');
       } finally {
         setLoading(false);
       }
@@ -85,7 +84,7 @@ export function OnboardingFlow() {
         setErrorCode(code);
         setTraceId(trace);
         if (code === 'NO_CONSENT_CONFIG') {
-          setError('El servicio de consentimiento no esta disponible en este momento.');
+          setError('El servicio de consentimiento no está disponible en este momento.');
         } else {
           setError((err as Error).message ?? 'Error al cargar el consentimiento.');
         }
@@ -96,7 +95,7 @@ export function OnboardingFlow() {
 
   async function handleConsentAccept(version: string) {
     try {
-      const result = await grantConsent(version);
+      await grantConsent(version);
       setBootstrapData((prev) =>
         prev ? { ...prev, needsConsent: false } : null,
       );
@@ -107,7 +106,7 @@ export function OnboardingFlow() {
       setErrorCode(code);
       setTraceId(trace);
       if (code === 'CONSENT_VERSION_MISMATCH') {
-        setError('La version del consentimiento cambio. Por favor, revisalo de nuevo.');
+        setError('La versión del consentimiento cambió. Por favor, revisalo de nuevo.');
       } else if (code === 'CONSENT_ALREADY_GRANTED') {
         setPhase('bridge');
       } else {

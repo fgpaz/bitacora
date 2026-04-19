@@ -20,7 +20,7 @@ public static class AuthEndpoints
             {
                 var response = await mediator.Send(
                     new BootstrapPatientCommand(
-                        httpContext.User.GetSupabaseUserId(),
+                        httpContext.User.GetAuthSubject(),
                         httpContext.User.GetEmail(),
                         inviteToken,
                         httpContext.GetTraceId()),
@@ -29,7 +29,9 @@ public static class AuthEndpoints
                 return Results.Ok(response);
             })
             .RequireRateLimiting("auth")
+            .RequireAuthorization()
             .Produces<BootstrapPatientResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
             .WithCommonOpenApi("BootstrapPatient", Tag);
     }
 }

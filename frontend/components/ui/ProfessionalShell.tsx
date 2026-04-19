@@ -25,7 +25,6 @@ export function ProfessionalShell({ children, loading }: Props) {
 
   async function handleLogout() {
     await signOut();
-    window.location.href = '/';
   }
 
   return (

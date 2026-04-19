@@ -3,8 +3,7 @@
  * All calls use Authorization: Bearer <access_token> and receive typed error envelopes.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000';
-const API_VERSION = 'v1';
+const API_PROXY_BASE = '/api/backend';
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
 
@@ -82,14 +81,13 @@ export async function bitacoraFetch<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
-  const url = `${API_BASE}/api/${API_VERSION}${path}`;
+  const url = `${API_PROXY_BASE}${path}`;
   const res = await fetch(url, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
       ...(init.headers ?? {}),
     },
-    credentials: 'include',
   });
 
   if (!res.ok) {

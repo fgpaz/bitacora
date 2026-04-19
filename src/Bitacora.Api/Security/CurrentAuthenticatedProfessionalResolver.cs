@@ -15,8 +15,8 @@ public sealed class CurrentAuthenticatedProfessionalResolver(IUserRepository use
             throw new BitacoraException("UNAUTHORIZED", "Necesitás autenticarte para continuar.", StatusCodes.Status401Unauthorized);
         }
 
-        var supabaseUserId = httpContext.User.GetSupabaseUserId();
-        var user = await userRepository.GetBySupabaseUserIdAsync(supabaseUserId, cancellationToken)
+        var authSubject = httpContext.User.GetAuthSubject();
+        var user = await userRepository.GetByAuthSubjectAsync(authSubject, cancellationToken)
             ?? throw new BitacoraException("PROFESSIONAL_NOT_FOUND", "No encontramos el profesional autenticado.", StatusCodes.Status404NotFound);
 
         if (user.Role != UserRole.Professional)

@@ -1,88 +1,66 @@
 /**
- * Bitacora middleware — runtime hardening layer.
+ * Bitacora middleware - runtime hardening layer.
  *
- * Hardening applied:
- * 1. Fail-closed redirects for unauthenticated access to protected groups.
- * 2. Session / JWT expiry guard: expired token → redirect to /.
- * 3. Security headers on every response.
- *
- * Route groups:
- *   /                — public (landing + magic-link initiation)
- *   /onboarding      — public (post-magic-link flow)
- *   /(patient)/*     — requires authenticated patient session
- *   /(profesional)/* — requires authenticated professional session
- *   all other paths  — closed (404-like redirect to /)
+ * It only performs UX routing checks from the product session cookie. Bitacora.Api
+ * remains the authority for token signature, issuer, audience and data access.
  */
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { LEGACY_SUPABASE_COOKIES, SESSION_COOKIE, type BitacoraRole } from './lib/auth/constants';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-/**
- * Decode a Supabase JWT (JWT.Part2) without verification.
- * We only check the `exp` claim to detect expiry.
- * The actual verification happens server-side in Bitacora.Api.
- */
-function decodeJwtExpiry(token: string): number | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-    return typeof payload.exp === 'number' ? payload.exp : null;
-  } catch {
-    return null;
-  }
+interface MiddlewareSession {
+  role: BitacoraRole;
+  expiresAt: number;
 }
-
-function decodeJwtRole(token: string): string | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-    return typeof payload.user_metadata?.role === 'string' ? payload.user_metadata.role : null;
-  } catch {
-    return null;
-  }
-}
-
-function isExpired(exp: number): boolean {
-  // Add 30-second grace period — treat as expired slightly before actual TTL
-  return Date.now() / 1000 > exp - 30;
-}
-
-function redirectToRoot(request: NextRequest): NextResponse {
-  return NextResponse.redirect(new URL('/', request.url));
-}
-
-// ── Protected route patterns ───────────────────────────────────────────────────
 
 const PATIENT_ROUTES = ['/registro', '/consent', '/configuracion', '/dashboard'];
 const PROFESIONAL_ROUTES = ['/profesional'];
-const PUBLIC_ROUTES = ['/', '/onboarding'];
+const PUBLIC_ROUTES = ['/', '/onboarding', '/ingresar', '/auth/callback', '/auth/logout'];
 
 function isPublic(pathname: string): boolean {
-  return PUBLIC_ROUTES.some((p) => pathname === p || pathname.startsWith(p + '/'));
+  return PUBLIC_ROUTES.some((path) => pathname === path || pathname.startsWith(path + '/'));
 }
 
 function requiresAuth(pathname: string): 'patient' | 'professional' | 'closed' {
-  for (const p of PATIENT_ROUTES) {
-    if (pathname.startsWith(p)) return 'patient';
-  }
-  for (const p of PROFESIONAL_ROUTES) {
-    if (pathname.startsWith(p)) return 'professional';
-  }
-  // Unknown routes: fail-closed
+  if (PATIENT_ROUTES.some((path) => pathname.startsWith(path))) return 'patient';
+  if (PROFESIONAL_ROUTES.some((path) => pathname.startsWith(path))) return 'professional';
   return 'closed';
 }
 
-// ── Middleware ─────────────────────────────────────────────────────────────────
+function readSession(request: NextRequest): MiddlewareSession | null {
+  const raw = request.cookies.get(SESSION_COOKIE)?.value;
+  if (!raw) return null;
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  try {
+    const padded = raw.padEnd(raw.length + ((4 - (raw.length % 4)) % 4), '=');
+    const decoded = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
+    const parsed = JSON.parse(decoded) as Partial<MiddlewareSession>;
 
-  // ── 1. Security headers ────────────────────────────────────────────────────
-  const response = NextResponse.next();
+    if (typeof parsed.expiresAt !== 'number') return null;
+    return {
+      role: parsed.role === 'professional' ? 'professional' : 'patient',
+      expiresAt: parsed.expiresAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function isExpired(expiresAt: number): boolean {
+  return Date.now() / 1000 > expiresAt - 30;
+}
+
+function redirectToRoot(request: NextRequest): NextResponse {
+  const response = NextResponse.redirect(new URL('/', request.url));
+  response.cookies.delete(SESSION_COOKIE);
+  for (const cookie of LEGACY_SUPABASE_COOKIES) {
+    response.cookies.delete(cookie);
+  }
+  return response;
+}
+
+function withSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -97,44 +75,31 @@ export async function middleware(request: NextRequest) {
       "img-src 'self' data: https://*",
       "connect-src 'self' https://*",
       "frame-ancestors 'none'",
-    ].join('; ')
+    ].join('; '),
   );
+  return response;
+}
 
-  // ── 2. Public routes: pass through ───────────────────────────────────────
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const response = withSecurityHeaders(NextResponse.next());
+
   if (isPublic(pathname)) {
     return response;
   }
 
-  // ── 3. Route group that requires auth ────────────────────────────────────
   const requiredGroup = requiresAuth(pathname);
   if (requiredGroup === 'closed') {
-    // Fail-closed: redirect unknown routes to home
     return redirectToRoot(request);
   }
 
-  // ── 4. Auth check ──────────────────────────────────────────────────────────
-  const supabaseToken = request.cookies.get('sb-access-token')?.value
-    ?? request.cookies.get('sb-supabase-session')?.value; // fallback for newer Supabase versions
-
-  if (!supabaseToken) {
+  const session = readSession(request);
+  if (!session || isExpired(session.expiresAt)) {
     return redirectToRoot(request);
   }
 
-  const exp = decodeJwtExpiry(supabaseToken);
-  if (exp === null || isExpired(exp)) {
-    // Clear session cookies so the client-side SessionContext also resets
-    const clearResp = redirectToRoot(request);
-    clearResp.cookies.delete('sb-access-token');
-    clearResp.cookies.delete('sb-supabase-session');
-    return clearResp;
-  }
-
-  // ── 5. Group-specific guard ─────────────────────────────────────────────────
-  if (requiredGroup === 'professional') {
-    const role = decodeJwtRole(supabaseToken);
-    if (role !== 'professional') {
-      return redirectToRoot(request);
-    }
+  if (requiredGroup === 'professional' && session.role !== 'professional') {
+    return redirectToRoot(request);
   }
 
   return response;
@@ -142,13 +107,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths EXCEPT:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - api/ (API routes — handled by Bitacora.Api directly)
-     * - favicon.ico, robots.txt, manifest.json
-     */
     '/((?!_next/static|_next/image|api/|favicon.ico|robots.txt|manifest.json).*)',
   ],
 };

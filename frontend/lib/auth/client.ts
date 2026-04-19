@@ -1,39 +1,34 @@
 /**
- * Convenience wrapper around the Supabase auth client.
- * The actual token is stored and refreshed by the Supabase JS client.
+ * Client-side auth commands.
+ *
+ * Tokens stay in httpOnly cookies managed by Next route handlers. Browser code
+ * only starts login, starts logout, or checks whether a product session exists.
  */
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-
-let _client: SupabaseClient | null = null;
-
-export function getSupabaseClient(): SupabaseClient {
-  if (!_client) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) {
-      throw new Error('Supabase env vars are not set. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
-    }
-    _client = createClient(url, key);
-  }
-  return _client;
-}
 
 export async function signInWithMagicLink(email: string): Promise<{ error: string | null }> {
-  const supabase = getSupabaseClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: `${window.location.origin}/onboarding` },
-  });
-  return { error: error?.message ?? null };
+  const loginUrl = new URL('/ingresar', window.location.origin);
+  loginUrl.searchParams.set('login_hint', email.trim());
+  window.location.assign(loginUrl.toString());
+  return { error: null };
+}
+
+export async function signInWithZitadel(email?: string): Promise<{ error: string | null }> {
+  const loginUrl = new URL('/ingresar', window.location.origin);
+  if (email?.trim()) {
+    loginUrl.searchParams.set('login_hint', email.trim());
+  }
+  window.location.assign(loginUrl.toString());
+  return { error: null };
 }
 
 export async function signOut(): Promise<void> {
-  const supabase = getSupabaseClient();
-  await supabase.auth.signOut();
+  window.location.assign('/auth/logout');
 }
 
 export async function getAccessToken(): Promise<string | null> {
-  const supabase = getSupabaseClient();
-  const { data } = await supabase.auth.getSession();
-  return data.session?.access_token ?? null;
+  const response = await fetch('/api/auth/session', { cache: 'no-store' });
+  if (!response.ok) return null;
+
+  const session = await response.json() as { user?: unknown };
+  return session.user ? 'server-session' : null;
 }

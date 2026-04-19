@@ -6,7 +6,7 @@
  * Follows UI-RFC-VIS-001 state taxonomy.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { getPatientTimeline, getPatientTimelineByPeriod } from '@/lib/api/professional';
+import { getPatientTimelineByPeriod } from '@/lib/api/professional';
 import type { TimelineEntry } from '@/lib/api/professional';
 import styles from './Timeline.module.css';
 
@@ -275,8 +275,25 @@ export function Timeline({ patientId }: Props) {
   // Initial load with default preset
   useEffect(() => {
     const { from, to } = presetRange(30);
-    load(from, to);
-  }, [load]);
+    let cancelled = false;
+
+    getPatientTimelineByPeriod(patientId, from, to)
+      .then((res) => {
+        if (cancelled) return;
+        setEntries(res.entries);
+        setTotal(res.total);
+        setViewState(res.entries.length === 0 ? 'empty' : 'ready');
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        setErrorMsg(err.message);
+        setViewState('error');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [patientId]);
 
   const handlePreset = (p: Preset) => {
     setPreset(p);

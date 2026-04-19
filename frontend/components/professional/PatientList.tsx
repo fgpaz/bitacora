@@ -107,7 +107,6 @@ export function PatientList() {
   const totalPages = total !== undefined ? Math.ceil(total / pageSize) : 1;
 
   useEffect(() => {
-    setPatients(null);
     getProfessionalPatientsPaginated(page, pageSize)
       .then((res) => {
         setPatients(res.patients ?? []);

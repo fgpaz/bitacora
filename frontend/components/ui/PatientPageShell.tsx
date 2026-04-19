@@ -35,7 +35,6 @@ export function PatientPageShell({ children, loading, error }: Props) {
 
   async function handleLogout() {
     await signOut();
-    window.location.href = '/';
   }
 
   return (

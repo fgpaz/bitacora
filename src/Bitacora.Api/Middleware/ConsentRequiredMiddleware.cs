@@ -72,8 +72,8 @@ public sealed class ConsentRequiredMiddleware(RequestDelegate next)
             throw new BitacoraException("UNAUTHORIZED", "Necesitás autenticarte para continuar.", StatusCodes.Status401Unauthorized);
         }
 
-        var supabaseUserId = context.User.GetSupabaseUserId();
-        var currentUser = await userRepository.GetBySupabaseUserIdAsync(supabaseUserId, context.RequestAborted);
+        var authSubject = context.User.GetAuthSubject();
+        var currentUser = await userRepository.GetByAuthSubjectAsync(authSubject, context.RequestAborted);
         if (currentUser is null)
         {
             throw new BitacoraException("CONSENT_REQUIRED", "Debés completar tu consentimiento antes de registrar datos.", StatusCodes.Status403Forbidden);

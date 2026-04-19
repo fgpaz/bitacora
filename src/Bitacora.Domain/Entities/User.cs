@@ -5,7 +5,8 @@ namespace NuestrasCuentitas.Bitacora.Domain.Entities;
 public sealed class User
 {
     public Guid UserId { get; private set; }
-    public string SupabaseUserId { get; private set; } = string.Empty;
+    public string AuthSubject { get; private set; } = string.Empty;
+    public string? LegacyAuthSubject { get; private set; }
     public byte[] EncryptedEmail { get; private set; } = [];
     public string EmailHash { get; private set; } = string.Empty;
     public int KeyVersion { get; private set; }
@@ -20,7 +21,7 @@ public sealed class User
 
     private User(
         Guid userId,
-        string supabaseUserId,
+        string authSubject,
         byte[] encryptedEmail,
         string emailHash,
         int keyVersion,
@@ -29,7 +30,7 @@ public sealed class User
         DateTime createdAtUtc)
     {
         UserId = userId;
-        SupabaseUserId = supabaseUserId;
+        AuthSubject = authSubject;
         EncryptedEmail = encryptedEmail;
         EmailHash = emailHash;
         KeyVersion = keyVersion;
@@ -39,15 +40,15 @@ public sealed class User
     }
 
     public static User CreatePatient(
-        string supabaseUserId,
+        string authSubject,
         byte[] encryptedEmail,
         string emailHash,
         int keyVersion,
         DateTime createdAtUtc)
     {
-        if (string.IsNullOrWhiteSpace(supabaseUserId))
+        if (string.IsNullOrWhiteSpace(authSubject))
         {
-            throw new ArgumentException("Supabase user id is required.", nameof(supabaseUserId));
+            throw new ArgumentException("Auth subject is required.", nameof(authSubject));
         }
 
         if (encryptedEmail.Length == 0)
@@ -62,7 +63,7 @@ public sealed class User
 
         return new User(
             Guid.NewGuid(),
-            supabaseUserId.Trim(),
+            authSubject.Trim(),
             encryptedEmail,
             emailHash,
             keyVersion,
@@ -90,5 +91,22 @@ public sealed class User
     public void RevokeSessions(DateTime revokedAtUtc)
     {
         SessionsRevokedAt = revokedAtUtc;
+    }
+
+    public void LinkAuthSubject(string authSubject)
+    {
+        if (string.IsNullOrWhiteSpace(authSubject))
+        {
+            throw new ArgumentException("Auth subject is required.", nameof(authSubject));
+        }
+
+        var normalized = authSubject.Trim();
+        if (string.Equals(AuthSubject, normalized, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        LegacyAuthSubject ??= AuthSubject;
+        AuthSubject = normalized;
     }
 }

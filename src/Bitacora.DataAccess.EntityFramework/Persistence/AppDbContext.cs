@@ -40,7 +40,8 @@ public sealed class AppDbContext : DbContext
             entity.ToTable("users");
             entity.HasKey(x => x.UserId);
             entity.Property(x => x.UserId).HasColumnName("user_id");
-            entity.Property(x => x.SupabaseUserId).HasColumnName("supabase_user_id").HasMaxLength(128).IsRequired();
+            entity.Property(x => x.AuthSubject).HasColumnName("supabase_user_id").HasMaxLength(128).IsRequired();
+            entity.Property(x => x.LegacyAuthSubject).HasColumnName("legacy_auth_subject").HasMaxLength(128);
             entity.Property(x => x.EncryptedEmail).HasColumnName("encrypted_email").IsRequired();
             entity.Property(x => x.EmailHash).HasColumnName("email_hash").HasMaxLength(128).IsRequired();
             entity.Property(x => x.KeyVersion).HasColumnName("key_version").IsRequired();
@@ -48,7 +49,8 @@ public sealed class AppDbContext : DbContext
             entity.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(32).IsRequired();
             entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
             entity.Property(x => x.SessionsRevokedAt).HasColumnName("sessions_revoked_at");
-            entity.HasIndex(x => x.SupabaseUserId).IsUnique();
+            entity.HasIndex(x => x.AuthSubject).HasDatabaseName("IX_users_supabase_user_id").IsUnique();
+            entity.HasIndex(x => x.LegacyAuthSubject);
             entity.HasIndex(x => x.EmailHash);
         });
 

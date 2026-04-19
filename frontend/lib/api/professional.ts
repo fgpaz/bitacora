@@ -161,12 +161,10 @@ export async function downloadExportCsv(
   from: string,
   to: string,
 ): Promise<void> {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000';
-  const url = `${apiBase}/api/v1/export/patient-summary/csv?from=${from}&to=${to}`;
+  const url = `/api/backend/export/patient-summary/csv?from=${from}&to=${to}`;
 
   const response = await fetch(url, {
     method: 'GET',
-    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   });
 

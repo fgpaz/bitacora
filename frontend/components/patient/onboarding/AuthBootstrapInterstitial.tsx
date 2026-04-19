@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * AuthBootstrapInterstitial — brief continuity screen between Supabase auth and bootstrap.
+ * AuthBootstrapInterstitial — brief continuity screen between OIDC auth and bootstrap.
  * States: default | invite_context
  */
 import styles from './AuthBootstrapInterstitial.module.css';

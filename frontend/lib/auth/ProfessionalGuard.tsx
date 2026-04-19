@@ -1,8 +1,7 @@
 'use client';
 
 /**
- * ProfessionalGuard — redirects to / if user has no professional role.
- * Checks Supabase metadata for role: 'professional'.
+ * ProfessionalGuard - redirects to / if user has no professional role.
  */
 import { useSession } from '@/lib/auth/SessionContext';
 import { useRouter } from 'next/navigation';
@@ -19,11 +18,8 @@ export function useProfessionalGuard() {
       return;
     }
 
-    // TODO: when user metadata includes role, check it here.
-    // For now, allow any authenticated user to access professional routes
-    // to enable development and real-auth integration.
-    // After Supabase custom claims / metadata role is wired, uncomment:
-    // const role = (user as Record<string, unknown>)?.role;
-    // if (role !== 'professional') router.replace('/');
+    if (user.role !== 'professional') {
+      router.replace('/');
+    }
   }, [user, loading, router]);
 }

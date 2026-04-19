@@ -31,7 +31,6 @@ using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.DependencyInjection;
 using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence;
 using NuestrasCuentitas.Bitacora.EventBus;
 using NuestrasCuentitas.Bitacora.Infrastructure.DependencyInjection;
-using System.Text;
 using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,6 +76,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddSetupEventBus(builder.Configuration);
 builder.Services.AddHostedService<ReminderWorker>();
+var zitadelAuthentication = ZitadelAuthenticationOptions.FromConfiguration(builder.Configuration);
+builder.Services.AddSingleton(zitadelAuthentication);
 
 // ── Rate Limiting ────────────────────────────────────────────────────────────
 // Fail-closed: requests that exceed the limit get a 429 before reaching handlers.
@@ -159,30 +160,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
-
-        var jwtSecret = builder.Configuration["Supabase__JwtSecret"] ?? builder.Configuration["SUPABASE_JWT_SECRET"];
-        jwtSecret ??= builder.Configuration["Supabase:JwtSecret"];
-        if (string.IsNullOrWhiteSpace(jwtSecret))
+        options.Authority = zitadelAuthentication.Authority;
+        if (!string.IsNullOrWhiteSpace(zitadelAuthentication.MetadataAddress))
         {
-            throw new InvalidOperationException("Supabase JWT secret is required.");
+            options.MetadataAddress = zitadelAuthentication.MetadataAddress;
         }
+        options.RequireHttpsMetadata = true;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidIssuer = zitadelAuthentication.Authority,
+            ValidateAudience = true,
+            ValidAudience = zitadelAuthentication.Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromSeconds(30)
+            ClockSkew = TimeSpan.FromSeconds(30),
+            ValidAlgorithms = [SecurityAlgorithms.RsaSha256]
         };
 
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = async context =>
             {
-                var supabaseUserId = context.Principal?.GetSupabaseUserId();
-                if (string.IsNullOrWhiteSpace(supabaseUserId))
+                var authSubject = context.Principal?.GetAuthSubject();
+                if (string.IsNullOrWhiteSpace(authSubject))
                 {
                     context.Fail("Missing sub claim.");
                     return;
@@ -190,7 +192,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                 using var scope = context.HttpContext.RequestServices.CreateScope();
                 var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-                var currentUser = await userRepository.GetBySupabaseUserIdAsync(supabaseUserId, context.HttpContext.RequestAborted);
+                var currentUser = await userRepository.GetByAuthSubjectAsync(authSubject, context.HttpContext.RequestAborted);
                 if (currentUser?.SessionsRevokedAt is null)
                 {
                     return;

@@ -35,12 +35,12 @@ export function OnboardingEntryHero({
       <div className={styles.body}>
         {variant === 'invite' && professionalName && (
           <p className={styles.inviteLabel}>
-            Registro inicial con acompanamiento de {professionalName}
+            Registro inicial con acompañamiento de {professionalName}
           </p>
         )}
         {variant === 'invite_fallback' && (
           <p className={styles.inviteLabel}>
-            Registro inicial con acompanamiento profesional
+            Registro inicial con acompañamiento profesional
           </p>
         )}
 
@@ -63,7 +63,7 @@ export function OnboardingEntryHero({
             noValidate
           >
             <label className={styles.emailLabel} htmlFor="onboarding-email">
-              Tu correo electronico
+              Tu correo electrónico
             </label>
             <input
               id="onboarding-email"
@@ -91,7 +91,7 @@ export function OnboardingEntryHero({
                 className={styles.primaryCta}
                 disabled={submitting}
               >
-                {submitting ? 'Enviando...' : 'Empezar ahora'}
+                {submitting ? 'Abriendo...' : 'Empezar ahora'}
               </button>
             </div>
           </form>
@@ -104,7 +104,7 @@ export function OnboardingEntryHero({
         )}
 
         <p className={styles.privacyNote}>
-          La privacidad de tus datos es fundamental. Nadie mas puede ver lo que registras.
+          La privacidad de tus datos es fundamental. Nadie más puede ver lo que registrás.
         </p>
       </div>
 

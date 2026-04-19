@@ -18,14 +18,14 @@ export default function HomePage() {
   async function handleStart() {
     const trimmed = email.trim();
     if (!trimmed) {
-      setError('Ingresá tu correo electronico.');
+      setError('Ingresá tu correo electrónico.');
       return;
     }
     setSubmitting(true);
     const { error: authError } = await signInWithMagicLink(trimmed);
     setSubmitting(false);
     if (authError) {
-      setError('No se pudo enviar el enlace. Intentá de nuevo.');
+      setError('No se pudo iniciar sesión. Intentá de nuevo.');
     } else {
       setSent(true);
     }
@@ -39,7 +39,7 @@ export default function HomePage() {
             Revisá tu correo
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', color: 'var(--foreground-muted)' }}>
-            Te enviamos un enlace magico a <strong>{email}</strong>. Hacé click en el enlace para continuar.
+            Te estamos llevando al inicio de sesión seguro para <strong>{email}</strong>.
           </p>
         </div>
       </main>

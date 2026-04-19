@@ -12,9 +12,16 @@ public sealed class UserRepository(AppDbContext dbContext) : IUserRepository
         return await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
     }
 
-    public async ValueTask<User?> GetBySupabaseUserIdAsync(string supabaseUserId, CancellationToken cancellationToken = default)
+    public async ValueTask<User?> GetByAuthSubjectAsync(string authSubject, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Users.FirstOrDefaultAsync(x => x.SupabaseUserId == supabaseUserId, cancellationToken);
+        return await dbContext.Users.FirstOrDefaultAsync(x => x.AuthSubject == authSubject, cancellationToken);
+    }
+
+    public async ValueTask<User?> GetByEmailHashAsync(string emailHash, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Users
+            .OrderBy(x => x.CreatedAtUtc)
+            .FirstOrDefaultAsync(x => x.EmailHash == emailHash, cancellationToken);
     }
 
     public async ValueTask AddAsync(User user, CancellationToken cancellationToken = default)
