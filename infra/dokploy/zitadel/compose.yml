@@ -1,0 +1,85 @@
+# Zitadel Teslita IdP — reference compose (NOT auto-deployed)
+#
+# Dokploy owns the actual deploy. This file mirrors live state as of 2026-04-19
+# so we can reproduce the stack deterministically during disaster recovery.
+#
+# Wave A T3.3. Version pinned (never :latest). Env vars in Infisical.
+
+version: "3.9"
+
+services:
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:v4.9.0
+    restart: unless-stopped
+    command: /app/zitadel start-from-init --masterkeyFromEnv --tlsMode external
+    environment:
+      ZITADEL_MASTERKEY: ${ZITADEL_MASTERKEY}
+      ZITADEL_EXTERNALDOMAIN: ${ZITADEL_EXTERNALDOMAIN}
+      ZITADEL_EXTERNALSECURE: ${ZITADEL_EXTERNALSECURE}
+      ZITADEL_EXTERNALPORT: ${ZITADEL_EXTERNALPORT}
+      ZITADEL_TLS_ENABLED: ${ZITADEL_TLS_ENABLED}
+      ZITADEL_DATABASE_POSTGRES_HOST: ${ZITADEL_DATABASE_POSTGRES_HOST}
+      ZITADEL_DATABASE_POSTGRES_PORT: ${ZITADEL_DATABASE_POSTGRES_PORT}
+      ZITADEL_DATABASE_POSTGRES_DATABASE: ${ZITADEL_DATABASE_POSTGRES_DATABASE}
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${ZITADEL_DATABASE_POSTGRES_USER_USERNAME}
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_USER_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: ${ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: ${ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_EXISTINGDATABASE: ${ZITADEL_DATABASE_POSTGRES_ADMIN_EXISTINGDATABASE}
+      # FirstInstance vars only effective on empty DB (bootstrap)
+      ZITADEL_FIRSTINSTANCE_PATPATH: /dev/stdout
+      ZITADEL_FIRSTINSTANCE_ORG_NAME: ${ZITADEL_FIRSTINSTANCE_ORG_NAME}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: ${ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_EMAIL_ADDRESS: ${ZITADEL_FIRSTINSTANCE_ORG_HUMAN_EMAIL_ADDRESS}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_EMAIL_VERIFIED: ${ZITADEL_FIRSTINSTANCE_ORG_HUMAN_EMAIL_VERIFIED}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: ${ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED}
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME: ${ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME}
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME: ${ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME}
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE: ${ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE}
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_SCOPES: ${ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_SCOPES}
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: ${ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME}
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: ${ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME}
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: ${ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - zitadel-net
+    labels:
+      # Traefik labels — see traefik.labels.md for live rules
+      - "traefik.enable=true"
+      - "traefik.http.routers.zitadel.rule=Host(`id.nuestrascuentitas.com`)"
+      - "traefik.http.routers.zitadel.entrypoints=websecure"
+      - "traefik.http.routers.zitadel.tls.certresolver=letsencrypt"
+      - "traefik.http.services.zitadel.loadbalancer.server.port=8080"
+      - "traefik.http.services.zitadel.loadbalancer.server.scheme=h2c"
+
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${ZITADEL_DATABASE_POSTGRES_USER_USERNAME}
+      POSTGRES_PASSWORD: ${ZITADEL_DATABASE_POSTGRES_USER_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - zitadel-postgres-data:/var/lib/postgresql/data
+    networks:
+      - zitadel-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ZITADEL_DATABASE_POSTGRES_USER_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  zitadel-postgres-data:
+    external: true
+    name: postgres-reboot-wireless-panel-chhbwg-data
+
+networks:
+  zitadel-net:
+    external: true
+    name: dokploy-network

@@ -204,3 +204,5 @@ Este documento es el unico checkpoint que las fases `30`, `31`, `40`, `41`, `50`
 ---
 
 *Fuente: `.docs/wiki/02_arquitectura.md`, `.docs/wiki/04_RF.md`*
+
+> Detalle adicional IdP ecosistema (Wave A 2026-04-19): `09_contratos/CT-AUTH-ZITADEL.md`.
