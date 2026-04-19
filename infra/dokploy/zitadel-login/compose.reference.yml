@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  zitadel-login:
+    image: ghcr.io/zitadel/zitadel-login:v4.9.0
+    restart: unless-stopped
+    environment:
+      ZITADEL_API_URL: http://app-program-optical-matrix-xmjswe:8080
+      NEXT_PUBLIC_BASE_PATH: /ui/v2/login
+      CUSTOM_REQUEST_HEADERS: Host:id.nuestrascuentitas.com
+      NODE_ENV: production
+      ZITADEL_SERVICE_USER_TOKEN: ${ZITADEL_LOGIN_CLIENT_PAT}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zitadel-login.rule=Host(`id.nuestrascuentitas.com`) && PathPrefix(`/ui/v2/login`)"
+      - "traefik.http.routers.zitadel-login.entrypoints=websecure"
+      - "traefik.http.routers.zitadel-login.tls.certresolver=letsencrypt"
+      - "traefik.http.services.zitadel-login.loadbalancer.server.port=3000"
+
+networks:
+  dokploy-network:
+    external: true
+    name: dokploy-network
