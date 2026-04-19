@@ -31,11 +31,14 @@
 
 ## GitHub Sync Required
 
-- Close #19 as completed.
-- Close #20 as completed.
-- Update and close #18 as completed.
-- Comment #15 that Wave A is GREEN.
-- Comment #17 that Wave B may start without Wave A caveats.
+- Close #19 as completed: done.
+- Close #20 as completed: done.
+- Update and close #18 as completed: done.
+- Comment #15 that Wave A is GREEN: done.
+- Comment #17 that Wave B may start without Wave A caveats: done.
+- Project V2 board status for #18/#19/#20: `Done`.
+
+`pj-crear-tarjeta --status-sync` was attempted first, but the local script maps `done` to `Hecho` while the Bitácora Project V2 field uses the option `Done`. Fallback used `gh project item-edit` with the resolved `Status` field and `Done` option IDs. Final board verification returned `Done` for #18, #19, and #20.
 
 ## Closure Verdict
 
