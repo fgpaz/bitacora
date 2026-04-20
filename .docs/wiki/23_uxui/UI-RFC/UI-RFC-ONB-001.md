@@ -81,7 +81,7 @@ La UI debe sentirse como una guía personal cálida y breve que:
 | `S01-HERO-INVITE` | explicar vínculo + propósito en la misma portada | `invite_token` presente y contexto resoluble | `Empezar ahora` |
 | `S01-HERO-INVITE-FALLBACK` | conservar continuidad aunque falten datos del profesional | `invite_token` presente pero datos parciales | `Empezar ahora` |
 | `S01-CONTEXT-CLARIFICATION` | bajar confusión sobre por qué llegó invitado/a | duda contextual antes de auth o antes de consent | `Entiendo, continuar` |
-| `S02-AUTH-INTERSTITIAL` | sostener continuidad durante sesión + bootstrap | retorno de Supabase o resolución de sesión | sin CTA nueva |
+| `S02-AUTH-INTERSTITIAL` | sostener continuidad durante sesión + bootstrap | retorno de Zitadel o resolución de sesión | sin CTA nueva |
 | `S03-CONSENT-READY` | aceptar consentimiento con resguardo claro | `needsConsent=true` y consentimiento vigente disponible | `Aceptar y continuar` |
 | `S03-CONSENT-REMINDER` | recordar sutilmente el contexto invitado en consent | `resumePendingInvite=true` | `Aceptar y continuar` |
 | `S03-VERSION-CONFLICT` | resolver cambio de versión sin jerga | `CONSENT_VERSION_MISMATCH` | `Volver a revisar` |
@@ -143,7 +143,7 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 
 ### 1. Resolución de sesión y bootstrap
 
-- precondición: existe sesión Supabase válida resuelta en T04;
+- precondición: existe sesión Zitadel válida resuelta por `bitacora_session` en T04;
 - request:
   - `POST /api/v1/auth/bootstrap`
   - query opcional: `?invite_token=<token>`
@@ -180,7 +180,7 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 
 | Momento UI | Backend | Condición | Resultado visible |
 | --- | --- | --- | --- |
-| click `Empezar ahora` con sesión inexistente | Supabase Auth | no session | ir a login/magic link y volver |
+| click `Empezar ahora` con sesión inexistente | Zitadel OIDC | no session | ir a login y volver por `/auth/callback` |
 | retorno autenticado | `POST /api/v1/auth/bootstrap` | `needsConsent=true` | mostrar `S02` y luego `S03` |
 | retorno autenticado | `POST /api/v1/auth/bootstrap` | `status=consent_granted` o `active` | saltar consentimiento e ir a `S04` o a la siguiente ruta |
 | apertura de consentimiento | `GET /api/v1/consent/current` | `patientStatus=none|pending|revoked` | `S03-CONSENT-READY` |
@@ -231,7 +231,7 @@ La implementación de T04/T05 cumple este contrato si:
 ## Dependencias abiertas
 
 - `REG-001` y `REG-002` siguen bloqueados por el gate visual previo y no deben contaminar este contrato;
-- `T04` debe proveer sesión Supabase, boundary y cliente API antes de `T05`;
+- `T04` debe proveer sesión Zitadel, boundary y cliente API antes de `T05`;
 - cuando exista implementación funcional, `UX-VALIDATION-ONB-001.md` podrá reabrir este contrato si la evidencia contradice el slice.
 
 ---

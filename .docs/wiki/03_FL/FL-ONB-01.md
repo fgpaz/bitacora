@@ -4,15 +4,15 @@
 Un nuevo paciente se registra, acepta el consentimiento informado y realiza su primer registro de humor, reanudando automaticamente una invitacion pendiente si llego desde un flujo invitado.
 
 ## Scope
-**In:** Registro de cuenta (Supabase Auth), consentimiento (hard gate), reanudacion opcional de invitacion pendiente, primer mood entry.
+**In:** Registro de cuenta (Zitadel OIDC + PKCE), consentimiento (hard gate), reanudacion opcional de invitacion pendiente, primer mood entry.
 **Out:** Vinculacion con profesional (→ FL-VIN-02), configuracion Telegram (→ FL-TG-01).
 
 ## Actores y ownership
 | Actor | Rol en el flujo |
 |-------|----------------|
 | Paciente | Se registra, acepta consent, registra primer humor |
-| Supabase Auth | Crea cuenta (magic link / Google OAuth) |
-| Modulo Auth | Resuelve User desde Supabase |
+| Zitadel Auth | Autentica la identidad OIDC del paciente |
+| Modulo Auth | Resuelve User desde subject Zitadel |
 | Modulo Consent | Presenta y registra consentimiento |
 | Modulo Vinculos | Reanuda PendingInvite valida y materializa CareLink si aplica |
 | Modulo Registro | Crea primer MoodEntry |
@@ -35,19 +35,21 @@ Un nuevo paciente se registra, acepta el consentimiento informado y realiza su p
 sequenceDiagram
     actor P as Paciente
     participant WEB as Next.js
-    participant SUPA as Supabase Auth
+    participant IDP as Zitadel
     participant API as Bitacora.Api
     participant DB as bitacora_db
 
     P->>WEB: Accede a bitacora.nuestrascuentitas.com
     P->>WEB: Click "Registrarme"
-    WEB->>SUPA: Iniciar auth (magic link / Google)
-    SUPA-->>P: Email con magic link / Google OAuth
-    P->>SUPA: Confirma auth
-    SUPA-->>WEB: JWT access_token
+    WEB->>IDP: Redirigir a /oauth/v2/authorize (PKCE)
+    IDP-->>P: Login UI v2
+    P->>IDP: Completa autenticacion
+    IDP-->>WEB: /auth/callback?code&state
+    WEB->>IDP: Intercambiar code por tokens
+    WEB->>WEB: Crear bitacora_session
     WEB->>API: POST /api/v1/auth/bootstrap
-    API->>API: Validar JWT → supabase_user_id
-    API->>DB: INSERT User (supabase_user_id, email_cifrado)
+    API->>API: Validar JWT Zitadel RS256 via JWKS → auth_subject
+    API->>DB: INSERT User (auth_subject, email_cifrado)
     API->>API: Resolver contexto de PendingInvite si `invite_token` presente
     API-->>WEB: {user_id, needs_consent: true, resume_pending_invite: true|false}
 
@@ -80,10 +82,10 @@ sequenceDiagram
 | Paciente rechaza consent | No puede registrar datos. Queda en estado `registered` sin `consent_granted`. |
 | invite_token expiro antes del alta | El onboarding continua sin vinculo; se informa que debe pedir una nueva invitacion. |
 | Paciente cierra la ventana antes del primer mood | Queda con consent pero sin datos. Proximo login → directo al registro. |
-| Auth falla (Supabase down) | Fail-closed, pagina de error. |
+| Auth falla (Zitadel no disponible) | Fail-closed, pagina de error. |
 
 ## Architecture slice
-- **Modulos:** Auth (Supabase) → Consent → Vinculos (opcional) → Registro → Seguridad
+- **Modulos:** Auth (Zitadel) → Consent → Vinculos (opcional) → Registro → Seguridad
 - **Flujo compuesto:** integra FL-CON-01 y FL-REG-01
 
 ## Data touchpoints
@@ -97,7 +99,7 @@ sequenceDiagram
 | AccessAudit | INSERT x3 | append-only |
 
 ## RF candidatos
-- RF-ONB-001: Crear User desde JWT de Supabase (bootstrap)
+- RF-ONB-001: Crear User desde JWT Zitadel (bootstrap)
 - RF-ONB-002: Detectar usuario nuevo vs existente
 - RF-ONB-003: Forzar pantalla de consent y preservar contexto invitado
 - RF-ONB-004: Registrar primer MoodEntry post-consent

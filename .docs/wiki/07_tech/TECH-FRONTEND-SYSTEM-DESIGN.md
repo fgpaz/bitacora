@@ -284,7 +284,7 @@ Excepción operativa vigente:
 ### Convenciones generales
 
 - autenticacion via `Authorization: Bearer <access_token>`;
-- resolución de identidad por JWT de Supabase;
+- resolución de identidad por JWT Zitadel validado por JWKS;
 - API versionada en `/api/v1`;
 - `patient_ref` opaco para vistas profesionales;
 - todos los errores comparten envelope con `trace_id`.

@@ -7,6 +7,7 @@ import {
 } from '@/lib/auth/constants';
 import {
   clearAuthCookies,
+  clearTransientAuthCookies,
   createSessionFromAccessToken,
   getAuthRuntimeConfig,
   setSessionCookie,
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     const session = createSessionFromAccessToken(tokenSet.access_token, config, tokenSet.id_token, expectedNonce);
     const response = NextResponse.redirect(new URL('/onboarding', publicOrigin));
-    clearAuthCookies(response);
+    clearTransientAuthCookies(response);
     setSessionCookie(response, session);
     return response;
   } catch {

@@ -86,6 +86,10 @@ export function setSessionCookie(response: NextResponse, session: BitacoraSessio
 
 export function clearAuthCookies(response: NextResponse): void {
   response.cookies.delete(SESSION_COOKIE);
+  clearTransientAuthCookies(response);
+}
+
+export function clearTransientAuthCookies(response: NextResponse): void {
   response.cookies.delete(OIDC_STATE_COOKIE);
   response.cookies.delete(OIDC_VERIFIER_COOKIE);
   response.cookies.delete(OIDC_NONCE_COOKIE);

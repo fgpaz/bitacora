@@ -12,12 +12,12 @@ Precondition: Secrets en Dokploy + migraciones aplicadas + GATE-SMOKE-001..006 p
 
 Superficies: Auth, Consent, Registro, Vinculos, Visualizacion, Export
 
-1. Secretos en Dokploy: `SUPABASE_JWT_SECRET`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`, `ConnectionStrings__BitacoraDb`.
+1. Secretos en Dokploy: `ZITADEL_AUTHORITY`, `ZITADEL_AUDIENCE`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`, `ConnectionStrings__BitacoraDb`.
 2. `bitacora-db` deployado y reachable.
 3. Migraciones aplicadas manualmente (`infra/runbooks/manual-migrations.md`).
 4. `GET /health/ready` retorna 200.
 5. `bitacora-api` desplegado sobre Dokploy.
-6. Smoke gate pasa: `infra/smoke/backend-smoke.ps1` sale 0 (GATE-SMOKE-001..006).
+6. Smoke gate pasa: `infra/smoke/zitadel-cutover-smoke.ps1` sale 0 (GATE-SMOKE-001..006).
 
 ### Phase 31 — Telegram webhook + recordatorios
 
@@ -36,7 +36,7 @@ Precondition: Phase 31 smoke + profesional endpoints (GATE-SMOKE-VIN-PROF-*, GAT
 
 Superficies: bitacora.nuestrascuentitas.com
 
-11. Secrets Next.js configurados: `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_JWT_SECRET`.
+11. Secrets Next.js configurados: `ZITADEL_WEB_CLIENT_ID`, `ZITADEL_WEB_REDIRECT_URI`, `ZITADEL_WEB_POST_LOGOUT_REDIRECT_URI`.
 12. Deployment Next.js a Vercel o Dokploy.
 13. Smoke endpoints web: GATE-SMOKE-007..012.
 14. **UX validation con evidencia en wiki antes de marcar completa.**
@@ -88,7 +88,7 @@ Nunca: `Codigo existe → Smoke pasa → Fase se marca completa`
 | T3-11 | ConsentRequiredMiddleware es el unico gate de escritura clinica para `/mood-entries` y `/daily-checkins` | 403 + AccessAudit outcome=Denied |
 | T3-12 | PseudonymizationService fail-closed: sin salt valido se lanza excepcion | 500 en toda operacion que dependa de pseudonym |
 | T3-14 | Encryption key fail-closed: sin clave de 32 bytes, readiness queda not_ready | `/health/ready` retorna 503; no hay escritura clinica |
-| T3-15 | Falta de `SUPABASE_JWT_SECRET` hace throw en startup | proceso no inicia |
+| T3-15 | Falta de configuracion Zitadel o JWKS inaccesible deja readiness not_ready | no se abre trafico |
 | T3-16 | `DataAccess:ApplyMigrationsOnStartup=false` se preserva en produccion | migraciones solo via runbook explícito |
 | T3-17 | Rate limiting fail-closed: politica `auth` (10 req/IP/min) retorna 429 si se excede | cualquier otro status fuera del limite |
 
@@ -101,7 +101,7 @@ UseRateLimiter()             → fail-closed: 429 si se excede el limite (politi
 TraceIdMiddleware           → genera trace_id al ingreso si no existe (nunca se salta)
 ApiExceptionMiddleware       → envelope de error con trace_id, sin fuga de datos internos
 Correlate                    → propaga X-Correlation-ID
-UseAuthentication            → JWT Supabase valido required; 401 si falla
+UseAuthentication            → JWT Zitadel RS256 valido via JWKS; 401 si falla
 UseAuthorization             → claims verificados; 403 si no tiene acceso
 ConsentRequiredMiddleware    → hard gate para POST clinicos; 403 sin ConsentGrant activo + audit
 ```
@@ -126,11 +126,11 @@ Todo ambiente de produccion de Bitacora.Api requiere como minimo:
 | Seal | Requisito |
 |------|-----------|
 | Liveness | `GET /health` retorna 200 |
-| Readiness | `GET /health/ready` retorna 200; valida connection string, JWT secret, encryption key, pseudonym salt, PostgreSQL connectivity |
+| Readiness | `GET /health/ready` retorna 200; valida connection string, metadata/JWKS Zitadel, encryption key, pseudonym salt, PostgreSQL connectivity |
 | Tracing | `trace_id` propagado end-to-end; presente en todo log y envelope de error |
 | Pseudonimizacion | `pseudonym_id` en logs operativos; `actor_id` solo en `AccessAudit` |
 | Logs | `Console` provider; estructura legible con trace_id y pseudonym_id |
-| Smoke | `infra/smoke/backend-smoke.ps1` pasa completo con exit 0; incluye GATE-SMOKE-007..015 y GATE-RL-001 (rate limiting) |
+| Smoke | `infra/smoke/zitadel-cutover-smoke.ps1` pasa completo con exit 0; incluye OIDC discovery/JWKS, readiness, login redirect, session publica y endpoints protegidos sin sesion |
 
 ### Datos de salud: PROHIBIDO en logs, traces y telemetry
 
@@ -159,7 +159,9 @@ Bajo ninguna circunstancia se puede incluir en logs operativos, traces o telemet
 
 | Variable | Validacion | Fail-closed |
 |----------|------------|-------------|
-| `SUPABASE_JWT_SECRET` | No vacia | Throw en startup |
+| `ZITADEL_AUTHORITY` | URL issuer canonica (`https://id.nuestrascuentitas.com`) | Readiness not_ready |
+| `ZITADEL_AUDIENCE` | Project audience Bitacora (`369306332534145382`) | JWT rechazado |
+| `ZITADEL_WEB_CLIENT_ID` | Client web Bitacora (`369306336963330406`) | OIDC frontend no inicia login |
 | `BITACORA_ENCRYPTION_KEY` | 32 bytes exacto (Base64) | Readiness not_ready; escritura bloqueada |
 | `BITACORA_PSEUDONYM_SALT` | No vacia | Throw en startup de cualquier operacion que necesite pseudonym |
 | `ConnectionStrings__BitacoraDb` | Connection string valido | Readiness not_ready |

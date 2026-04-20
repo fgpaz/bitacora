@@ -69,7 +69,7 @@ Este documento fija el alcance implementable de `ONB-001` para frontend.
 
 ## Dependencias para implementación
 
-- `T04`: shell, sesión Supabase, cliente API, routing base;
+- `T04`: shell, sesión Zitadel, cliente API, routing base;
 - `T05`: componentes del flujo paciente y navegación al primer registro.
 
 ## Done when de handoff

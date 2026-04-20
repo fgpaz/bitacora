@@ -71,7 +71,7 @@ Este documento fija el alcance implementable de `REG-002` para frontend.
 
 ## Dependencias para implementación
 
-- `T04`: shell paciente, sesión Supabase, cliente API, routing base;
+- `T04`: shell paciente, sesión Zitadel, cliente API, routing base;
 - `T05`: componentes del flujo de check-in diario;
 - el endpoint `POST /api/v1/daily-checkins` debe estar implementado y deployado antes de que este slice pueda probarse end-to-end;
 - la validación de `medication_time` como formato `HH:MM` normalizado a bloques de 15 minutos es responsabilidad del backend — frontend solo transmite y muestra el error si llega.

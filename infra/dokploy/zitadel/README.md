@@ -16,7 +16,7 @@ This directory contains retro-generated git-tracked artifacts reflecting the liv
 | `env.example` | Shape of required env vars (values live in Infisical) |
 | `traefik.labels.md` | Active Traefik routing labels in Dokploy |
 
-## Live state snapshot (2026-04-19)
+## Live state snapshot (2026-04-20)
 
 - **Dokploy project:** `teslita-shared-idp` (`AKHsAJScexTwhJBzfFRlk`)
 - **Zitadel app:** `teslita-shared-zitadel` (`zFdEECmPr1hhxwL0DKu4B`), appName `app-program-optical-matrix-xmjswe`
@@ -27,11 +27,10 @@ This directory contains retro-generated git-tracked artifacts reflecting the liv
 - **TLS:** Let's Encrypt via Dokploy/Traefik
 - **Admin:** `paz.fgabriel@gmail.com` (human) + `zitadel-admin-sa` + `login-client` (machines with PATs in Infisical)
 
-## Known gaps (as of 2026-04-19)
+## Known gaps (as of 2026-04-20)
 
-- **Login companion app NOT deployed.** Zitadel v4 requires `ghcr.io/zitadel/zitadel-login:v4.9.0` as separate app for `/ui/v2/login/*`. Currently OIDC authorize flow cannot complete. Wave B must either deploy the companion or configure Zitadel without the new login UI.
-- **Backup cron NOT yet installed.** Script + runbook ready in `infra/backups/zitadel/`. Run on VPS turismo to activate.
-- **MFA not enforced** for human admin (login UI needed to enroll TOTP).
+- **Login companion app deployed.** Zitadel v4 login UI v2 is live for `/ui/v2/login/*` and Bitacora OIDC authorize flow completes through it.
+- **Backup/offsite posture closed in Wave A.** See `infra/backups/zitadel/` and the Wave A closure evidence for operational details.
 - **Legacy Postgres (postgres:18)** still running — can be removed safely.
 
 ## Related docs

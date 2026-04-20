@@ -17,14 +17,15 @@
 - Migracion inicial generada: `20260409185502_InitialCore`.
 - Assembly owner: `Bitacora.DataAccess.EntityFramework`.
 - Startup project para tooling: `Bitacora.Api`.
-- La ola actual no materializa aun `binding_codes`, `care_links`, `telegram_*` ni `reminder_configs`.
+- El schema vigente incluye `binding_codes`, `care_links`, `telegram_*`, `reminder_configs` y `users.auth_subject`.
+- Wave B retiro `supabase_user_id`/`legacy_auth_subject` con `20260420020000_RetireSupabaseAuthSubject`; en produccion tambien se ejecuto `infra/migrations/zitadel/20260420_retire_supabase_auth.sql`.
 - El gate operativo de produccion queda en `GET /health/ready`; no se abre trafico hasta pasar migracion + readiness + smoke.
 
 ## Orden de bootstrap productivo
 
 1. Provisionar `bitacora-db`.
 2. Construir `ConnectionStrings__BitacoraDb` final.
-3. Materializar secretos de runtime (`SUPABASE_JWT_SECRET`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`).
+3. Materializar secretos de runtime (`ZITADEL_AUTHORITY`, `ZITADEL_AUDIENCE`, `BITACORA_ENCRYPTION_KEY`, `BITACORA_PSEUDONYM_SALT`).
 4. Ejecutar `dotnet ef database update`.
    Si `bitacora-db` solo es accesible desde la red interna, usar `/etc/dokploy/applications/app-input-neural-matrix-psstrb/code`
    y un contenedor `mcr.microsoft.com/dotnet/sdk:10.0` con `--network container:<bitacora-api-container>`.
@@ -54,7 +55,7 @@
 2. **Nunca ALTER column type** en encrypted_payload o safe_projection.
 3. **Agregar columnas** con default value para no romper registros existentes.
 4. **Indices nuevos** se crean con `CREATE INDEX CONCURRENTLY` (via migracion manual en prod).
-5. **Rename** de columnas: crear nueva, migrar datos, deprecar vieja en siguiente release.
+5. **Rename** de columnas: usar migracion idempotente con respaldo y smoke posterior; si involucra identidad o datos clinicos, documentar rollback explicito.
 
 ## Cleanup periodico
 

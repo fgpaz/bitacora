@@ -17,7 +17,7 @@ El paciente registra su estado animico (escala -3..+3) desde la interfaz web.
 | Capa Seguridad | Cifra payload, genera safe_projection, registra audit |
 
 ## Precondiciones
-- Paciente autenticado (JWT valido via Supabase Auth)
+- Paciente autenticado (sesion OIDC Zitadel valida)
 - ConsentGrant en estado `granted` para este paciente
 
 ## Postcondiciones
@@ -37,7 +37,7 @@ sequenceDiagram
 
     P->>WEB: Selecciona humor (+1)
     WEB->>API: POST /api/v1/mood-entries {score: 1}
-    API->>API: Auth: validar JWT → patient_id
+    API->>API: Auth: validar JWT Zitadel RS256 via JWKS → patient_id
     API->>API: Consent: verificar ConsentGrant.status = granted
     alt Sin consentimiento
         API-->>WEB: 403 CONSENT_REQUIRED
