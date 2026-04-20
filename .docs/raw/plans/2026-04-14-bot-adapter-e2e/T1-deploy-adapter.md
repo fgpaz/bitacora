@@ -14,7 +14,7 @@ agent_type: ps-worker
 files:
   - read: infra/.env
 complexity: medium
-done_when: "`curl https://tg-adapter.bitacora.nuestrascuentitas.com/health` retorna `{\"status\":\"ok\"}` Y `curl https://api.telegram.org/bot8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI/getWebhookInfo` muestra `\"url\":\"https://tg-adapter.bitacora.nuestrascuentitas.com/webhook\"`"
+done_when: "`curl https://tg-adapter.bitacora.nuestrascuentitas.com/health` retorna `{\"status\":\"ok\"}` Y `curl https://api.telegram.org/bot<redacted-telegram-bot-token>/getWebhookInfo` muestra `\"url\":\"https://tg-adapter.bitacora.nuestrascuentitas.com/webhook\"`"
 ```
 
 ## Reference
@@ -81,7 +81,7 @@ TMPFILE=$(mktemp)
 cat > "$TMPFILE" << 'EOF'
 {
   "applicationId": "TG_ADAPTER_APP_ID_PLACEHOLDER",
-  "env": "BITACORA_API_URL=https://api.bitacora.nuestrascuentitas.com\nTELEGRAM_WEBHOOK_SECRET=Hhl43GhDDyL0jDuoJknq8HD0UB3ukQ2HjqDDDVygZM57GHm\nADAPTER_SECRET_TOKEN=Hhl43GhDDyL0jDuoJknq8HD0UB3ukQ2HjqDDDVygZM57GHm"
+  "env": "BITACORA_API_URL=https://api.bitacora.nuestrascuentitas.com\nTELEGRAM_WEBHOOK_SECRET=<redacted-webhook-secret>\nADAPTER_SECRET_TOKEN=<redacted-webhook-secret>"
 }
 EOF
 # Reemplazar el placeholder con el ID real
@@ -95,7 +95,7 @@ curl -sS -X POST \
 rm -f "$TMPFILE"
 ```
 
-**Nota sobre ADAPTER_SECRET_TOKEN:** El valor `Hhl43GhDDyL0jDuoJknq8HD0UB3ukQ2HjqDDDVygZM57GHm` es el mismo que el webhook secret del API — el adapter lo usará tanto para validar requests de Telegram como para incluirlo en el reenvío al API. Esto simplifica la configuración.
+**Nota sobre ADAPTER_SECRET_TOKEN:** El valor `<redacted-webhook-secret>` es el mismo que el webhook secret del API — el adapter lo usará tanto para validar requests de Telegram como para incluirlo en el reenvío al API. Esto simplifica la configuración.
 
 ### Paso 4: Crear dominio con HTTPS
 
@@ -142,13 +142,13 @@ curl -sS https://tg-adapter.bitacora.nuestrascuentitas.com/health
 
 **Verificar webhook actual:**
 ```bash
-curl -sS "https://api.telegram.org/bot8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI/getWebhookInfo" | python3 -m json.tool
+curl -sS "https://api.telegram.org/bot<redacted-telegram-bot-token>/getWebhookInfo" | python3 -m json.tool
 ```
 
 **Reconfigurarlo al adapter:**
 ```bash
-BOT_TOKEN="8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI"
-ADAPTER_SECRET="Hhl43GhDDyL0jDuoJknq8HD0UB3ukQ2HjqDDDVygZM57GHm"
+BOT_TOKEN="<redacted-telegram-bot-token>"
+ADAPTER_SECRET="<redacted-webhook-secret>"
 NEW_WEBHOOK="https://tg-adapter.bitacora.nuestrascuentitas.com/webhook"
 
 curl -sS -X POST \
@@ -205,7 +205,7 @@ Verificar logs del adapter con sshr:
 curl -sS https://tg-adapter.bitacora.nuestrascuentitas.com/health
 # → {"status":"ok","service":"tg-adapter"}
 
-curl -sS "https://api.telegram.org/bot8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI/getWebhookInfo" | grep '"url"'
+curl -sS "https://api.telegram.org/bot<redacted-telegram-bot-token>/getWebhookInfo" | grep '"url"'
 # → "url": "https://tg-adapter.bitacora.nuestrascuentitas.com/webhook"
 ```
 

@@ -98,10 +98,10 @@ DOKPLOY_URL=http://54.37.157.93:3000
 BITACORA_PROJECT_ID=18WEM8BMIq-z_wgkrNlp8
 BITACORA_API_APP_ID=UROM_r5ETX0rvs-1WZ3bi
 ConnectionStrings__BitacoraDb=Host=postgres-reboot-solid-state-application-l55mww;Port=5432;Database=bitacora_db;Username=bitacora;Password=c3fd62bcf1bd6dba57682a06fbcabf93
-SUPABASE_JWT_SECRET=srgGCnJ1ptHvLoleF9vb8WMlVDa1AZAqqBJs4CINAB1kqUxlrtm1-QtVfiwamDCt
+SUPABASE_JWT_SECRET=<redacted-legacy-secret>
 BITACORA_ENCRYPTION_KEY=ERJY/JsAfer68SjiIt2CwRGAP+IeUyT7ZHlfhuMLugw=
 BITACORA_PSEUDONYM_SALT=0a6e89ad2d6f6e4b6aacee6feac96891
-BITACORA_TELEGRAM_BOT_TOKEN=8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI
+BITACORA_TELEGRAM_BOT_TOKEN=<redacted-telegram-bot-token>
 ```
 
 **ACTION: Save ALL credentials to Infisical vault (teslita or buho) FIRST before any deployment. Use `mkey` or Infisical CLI. If interactive login is blocked, create a machine identity token from the Infisical UI and use that.**
@@ -185,7 +185,7 @@ Run complete E2E across both channels:
 ## Locked Decisions (DO NOT REOPEN)
 
 1. Auth is Supabase JWT (magic link) — confirmed in frontend code
-2. Telegram bot is `@bitacorav2_bot` — token: `8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI`
+2. Telegram bot is `@bitacorav2_bot` — token: `<redacted-telegram-bot-token>`
 3. Webhook path: `POST /api/v1/telegram/webhook`
 4. Pairing code format: `BIT-XXXXX` (5 alphanumeric chars)
 5. Pairing TTL: 15 minutes

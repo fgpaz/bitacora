@@ -1,6 +1,6 @@
 === E2E Web Test — DB Verification 2026-04-14 ===
 
-Patient ID: 97a384ae-55a3-4895-9e02-f7c6470bb5ab
+Patient ID: <redacted-patient-id>
 Supabase User ID: a1b2c3d4-e5f6-7890-abcd-ef1234567890
 Consent: Granted (since 2026-04-14T01:57)
 
@@ -12,7 +12,7 @@ Response: {"dailyCheckinId": "177d23b1-836e-4e40-8326-9bb31909d372", "checkinDat
 
 --- DB State (daily_checkins) ---
 daily_checkin_id: 177d23b1-836e-4e40-8326-9bb31909d372
-patient_id: 97a384ae-55a3-4895-9e02-f7c6470bb5ab
+patient_id: <redacted-patient-id>
 checkin_date: 2026-04-14
 safe_projection: {"has_social": true, "has_anxiety": false, "sleep_hours": 8, "has_physical": true, "has_medication": false, "has_irritability": false}
 updated_at_utc: 2026-04-14 13:52:32.632972+00

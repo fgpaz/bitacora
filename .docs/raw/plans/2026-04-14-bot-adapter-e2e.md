@@ -10,12 +10,12 @@
 - API: `https://api.bitacora.nuestrascuentitas.com` (Dokploy app `UROM_r5ETX0rvs-1WZ3bi`)
 - Web: `https://bitacora.nuestrascuentitas.com` (Next.js 16)
 - VPS: turismo `54.37.157.93`, Dokploy en `:3000`
-- Bot token: `8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI`
-- Webhook secret (API valida este header): `Hhl43GhDDyL0jDuoJknq8HD0UB3ukQ2HjqDDDVygZM57GHm`
-- DB: `postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db`
-- Dokploy API key: `zHdqJHChVWMCUwthJhaUepBDvJOEjMweBOkQLSklbyqmJmxSDvlHqCjBdUsgpYaI`
+- Bot token: `<redacted-telegram-bot-token>`
+- Webhook secret (API valida este header): `<redacted-webhook-secret>`
+- DB: `<redacted-postgres-uri>`
+- Dokploy API key: `<redacted-dokploy-api-key>`
 - Proyecto Bitácora ID: `18WEM8BMIq-z_wgkrNlp8`
-- Chat_id falso actual en DB: `99887766` (creado por simulación, no usuario real)
+- Chat_id falso actual en DB: `<redacted-simulated-chat-id>` (creado por simulación, no usuario real)
 - ReminderConfig existente: `988cf8ef-7144-40db-b41c-74d09b27ca82` (next_fire mañana)
 
 **Runtime:** CC
@@ -34,7 +34,7 @@
 
 **Initial Assumptions:**
 1. El dominio `tg-adapter.bitacora.nuestrascuentitas.com` puede ser configurado via Dokploy + Let's Encrypt en el mismo VPS.
-2. La sesión de pairing existente con `chat_id=99887766` puede coexistir hasta que el usuario real haga `/start`; el unique constraint es por `patient_id`, no por `chat_id` global (confirmar antes de ejecutar T3).
+2. La sesión de pairing existente con `chat_id=<redacted-simulated-chat-id>` puede coexistir hasta que el usuario real haga `/start`; el unique constraint es por `patient_id`, no por `chat_id` global (confirmar antes de ejecutar T3).
 3. El usuario de test para E2E web tiene su email en la tabla `patients` y puede recibir magic link vía Supabase.
 
 ---
@@ -43,7 +43,7 @@
 
 **Assumptions needing validation:**
 - `tg-adapter.bitacora.nuestrascuentitas.com` no existe aún — crear registro DNS o usar IP directa temporalmente mientras Let's Encrypt provisiona. Si el dominio tarda, usar `--insecure` es inaceptable para webhook de Telegram (require HTTPS válido). Alternativa: reusar el subdominio existente del API con un path distinto agregando un endpoint proxy al API. Si el DNS falla → fallback: agregar un endpoint `/api/v1/telegram/native-webhook` al API .NET que haga la transformación internamente.
-- La sesión fake con `chat_id=99887766` en `telegram_sessions` puede bloquear un nuevo pairing si la constraint es `UNIQUE(patient_id)`. Verificar con `SELECT * FROM telegram_sessions` antes de T3.
+- La sesión fake con `chat_id=<redacted-simulated-chat-id>` en `telegram_sessions` puede bloquear un nuevo pairing si la constraint es `UNIQUE(patient_id)`. Verificar con `SELECT * FROM telegram_sessions` antes de T3.
 
 **Known risks:**
 - DNS propagation delay: si `tg-adapter.bitacora.nuestrascuentitas.com` tarda en propagar, Telegram no puede validar el certificado y rechazará `setWebhook`. Mitigation: usar `https://api.bitacora.nuestrascuentitas.com/api/v1/telegram/native-webhook` como fallback en T1 si el dominio nuevo no está listo.

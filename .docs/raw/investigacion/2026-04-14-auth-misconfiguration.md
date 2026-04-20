@@ -54,7 +54,7 @@ curl -H "Authorization: Bearer <forged-supabase-prod-token>" \
 
 ```
 # Container API (app-copy-redundant-sensor-tv43jn)
-SUPABASE_JWT_SECRET=srgGCnJ1ptHvLoleF9vb8WMlVDa1AZAqqBJs4CINAB1kqUxlrtm1-QtVfiwamDCt
+SUPABASE_JWT_SECRET=<redacted-legacy-secret>
 
 # Frontend (.env.example / bundle embebido)
 NEXT_PUBLIC_SUPABASE_URL=https://auth.tedi.nuestrascuentitas.com
@@ -92,7 +92,7 @@ No usar supabase-prod (compartida con otros productos) ni multi-tedi (es de tedi
 ### Valores generados
 
 ```
-GOTRUE_JWT_SECRET=6b1e8257ce222b1ef800fdf6ac93e27b8dec59ee83bc05bd79e7c21e755a22a80ca9ccefca5f7f0e10ae993c0736bc80b93947c29b725db89321f43ecab6112a
+GOTRUE_JWT_SECRET=<redacted-legacy-secret>
 ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc2MjAwMDAwLCJleHAiOjE5Mjk4ODAwMDB9.6G7aHaCH2D2VKQ-sym_Fk1qk9kdXM9ocOiiLrKdbRhw
 SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NzYyMDAwMDAsImV4cCI6MTkyOTg4MDAwMH0.BCxcSYE-TqTnHZEnJhCquLh-Pd8Nk31b0OaXAqp72ck
 ```

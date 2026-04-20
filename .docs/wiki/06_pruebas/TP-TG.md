@@ -7,9 +7,10 @@
 
 ## Estado de ejecucion actual
 
-- `Completamente ejecutado` — Todos los TCs ejecutados y aprobados en produccion (E2E 2026-04-14, validacion post-auth-fix 2026-04-15).
+- `Completamente ejecutado` — Todos los TCs ejecutados y aprobados en produccion (E2E 2026-04-14, validacion post-auth-fix 2026-04-15, qa-dev full smoke post-Zitadel 2026-04-20).
 - TG-P01/TG-N01: pairing y validacion de codigos — PASSED en produccion.
-- TG-P02/TG-N02: scheduler y recordatorios via keyboard inline — PASSED en produccion con usuario Telegram real.
+- TG-P02/TG-N02: scheduler, recordatorios y flujo conversacional via keyboard inline — PASSED en produccion con usuario Telegram real.
+- Evidencia vigente post-fix: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/` y `.docs/raw/reports/2026-04-20-qa-dev-full-smoke.md`.
 
 ### Resultados de ejecucion (E2E 2026-04-14)
 
@@ -26,9 +27,18 @@
 |-------|--------|----------|-------|-----------|
 | TG-P01 | PASSED | produccion | 2026-04-15 | POST /telegram/pairing: HTTP 200, code=BIT-KYNYR, exp=900s. Evidencia: F4-01-pairing-code.json |
 | TG-P01b-LINKING | GAP | produccion | 2026-04-15 | @tedi_responde ya vinculado a paciente diferente. @gabrielpaz: PeerNotFound (sin historial bot). **Fixture requerido:** Ejecutar `infra/runbooks/telegram-e2e-cleanup.md` antes de re-ejecutar. Ver GAP-01 en evidencia-resumen.md |
-| TG-P02 | PASSED | produccion | 2026-04-15 | Flujo conversacional completo: +2, 7h sueno, 5 factores, 09:30 med. Bot responde: "Registro completo! Humor: +2 | Sueno: 7h | ... Medicacion: si (09:30)". DB: mood_entry 8bec7f15 canal=telegram, daily_checkin ab280b34 sleep=7. conversation_state=0. Evidencia: F4-03-conversation-log.json, F4-05-db-telegram.txt |
-| TG-SEC | PASSED | produccion | 2026-04-15 | Ningún mensaje bot expone encrypted_payload, patient_id, ni datos clínicos raw |
+| TG-P02 | PASSED-HISTORICAL | produccion | 2026-04-15 | Evidencia historica previa al privacy-fix del 2026-04-20. El flujo conversacional persistio mood_entry y daily_checkin, pero la respuesta del bot de esa fecha no es comportamiento vigente porque exponia valores clinicos en chat. Evidencia reemplazada por qa-dev full smoke 2026-04-20. |
+| TG-SEC | SUPERSEDED | produccion | 2026-04-15 | Verificacion historica insuficiente para el contrato actual. La evidencia vigente es TG-SEC-20260420, que valida respuestas confirmacion-only sin eco de valores clinicos. |
 | TG-N02 | GAP | produccion | 2026-04-15 | Sin perfil QA disponible con bot en dialogs y sin sesión vinculada. **Fixture requerido:** Ejecutar `infra/runbooks/telegram-e2e-cleanup.md` antes de re-ejecutar. Evidencia heredada 2026-04-14 (PASSED) |
+
+### Resultados de ejecucion (E2E 2026-04-20 — qa-dev full smoke post-Zitadel)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| TG-P01b-LINKING | PASSED | produccion | 2026-04-20 | Perfil Telegram `qa-dev` vinculado desde la web con `@mi_bitacora_personal_bot`. La UI `/configuracion/telegram` muestra estado vinculado y bot canonico. Evidencia: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/11-telegram-linked-after-deploy.png`. |
+| TG-P02 | PASSED | produccion | 2026-04-20 | `qa-dev` completa flujo mood + factores; los registros se persisten y aparecen en `/dashboard` bajo sesion Zitadel. Evidencia: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/14-dashboard-after-privacy-smoke.png`. |
+| TG-SEC-20260420 | PASSED | produccion | 2026-04-20 | Respuestas post-fix del bot son confirmacion-only: no repiten score, sueno, factores, medicacion, `chat_id`, `patient_id`, JWT ni payloads clinicos. Reporte: `.docs/raw/reports/2026-04-20-qa-dev-full-smoke.md`. |
+| TG-ZITADEL | PASSED | produccion | 2026-04-20 | Smoke Zitadel-only validado: OIDC discovery/JWKS, readiness, login/logout redirects, backend proxy sin sesion 401, bootstrap sin bearer 401. Comando: `pwsh -File .\infra\smoke\zitadel-cutover-smoke.ps1`. |
 
 ## Cobertura RF
 
@@ -104,7 +114,8 @@ Scenario: Configurar horario sin sesion Telegram activa
 
 ## Cierre del ciclo de pruebas
 
-Ciclo cerrado el 2026-04-14 con ejecucion E2E en produccion usando usuario Telegram real.
+Ciclo inicial cerrado el 2026-04-14 con ejecucion E2E en produccion usando usuario Telegram real.
+Revalidacion vigente post-Zitadel y post-privacy-fix cerrada el 2026-04-20 con perfil Telegram `qa-dev`.
 
 ### Infraestructura de bot adapter
 

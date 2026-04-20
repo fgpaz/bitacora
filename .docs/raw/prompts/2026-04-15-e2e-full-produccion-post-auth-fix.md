@@ -312,7 +312,7 @@ Ejecutar la secuencia completa usando mi-telegram-cli:
 7. `press-button "<msg_id>" "Sí"` → medicación
 8. `send @mi_bitacora_personal_bot "09:30"` → hora medicación
 
-**Criterio PASS:** bot responde con mensaje de confirmación tipo "Check-in actualizado! Humor: +1 | Sueño: 7h | ..."
+**Criterio PASS vigente:** bot responde con confirmación genérica sin repetir valores clínicos en Telegram.
 
 ### F4-4: Invariante de no-fuga
 

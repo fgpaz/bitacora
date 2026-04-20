@@ -75,9 +75,9 @@ Bitacora corre ahora en un proyecto Dokploy dedicado (`bitacora`) separado de `n
 | BITACORA_SUPABASE_JWT_SECRET | `srgGCnJ1...` | Dokploy env + Infisical vault |
 | BITACORA_ENCRYPTION_KEY | `ERJY/JsA...` | Dokploy env + Infisical vault |
 | BITACORA_PSEUDONYM_SALT | `0a6e89ad...` | Dokploy env + Infisical vault |
-| BITACORA_TELEGRAM_BOT_TOKEN | `8609908294:AAE...` | Dokploy env + Infisical vault |
+| BITACORA_TELEGRAM_BOT_TOKEN | `<redacted-telegram-bot-token>...` | Dokploy env + Infisical vault |
 | BITACORA_BASE_URL | `https://api.bitacora.nuestrascuentitas.com` | Dokploy env + Infisical vault |
-| TELEGRAM_BOT_TOKEN | `8609908294:AAE...` | Dokploy env + Infisical vault |
+| TELEGRAM_BOT_TOKEN | `<redacted-telegram-bot-token>...` | Dokploy env + Infisical vault |
 
 ## Telegram — Configuracion
 
@@ -89,7 +89,7 @@ flowchart LR
 ```
 
 - **Bot:** `@mi_bitacora_personal_bot`
-- **Token:** `8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI`
+- **Token:** `<redacted-telegram-bot-token>`
 - **Webhook:** Confirmado activo via `getWebhookInfo`
 - **getUpdates:** No disponible (webhook activo)
 

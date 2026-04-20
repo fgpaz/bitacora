@@ -19,7 +19,7 @@ done_when: "SELECT * FROM daily_checkins ORDER BY created_at DESC LIMIT 1 retorn
 
 ## Reference
 - API: `https://api.bitacora.nuestrascuentitas.com`
-- DB: `postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db`
+- DB: `<redacted-postgres-uri>`
 - Adapter: `https://tg-adapter.bitacora.nuestrascuentitas.com`
 - sshr: `C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1`
 - Bot: @<nombre-del-bot> (verificar con `/getMe`)
@@ -35,33 +35,33 @@ Verificar el estado actual de `telegram_sessions` para el usuario de test:
 ```bash
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c 'SELECT id, patient_id, chat_id, status, linked_at FROM telegram_sessions ORDER BY linked_at DESC;'"
 ```
 
-**Si existe una sesión con `chat_id=99887766` y `status=linked`:**
+**Si existe una sesión con `chat_id=<redacted-simulated-chat-id>` y `status=linked`:**
 Esta fue creada por simulación y debe ser limpiada para que el pairing real funcione (la constraint es `UNIQUE(patient_id)`).
 
 ```bash
 # LIMPIAR LA SESIÓN FALSA (confirmar con el usuario antes de ejecutar)
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
-   -c \"UPDATE telegram_sessions SET status='unlinked' WHERE chat_id='99887766';\""
+   psql '<redacted-postgres-uri>' \
+   -c \"UPDATE telegram_sessions SET status='unlinked' WHERE chat_id='<redacted-simulated-chat-id>';\""
 ```
 
 Verificar también el `ReminderConfig` existente:
 ```bash
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c 'SELECT id, patient_id, enabled, next_fire_at_utc FROM reminder_configs;'"
 ```
 
 ### Paso 1: Obtener el nombre del bot
 
 ```bash
-curl -sS "https://api.telegram.org/bot8609908294:AAEQpubqrpf48pSL6ERAGwxx7lNgj7dUoYI/getMe" | python3 -m json.tool
+curl -sS "https://api.telegram.org/bot<redacted-telegram-bot-token>/getMe" | python3 -m json.tool
 ```
 Anotar el `username` del bot (ej: `@BitacoraBot`).
 
@@ -109,13 +109,13 @@ Response: `{"code": "BIT-XXXXX", "expires_in": 900}`
 ```bash
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c 'SELECT id, patient_id, chat_id, status, linked_at FROM telegram_sessions ORDER BY linked_at DESC LIMIT 3;'"
 ```
 
 Verificar que:
 - Hay una nueva fila con `status='linked'`
-- El `chat_id` es el ID real del usuario (NO `99887766`)
+- El `chat_id` es el ID real del usuario (NO `<redacted-simulated-chat-id>`)
 - `linked_at` es reciente
 
 ### Paso 5: Crear ReminderConfig para el usuario real
@@ -127,7 +127,7 @@ PATIENT_ID=$(sshr exec --host bitacora --cmd "docker exec <container> psql '<con
 # Crear ReminderConfig con next_fire en 2 minutos para testing inmediato
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c \"INSERT INTO reminder_configs (id, patient_id, enabled, next_fire_at_utc, cron_expression, created_at, updated_at) \
         VALUES (gen_random_uuid(), '<PATIENT_ID>', true, NOW() + INTERVAL '2 minutes', '0 20 * * *', NOW(), NOW());\""
 ```
@@ -175,7 +175,7 @@ Si hay más factores en el flujo (físico, social, ansiedad, irritabilidad, medi
 ```bash
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c 'SELECT id, patient_id, mood_score, sleep_hours, checkin_date, created_at FROM daily_checkins ORDER BY created_at DESC LIMIT 3;'"
 ```
 
@@ -207,7 +207,7 @@ Crear `artifacts/e2e/2026-04-14-e2e-telegram/` con:
 
 **Si el bot responde "Código inválido o expirado":**
 - El código BIT-XXXXX dura 15 minutos — regenerar si venció
-- Verificar que la sesión falsa con `chat_id=99887766` fue desvinculada
+- Verificar que la sesión falsa con `chat_id=<redacted-simulated-chat-id>` fue desvinculada
 
 **Si el scheduler no envía el recordatorio:**
 - Verificar que `ReminderConfig.enabled=true` y `next_fire_at_utc <= NOW()`

@@ -20,7 +20,7 @@ done_when: "SELECT * FROM daily_checkins ORDER BY created_at DESC LIMIT 1 retorn
 ## Reference
 - Web app: `https://bitacora.nuestrascuentitas.com`
 - API: `https://api.bitacora.nuestrascuentitas.com`
-- DB connection: `postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db`
+- DB connection: `<redacted-postgres-uri>`
 - sshr: `C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1`
 
 ## Prompt
@@ -30,7 +30,7 @@ done_when: "SELECT * FROM daily_checkins ORDER BY created_at DESC LIMIT 1 retorn
 ```bash
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c 'SELECT id, user_id FROM patients LIMIT 5;'"
 ```
 
@@ -103,7 +103,7 @@ Guardar en `artifacts/e2e/2026-04-14-e2e-web/`:
 ```bash
 & "C:\Users\fgpaz\.agents\skills\ssh-remote\scripts\sshr.ps1" exec --host bitacora --cmd \
   "docker exec \$(docker ps --filter name=app-copy --format '{{.Names}}' | head -1) \
-   psql 'postgresql://bitacora:c3fd62bcf1bd6dba57682a06fbcabf93@postgres-reboot-solid-state-application-l55mww:5432/bitacora_db' \
+   psql '<redacted-postgres-uri>' \
    -c 'SELECT id, patient_id, mood_score, checkin_date, created_at FROM daily_checkins ORDER BY created_at DESC LIMIT 3;'"
 ```
 
