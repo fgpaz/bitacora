@@ -9,7 +9,7 @@
 | Metodos | OIDC Authorization Code + PKCE en frontend; Bearer JWT RS256 en backend |
 | Validacion JWT | Metadata OIDC + JWKS (`ZITADEL_AUTHORITY`, `ZITADEL_AUDIENCE`) |
 | Header | `Authorization: Bearer <access_token>` |
-| Claims minimos | `sub`, `email`, `iat`, `exp`, `iss`, `aud` |
+| Claims minimos | `sub`, `iat`, `exp`, `iss`, `aud`; `email` puede venir en JWT o resolverse via OIDC UserInfo |
 | Claim mapping | `MapInboundClaims=false`; roles desde `urn:zitadel:iam:org:project:roles` a `patient` / `professional` |
 | Resolucion | `JWT.sub -> User.auth_subject -> User.user_id + role`; si no existe, link-on-first-login por `email_hash` |
 

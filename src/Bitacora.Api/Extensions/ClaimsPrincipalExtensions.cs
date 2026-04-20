@@ -17,9 +17,14 @@ public static class ClaimsPrincipalExtensions
 
     public static string GetEmail(this ClaimsPrincipal principal)
     {
-        return principal.FindFirstValue(ClaimTypes.Email)
-            ?? principal.FindFirstValue("email")
+        return principal.GetEmailOrDefault()
             ?? throw new BitacoraException("ONB_001_JWT_INVALID", "El token no contiene el email esperado.", StatusCodes.Status401Unauthorized);
+    }
+
+    public static string? GetEmailOrDefault(this ClaimsPrincipal principal)
+    {
+        return principal.FindFirstValue(ClaimTypes.Email)
+            ?? principal.FindFirstValue("email");
     }
 
     public static IReadOnlySet<string> GetZitadelProjectRoles(this ClaimsPrincipal principal)

@@ -42,7 +42,7 @@ Signing algs: `RS256` (default), `RS384`, `RS512`, `ES256/384/512`, `EdDSA`.
 | aud | projectId del client emisor |
 | iss | `https://id.nuestrascuentitas.com` |
 | exp / iat | timestamps UTC |
-| email / email_verified | identidad |
+| email / email_verified | identidad; si no viene en access token, backend resuelve via `/oidc/v1/userinfo` con el mismo bearer y valida `sub` |
 | preferred_username / name | perfil |
 | urn:zitadel:iam:org:id | orgId del user |
 | urn:zitadel:iam:org:project:roles | `{role: {orgId: orgName}}` |
@@ -117,7 +117,7 @@ Mapeo activo:
 | Zitadel claim | Handling |
 |---------------|----------|
 | sub | `User.auth_subject` |
-| email | `email_hash` para link-on-first-login |
+| email | `email_hash` para link-on-first-login; fuente JWT o UserInfo OIDC validado contra el mismo `sub` |
 | urn:zitadel:iam:org:project:roles | mapping local `patient` / `professional` |
 | aud | audiencia Zitadel = projectId Bitacora (`369306332534145382`) |
 
