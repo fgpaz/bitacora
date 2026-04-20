@@ -50,7 +50,7 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | pending_invites | Vinculos | Temporal/state machine | TTL 7 dias, sin acceso clinico. | Materializada |
 | binding_codes | Vinculos | Temporal | `ttl_preset` por codigo; un activo por profesional a nivel app. | Materializada (Wave 30) |
 | care_links | Vinculos | State machine | `invited → active → revoked_*`; `can_view_data` default false. | Materializada (Wave 30) |
-| telegram_sessions | Telegram | CRUD | `UNIQUE(chat_id)`. | Materializada |
+| telegram_sessions | Telegram | CRUD | `UNIQUE(chat_id) WHERE status='Linked'`. | Materializada |
 | telegram_pairing_codes | Telegram | Temporal | TTL 15 min. | Materializada |
 | reminder_configs | Telegram | CRUD | Horarios por paciente + zona horaria IANA. | Materializada |
 | access_audits | Seguridad | Append-only | `trace_id + pseudonym_id`, sin UPDATE/DELETE. | Materializada |
@@ -72,7 +72,7 @@ Horarios de recordatorio del bot Telegram por paciente. Materializadas en Wave a
 | created_at_utc | TIMESTAMP WITH TZ | NOT NULL | now() | Creacion en UTC |
 | updated_at_utc | TIMESTAMP WITH TZ | NOT NULL | now() | Ultima actualizacion en UTC |
 
-Invariante: El servicio convierte el tiempo local (hour, minute en `reminder_timezone`) a UTC antes de programar el disparo del bot.
+Invariante: la UI paciente muestra hora local Buenos Aires, convierte en el boundary frontend a `hour_utc`/`minute_utc` y conserva `reminder_timezone` para display/scheduler. El backend valida UTC y timezone antes de persistir.
 
 ## Cifrado en reposo
 
@@ -98,7 +98,7 @@ Invariante: El servicio convierte el tiempo local (hour, minute en `reminder_tim
 | care_links | INDEX(professional_id, status) | Dashboard profesional | Materializado (Wave 30) |
 | care_links | INDEX(patient_id, status) | Lista de vinculos del paciente | Materializado (Wave 30) |
 | access_audits | INDEX(patient_id, created_at_utc) | Consulta de auditoria | Materializado |
-| telegram_sessions | UNIQUE(chat_id) | Lookup desde webhook | Materializado |
+| telegram_sessions | UNIQUE(chat_id) WHERE status='Linked' | Lookup desde webhook; permite re-vincular sesiones con soft-delete | Materializado |
 
 ## Invariantes de timezone
 

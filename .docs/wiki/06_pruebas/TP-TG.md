@@ -10,7 +10,7 @@
 - `Completamente ejecutado` — Todos los TCs ejecutados y aprobados en produccion (E2E 2026-04-14, validacion post-auth-fix 2026-04-15, qa-dev full smoke post-Zitadel 2026-04-20).
 - TG-P01/TG-N01: pairing y validacion de codigos — PASSED en produccion.
 - TG-P02/TG-N02: scheduler, recordatorios y flujo conversacional via keyboard inline — PASSED en produccion con usuario Telegram real.
-- Evidencia vigente post-fix: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/` y `.docs/raw/reports/2026-04-20-qa-dev-full-smoke.md`.
+- Evidencia vigente post-fix: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/`, `artifacts/e2e/2026-04-20-bitacora-reminder-ui-qa-dev/` y `.docs/raw/reports/2026-04-20-qa-dev-full-smoke.md`.
 
 ### Resultados de ejecucion (E2E 2026-04-14)
 
@@ -39,7 +39,7 @@
 | TG-P02 | PASSED | produccion | 2026-04-20 | `qa-dev` completa flujo mood + factores; los registros se persisten y aparecen en `/dashboard` bajo sesion Zitadel. Evidencia: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/14-dashboard-after-privacy-smoke.png`. |
 | TG-SEC-20260420 | PASSED | produccion | 2026-04-20 | Respuestas post-fix del bot son confirmacion-only: no repiten score, sueno, factores, medicacion, `chat_id`, `patient_id`, JWT ni payloads clinicos. Reporte: `.docs/raw/reports/2026-04-20-qa-dev-full-smoke.md`. |
 | TG-ZITADEL | PASSED | produccion | 2026-04-20 | Smoke Zitadel-only validado: OIDC discovery/JWKS, readiness, login/logout redirects, backend proxy sin sesion 401, bootstrap sin bearer 401. Comando: `pwsh -File .\infra\smoke\zitadel-cutover-smoke.ps1`. |
-| TG-P06-REG21 | BLOCKED | produccion | 2026-04-20 | Fix `#21` desplegado en API/frontend (`f23af7e`), pero E2E autenticado post-deploy no pudo entrar al producto por falta de credencial QA web reutilizable. Evidencia sanitizada: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-prod-e2e/`. |
+| TG-P06-REG21 | PASSED | produccion | 2026-04-20 | Con fixture QA `qa-dev`, `/configuracion/telegram` guardó 22:00 Buenos Aires sin 500; request `{hourUtc: 1, minuteUtc: 0, timezone: "America/Argentina/Buenos_Aires"}`, feedback visible, Telegram siguió vinculado y logout fail-closed. Evidencia sanitizada: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-qa-dev/`. |
 
 ## Cobertura RF
 
@@ -120,7 +120,7 @@ Scenario: Configurar horario con minuto invalido
 
 | TC ID | Estado | Ambiente | Fecha | Evidencia |
 |-------|--------|----------|-------|-----------|
-| TG-P06-REG21 | CODE-VERIFIED | local | 2026-04-20 | `ReminderScheduleTests`: `22:00` Buenos Aires se cubre via conversion cliente -> `{ hourUtc: 1, minuteUtc: 0 }`; backend valida `hourUtc`, `minuteUtc`, `timezone`, `TelegramSession` linked y mapea `reminder_timezone`. Evidencia pendiente de E2E post-deploy. |
+| TG-P06-REG21 | PASSED | local + produccion | 2026-04-20 | `ReminderScheduleTests` cubre conversión cliente `22:00` Buenos Aires -> `{ hourUtc: 1, minuteUtc: 0 }`; E2E productivo con `qa-dev` confirmó 200, feedback UI, vínculo Telegram intacto, logout fail-closed y sin overflow horizontal en 320/375. Evidencia: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-qa-dev/`. |
 
 ## Criterios de salida
 

@@ -249,7 +249,7 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 
 ## Invariantes de Autorizacion
 
-1. **Owner-only:** un `chat_id` solo puede estar vinculado a un paciente a la vez.
+1. **Owner-only activo:** un `chat_id` solo puede tener una `TelegramSession` con `status='Linked'` a la vez. Las sesiones `Unlinked` se preservan como historial y no bloquean una re-vinculación posterior.
 2. **Un solo codigo activo por paciente:** al generar uno nuevo se invalida el anterior.
 3. **Consentimiento como gate:** toda operacion del webhook requiere consentimiento vigente del paciente.
 4. **Autenticacion por signature:** webhooks validados via Telegram secret token, no via JWT.

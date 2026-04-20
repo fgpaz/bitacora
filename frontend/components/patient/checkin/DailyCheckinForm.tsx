@@ -244,7 +244,7 @@ export function DailyCheckinForm() {
             disabled={!allFilled || phase === 'submitting'}
             aria-busy={phase === 'submitting'}
           >
-            {phase === 'submitting' ? 'Guardando...' : 'Guardar check-in'}
+            {phase === 'submitting' ? 'Guardando…' : 'Guardar check-in'}
           </button>
         </div>
       </form>

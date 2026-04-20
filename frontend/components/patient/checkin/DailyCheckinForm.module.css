@@ -1,5 +1,5 @@
 .form {
-  padding-bottom: calc(var(--space-2xl) + 72px);
+  padding-bottom: var(--space-xl);
 }
 
 .headline {
@@ -115,16 +115,17 @@
 }
 
 .submitBar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: sticky;
+  bottom: var(--space-md);
+  margin-top: var(--space-xl);
   padding: var(--space-md);
   background-color: var(--surface);
-  border-top: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
   display: flex;
   justify-content: center;
-  z-index: 20;
+  z-index: 5;
 }
 
 .submitBtn {
@@ -138,6 +139,7 @@
   padding: var(--space-sm) var(--space-xl);
   cursor: pointer;
   min-width: 200px;
+  width: min(100%, 260px);
   min-height: 44px;
   transition: opacity 0.15s ease;
 }

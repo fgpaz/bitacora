@@ -127,7 +127,7 @@ export function MoodEntryForm() {
             disabled={score === null || phase === 'submitting'}
             aria-busy={phase === 'submitting'}
           >
-            {phase === 'submitting' ? 'Guardando...' : 'Guardar'}
+            {phase === 'submitting' ? 'Guardando…' : 'Guardar'}
           </button>
         </div>
       </form>

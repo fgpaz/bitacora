@@ -202,7 +202,9 @@ public sealed class AppDbContext : DbContext
             entity.Property(x => x.UnlinkedAtUtc).HasColumnName("unlinked_at_utc");
             entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
             entity.Property(x => x.UpdatedAtUtc).HasColumnName("updated_at_utc");
-            entity.HasIndex(x => x.ChatId).IsUnique();
+            entity.HasIndex(x => x.ChatId)
+                .IsUnique()
+                .HasFilter("status = 'Linked'");
             entity.HasIndex(x => new { x.PatientId, x.Status });
         });
 

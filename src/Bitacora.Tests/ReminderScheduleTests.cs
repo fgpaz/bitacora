@@ -139,6 +139,25 @@ public sealed class ReminderScheduleTests
         Assert.Equal("reminder_timezone", property!.GetColumnName(table));
     }
 
+    [Fact]
+    public void AppDbContext_limits_telegram_chat_unique_index_to_linked_sessions()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseNpgsql("Host=localhost;Database=bitacora_test;Username=test")
+            .Options;
+
+        using var dbContext = new AppDbContext(options);
+        var entity = dbContext.Model.FindEntityType(typeof(TelegramSession));
+        Assert.NotNull(entity);
+
+        var index = entity!.GetIndexes().SingleOrDefault(candidate =>
+            candidate.Properties.Any(property => property.Name == nameof(TelegramSession.ChatId)));
+
+        Assert.NotNull(index);
+        Assert.True(index!.IsUnique);
+        Assert.Equal("status = 'Linked'", index.GetFilter());
+    }
+
     private static ConfigureReminderScheduleCommand CreateCommand(
         int hourUtc,
         int minuteUtc,

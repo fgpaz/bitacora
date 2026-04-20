@@ -527,7 +527,8 @@ namespace NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence.Migr
                     b.HasKey("TelegramSessionId");
 
                     b.HasIndex("ChatId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("status = 'Linked'");
 
                     b.HasIndex("PatientId", "Status");
 

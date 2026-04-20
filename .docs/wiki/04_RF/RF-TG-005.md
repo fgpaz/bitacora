@@ -41,7 +41,7 @@
 
 ## Casos especiales y variantes
 - Soft delete: el registro `TelegramSession` NO se elimina fisicamente; se marca con `unlinked_at` y `status=unlinked`.
-- Los recordatorios asociados quedan inactivos al desvincularse la sesion.
+- Los recordatorios asociados no se eliminan. Si quedan activos, `SendReminderCommand` los silencia fail-closed al no encontrar `TelegramSession` linked.
 - Si el mismo `chat_id` re-vincula en el futuro, se crea una nueva sesion.
 
 ## Impacto en modelo de datos

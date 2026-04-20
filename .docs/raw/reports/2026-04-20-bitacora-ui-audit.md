@@ -6,7 +6,7 @@ Método: `frontend-design` + `impeccable-audit` + `impeccable-adapt` + `impeccab
 
 ## Veredicto
 
-Estado post-fix: **AMBER -> GREEN local/code-verified** para las superficies tocadas. La UI deja de depender de clases Tailwind inexistentes en dashboard, usa tokens visuales del canon, mantiene copy sobrio, mejora touch targets y no presenta overflow horizontal en 320, 375, tablet ni desktop.
+Estado post-fix: **AMBER -> GREEN productivo** para las superficies tocadas. La UI deja de depender de clases Tailwind inexistentes en dashboard, usa tokens visuales del canon, mantiene copy sobrio, mejora touch targets y no presenta overflow horizontal en 320, 375, tablet ni desktop.
 
 ## Hallazgos corregidos
 
@@ -20,6 +20,7 @@ Estado post-fix: **AMBER -> GREEN local/code-verified** para las superficies toc
 | Media | Copy visible con tildes faltantes | correcciones en Telegram, mood, check-in y estados |
 | Media | Colores hardcodeados en Telegram | reemplazo por tokens `tokens.css` |
 | Media | Estados empty/error/loading dashboard incompletos | skeletons, empty state, error retry y mensajes sobrios |
+| Media | Submit fijo en mood/check-in podía tapar contenido en mobile | submit bar `sticky` dentro del flujo, sin superposición y con target estable |
 
 ## Adaptación responsive
 
@@ -30,7 +31,7 @@ Estado post-fix: **AMBER -> GREEN local/code-verified** para las superficies toc
 | 768px | PASS sin overflow horizontal |
 | 1440px | PASS sin overflow horizontal |
 
-Evidencia: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-fix/`, incluyendo `dashboard-mobile-320-bars.png` y `dashboard-mobile-375-bars.png`.
+Evidencia: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-qa-dev/`, incluyendo `dashboard-mobile-320.png`, `telegram-mobile-320.png`, `mood-entry-mobile-375.png` y `daily-checkin-mobile-375.png`.
 
 ## Delight contenido
 
@@ -39,5 +40,5 @@ No se agregaron celebraciones, gamificación ni mensajes motivacionales. El “d
 ## Riesgos residuales
 
 - `frontend/components/patient/vinculos/*` conserva colores hardcodeados y queda fuera del alcance tocado en este batch.
-- La evidencia visual es local con mocks sanitizados; falta validación productiva post-deploy.
+- La evidencia visual productiva usa fixture `qa-dev` y está sanitizada; no incluye cookies, tokens, `chat_id` ni payloads clínicos.
 - El warning de consola sobre `eval()` corresponde a Next dev bajo CSP y no afecta build producción.
