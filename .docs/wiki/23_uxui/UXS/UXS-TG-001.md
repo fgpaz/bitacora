@@ -47,7 +47,8 @@ Y prepara directamente:
 - encabezado breve
 - acción para generar código
 - bloque central con código y vencimiento
-- instrucción única hacia el bot
+- instrucción única hacia el bot con el comando exacto `/start BIT-XXXXX`
+- acciones de apoyo para copiar el mensaje completo, abrir Telegram y comprobar el vínculo
 
 ### Acción primaria
 
@@ -55,23 +56,26 @@ Y prepara directamente:
 
 ### Acción secundaria
 
-- `Hacerlo después`
+- `Copiar mensaje`
+- `Abrir Telegram`
+- `Ya envié el mensaje`
 
 ## Modelo de estados
 
 | Estado | Qué ve la persona | Comportamiento esperado |
 | --- | --- | --- |
 | idle | explica el beneficio y muestra la CTA principal | permite iniciar el flujo |
-| code_generated | código visible con vencimiento y siguiente paso | guía hacia Telegram |
+| code_generated | código visible con vencimiento, comando `/start BIT-XXXXX` y siguiente paso | guía hacia Telegram y permite copiar el mensaje completo |
 | expired | estado claro de vencimiento | permite regenerar |
-| linked | confirmación de vínculo exitoso | cierra el flujo |
+| linked | confirmación de vínculo exitoso | cierra el flujo y muestra el paso siguiente hacia recordatorio o prueba del bot |
 | error_retryable | error breve | permite reintentar |
 
 ## Contrato de copy
 
 - titular aprobado: `Vincular Telegram`
-- texto de apoyo aprobado: `Generá un código y envialo al bot para terminar el enlace.`
+- texto de apoyo aprobado: `Generá un código y enviá el mensaje completo al bot para terminar el enlace.`
 - acción primaria aprobada: `Generar código`
+- instrucción aprobada: `Copiá este mensaje y envialo al bot: /start BIT-XXXXX`
 - error recuperable aprobado: `No pudimos generar este código. Probá de nuevo.`
 
 ## Aceptación
@@ -79,6 +83,7 @@ Y prepara directamente:
 1. cada paso dice una sola acción siguiente
 2. el vencimiento del código es visible pero no alarmista
 3. la confirmación final deja claro que el vínculo ya quedó activo
+4. la UI no obliga a inferir que el comando incluye `/start`
 
 ## Defaults transferibles
 

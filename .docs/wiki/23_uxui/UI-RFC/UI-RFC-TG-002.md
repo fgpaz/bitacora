@@ -233,4 +233,4 @@ La implementación cumple este contrato si:
 
 **Estado:** `UI-RFC` activo para `TG-002` bajo gap map `2026-04-10`.
 **Siguiente capa gobernada:** `HANDOFF-SPEC-TG-002.md`, `HANDOFF-ASSETS-TG-002.md`, `HANDOFF-MAPPING-TG-002.md`, `HANDOFF-VISUAL-QA-TG-002.md`.
-**Validación UX:** `UX-VALIDATION-TG-002.md` queda preparada para cerrar con evidencia post-deploy sanitizada del recordatorio 22:00.
+**Validación UX:** `UX-VALIDATION-TG-002.md` cierra la regresion `#21` con evidencia `qa-dev` y seguimiento local sanitizado del recordatorio 22:00.

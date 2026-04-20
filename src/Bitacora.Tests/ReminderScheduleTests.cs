@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging.Abstractions;
 using NuestrasCuentitas.Bitacora.Application.Commands.Telegram;
 using NuestrasCuentitas.Bitacora.Application.Common;
+using NuestrasCuentitas.Bitacora.Application.Queries.Telegram;
 using NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence;
 using NuestrasCuentitas.Bitacora.DataAccess.Interface.Repositories;
 using NuestrasCuentitas.Bitacora.DataAccess.Interface.Transactions;
@@ -119,6 +120,43 @@ public sealed class ReminderScheduleTests
         Assert.Equal(0, config.MinuteUtc);
         Assert.Equal(BuenosAiresTimezone, config.ReminderTimezone);
         Assert.NotNull(config.NextFireAtUtc);
+    }
+
+    [Fact]
+    public async Task GetReminderSchedule_returns_not_configured_when_missing()
+    {
+        var handler = new GetReminderScheduleQueryHandler(new FakeReminderConfigRepository());
+
+        var response = await handler.Handle(
+            new GetReminderScheduleQuery(PatientId, Guid.Parse("22222222-2222-2222-2222-222222222222")),
+            CancellationToken.None);
+
+        Assert.False(response.Configured);
+        Assert.Null(response.ReminderConfigId);
+        Assert.Null(response.HourUtc);
+        Assert.Null(response.MinuteUtc);
+        Assert.Null(response.ReminderTimezone);
+        Assert.Null(response.Enabled);
+        Assert.Null(response.NextFireAtUtc);
+    }
+
+    [Fact]
+    public async Task GetReminderSchedule_returns_existing_config_for_patient()
+    {
+        var config = ReminderConfig.CreateDefault(PatientId, 1, 0, BuenosAiresTimezone);
+        var handler = new GetReminderScheduleQueryHandler(new FakeReminderConfigRepository(config));
+
+        var response = await handler.Handle(
+            new GetReminderScheduleQuery(PatientId, Guid.Parse("22222222-2222-2222-2222-222222222222")),
+            CancellationToken.None);
+
+        Assert.True(response.Configured);
+        Assert.Equal(config.ReminderConfigId, response.ReminderConfigId);
+        Assert.Equal(1, response.HourUtc);
+        Assert.Equal(0, response.MinuteUtc);
+        Assert.Equal(BuenosAiresTimezone, response.ReminderTimezone);
+        Assert.True(response.Enabled);
+        Assert.Equal(config.NextFireAtUtc, response.NextFireAtUtc);
     }
 
     [Fact]

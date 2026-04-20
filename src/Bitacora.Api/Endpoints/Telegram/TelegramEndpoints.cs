@@ -120,6 +120,29 @@ public static class TelegramEndpoints
             .Produces<BitacoraException>(StatusCodes.Status400BadRequest)
             .Produces<BitacoraException>(StatusCodes.Status403Forbidden);
 
+        // GET /api/v1/telegram/reminder-schedule — returns current reminder schedule for the authenticated patient
+        group.MapGet("/reminder-schedule", async Task<IResult>(
+                HttpContext httpContext,
+                [FromServices] CurrentAuthenticatedPatientResolver currentPatientResolver,
+                [FromServices] IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var currentPatient = await currentPatientResolver.ResolveAsync(httpContext, cancellationToken);
+                var result = await mediator.Send(
+                    new GetReminderScheduleQuery(
+                        currentPatient.User.UserId,
+                        httpContext.GetTraceId()),
+                    cancellationToken);
+
+                return Results.Ok(result);
+            })
+            .RequireAuthorization()
+            .WithName("GetTelegramReminderSchedule")
+            .WithTags(Tag)
+            .WithSummary("Consulta el horario de recordatorio Telegram del paciente autenticado")
+            .WithDescription("Returns configured=false when the patient has no reminder schedule. Does not expose Telegram chat_id.")
+            .Produces<GetReminderScheduleResponse>(StatusCodes.Status200OK);
+
         // Webhook endpoint — Telegram sends POST with update payload
         // Rate-limited per IP (webhook policy); secret-token validated before dispatch.
         group.MapPost("/webhook", async Task<IResult>(

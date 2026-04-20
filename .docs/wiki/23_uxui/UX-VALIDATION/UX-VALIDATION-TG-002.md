@@ -2,7 +2,7 @@
 
 ## Estado
 
-`blocked_auth_credentials`
+`validated_with_qa_dev_evidence`
 
 ## Slice
 
@@ -15,14 +15,15 @@
 | --- | --- | --- |
 | E2E productivo histórico 2026-04-20 `qa-dev` | PASS | pairing, registro Telegram y privacidad del bot sin eco de valores clínicos |
 | Regresión `#21` local 2026-04-20 | CODE-VERIFIED | `22:00` Buenos Aires se convierte a `{ hourUtc: 1, minuteUtc: 0 }`; backend valida sesión, hora, minuto y timezone |
+| E2E productivo post-fix RF-TG-006 2026-04-20 `qa-dev` | PASS | `/configuracion/telegram` guardó 22:00 Buenos Aires sin 500; Telegram permaneció vinculado; logout fail-closed. Evidencia: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-qa-dev/` |
 | UI mobile post-hardening | PASS local | screenshots 320/375/tablet/desktop bajo `artifacts/e2e/2026-04-20-bitacora-reminder-ui-fix/` |
-| E2E productivo post-deploy RF-TG-006 | BLOCKED | `artifacts/e2e/2026-04-20-bitacora-reminder-ui-prod-e2e/`; no hay credencial QA web reutilizable para completar login Zitadel |
+| Persistencia de horario al recargar 2026-04-20 | PASS local | Playwright con sesión sintética y API mockeada confirmó `Actual: 22:00, hora de Buenos Aires` sin overflow en 320/375/desktop. Evidencia: `artifacts/e2e/2026-04-20-telegram-guided-setup-persisted-reminder/` |
 
 ## Hallazgos abiertos
 
 | ID | Severidad | Estado | Acción |
 | --- | --- | --- | --- |
-| TG-VAL-003 | High | blocked_auth_credentials | Revalidar en producción guardar recordatorio `22:00` desde `/configuracion/telegram` con credencial QA web dedicada y cuenta Telegram QA serial |
+| TG-VAL-003 | High | resuelto | Validado con evidencia productiva `qa-dev` y seguimiento local sintético para persistencia UI |
 
 ## Criterios de cierre
 
@@ -34,11 +35,11 @@
 
 ## Decisión
 
-No cerrar como `validated` hasta completar el E2E productivo post-deploy de la regresión `#21`.
+Cerrar como `validated_with_qa_dev_evidence` para el alcance `TG-002` y la regresión `#21`.
 
-El intento post-deploy de `2026-04-20` quedó bloqueado antes de entrar al producto: los secretos disponibles permiten operar infraestructura, pero no contienen una credencial QA web reutilizable para el login de paciente en Zitadel. No se hizo cleanup ni escritura directa en base de datos.
+La cuenta Telegram productiva del equipo no se usa para QA. La evidencia vigente usa `qa-dev` para validación productiva y sesiones sintéticas locales solo para layout/persistencia UI. No se hizo cleanup ni escritura directa en base de datos.
 
 ---
 
-**Estado:** bloqueado por credencial QA web.
-**Siguiente paso:** completar fixture QA de autenticación/pairing y reejecutar E2E productivo post-deploy.
+**Estado:** validado con evidencia QA `qa-dev`.
+**Siguiente paso:** repetir el smoke productivo con `qa-dev` si se redeploya el flujo de Telegram o cambia el fixture de autenticación.

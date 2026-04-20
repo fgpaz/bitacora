@@ -19,10 +19,10 @@ tests:
 |-------|-------|
 | ID | RF-TG-006 |
 | Modulo | TG |
-| Endpoint | PUT /api/v1/telegram/reminder-schedule |
+| Endpoint | PUT /api/v1/telegram/reminder-schedule; GET /api/v1/telegram/reminder-schedule |
 | Actor | Paciente (UI web + API) |
 | Prioridad | Usabilidad |
-| Estado | **Implementado backend + frontend** via `ConfigureReminderScheduleCommand` + `TelegramPairingCard.tsx` (Phase 40, 2026-04-16) |
+| Estado | **Implementado backend + frontend** via `ConfigureReminderScheduleCommand`, `GetReminderScheduleQuery` y `TelegramPairingCard.tsx` (Phase 40, actualizado 2026-04-20) |
 
 ## Precondiciones detalladas
 - JWT valido con `User.status=active`.
@@ -52,6 +52,9 @@ tests:
 11. Retornar respuesta con todos los campos del config.
 
 ## Outputs
+
+### PUT /api/v1/telegram/reminder-schedule
+
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
 | ReminderConfigId | uuid | ID del ReminderConfig creado/actualizado |
@@ -60,6 +63,20 @@ tests:
 | ReminderTimezone | string | Timezone resuelto (IANA) |
 | Enabled | bool | Siempre true tras configurar |
 | NextFireAtUtc | timestamp? | Proximo disparo calculado (nullable si no se puede calcular) |
+
+### GET /api/v1/telegram/reminder-schedule
+
+Consulta la configuracion vigente del paciente autenticado para que la UI pueda mostrar el horario local guardado despues de recargar.
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| Configured | bool | `false` si todavia no hay ReminderConfig para el paciente |
+| ReminderConfigId | uuid? | ID del ReminderConfig cuando existe |
+| HourUtc | int? | Hora UTC guardada |
+| MinuteUtc | int? | Minuto UTC guardado |
+| ReminderTimezone | string? | Timezone de referencia guardado |
+| Enabled | bool? | Estado operativo del recordatorio |
+| NextFireAtUtc | timestamp? | Proximo disparo calculado cuando existe |
 
 ## Errores tipados
 | Codigo | HTTP | Trigger | Respuesta |
@@ -90,6 +107,9 @@ Scenario: Paciente configura recordatorio diario a las 22:00 Buenos Aires
   When PUT /api/v1/telegram/reminder-schedule
   Then HTTP 200 con { HourUtc: 1, MinuteUtc: 0, ReminderTimezone: "America/Argentina/Buenos_Aires", Enabled: true }
   And ReminderConfig.enabled = true para ese patient_id
+  When la persona recarga /configuracion/telegram
+  Then GET /api/v1/telegram/reminder-schedule retorna Configured=true
+  And la UI vuelve a mostrar "22:00" en hora local Buenos Aires
 
 Scenario: PUT sin sesion Telegram activa
   Given paciente autenticado sin sesion Telegram vinculada
@@ -115,8 +135,9 @@ Scenario: PUT con minuto invalido
 | Flujo fuente | FL-TG-02 |
 | Test plan | TP-TG (TG-P06, TG-N05, TG-N06) |
 | Comando backend | `ConfigureReminderScheduleCommand` + `ConfigureReminderScheduleCommandHandler` |
-| Endpoint | `TelegramEndpoints.cs` MapPut("/reminder-schedule") |
+| Query backend | `GetReminderScheduleQuery` + `GetReminderScheduleQueryHandler` |
+| Endpoint | `TelegramEndpoints.cs` MapPut("/reminder-schedule") + MapGet("/reminder-schedule") |
 | Componente frontend | `TelegramPairingCard.tsx` (reminderControls section) |
-| API client | `frontend/lib/api/client.ts` → `setReminderSchedule()` |
+| API client | `frontend/lib/api/client.ts` → `setReminderSchedule()`, `getReminderSchedule()` |
 | Contrato tecnico | `09_contratos_tecnicos.md` — PUT /api/v1/telegram/reminder-schedule |
 | Migracion DB | `20260415000001_AddReminderTimezoneColumn` |

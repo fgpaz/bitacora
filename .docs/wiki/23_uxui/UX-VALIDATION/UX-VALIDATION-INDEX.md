@@ -8,7 +8,7 @@ No reemplaza `21_matriz_validacion_ux.md` ni los futuros `UX-VALIDATION-*`. Su f
 
 ## Documentos activos — sesión 2026-04-12
 
-9 slices actualizados a **`Validado (evidencia statica)`** tras Phase 60 T1/T2. 4 slices deferidos (P2).
+9 slices actualizados a **`Validado (evidencia statica)`** tras Phase 60 T1/T2. `TG-002` validado con evidencia `qa-dev` el 2026-04-20. 3 slices quedan diferidos (P2).
 
 | Slice | Estado | Evidencia | Resultado |
 | --- | --- | --- | --- |
@@ -24,7 +24,7 @@ No reemplaza `21_matriz_validacion_ux.md` ni los futuros `UX-VALIDATION-*`. Su f
 | `VIS-002` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
 | `EXP-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
 | `TG-001` | **Validado (evidencia statica)** | tg T2 `2026-04-12` | READY FOR RELEASE |
-| `TG-002` | `blocked_auth_credentials` | `UX-VALIDATION-TG-002.md` | regresión #21 desplegada; E2E post-deploy bloqueado por credencial QA web |
+| `TG-002` | `validated_with_qa_dev_evidence` | `UX-VALIDATION-TG-002.md` | regresión #21 cerrada con evidencia `qa-dev`; persistencia UI validada localmente |
 
 ## Defectos críticos — sesión 2026-04-12
 
@@ -37,13 +37,13 @@ Los defectos críticos `WEB-VAL-001`, `WEB-VAL-002`, `TG-VAL-001`, `TG-VAL-002` 
 | WEB-VAL-003 | Resolved | todas las rutas web | Migrado a `frontend/proxy.ts`; validar con `next build` |
 | TG-VAL-001 | Critical | TG-001, TG-002 | **RESUELTO** (token confirmado + estático Phase 60 T2) |
 | TG-VAL-002 | Critical | TG-001, TG-002 | **RESUELTO** (evidencia estática Phase 60 T2) |
-| TG-VAL-003 | High | TG-002 | blocked_auth_credentials — revalidar `22:00` cuando exista credencial QA web |
+| TG-VAL-003 | High | TG-002 | **RESUELTO** — `22:00` validado con `qa-dev`; persistencia UI validada localmente |
 
 ## Decisión de release
 
-**GO** — 9/13 slices con `Validado (evidencia statica)`. 4 slices deferidos a post-deploy (P2).
+**GO** — 10/13 slices con validación suficiente para release (`9` estáticas + `TG-002` con evidencia QA). 3 slices deferidos a post-deploy (P2).
 
 ---
 
-**Estado:** 9 slices `Validado (evidencia statica)` + `TG-002` bloqueado por credencial QA web.
-**Siguiente:** completar fixture QA de autenticación y ejecutar E2E productivo de RF-TG-006.
+**Estado:** 9 slices `Validado (evidencia statica)` + `TG-002` validado con evidencia QA.
+**Siguiente:** mantener `qa-dev` como fixture serial para nuevos E2E productivos de Telegram.

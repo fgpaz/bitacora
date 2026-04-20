@@ -1,9 +1,9 @@
 .card {
   width: 100%;
-  max-width: 480px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   padding: var(--space-lg);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -12,7 +12,7 @@
 }
 
 .skeleton {
-  min-height: 120px;
+  min-height: 180px;
   border-radius: var(--radius-md);
   background: linear-gradient(
     90deg,
@@ -29,199 +29,278 @@
   100% { background-position: -200% 0; }
 }
 
+.header,
+.flow,
+.section,
+.nextStep,
+.unlinkSection,
+.unlinkConfirmation,
+.expiredBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.header {
+  gap: var(--space-xs);
+}
+
+.eyebrow,
 .title,
-.sectionTitle {
+.sectionTitle,
+.stepTitle,
+.description,
+.hint,
+.stepText,
+.codeLabel,
+.reminderLabel,
+.savedTime,
+.confirmText,
+.expiredText {
   margin: 0;
-  color: var(--foreground);
   font-family: var(--font-body);
+}
+
+.eyebrow {
+  color: var(--brand-primary);
+  font-size: 0.8125rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .title {
-  font-size: 1.125rem;
+  color: var(--foreground);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.sectionTitle,
+.stepTitle {
+  color: var(--foreground);
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .sectionTitle {
   font-size: 1rem;
 }
 
+.stepTitle {
+  font-size: 0.95rem;
+}
+
 .description,
 .hint,
-.instruction,
+.stepText,
 .codeLabel,
-.reminderLabel,
+.savedTime,
 .confirmText,
 .expiredText {
-  margin: 0;
   color: var(--foreground-muted);
-  font-family: var(--font-body);
+  font-size: 0.9375rem;
   line-height: 1.5;
 }
 
-.description,
-.hint,
-.instruction {
-  font-size: 0.9375rem;
-}
-
+.stepText,
 .codeLabel,
-.reminderLabel,
+.savedTime,
 .confirmText,
 .expiredText {
   font-size: 0.875rem;
 }
 
-.linkedBadge {
+.readyBadge,
+.pendingBadge {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
   min-height: 32px;
-  margin: 0;
+  margin-top: var(--space-xs);
   padding: var(--space-xs) var(--space-sm);
-  border: 1px solid var(--brand-primary);
-  border-radius: var(--radius-sm);
-  color: var(--brand-primary);
-  background-color: var(--surface-muted);
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 700;
-}
-
-.botLink {
-  color: var(--brand-primary);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.botLink:focus-visible,
-.generateBtn:focus-visible,
-.copyBtn:focus-visible,
-.saveReminderBtn:focus-visible,
-.unlinkBtn:focus-visible,
-.confirmBtn:focus-visible,
-.cancelBtn:focus-visible,
-.reminderSelect:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.generateBtn,
-.saveReminderBtn,
-.confirmBtn,
-.copyBtn,
-.unlinkBtn,
-.cancelBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  font-size: 0.875rem;
+  font-weight: 800;
 }
 
-.generateBtn,
-.saveReminderBtn {
-  align-self: flex-start;
-  padding: var(--space-sm) var(--space-lg);
+.readyBadge {
   border: 1px solid var(--brand-primary);
-  background-color: var(--brand-primary);
-  color: var(--surface);
+  color: var(--brand-primary);
+  background-color: var(--surface-muted);
 }
 
-.generateBtn:hover:not(:disabled),
-.saveReminderBtn:hover:not(:disabled) {
-  background-color: var(--surface-muted);
+.pendingBadge {
+  border: 1px solid var(--border-subtle);
   color: var(--foreground);
+  background-color: var(--surface-muted);
 }
 
-.generateBtn:disabled,
-.saveReminderBtn:disabled,
-.confirmBtn:disabled,
-.copyBtn:disabled,
-.unlinkBtn:disabled,
-.cancelBtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.codeBlock,
-.expiredBlock,
-.section,
-.unlinkSection,
-.unlinkConfirmation {
-  display: flex;
-  flex-direction: column;
+.step {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
   gap: var(--space-sm);
+  align-items: start;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stepMarker {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--brand-primary);
+  background-color: var(--surface-muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 800;
 }
 
 .section,
+.nextStep,
 .unlinkSection {
   padding-top: var(--space-md);
   border-top: 1px solid var(--border-subtle);
 }
 
-.codeRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-sm);
-  align-items: stretch;
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
-.code {
+.savedTime {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.commandBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-muted);
+}
+
+.commandText {
   display: block;
   min-width: 0;
   padding: var(--space-sm) var(--space-md);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  background-color: var(--surface-muted);
+  background-color: var(--surface);
   color: var(--foreground);
   font-family: var(--font-mono);
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   letter-spacing: 0;
   overflow-wrap: anywhere;
   user-select: all;
 }
 
-.copyBtn,
-.cancelBtn {
+.actionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+  align-items: stretch;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.unlinkBtn,
+.confirmBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 0;
   padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.primaryBtn {
+  align-self: flex-start;
+  border: 1px solid var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: var(--surface);
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.secondaryBtn {
   border: 1px solid var(--border-subtle);
   background-color: transparent;
   color: var(--foreground);
 }
 
-.copyBtn:hover:not(:disabled),
-.cancelBtn:hover:not(:disabled) {
+.secondaryBtn:hover:not(:disabled) {
   border-color: var(--brand-primary);
   background-color: var(--surface-muted);
 }
 
-.expiredText {
-  color: var(--brand-accent);
-  font-weight: 700;
-}
-
-.error,
-.reminderSuccess,
-.unlinkConfirmation {
-  border-radius: var(--radius-sm);
-  padding: var(--space-sm) var(--space-md);
-}
-
-.error {
-  margin: 0;
+.unlinkBtn {
+  align-self: flex-start;
   border: 1px solid var(--brand-accent);
+  background-color: transparent;
+  color: var(--brand-accent);
+}
+
+.unlinkBtn:hover:not(:disabled) {
   background-color: var(--surface-muted);
   color: var(--foreground);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  line-height: 1.4;
+}
+
+.confirmBtn {
+  border: 1px solid var(--brand-accent);
+  background-color: var(--brand-accent);
+  color: var(--surface);
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background-color: var(--surface);
+  color: var(--brand-accent);
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.unlinkBtn:disabled,
+.confirmBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.primaryBtn:focus-visible,
+.secondaryBtn:focus-visible,
+.unlinkBtn:focus-visible,
+.confirmBtn:focus-visible,
+.reminderSelect:focus-visible,
+.botLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.botLink {
+  color: var(--brand-primary);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .reminderControls {
@@ -234,6 +313,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+}
+
+.reminderLabel {
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
 .reminderSelect {
@@ -259,27 +344,39 @@
   cursor: not-allowed;
 }
 
-.reminderSuccess {
+.error,
+.notice,
+.unlinkConfirmation {
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.error,
+.notice {
   margin: 0;
-  border: 1px solid var(--brand-primary);
-  background-color: var(--surface-muted);
   color: var(--foreground);
+  background-color: var(--surface-muted);
   font-family: var(--font-body);
   font-size: 0.875rem;
-  font-weight: 700;
+  line-height: 1.45;
 }
 
-.unlinkBtn {
-  align-self: flex-start;
-  padding: var(--space-sm) var(--space-lg);
+.error {
   border: 1px solid var(--brand-accent);
-  background-color: transparent;
-  color: var(--brand-accent);
 }
 
-.unlinkBtn:hover:not(:disabled) {
-  background-color: var(--surface-muted);
-  color: var(--foreground);
+.notice {
+  border: 1px solid var(--brand-primary);
+}
+
+.expiredBlock {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-md);
+}
+
+.expiredText {
+  color: var(--brand-accent);
+  font-weight: 800;
 }
 
 .unlinkConfirmation {
@@ -287,31 +384,38 @@
   background-color: var(--surface-muted);
 }
 
-.confirmButtons {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-sm);
-}
-
-.confirmBtn {
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--brand-accent);
-  background-color: var(--brand-accent);
-  color: var(--surface);
-}
-
-.confirmBtn:hover:not(:disabled) {
-  background-color: var(--surface);
-  color: var(--brand-accent);
-}
-
-@media (min-width: 420px) {
-  .codeRow {
-    grid-template-columns: minmax(0, 1fr) auto;
+@media (min-width: 480px) {
+  .actionGrid {
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    justify-content: start;
   }
 
-  .confirmButtons {
-    grid-template-columns: auto auto;
-    justify-content: start;
+  .primaryBtn,
+  .secondaryBtn,
+  .confirmBtn {
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 359px) {
+  .card {
+    padding: var(--space-md);
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .step {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .stepMarker {
+    width: 28px;
+    height: 28px;
+  }
+
+  .reminderControls {
+    grid-template-columns: 1fr;
   }
 }

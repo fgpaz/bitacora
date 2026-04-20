@@ -69,6 +69,7 @@
 | Metodo | Ruta | Auth | Descripcion |
 |--------|------|------|-------------|
 | DELETE | /api/v1/telegram/session | Bearer JWT (paciente) | Desvincula (soft delete) la sesion Telegram del paciente autenticado |
+| GET | /api/v1/telegram/reminder-schedule | Bearer JWT (paciente) | Consulta el horario de recordatorio guardado; no expone `chat_id` |
 | PUT | /api/v1/telegram/reminder-schedule | Bearer JWT (paciente) | Configura el horario de recordatorio del bot; recibe hora/minuto UTC convertidos desde la UI local |
 
 **DELETE /api/v1/telegram/session**
@@ -89,6 +90,14 @@
 - **Response 400**: `{ code: "TG_006_INVALID_HOUR" }`, `{ code: "TG_006_INVALID_MINUTE" }`, `{ code: "TG_006_INVALID_TIMEZONE" }`
 - **Response 403**: `{ code: "TG_006_NO_ACTIVE_SESSION" }`
 - **Descripcion**: Configura el horario de recordatorio del bot Telegram. Persiste horario UTC y timezone de contexto local. Devuelve proximo disparo del recordatorio en UTC.
+
+**GET /api/v1/telegram/reminder-schedule**
+
+- **Auth**: Bearer JWT (patient)
+- **Rate limit**: auth/default
+- **Response 200 sin configuracion**: `{ configured: false, reminderConfigId: null, hourUtc: null, minuteUtc: null, reminderTimezone: null, enabled: null, nextFireAtUtc: null }`
+- **Response 200 con configuracion**: `{ configured: true, reminderConfigId: uuid, hourUtc: int, minuteUtc: int, reminderTimezone: string, enabled: bool, nextFireAtUtc: ISO|null }`
+- **Descripcion**: Consulta owner-only del recordatorio guardado para que la UI recargada pueda reconstruir la hora local Buenos Aires. No expone `chat_id`, `patient_id` ni payloads clinicos.
 
 ## Convenciones de contrato
 

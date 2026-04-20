@@ -146,6 +146,49 @@ Configura el horario diario de recordatorio para el paciente autenticado (RF-TG-
 
 ---
 
+### GET /api/v1/telegram/reminder-schedule
+
+Consulta el horario diario de recordatorio guardado para el paciente autenticado (RF-TG-006).
+
+| Campo | Detalle |
+|-------|---------|
+| Autenticacion | JWT Bearer (patient) |
+| Privacidad | No expone `chat_id`, `patient_id` ni payloads clinicos |
+| Contrato horario | Response UTC + timezone; la UI reconstruye hora local Buenos Aires |
+| Estado | **Implementado** |
+
+**Response 200 (sin configuracion):**
+
+```json
+{
+  "configured": false,
+  "reminderConfigId": null,
+  "hourUtc": null,
+  "minuteUtc": null,
+  "reminderTimezone": null,
+  "enabled": null,
+  "nextFireAtUtc": null
+}
+```
+
+**Response 200 (configurado):**
+
+```json
+{
+  "configured": true,
+  "reminderConfigId": "uuid",
+  "hourUtc": 1,
+  "minuteUtc": 0,
+  "reminderTimezone": "America/Argentina/Buenos_Aires",
+  "enabled": true,
+  "nextFireAtUtc": "2026-04-21T01:00:00Z"
+}
+```
+
+**Nota:** el ejemplo corresponde a `22:00` en hora local Buenos Aires. El frontend usa este endpoint al cargar `/configuracion/telegram` para mostrar el horario persistido despues de una recarga.
+
+---
+
 ### POST /api/v1/telegram/webhook
 
 Procesa updates entrantes del bot Telegram (comandos `/start CODE`, inline keyboard mood values, mensajes de texto).

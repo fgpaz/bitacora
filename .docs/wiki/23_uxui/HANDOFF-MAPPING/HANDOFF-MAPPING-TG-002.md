@@ -107,4 +107,4 @@ Los paths de primera pasada fueron reemplazados por el runtime materializado lis
 
 **Estado:** mapping listo para `backend/telegram/`.
 **Siguiente artefacto:** `HANDOFF-VISUAL-QA-TG-002.md`.
-**Runtime Telegram:** implementado; pendiente solo E2E post-deploy de la regresion RF-TG-006.
+**Runtime Telegram:** implementado; regresion RF-TG-006 validada con evidencia `qa-dev` y seguimiento local de persistencia UI el 2026-04-20.

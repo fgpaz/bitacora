@@ -79,9 +79,9 @@ export function MoodEntryForm() {
           <p className={styles.consentText}>
             Tu sesión caducó. Ingresá de nuevo.
           </p>
-          <Link href="/ingresar" className={styles.consentLink}>
+          <a href="/ingresar" className={styles.consentLink}>
             Ingresar
-          </Link>
+          </a>
         </div>
       </PatientPageShell>
     );

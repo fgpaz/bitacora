@@ -120,7 +120,7 @@ export function DailyCheckinForm() {
       <PatientPageShell>
         <div className={styles.redirectState}>
           <p className={styles.redirectText}>Tu sesión caducó. Ingresá de nuevo.</p>
-          <Link href="/ingresar" className={styles.redirectLink}>Ingresar</Link>
+          <a href="/ingresar" className={styles.redirectLink}>Ingresar</a>
         </div>
       </PatientPageShell>
     );

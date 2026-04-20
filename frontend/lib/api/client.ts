@@ -267,21 +267,26 @@ export async function unlinkTelegram(): Promise<{ unlinked: boolean; unlinked_at
 }
 
 export interface ReminderScheduleResponse {
-  hour: number;
-  minute: number;
-  timezone: string;
-  next_fire_at_utc: string;
+  configured: boolean;
+  hour: number | null;
+  minute: number | null;
+  timezone: string | null;
+  enabled: boolean | null;
+  next_fire_at_utc: string | null;
 }
 
 interface RawReminderScheduleResponse {
+  configured?: boolean;
+  reminderConfigId?: string | null;
   hour?: number;
   hourUtc?: number;
   minute?: number;
   minuteUtc?: number;
+  enabled?: boolean | null;
   timezone?: string;
   reminderTimezone?: string;
-  next_fire_at_utc?: string;
-  nextFireAtUtc?: string;
+  next_fire_at_utc?: string | null;
+  nextFireAtUtc?: string | null;
 }
 
 interface TimeZoneDateParts {
@@ -369,6 +374,68 @@ export function toUtcReminderSchedule(
   };
 }
 
+export function fromUtcReminderSchedule(
+  hourUtc: number,
+  minuteUtc: number,
+  timezone = DEFAULT_REMINDER_TIMEZONE,
+  referenceDate = new Date()
+): { hour: number; minute: number } {
+  validateReminderTime(hourUtc, minuteUtc);
+
+  const utcDate = new Date(Date.UTC(
+    referenceDate.getUTCFullYear(),
+    referenceDate.getUTCMonth(),
+    referenceDate.getUTCDate(),
+    hourUtc,
+    minuteUtc
+  ));
+  const localParts = getTimeZoneDateParts(utcDate, timezone);
+
+  return {
+    hour: localParts.hour,
+    minute: localParts.minute,
+  };
+}
+
+function normalizeReminderSchedule(
+  raw: RawReminderScheduleResponse,
+  fallbackLocalTime?: { hour: number; minute: number; timezone: string }
+): ReminderScheduleResponse {
+  const configured = raw.configured ?? (raw.hourUtc !== undefined || raw.hour !== undefined);
+  const timezone = raw.timezone ?? raw.reminderTimezone ?? fallbackLocalTime?.timezone ?? DEFAULT_REMINDER_TIMEZONE;
+  const nextFireAtUtc = raw.next_fire_at_utc ?? raw.nextFireAtUtc ?? null;
+  const hourUtc = raw.hourUtc ?? raw.hour;
+  const minuteUtc = raw.minuteUtc ?? raw.minute;
+
+  if (!configured || hourUtc === undefined || minuteUtc === undefined) {
+    return {
+      configured: false,
+      hour: null,
+      minute: null,
+      timezone: null,
+      enabled: raw.enabled ?? null,
+      next_fire_at_utc: nextFireAtUtc,
+    };
+  }
+
+  const localTime = fallbackLocalTime
+    ?? fromUtcReminderSchedule(
+      hourUtc,
+      minuteUtc,
+      timezone,
+      nextFireAtUtc ? new Date(nextFireAtUtc) : new Date()
+    );
+
+  return {
+    configured: true,
+    hour: localTime.hour,
+    minute: localTime.minute,
+    timezone,
+    enabled: raw.enabled ?? true,
+    next_fire_at_utc: nextFireAtUtc,
+  };
+}
+
 export async function setReminderSchedule(
   hour: number,
   minute: number,
@@ -381,12 +448,12 @@ export async function setReminderSchedule(
     body: JSON.stringify({ hourUtc, minuteUtc, timezone }),
   });
 
-  return {
-    hour,
-    minute,
-    timezone: raw.timezone ?? raw.reminderTimezone ?? timezone,
-    next_fire_at_utc: raw.next_fire_at_utc ?? raw.nextFireAtUtc ?? '',
-  };
+  return normalizeReminderSchedule(raw, { hour, minute, timezone });
+}
+
+export async function getReminderSchedule(): Promise<ReminderScheduleResponse> {
+  const raw = await bitacoraFetch<RawReminderScheduleResponse>('/telegram/reminder-schedule');
+  return normalizeReminderSchedule(raw);
 }
 
 /* ─── Patient Dashboard ──────────────────────────────────────────────────────── */

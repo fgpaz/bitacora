@@ -110,7 +110,7 @@ export function OnboardingEntryHero({
 
       <footer className={styles.footer}>
         <p className={styles.footerText}>¿Ya tienes cuenta?</p>
-        <Link href="/ingresar" className={styles.footerLink}>Ingresar</Link>
+        <a href="/ingresar" className={styles.footerLink}>Ingresar</a>
       </footer>
     </div>
   );

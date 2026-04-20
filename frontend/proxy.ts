@@ -58,6 +58,11 @@ function redirectToRoot(request: NextRequest): NextResponse {
 }
 
 function withSecurityHeaders(response: NextResponse): NextResponse {
+  const scriptSrc =
+    process.env.NODE_ENV === 'production'
+      ? "script-src 'self' 'unsafe-inline'"
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -66,7 +71,7 @@ function withSecurityHeaders(response: NextResponse): NextResponse {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      scriptSrc,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self'",
       "img-src 'self' data: https://*",

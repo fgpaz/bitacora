@@ -72,7 +72,7 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | T3-TG-01 | Telegram API client retry con exponential backoff: 1s, 2s, 4s antes de fallar. |
 | T3-TG-02 | SendReminderCommand y HandleWebhookUpdateCommand invocan SaveChangesAsync para persistir AccessAudit antes de retornar. |
 | T3-TG-03 | `DELETE /api/v1/telegram/session` requiere auth valido + rate-limit `"write"` (5 req/IP/min). Marca la TelegramSession activa como `Unlinked` para el usuario. |
-| T3-TG-04 | `PUT /api/v1/telegram/reminder-schedule` requiere auth valido + rate-limit `"write"` + `TelegramSession` linked. La UI convierte hora local Buenos Aires a UTC; backend valida `hourUtc`, `minuteUtc` y `timezone`, y persiste `reminder_timezone` (default: `America/Argentina/Buenos_Aires`). |
+| T3-TG-04 | `PUT /api/v1/telegram/reminder-schedule` requiere auth valido + rate-limit `"write"` + `TelegramSession` linked. `GET /api/v1/telegram/reminder-schedule` devuelve la configuracion owner-only o `configured=false` sin exponer `chat_id`. La UI convierte hora local Buenos Aires a UTC al guardar y reconstruye hora local al cargar; backend valida `hourUtc`, `minuteUtc` y `timezone`, y persiste `reminder_timezone` (default: `America/Argentina/Buenos_Aires`). |
 
 ## Runtime hardening (Phase 40 y posteriores)
 
@@ -83,7 +83,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 | T3-TG-01 | Telegram API retry con exponential backoff: 1s, 2s, 4s antes de fallar. Implementado en `SendReminderCommand.cs`. |
 | T3-TG-02 | `SendReminderCommand` y `HandleWebhookUpdateCommand` invocan `SaveChangesAsync` para persistir `AccessAudit` antes de retornar. |
 | T3-TG-03 | `DELETE /api/v1/telegram/session` requiere auth valido + rate-limit `"write"` (5 req/IP/min). Marca la TelegramSession activa como `Unlinked`; el índice parcial `UNIQUE(chat_id) WHERE status='Linked'` permite re-vinculación posterior sin DELETE físico. Implementado en Phase 40. |
-| T3-TG-04 | `PUT /api/v1/telegram/reminder-schedule` requiere auth valido + rate-limit `"write"` + `TelegramSession` linked. La UI convierte hora local Buenos Aires a UTC; backend valida hora/minuto/timezone con errores tipados y persiste `reminder_timezone` en `reminder_configs` (default: `America/Argentina/Buenos_Aires`). Regresion #21 cubierta localmente y por E2E productivo `qa-dev` el 2026-04-20. |
+| T3-TG-04 | `PUT /api/v1/telegram/reminder-schedule` requiere auth valido + rate-limit `"write"` + `TelegramSession` linked. `GET /api/v1/telegram/reminder-schedule` requiere auth valido y permite que la UI recargada muestre el horario guardado. La UI convierte hora local Buenos Aires a UTC; backend valida hora/minuto/timezone con errores tipados y persiste `reminder_timezone` en `reminder_configs` (default: `America/Argentina/Buenos_Aires`). Regresion #21 cubierta localmente y por E2E productivo `qa-dev` el 2026-04-20. |
 | T3-11b | `ConsentRequiredMiddleware` usa deny-list explícita para rutas no clinicas: `/api/v1/auth`, `/api/v1/consent`, `/api/v1/telegram`, `/api/v1/export` se excluyen; cualquier otra ruta POST bajo `/api/v1/` se trata como clinica hasta que se acredite lo contrario. |
 | T3-SEC-10 | `ExportEndpoints` — `/constraints` autoriza profesional antes de verificar `CareLink`. `ProfessionalDataAccessAuthorizer` fail-closed: 403 si no tiene vinculo activo. |
 | T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After: 60` (segundos fijo). |

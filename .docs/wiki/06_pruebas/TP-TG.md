@@ -51,6 +51,7 @@
 | TG-N02 | RF-TG-010, RF-TG-011, RF-TG-012 | Negativo | Skip si consentimiento revocado, session unlinked o falta token del bot |
 | TG-P05 | RF-TG-005 | Positivo | Desvincular Telegram desde UI web (/configuracion/telegram) |
 | TG-P06 | RF-TG-006 | Positivo | Configurar horario de recordatorio via PUT /reminder-schedule |
+| TG-P06b | RF-TG-006 | Positivo | Recargar /configuracion/telegram consulta GET /reminder-schedule y muestra el horario local guardado |
 | TG-N04 | RF-TG-005 | Negativo | DELETE /api/v1/telegram/session sin sesion activa retorna 404 |
 | TG-N05 | RF-TG-006 | Negativo | PUT /api/v1/reminder-schedule sin sesion Telegram activa retorna 403 |
 | TG-N06 | RF-TG-006 | Negativo | PUT /api/v1/telegram/reminder-schedule rechaza hora, minuto o timezone invalidos con 400 tipado |
@@ -97,6 +98,20 @@ Scenario: Configurar horario de recordatorio
   And reminder_configs se actualiza en BD con nueva hora UTC
   And scheduler enviara recordatorios a la nueva hora
 
+Scenario: Consultar horario guardado de recordatorio
+  Given paciente autenticado con sesion Telegram vinculada
+  And existe ReminderConfig guardado para 22:00 Buenos Aires
+  When recarga /configuracion/telegram
+  Then GET /api/v1/telegram/reminder-schedule retorna 200 con configured=true
+  And la UI muestra "22:00" como horario actual de Buenos Aires
+
+Scenario: Consultar horario sin configuracion previa
+  Given paciente autenticado con sesion Telegram vinculada
+  And no existe ReminderConfig para el paciente
+  When GET /api/v1/telegram/reminder-schedule
+  Then retorna 200 con configured=false
+  And no expone chat_id, patient_id ni payloads clinicos
+
 Scenario: Desvincular sin sesion Telegram activa
   Given paciente autenticado SIN sesion Telegram vinculada
   When intenta DELETE /api/v1/telegram/session
@@ -121,6 +136,7 @@ Scenario: Configurar horario con minuto invalido
 | TC ID | Estado | Ambiente | Fecha | Evidencia |
 |-------|--------|----------|-------|-----------|
 | TG-P06-REG21 | PASSED | local + produccion | 2026-04-20 | `ReminderScheduleTests` cubre conversión cliente `22:00` Buenos Aires -> `{ hourUtc: 1, minuteUtc: 0 }`; E2E productivo con `qa-dev` confirmó 200, feedback UI, vínculo Telegram intacto, logout fail-closed y sin overflow horizontal en 320/375. Evidencia: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-qa-dev/`. |
+| TG-P06b-PERSIST | CODE-VERIFIED | local | 2026-04-20 | `ReminderScheduleTests` cubre GET configurado y GET sin configuracion; el cliente web normaliza UTC -> hora local Buenos Aires para mostrar el horario persistido al recargar. |
 
 ## Criterios de salida
 

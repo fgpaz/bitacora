@@ -57,9 +57,19 @@ No declara `UX-VALIDATION`, no reemplaza `UXS-TG-001` ni autoriza implementació
 La interacción debe sentirse como un puente corto y guiado que:
 
 1. entrega un código con instrucción única;
-2. valida y confirma sin fricción ni jerga;
-3. deja claro el siguiente paso;
-4. no confunde vinculación con registro.
+2. muestra el comando exacto `/start <codigo>` y permite copiar el mensaje completo;
+3. valida y confirma sin fricción ni jerga;
+4. deja claro el siguiente paso;
+5. no confunde vinculación con registro.
+
+### Puente web obligatorio
+
+La pantalla web de vinculación debe:
+
+- mostrar el comando completo `/start BIT-XXXXX`, no solo el código;
+- ofrecer `Copiar mensaje`, `Abrir Telegram` y `Ya envié el mensaje`;
+- comprobar la sesión con polling breve y una acción manual;
+- cuando el vínculo queda activo, mostrar el siguiente paso hacia recordatorio o prueba del bot.
 
 ## Trigger
 
