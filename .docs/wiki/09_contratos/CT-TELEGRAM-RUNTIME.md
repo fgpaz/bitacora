@@ -207,7 +207,7 @@ Background service que procesa `ReminderConfig` con `next_fire_at_utc <= now` ca
 3. **Consentimiento como gate:** toda operacion del webhook requiere consentimiento vigente del paciente.
 4. **Autenticacion por signature:** webhooks validados via Telegram secret token, no via JWT.
 5. **Fail-closed sobre chat_id ausente o sesion no encontrada:** retorna 200 sin mensaje al bot (silencioso).
-6. **chat_id nunca expuesto via API REST paciente:** `GET /telegram/session` retorna `chat_id: null`.
+6. **chat_id nunca expuesto via API REST paciente:** `GET /telegram/session` retorna `chatId: null`.
 
 ---
 
