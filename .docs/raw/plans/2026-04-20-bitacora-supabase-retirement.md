@@ -46,3 +46,10 @@ graph TD
 - `artifacts/e2e/2026-04-20-zitadel-only-retirement/README.md`
 - #17 final comment with commit, migration, deploy, smoke and E2E evidence
 - Epic #15 status update
+
+## Execution Status (2026-04-20)
+
+- T0-T4: completed. Production DB schema has `users.auth_subject`; active API/frontend Dokploy env/build args have zero Supabase/GoTrue keys.
+- T5: completed. Authenticated browser E2E through Zitadel OIDC + PKCE reached `/dashboard`, kept `bitacora_session`, returned `200` for bootstrap and consent, and logout cleared the session.
+- T6: completed for runtime. Legacy Dokploy GoTrue app `bitacora-auth` is stopped/idle. PostgreSQL was preserved because it is the Bitacora clinical DB, not a disposable Supabase-only resource.
+- T7-T8: completed. `mi-lsp` governance is valid/in sync, auth runtime/docs evidence was reviewed across `03/07/08/09`, active runtime checks show Zitadel-only, and the remaining Supabase/GoTrue references are historical test evidence, retirement migrations, or rollback notes.
