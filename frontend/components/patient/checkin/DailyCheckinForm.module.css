@@ -115,8 +115,7 @@
 }
 
 .submitBar {
-  position: sticky;
-  bottom: var(--space-md);
+  position: static;
   margin-top: var(--space-xl);
   padding: var(--space-md);
   background-color: var(--surface);
@@ -125,7 +124,6 @@
   box-shadow: var(--shadow-soft);
   display: flex;
   justify-content: center;
-  z-index: 5;
 }
 
 .submitBtn {

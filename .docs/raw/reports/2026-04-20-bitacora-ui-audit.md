@@ -20,7 +20,7 @@ Estado post-fix: **AMBER -> GREEN productivo** para las superficies tocadas. La 
 | Media | Copy visible con tildes faltantes | correcciones en Telegram, mood, check-in y estados |
 | Media | Colores hardcodeados en Telegram | reemplazo por tokens `tokens.css` |
 | Media | Estados empty/error/loading dashboard incompletos | skeletons, empty state, error retry y mensajes sobrios |
-| Media | Submit fijo en mood/check-in podía tapar contenido en mobile | submit bar `sticky` dentro del flujo, sin superposición y con target estable |
+| Media | Submit fijo en mood/check-in podía tapar contenido en mobile | submit bar dentro del flujo, sin superposición y con target estable |
 
 ## Adaptación responsive
 
