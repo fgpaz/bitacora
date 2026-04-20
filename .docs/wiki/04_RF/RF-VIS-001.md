@@ -8,7 +8,7 @@
 - Estado: **Implementado** — endpoint combinado que retorna mood entries y daily checkins en una sola estructura `days`.
 
 ## Precondiciones detalladas
-- JWT valido con supabase_user_id resolvible a User.status=active
+- JWT valido con auth_subject resolvible a User.status=active
 - User tiene ConsentGrant.status=granted
 - Global Query Filter activo: todas las queries filtran por patient_id del contexto
 

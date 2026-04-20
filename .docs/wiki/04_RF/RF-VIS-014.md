@@ -15,7 +15,7 @@
 ## Inputs
 | Campo | Origen | Descripcion |
 |-------|--------|-------------|
-| actor_id | JWT | professional supabase_user_id |
+| actor_id | JWT | professional auth_subject |
 | patient_ids | Query result | Lista de pacientes expuestos en este request |
 | trace_id | HTTP Header X-Trace-Id | Correlacion del request |
 | action_type | Constante por endpoint | Ej: PROFESSIONAL_DASHBOARD_LIST |

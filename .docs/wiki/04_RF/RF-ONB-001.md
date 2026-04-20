@@ -1,4 +1,4 @@
-# RF-ONB-001: Crear User desde JWT de Supabase (bootstrap)
+# RF-ONB-001: Crear User desde JWT de Zitadel (bootstrap)
 
 ## Execution Sheet
 | Campo | Valor |
@@ -10,7 +10,7 @@
 | Prioridad | Security |
 
 ## Precondiciones detalladas
-- JWT emitido por Supabase, firmado y no expirado.
+- JWT emitido por Zitadel, validado por JWKS RS256 y no expirado.
 - El JWT contiene `sub` y `email` si el proveedor lo provee.
 - Si el `User` ya existe en DB local, no debe duplicarse.
 - El email se cifra antes de persistirse y registra `key_version`.
@@ -22,12 +22,12 @@
 | invite_token | string | Query string / contexto de onboarding (opcional) | Token opaco, si se provee |
 
 ## Proceso (Happy Path)
-1. Validar y decodificar el JWT de Supabase.
-2. Extraer `supabase_user_id` y `email`.
-3. Verificar si ya existe `User WHERE supabase_user_id=@sub`.
+1. Validar y decodificar el JWT de Zitadel.
+2. Extraer `auth_subject` desde `sub` y `email`.
+3. Verificar si ya existe `User WHERE auth_subject=@sub`.
 4. Si no existe:
    a. Cifrar email con la clave de aplicacion vigente.
-   b. INSERT `User(supabase_user_id, role='patient', status='registered', encrypted_email, email_hash, key_version)`.
+   b. INSERT `User(auth_subject, role='patient', status='registered', encrypted_email, email_hash, key_version)`.
 5. Si `invite_token` esta presente, resolver si existe `PendingInvite` vigente compatible con el email del usuario.
 6. Retornar el contexto de bootstrap con `needs_consent=true` y `resume_pending_invite=true/false`.
 
@@ -53,7 +53,7 @@
 ## Impacto en modelo de datos
 | Entidad | Operacion | Campos afectados |
 |---------|-----------|-----------------|
-| User | INSERT (condicional) | supabase_user_id, role, status, encrypted_email, email_hash, key_version |
+| User | INSERT (condicional) | auth_subject, role, status, encrypted_email, email_hash, key_version |
 | PendingInvite | SELECT (condicional) | invite_token, invitee_email_hash, status, expires_at |
 
 ## Criterios de aceptacion (Gherkin)

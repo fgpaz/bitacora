@@ -13,7 +13,7 @@
 - `PendingInvite` reanudable detectable via `resumePendingInvite: true` en respuesta bootstrap.
 - Transicion a `active` con el primer `MoodEntry` sigue diferida al modulo de vinculos.
 - `ConsentGatePanel` renderiza el flujo de consentimiento con version vigente y manejo de conflictos.
-- T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/auth/bootstrap` contra el runtime real mediante `infra/smoke/backend-smoke.ps1`.
+- El smoke vigente usa `infra/smoke/zitadel-cutover-smoke.ps1` y E2E browser con sesion real de Zitadel.
 
 ## Cobertura RF
 
@@ -30,7 +30,7 @@
 
 ```gherkin
 Scenario: Bootstrap de usuario nuevo con invitacion pendiente
-  Given JWT valido de Supabase con sub no existente
+  Given JWT valido de Zitadel con sub no existente
   And existe PendingInvite vigente para el email del JWT
   When POST /api/v1/auth/bootstrap
   Then se crea User local con status="registered"
@@ -76,9 +76,9 @@ Scenario: Primer MoodEntry activa definitivamente al usuario
 
 | TC ID | Estado | Ambiente | Fecha | Evidencia |
 |-------|--------|----------|-------|-----------|
-| ONB-P01 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | Login POST /token: HTTP 200, access_token presente, sub=988da74d. Evidencia: artifacts/e2e/2026-04-15-e2e-full/F1-01-gotrue-login.json |
-| ONB-P02 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | Bootstrap: userId=1e9df465, status=registered, needsConsent=true. Evidencia: F1-02-bootstrap.json |
-| ONB-DB | PASSED | produccion | 2026-04-15 | DB verification: users.status=Registered, supabase_user_id=sub del JWT. Evidencia: F1-03-db-user.txt |
+| ONB-P01 | HISTORICAL PASSED | produccion (GoTrue legacy) | 2026-04-15 | Evidencia previa al cutover Zitadel: artifacts/e2e/2026-04-15-e2e-full/F1-01-gotrue-login.json |
+| ONB-P02 | HISTORICAL PASSED | produccion (GoTrue legacy) | 2026-04-15 | Bootstrap legacy validado antes de Wave B. Evidencia: F1-02-bootstrap.json |
+| ONB-DB | HISTORICAL PASSED | produccion | 2026-04-15 | DB verification legacy previa a auth_subject. Evidencia: F1-03-db-user.txt |
 | ONB-N01 | PASSED | produccion | 2026-04-15 | JWT fake retorna 401 UNAUTHORIZED. Evidencia: F7 SEC-JWT |
 
 ## Criterios de salida

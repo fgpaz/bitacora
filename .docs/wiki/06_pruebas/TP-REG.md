@@ -14,7 +14,7 @@
 - `PatientPageShell` usado como shell unico para todas las pantallas paciente.
 - `InlineFeedback` usado para errores con `trace_id` visible.
 - RF-REG-010..015 siguen como plan de prueba canonico para la futura capa Telegram.
-- T01 agrega un smoke backend minimo que ejecuta `POST /api/v1/mood-entries` y `POST /api/v1/daily-checkins` sobre la superficie real.
+- El smoke vigente debe ejecutarse con sesion real de Zitadel; no se aceptan JWT HS256 forjados post-cutover.
 
 ### Resultados de ejecucion (E2E 2026-04-14)
 
@@ -23,17 +23,17 @@
 | REG-P01 | PASSED | produccion (API-level) | 2026-04-14 | MoodEntry `97ac6459` creado, score=2, channel=api, DB confirmado |
 | REG-P03 | PASSED | produccion (API-level) | 2026-04-14 | DailyCheckin `a3d87c3a` creado, sleep=7, physical=true, medication=true, DB confirmado |
 
-**Metodo:** JWT HS256 forjado con `SUPABASE_JWT_SECRET` de supabase-prod para usuario smoke-test `88888888-8888-8888-8888-888888888888` (status=Active, consent activo). Evidencia completa en `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`.
+**Metodo historico:** JWT HS256 forjado en la era Supabase. Esta evidencia queda como antecedente pre-Zitadel y no es criterio de aceptacion post-cutover. Evidencia completa en `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`.
 
-**GAP RESUELTO (2026-04-15):** Instancia GoTrue dedicada `auth.bitacora.nuestrascuentitas.com` desplegada y VERIFICADA FUNCIONANDO. Frontend reconstruido con nueva URL. Backend actualizado con nuevo JWT secret. Flujo browser real completado y validado. Ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
+**GAP LEGACY (2026-04-15):** Instancia GoTrue dedicada validada antes de Wave B. Supabase/GoTrue fue reemplazado por Zitadel en Wave B y no debe usarse para nuevas validaciones. Ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md`.
 
-### E2E 2026-04-15 (JWT real GoTrue)
+### E2E 2026-04-15 (GoTrue legacy, previo a Zitadel)
 
 | TC ID | Estado | Ambiente | Fecha | Evidencia |
 |-------|--------|----------|-------|-----------|
-| REG-P01 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | POST /mood-entries score=1: HTTP 201, moodEntryId=477cb6e4, channel=api. DB: encrypted_payload=t, safe_projection.mood_score=1. Evidencia: F3-01-mood-entry.json, F3-05-db-reg.txt |
+| REG-P01 | HISTORICAL PASSED | produccion (GoTrue legacy) | 2026-04-15 | POST /mood-entries score=1: HTTP 201, channel=api. Evidencia: F3-01-mood-entry.json, F3-05-db-reg.txt |
 | REG-P01b (idempotencia) | PASSED | produccion | 2026-04-15 | Repetición mismo score: HTTP 200, isDuplicate=true, mismo moodEntryId=477cb6e4 |
-| REG-P03 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | POST /daily-checkins sleepHours=7 medicationTaken=true: HTTP 201, dailyCheckinId=b453c2d7. DB: encrypted_payload=t, medication_time NOT en safe_projection (correcto per RF-REG-023). Evidencia: F3-03-daily-checkin.json, F3-05-db-reg.txt |
+| REG-P03 | HISTORICAL PASSED | produccion (GoTrue legacy) | 2026-04-15 | POST /daily-checkins sleepHours=7 medicationTaken=true: HTTP 201. Evidencia: F3-03-daily-checkin.json, F3-05-db-reg.txt |
 | REG-N01 | PASSED | produccion | 2026-04-15 | POST /mood-entries score=99: HTTP 422, INVALID_SCORE |
 | REG-P02 (Telegram conversacional) | PASSED | produccion | 2026-04-15 | Flujo completo via @tedi_responde: +2, 7h, 5 factores, med 09:30. Evidencia: F4-03-conversation-log.json |
 

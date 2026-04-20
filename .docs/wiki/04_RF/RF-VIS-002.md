@@ -8,7 +8,7 @@
 - Estado: **Diferido — endpoint dedicado no implementado.** Los datos de daily checkin se incluyen en `GET /api/v1/visualizacion/timeline` (RF-VIS-001).
 
 ## Precondiciones detalladas
-- JWT valido con supabase_user_id resolvible a User.status=active
+- JWT valido con auth_subject resolvible a User.status=active
 - User tiene ConsentGrant.status=granted
 - Global Query Filter activo: todas las queries filtran por patient_id del contexto
 - Solo existe un DailyCheckin por paciente por dia

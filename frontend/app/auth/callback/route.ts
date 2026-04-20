@@ -17,6 +17,7 @@ export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const config = getAuthRuntimeConfig(origin);
+  const publicOrigin = resolvePublicOrigin(config.redirectUri, origin);
   const code = request.nextUrl.searchParams.get('code');
   const state = request.nextUrl.searchParams.get('state');
   const cookieStore = await cookies();
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
   const expectedNonce = cookieStore.get(OIDC_NONCE_COOKIE)?.value;
 
   if (!code || !state || !expectedState || state !== expectedState || !verifier || !expectedNonce) {
-    return failedRedirect(origin);
+    return failedRedirect(publicOrigin);
   }
 
   try {
@@ -43,21 +44,29 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenResponse.ok) {
-      return failedRedirect(origin);
+      return failedRedirect(publicOrigin);
     }
 
     const tokenSet = await tokenResponse.json() as { access_token?: string; id_token?: string };
     if (!tokenSet.access_token) {
-      return failedRedirect(origin);
+      return failedRedirect(publicOrigin);
     }
 
     const session = createSessionFromAccessToken(tokenSet.access_token, config, tokenSet.id_token, expectedNonce);
-    const response = NextResponse.redirect(new URL('/onboarding', origin));
+    const response = NextResponse.redirect(new URL('/onboarding', publicOrigin));
     clearAuthCookies(response);
     setSessionCookie(response, session);
     return response;
   } catch {
-    return failedRedirect(origin);
+    return failedRedirect(publicOrigin);
+  }
+}
+
+function resolvePublicOrigin(redirectUri: string, fallbackOrigin: string): string {
+  try {
+    return new URL(redirectUri).origin;
+  } catch {
+    return fallbackOrigin;
   }
 }
 

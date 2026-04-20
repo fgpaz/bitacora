@@ -3,7 +3,7 @@
 ## Estado ejecutable actual
 
 - Runtime actual: backend con superficies de Vinculos, Visualizacion, Export y Telegram implementadas en Phase 31+.
-- Gate ejecutable minimo de T01: `infra/smoke/backend-smoke.ps1`.
+- Gate ejecutable vigente: `infra/smoke/zitadel-cutover-smoke.ps1` + E2E browser con sesion real de Zitadel.
 - Rate limiting activo: politica `auth` (10 req/IP/min) + fail-closed 429.
 - Cobertura ejecutable hoy (smoke gate):
   - `RF-ONB-001` baseline (`POST /api/v1/auth/bootstrap`)
@@ -19,7 +19,7 @@
   - `RF-REG-020..025` — REG-P03 PASSED: `POST /api/v1/daily-checkins`, DailyCheckin `a3d87c3a` en DB, sleep=7, medication=true
   - `RF-TG-010..012` — TG-P02 PASSED produccion, TG-N02 PASSED CODE-VERIFIED + guardas en produccion
   - Evidencia: `artifacts/e2e/2026-04-14-e2e-agresivo/evidencia-resumen.md`
-- Cobertura E2E produccion ejecutada (2026-04-15 con JWT real GoTrue):
+- Cobertura E2E produccion historica ejecutada (2026-04-15 con GoTrue legacy, previa a Zitadel):
   - `RF-REG-001..005` — REG-P01 PASSED: `POST /api/v1/mood-entries` score=1, MoodEntry `477cb6e4` en DB, canal=api, cifrado OK
   - `RF-REG-001` — REG-P01b PASSED (idempotencia): repeticion mismo score retorna HTTP 200, isDuplicate=true
   - `RF-REG-020..025` — REG-P03 PASSED: `POST /api/v1/daily-checkins`, DailyCheckin `b453c2d7` en DB, sleep=7, medication=true, safe_projection OK
@@ -34,7 +34,7 @@
   - `RF-CON-011..013` (cascadas de revocacion)
   - `RF-VIN-010..023` (profesional + alertas)
   - `RF-SEC-*`
-- **GAP critico (2026-04-14) RESUELTO (2026-04-15):** Auth misconfiguration en produccion bloqueaba flujo web real. Instancia GoTrue dedicada desplegada y validada. Flujo browser real completado y verificado funcionando. (ver `.docs/raw/investigacion/2026-04-14-auth-misconfiguration.md` y `CT-AUTH.md`)
+- **GAP legacy (2026-04-14) RESUELTO (2026-04-15):** Auth misconfiguration GoTrue fue resuelto antes de Wave B. Desde Wave B, el runtime canonico es Zitadel y la evidencia de cierre debe apuntar a `CT-AUTH-ZITADEL.md`.
 - `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
 - Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
 
@@ -152,7 +152,7 @@ Estos gates no corresponden a un modulo RF unico pero son ejecutados en el smoke
 | GATE-SMOKE-004 | `POST /api/v1/consent` | 201 o 409 | otro status |
 | GATE-SMOKE-005 | `POST /api/v1/mood-entries` con consent | 200 o 201 | no 2xx |
 | GATE-SMOKE-006 | `POST /api/v1/daily-checkins` con consent | 200 o 201 | no 2xx |
-| GATE-FAIL-001 | `GET /health/ready` sin SUPABASE_JWT_SECRET | 503 o throw en startup | startup ok |
+| GATE-FAIL-001 | `GET /health/ready` sin metadata/JWKS de Zitadel alcanzable | 503 o throw en startup | startup ok |
 | GATE-FAIL-002 | `GET /health/ready` sin BITACORA_ENCRYPTION_KEY valida | 503 | 200 |
 | GATE-FAIL-003 | `GET /health/ready` sin BITACORA_PSEUDONYM_SALT | 500 o throw | 200 |
 | GATE-SMOKE-007 | `GET /api/v1/vinculos` con JWT valido | 200 | no 2xx |

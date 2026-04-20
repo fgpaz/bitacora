@@ -7,17 +7,17 @@
 - Prioridad PDP: Correctness > Usability
 
 ## Precondiciones detalladas
-- `supabase_user_id` extraido del JWT es el identificador canonico
+- `auth_subject` extraido del claim `sub` de Zitadel es el identificador canonico
 - La deteccion determina el flujo subsiguiente del onboarding
 - Los estados posibles de User son: registered, consent_granted, active
 
 ## Inputs
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
-| supabase_user_id | string | Extraido del JWT (campo sub) |
+| auth_subject | string | Extraido del JWT (claim `sub`) |
 
 ## Proceso (Happy Path)
-1. Query: `SELECT user_id, status FROM users WHERE supabase_user_id = @sub LIMIT 1`
+1. Query: `SELECT user_id, status FROM users WHERE auth_subject = @sub LIMIT 1`
 2. Si no existe fila: usuario nuevo → retornar `{ is_new: true }`
 3. Si existe y `status = active`: usuario activo → retornar `{ is_new: false, status: "active", user_id }`
 4. Si existe y `status = consent_granted`: consent dado pero no activo → retornar `{ is_new: false, status: "consent_granted", needs_first_entry: true }`
@@ -45,7 +45,7 @@
 
 ## Casos especiales y variantes
 - Estado `registered` sin ConsentGrant asociado: normal, el grant se crea en paso posterior
-- Multiple rows para mismo supabase_user_id: no deberia ocurrir (UNIQUE constraint); si ocurre, loguear y retornar la mas reciente
+- Multiple rows para mismo auth_subject: no deberia ocurrir (UNIQUE constraint); si ocurre, loguear y retornar la mas reciente
 
 ## Impacto en modelo de datos
 - Solo lectura sobre `users`
@@ -53,7 +53,7 @@
 ## Criterios de aceptacion (Gherkin)
 ```gherkin
 Scenario: Usuario nuevo detectado correctamente
-  Given supabase_user_id no existe en DB
+  Given auth_subject no existe en DB
   When se ejecuta la deteccion
   Then retorna is_new=true
 
@@ -76,7 +76,7 @@ Scenario: Usuario con status=registered sin consent
 ## Trazabilidad de tests
 - UT: ONB002_NewUser_IsNewTrue
 - UT: ONB002_AllStatuses_MappedCorrectly
-- IT: ONB002_UniqueConstraint_OnSupabaseUserId
+- IT: ONB002_UniqueConstraint_OnAuthSubject
 
 ## Sin ambiguedades pendientes
 - Los 4 casos de deteccion son exhaustivos; no existen otros estados validos de User

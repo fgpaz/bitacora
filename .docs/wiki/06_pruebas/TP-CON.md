@@ -9,7 +9,7 @@
 
 - `Wave 1` implementa y deja listos para prueba efectiva: RF-CON-001, RF-CON-002, RF-CON-003 y RF-CON-010 baseline.
 - RF-CON-011, RF-CON-012 y RF-CON-013 siguen planificados, pero dependen de `CareLink` y cache profesional, todavia no materializados en runtime.
-- T01 agrega un smoke backend minimo que ejecuta lectura, otorgamiento y gate negativo de consentimiento mediante `infra/smoke/backend-smoke.ps1`.
+- El smoke vigente ejecuta lectura, otorgamiento y gate negativo de consentimiento mediante sesion real de Zitadel.
 
 ## Cobertura RF
 
@@ -65,7 +65,7 @@ Scenario: Fallo del cascade revierte toda la revocacion
 
 | TC ID | Estado | Ambiente | Fecha | Evidencia |
 |-------|--------|----------|-------|-----------|
-| CON-P01 | PASSED | produccion (JWT real GoTrue) | 2026-04-15 | GET /consent/current: HTTP 200, version=2026-04-09.v1, patientStatus=none. Evidencia: F2-01-consent-current.json |
+| CON-P01 | HISTORICAL PASSED | produccion (GoTrue legacy) | 2026-04-15 | GET /consent/current: HTTP 200, version=2026-04-09.v1, patientStatus=none. Evidencia: F2-01-consent-current.json |
 | CON-P02 | PASSED | produccion | 2026-04-15 | POST /consent: HTTP 201, consentGrantId=32ba81be, status=consent_granted. DB verificado: consent_grants.status=Granted. Evidencia: F2-02-consent-grant.json, F2-04-db-consent.txt |
 | CON-N01 | PASSED | produccion | 2026-04-15 | POST /mood-entries sin consent: HTTP 403, code=CONSENT_REQUIRED. Gate verificado antes de otorgar consent. Evidencia: F2-3 |
 

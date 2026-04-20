@@ -14,7 +14,7 @@
 ## Inputs
 | Campo | Tipo | Descripcion |
 |-------|------|-------------|
-| actor_id | string | supabase_user_id del profesional |
+| actor_id | string | auth_subject del profesional |
 | env_salt | string | Salt del entorno (secreto, no en codigo) |
 
 ## Proceso (Happy Path)

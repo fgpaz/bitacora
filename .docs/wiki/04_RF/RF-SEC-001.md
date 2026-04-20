@@ -15,7 +15,7 @@
 ## Inputs
 | Campo | Origen | Descripcion |
 |-------|--------|-------------|
-| actor_id | JWT claims | supabase_user_id del profesional |
+| actor_id | JWT claims | auth_subject del profesional |
 | patient_id | Route/Query param | ID del paciente accedido |
 | trace_id | Header X-Trace-Id | Correlacion del request |
 | action_type | Atributo del endpoint | Constante definida por decorator/attribute |
