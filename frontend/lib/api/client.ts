@@ -84,6 +84,7 @@ export async function bitacoraFetch<T>(
   const url = `${API_PROXY_BASE}${path}`;
   const res = await fetch(url, {
     ...init,
+    credentials: init.credentials ?? 'same-origin',
     headers: {
       'Content-Type': 'application/json',
       ...(init.headers ?? {}),
