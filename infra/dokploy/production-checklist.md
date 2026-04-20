@@ -36,7 +36,7 @@ This checklist covers the current production surface after Wave B Zitadel cutove
 - `ZITADEL_AUTHORITY=https://id.nuestrascuentitas.com`.
 - `ZITADEL_AUDIENCE=369306332534145382`.
 - `ZITADEL_WEB_CLIENT_ID=369306336963330406`.
-- `SUPABASE_JWT_SECRET` may remain only as rollback secret; it is not an active readiness dependency.
+- Supabase/GoTrue secrets must be absent from the active API and frontend runtime.
 - `BITACORA_ENCRYPTION_KEY` resolves to 32 bytes.
 - `BITACORA_PSEUDONYM_SALT` is set.
 - Production migrations ran explicitly.
@@ -46,7 +46,7 @@ This checklist covers the current production surface after Wave B Zitadel cutove
 ## Smoke gate
 
 - `pwsh -File .\infra\smoke\zitadel-cutover-smoke.ps1` exits `0`.
-- Backend readiness body includes `zitadel_metadata` and does not include `supabase_jwt_secret`.
+- Backend readiness body includes `zitadel_metadata`.
 - `/ingresar` redirects to Zitadel authorize with PKCE markers.
 - `/api/auth/session` returns a null public session without leaking tokens.
 - Protected API/proxy endpoints return `401` without a session.

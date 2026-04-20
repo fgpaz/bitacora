@@ -6,7 +6,6 @@ public sealed class User
 {
     public Guid UserId { get; private set; }
     public string AuthSubject { get; private set; } = string.Empty;
-    public string? LegacyAuthSubject { get; private set; }
     public byte[] EncryptedEmail { get; private set; } = [];
     public string EmailHash { get; private set; } = string.Empty;
     public int KeyVersion { get; private set; }
@@ -106,7 +105,6 @@ public sealed class User
             return;
         }
 
-        LegacyAuthSubject ??= AuthSubject;
         AuthSubject = normalized;
     }
 }

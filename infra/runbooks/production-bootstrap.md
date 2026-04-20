@@ -9,7 +9,7 @@ This runbook bootstraps the historical T01 backend production surface. For the c
 - backend smoke gate (historical T01)
 
 This runbook is the closed backend baseline reused by `wave-prod`.
-After T04 hardening, the legacy Supabase smoke gate (`infra/smoke/backend-smoke.ps1`) covered these additional surfaces:
+After T04 hardening, the legacy HS256 smoke gate was retired. Authenticated surface validation must use a real Zitadel session and must not forge JWTs.
 - Vinculos (patient + professional): `GET/PATCH vinculos`, `POST vinculos/accept`, `DELETE vinculos/{id}`
 - Visualizacion (patient + professional): `timeline`, `summary`, `alerts`
 - Export: `patient-summary` (JSON + CSV)

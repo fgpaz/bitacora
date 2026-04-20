@@ -28,7 +28,7 @@ Record the timestamp and keep it with the release evidence.
 2. Restore the most recent verified backup or snapshot.
 3. Re-run explicit migrations only if the restored snapshot predates the intended schema.
 4. Verify `GET /health/ready`.
-5. Re-run `infra/smoke/zitadel-cutover-smoke.ps1` before reopening traffic. Use `infra/smoke/backend-smoke.ps1` only for a deliberate rollback to the legacy Supabase build.
+5. Re-run `infra/smoke/zitadel-cutover-smoke.ps1` before reopening traffic. Rollback uses the last verified DB/app backup and the previous Git commit, not Supabase Auth.
 
 ## Blocking conditions
 

@@ -53,7 +53,7 @@
    - `ZITADEL_CLIENT_BITACORA_WEB_ID=369306336963330406`
    - `BITACORA_ENCRYPTION_KEY`
    - `BITACORA_PSEUDONYM_SALT`
-   - `SUPABASE_JWT_SECRET` only during the rollback window; the active runtime does not read it
+   - no Supabase/GoTrue secrets are required by the active runtime
    - optional telemetry vars
 
 8. Create the public domain:

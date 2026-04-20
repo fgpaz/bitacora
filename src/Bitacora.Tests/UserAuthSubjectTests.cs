@@ -5,10 +5,10 @@ namespace NuestrasCuentitas.Bitacora.Tests;
 public sealed class UserAuthSubjectTests
 {
     [Fact]
-    public void LinkAuthSubject_preserves_previous_subject_for_rollback()
+    public void LinkAuthSubject_replaces_subject_after_zitadel_link()
     {
         var user = User.CreatePatient(
-            "supabase-subject",
+            "initial-subject",
             [1, 2, 3],
             "email-hash",
             1,
@@ -17,7 +17,6 @@ public sealed class UserAuthSubjectTests
         user.LinkAuthSubject("zitadel-subject");
 
         Assert.Equal("zitadel-subject", user.AuthSubject);
-        Assert.Equal("supabase-subject", user.LegacyAuthSubject);
     }
 
     [Fact]
@@ -33,6 +32,5 @@ public sealed class UserAuthSubjectTests
         user.LinkAuthSubject("zitadel-subject");
 
         Assert.Equal("zitadel-subject", user.AuthSubject);
-        Assert.Null(user.LegacyAuthSubject);
     }
 }

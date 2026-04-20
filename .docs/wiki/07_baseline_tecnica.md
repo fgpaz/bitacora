@@ -18,7 +18,7 @@
 ## Estado actual de implementacion
 
 - `Wave 1` tiene runtime backend completo con superficies de Vinculos, Visualizacion, Export y Telegram. Estas superficies estan materializadas y operativas.
-- `Wave B Zitadel` quedo deployada en produccion el 2026-04-19: frontend OIDC Authorization Code + PKCE, backend JWT Bearer RS256 via JWKS, y link-on-first-login por `email_hash`. Supabase Auth queda retenido solo como rollback temporal.
+- `Wave B Zitadel` quedo deployada en produccion el 2026-04-19: frontend OIDC Authorization Code + PKCE, backend JWT Bearer RS256 via JWKS, y link-on-first-login por `email_hash`.
 - Alcance materializado hoy: `Auth`, `Consent`, `Registro`, `Vinculos`, `Visualizacion`, `Export`, `Telegram` y `Seguridad`.
 - `frontend/` implementado y deployado en `bitacora.nuestrascuentitas.com` (Phase 40 EJECUTADA 2026-04-15). Incluye dashboard paciente, vinculos, logout, Telegram wizard completo, health check y error boundaries.
 - Telegram webhook y scheduler estan implementados en el backend; el bot de Telegram opera como consumidor externo.
@@ -27,7 +27,7 @@
   - runbooks de bootstrap, migraciones, secretos, humo y backup
   - especificacion Dokploy para `bitacora-api` y `bitacora-db`
 - T04 extiende el smoke gate y los runbooks para cubrir las nuevas superficies:
-  - `infra/smoke/backend-smoke.ps1` cubre vinculos, visualizacion, export y telegram (GATE-SMOKE-007..015) para el runtime Supabase legacy; post-cutover Zitadel se usa `infra/smoke/zitadel-cutover-smoke.ps1` como smoke no interactivo.
+  - `infra/smoke/zitadel-cutover-smoke.ps1` cubre la salud productiva y el inicio OIDC como smoke no interactivo.
   - `infra/runbooks/production-bootstrap.md` referencia el scope completo de superficies
   - gates `GATE-SMOKE-007..015` documentan la cobertura operacional
 - ReminderWorker (IHostedService) registrado en Program.cs — scheduler de recordatorios activo en background
@@ -89,7 +89,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 | T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After: 60` (segundos fijo). |
 | T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
 | T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
-| T3-SEC-11 | Frontend `middleware.ts` valida `bitacora_session`, limpia cookies legacy `sb-*` durante redirects y enforce rol `professional` para rutas profesionales. |
+| T3-SEC-11 | Frontend `middleware.ts` valida `bitacora_session` y enforce rol `professional` para rutas profesionales. |
 
 ---
 
@@ -112,7 +112,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 |-----------|-----------|-----------|
 | Backend | .NET 10 (Bitacora.Api) | Runnable local hoy; target prod-first en Dokploy sobre `turismo` |
 | Base de datos | PostgreSQL (`bitacora_db` dedicada) | Local/dev y target Dokploy dedicado en el mismo VPS |
-| Auth | Zitadel self-hosted v4.9.0 | `id.nuestrascuentitas.com` (IdP compartido Teslita). Supabase Auth queda como rollback temporal, no como runtime primario. |
+| Auth | Zitadel self-hosted v4.9.0 | `id.nuestrascuentitas.com` (IdP compartido Teslita). |
 | Reverse proxy | Traefik (via Dokploy) | Target de produccion |
 | Dominio API | `api.bitacora.nuestrascuentitas.com` | Target backend-only de T01 |
 | Dominio web | `bitacora.nuestrascuentitas.com` | Frontend Next.js 16 deployado en produccion (Phase 40 EJECUTADA 2026-04-15). Ruta raiz operativa. |
@@ -140,7 +140,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 | Pseudonimizacion | `pseudonym_id` en logs operacionales; `actor_id` solo en `AccessAudit` |
 | Liveness | `GET /health` |
 | Readiness | `GET /health/ready` valida connection string, autoridad/audiencia/metadata Zitadel, clave de cifrado, salt y conectividad PostgreSQL |
-| Smoke operativo | `infra/smoke/zitadel-cutover-smoke.ps1` cubre la salud productiva y el inicio OIDC; `infra/smoke/backend-smoke.ps1` queda legacy hasta reescribirlo para tokens OIDC reales |
+| Smoke operativo | `infra/smoke/zitadel-cutover-smoke.ps1` cubre la salud productiva y el inicio OIDC; E2E autenticado usa sesión Zitadel real |
 | trace_id propagation | Requerido en todo request/response; se inyecta en logs y AccessAudit |
 | Datos de salud | Prohibido en logs, trazas y telemetry: `encrypted_payload`, `safe_projection` con datos clinicos, identificadores directos del paciente. Solo `pseudonym_id` y `trace_id`. |
 

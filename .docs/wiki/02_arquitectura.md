@@ -69,7 +69,7 @@ graph TB
 |------|-----------|---------------|
 | Backend | .NET 10, monolito modular | Template fullskeleton, subagente ps-dotnet10. Un solo proceso para MVP. |
 | Frontend | Next.js 16 (React 19) | Patron del ecosistema (multi-tedi, gastos). SSR para SEO minimo. |
-| Auth | Zitadel OIDC + JWT RS256 | IdP compartido en `id.nuestrascuentitas.com`. Frontend usa Authorization Code + PKCE; backend valida Bearer JWT contra JWKS. Supabase Auth queda solo como rollback temporal post-cutover Wave B. |
+| Auth | Zitadel OIDC + JWT RS256 | IdP compartido en `id.nuestrascuentitas.com`. Frontend usa Authorization Code + PKCE; backend valida Bearer JWT contra JWKS. |
 | Base de datos | PostgreSQL (dedicada) | DB `bitacora_db` aislada en mismo server. Credenciales propias, backup independiente. |
 | ORM | EF Core 10 | Global Query Filters para aislamiento de datos por paciente. Migraciones automaticas. |
 | Bot | Telegram.Bot (.NET) | Webhook en prod (Traefik HTTPS), long-polling en dev. |

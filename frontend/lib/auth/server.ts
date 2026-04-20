@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import type { NextResponse } from 'next/server';
 import {
-  LEGACY_SUPABASE_COOKIES,
   OIDC_NONCE_COOKIE,
   OIDC_STATE_COOKIE,
   OIDC_VERIFIER_COOKIE,
@@ -90,9 +89,6 @@ export function clearAuthCookies(response: NextResponse): void {
   response.cookies.delete(OIDC_STATE_COOKIE);
   response.cookies.delete(OIDC_VERIFIER_COOKIE);
   response.cookies.delete(OIDC_NONCE_COOKIE);
-  for (const cookie of LEGACY_SUPABASE_COOKIES) {
-    response.cookies.delete(cookie);
-  }
 }
 
 export async function readServerSession(): Promise<BitacoraSession | null> {

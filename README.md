@@ -4,7 +4,7 @@ Mood tracker clinico para pacientes de psicologia/psiquiatria. Permite registrar
 
 **Slug:** bitacora.nuestrascuentitas.com
 **Stack:** .NET 10 + Next.js 16 + Telegram Bot + PostgreSQL
-**Auth:** Supabase Auth (compartido con multi-tedi)
+**Auth:** Zitadel OIDC + PKCE (`id.nuestrascuentitas.com`)
 **Deploy:** Dokploy VPS
 
 ## Canales

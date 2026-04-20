@@ -13,7 +13,7 @@
 | Claim mapping | `MapInboundClaims=false`; roles desde `urn:zitadel:iam:org:project:roles` a `patient` / `professional` |
 | Resolucion | `JWT.sub -> User.auth_subject -> User.user_id + role`; si no existe, link-on-first-login por `email_hash` |
 
-> Detalle activo: `09_contratos/CT-AUTH-ZITADEL.md`. `09_contratos/CT-AUTH.md` queda como contrato legacy Supabase para rollback temporal.
+> Detalle activo: `09_contratos/CT-AUTH-ZITADEL.md`.
 
 ## API Surface
 
@@ -175,8 +175,7 @@ Todas las respuestas de error siguen este envelope:
 
 | Doc | Tema | Estado |
 |-----|------|--------|
-| `09_contratos/CT-AUTH-ZITADEL.md` | Flujo activo Zitadel OIDC PKCE, JWT RS256/JWKS, roles, rollback y migracion desde Supabase | Activo |
-| `09_contratos/CT-AUTH.md` | Flujo Supabase Auth previo, conservado para rollback temporal post-cutover Wave B | Legacy rollback |
+| `09_contratos/CT-AUTH-ZITADEL.md` | Flujo activo Zitadel OIDC PKCE, JWT RS256/JWKS, roles y cutover aceptado | Activo |
 | `09_contratos/CT-AUDIT.md` | Audit log, pseudonimizacion, trace_id, fail-closed | Activo |
 | `09_contratos/CT-ERRORS.md` | Catalogo de errores tipados con sections activas (VIN, VIS, EXP, TG) | Activo |
 | `09_contratos/CT-VINCULOS.md` | Contrato de vinculos paciente y profesional, binding codes, estado production | Activo |

@@ -35,7 +35,6 @@ Use the shared `mi-key-cli` setup from `C:\repos\mios\multi-tedi` to source:
 - `DOKPLOY_ENVIRONMENT_ID`
 - `DOKPLOY_GITHUB_PROVIDER_ID`
 - Zitadel runtime config for Bitacora
-- rollback auth secrets only while the Wave B rollback window remains open
 
 Then copy only the required values into the local untracked `infra/.env`.
 
@@ -54,8 +53,6 @@ Every production deployment must have these variables set via Dokploy:
 | `BITACORA_PSEUDONYM_SALT` | Non-empty string | Any operation needing pseudonym throws 500 |
 | `ConnectionStrings__BitacoraDb` | Valid PostgreSQL connection string | `/health/ready` returns 503 if unreachable |
 | `DataAccess:ApplyMigrationsOnStartup` | `false` in production | Migrations run via `infra/runbooks/manual-migrations.md` only |
-
-`SUPABASE_JWT_SECRET` may remain in Dokploy only for rollback to pre-cutover builds. It is not an active readiness dependency after Wave B.
 
 See `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` for the complete fail-closed gate catalog.
 
@@ -81,7 +78,7 @@ Consulte `07_tech/TECH-ROLLOUT-Y-OPERABILIDAD.md` para el catalogo completo de g
 - [ ] `bitacora-db` deployado y reachable
 - [ ] Migraciones aplicadas via `infra/runbooks/manual-migrations.md`
 - [ ] `GET /health/ready` retorna 200
-- [ ] `infra/smoke/zitadel-cutover-smoke.ps1` pasa el smoke productivo post-cutover (exit 0)
+- [ ] `infra/smoke/zitadel-cutover-smoke.ps1` pasa el smoke productivo Zitadel-only (exit 0)
 
 ### Phase 31 — Telegram webhook + recordatorios
 

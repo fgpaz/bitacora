@@ -33,5 +33,4 @@ Validated facts:
 - `ZITADEL_WEB_CLIENT_ID`
 - `ZITADEL_WEB_REDIRECT_URI`
 - `ZITADEL_WEB_POST_LOGOUT_REDIRECT_URI`
-- `SUPABASE_JWT_SECRET` only during rollback window
 - Bitacora-specific encryption key, pseudonym salt, and DB password

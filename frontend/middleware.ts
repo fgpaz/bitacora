@@ -7,7 +7,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { LEGACY_SUPABASE_COOKIES, SESSION_COOKIE, type BitacoraRole } from './lib/auth/constants';
+import { SESSION_COOKIE, type BitacoraRole } from './lib/auth/constants';
 
 interface MiddlewareSession {
   role: BitacoraRole;
@@ -54,9 +54,6 @@ function isExpired(expiresAt: number): boolean {
 function redirectToRoot(request: NextRequest): NextResponse {
   const response = NextResponse.redirect(new URL('/', request.url));
   response.cookies.delete(SESSION_COOKIE);
-  for (const cookie of LEGACY_SUPABASE_COOKIES) {
-    response.cookies.delete(cookie);
-  }
   return response;
 }
 

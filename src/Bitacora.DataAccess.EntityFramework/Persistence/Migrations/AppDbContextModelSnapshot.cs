@@ -560,11 +560,6 @@ namespace NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence.Migr
                         .HasColumnType("integer")
                         .HasColumnName("key_version");
 
-                    b.Property<string>("LegacyAuthSubject")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("legacy_auth_subject");
-
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -585,7 +580,7 @@ namespace NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence.Migr
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
-                        .HasColumnName("supabase_user_id");
+                        .HasColumnName("auth_subject");
 
                     b.HasKey("UserId");
 
@@ -593,9 +588,7 @@ namespace NuestrasCuentitas.Bitacora.DataAccess.EntityFramework.Persistence.Migr
 
                     b.HasIndex("AuthSubject")
                         .IsUnique()
-                        .HasDatabaseName("IX_users_supabase_user_id");
-
-                    b.HasIndex("LegacyAuthSubject");
+                        .HasDatabaseName("IX_users_auth_subject");
 
                     b.ToTable("users", (string)null);
                 });

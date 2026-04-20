@@ -28,7 +28,7 @@ dotnet run --project Bitacora.Api
 - `BITACORA_PSEUDONYM_SALT` o `Pseudonymization:Salt` para seudonimizacion.
 - `Consent:*` vive en `appsettings*.json` y versiona el consentimiento activo.
 
-El proyecto incluye placeholders de desarrollo en `Bitacora.Api/appsettings*.json` y un ejemplo de variables en `Bitacora.Api/.env.example`. `SUPABASE_JWT_SECRET` queda solo para rollback de builds anteriores al cutover Zitadel.
+El proyecto incluye placeholders de desarrollo en `Bitacora.Api/appsettings*.json` y un ejemplo de variables en `Bitacora.Api/.env.example`. La autenticación activa es Zitadel-only.
 
 ## Runtime Local
 ```powershell

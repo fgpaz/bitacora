@@ -4,7 +4,7 @@
 
 El usuario profesional smoke permite ejecutar los tests del módulo VIN que requieren un profesional activo, específicamente VIN-P03 (binding code flow).
 
-> Estado post Wave B: este runbook queda en transición. Las credenciales GoTrue previas no son runtime activo y no deben documentarse ni regenerarse en plaintext. El reemplazo debe crear usuarios de prueba en Zitadel y obtener tokens por flujo OIDC controlado, sin imprimir JWTs.
+> Estado Zitadel-only: las credenciales de prueba deben vivir en Zitadel/Infisical y obtenerse por flujo OIDC controlado, sin imprimir JWTs.
 
 ## Credenciales
 
@@ -25,4 +25,4 @@ Para verificar que el usuario funciona:
 ## Historial
 
 - 2026-04-15: Usuario creado para habilitar GAP-03 (VIN-P03 test case)
-- 2026-04-19: Wave B cambió el runtime activo a Zitadel. GoTrue queda legacy/rollback.
+- 2026-04-20: GoTrue/Supabase Auth fue retirado del runtime activo.

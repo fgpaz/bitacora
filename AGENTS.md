@@ -4,7 +4,7 @@
 
 **Slug:** bitacora.nuestrascuentitas.com
 **Stack:** .NET 10 + Next.js 16 + Telegram Bot + PostgreSQL
-**Auth:** Supabase Auth (shared at auth.tedi.nuestrascuentitas.com)
+**Auth:** Zitadel OIDC + PKCE (`id.nuestrascuentitas.com`)
 **Deploy:** Dokploy VPS 54.37.157.93
 
 > **Health Data Sensitivity:** This project processes sensitive health data under Argentine Ley 25.326 (Data Protection), Ley 26.529 (Patient Rights), and Ley 26.657 (Mental Health). Any change to data storage, access control, consent flows, or audit logging must be reviewed for regulatory compliance before merge.
