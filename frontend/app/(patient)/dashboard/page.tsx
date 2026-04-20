@@ -7,17 +7,18 @@
 import type { Metadata } from 'next';
 import { Dashboard } from '@/components/patient/dashboard/Dashboard';
 import { PatientPageShell } from '@/components/ui/PatientPageShell';
+import styles from './DashboardPage.module.css';
 
 export const metadata: Metadata = {
   title: 'Mi historial | Bitácora',
-  description: 'Visualiza tu historial de humor y estadísticas.',
+  description: 'Visualizá tu historial de humor y estadísticas.',
 };
 
 export default function DashboardPage() {
   return (
     <PatientPageShell>
       <section aria-labelledby="dashboard-heading">
-        <h1 id="dashboard-heading" className="text-2xl font-bold text-foreground-default mb-6">
+        <h1 id="dashboard-heading" className={styles.heading}>
           Mi historial
         </h1>
         <Dashboard />

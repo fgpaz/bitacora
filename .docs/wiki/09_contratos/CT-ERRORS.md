@@ -140,6 +140,10 @@ Los handlers Telegram pueden retornar `HTTP 200` con error de negocio ya manejad
 | TG_002_CODE_EXPIRED | 200 | `/start` con codigo vencido | HandleWebhookUpdateCommand |
 | TG_002_CHAT_DUPLICATE | 200 | `chat_id` ya vinculado a otra cuenta | HandleWebhookUpdateCommand |
 | TG_003_ALREADY_LINKED | 200 | Chat ya tiene sesion activa | HandleWebhookUpdateCommand |
+| TG_006_NO_ACTIVE_SESSION | 403 | Configuracion de recordatorio sin TelegramSession linked | ConfigureReminderScheduleCommandHandler |
+| TG_006_INVALID_HOUR | 400 | `hourUtc` fuera de 0..23 | ConfigureReminderScheduleCommandHandler |
+| TG_006_INVALID_MINUTE | 400 | `minuteUtc` distinto de 0 o 30 | ConfigureReminderScheduleCommandHandler |
+| TG_006_INVALID_TIMEZONE | 400 | Timezone invalido o no soportado | ConfigureReminderScheduleCommandHandler |
 | PAIRING_CODE_GENERATION_FAILED | 500 | Colision de codigo tras 5 intentos | GeneratePairingCodeCommand |
 | PATIENT_ID_REQUIRED | 400 | patient_id vacio | Telegram handlers |
 | FORBIDDEN | 403 | Secret token de webhook invalido | TelegramEndpoints webhook |

@@ -1,8 +1,12 @@
 .shell {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   background-color: var(--surface);
   display: flex;
   flex-direction: column;
+  padding-inline: var(--space-md);
 }
 
 .content {
@@ -10,7 +14,7 @@
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-md) 0 calc(var(--space-2xl) + var(--space-lg));
 }
 
 .skeleton {
@@ -42,32 +46,49 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-xl);
-  color: var(--brand-accent);
+  color: var(--foreground);
   font-family: var(--font-body);
+  text-align: center;
 }
 
 .logoutButton {
-  position: fixed;
-  top: var(--space-md);
-  right: var(--space-md);
+  align-self: flex-end;
+  min-height: 44px;
+  margin: var(--space-sm) 0 0;
   padding: var(--space-sm) var(--space-md);
-  background-color: transparent;
-  border: 1px solid var(--surface-muted);
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  color: var(--text-secondary);
+  color: var(--foreground-muted);
   font-size: 0.875rem;
   font-family: var(--font-body);
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .logoutButton:hover {
   background-color: var(--surface-muted);
-  color: var(--text-primary);
-  border-color: var(--text-secondary);
+  color: var(--foreground);
+  border-color: var(--brand-primary);
+}
+
+.logoutButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .logoutButton:active {
   background-color: var(--surface-muted);
   opacity: 0.8;
+}
+
+@media (min-width: 768px) {
+  .shell {
+    padding-inline: var(--space-lg);
+  }
+
+  .content {
+    padding-top: var(--space-lg);
+  }
 }

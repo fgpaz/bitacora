@@ -83,10 +83,10 @@ export function DailyCheckinForm() {
       if (code === 'CONSENT_REQUIRED') {
         setPhase('consent');
       } else if (code === 'INVALID_SLEEP_HOURS') {
-        setBlockErrors({ sleep: 'Las horas de sueno deben estar entre 0 y 24.' });
+        setBlockErrors({ sleep: 'Las horas de sueño deben estar entre 0 y 24.' });
         setPhase('error');
       } else if (code === 'MISSING_MEDICATION_TIME') {
-        setBlockErrors({ medication: 'Completá el horario de medicacion.' });
+        setBlockErrors({ medication: 'Completá el horario de medicación.' });
         setPhase('error');
       } else if (code === 'ENCRYPTION_FAILURE') {
         setErrorMessage('No se pudo guardar. Intentá de nuevo.');
@@ -94,7 +94,7 @@ export function DailyCheckinForm() {
       } else if (code === 'UNAUTHORIZED') {
         setPhase('session');
       } else {
-        setErrorMessage('Ocurrio un error. Intentá de nuevo.');
+        setErrorMessage('Ocurrió un error. Intentá de nuevo.');
         setPhase('error');
       }
     }
@@ -105,7 +105,7 @@ export function DailyCheckinForm() {
       <PatientPageShell>
         <div className={styles.redirectState}>
           <p className={styles.redirectText}>
-            Necesitas aceptar el consentimiento para continuar.
+            Necesitás aceptar el consentimiento para continuar.
           </p>
           <Link href="/consent" className={styles.redirectLink}>
             Ir al consentimiento
@@ -119,7 +119,7 @@ export function DailyCheckinForm() {
     return (
       <PatientPageShell>
         <div className={styles.redirectState}>
-          <p className={styles.redirectText}>Tu sesion caduco. Por favor, ingresá de nuevo.</p>
+          <p className={styles.redirectText}>Tu sesión caducó. Ingresá de nuevo.</p>
           <Link href="/ingresar" className={styles.redirectLink}>Ingresar</Link>
         </div>
       </PatientPageShell>
@@ -145,7 +145,7 @@ export function DailyCheckinForm() {
         {/* Sleep block */}
         <div className={`${styles.block} ${blockErrors.sleep ? styles.blockError : ''}`}>
           <label className={styles.blockLabel} htmlFor="sleep_hours">
-            Horas de sueno
+            Horas de sueño
           </label>
           <input
             id="sleep_hours"
@@ -167,7 +167,7 @@ export function DailyCheckinForm() {
 
         {/* Boolean blocks */}
         {([
-          { key: 'physical_activity', label: 'Actividad fisica' },
+          { key: 'physical_activity', label: 'Actividad física' },
           { key: 'social_activity', label: 'Actividad social' },
           { key: 'anxiety', label: 'Ansiedad' },
           { key: 'irritability', label: 'Irritabilidad' },
@@ -180,7 +180,7 @@ export function DailyCheckinForm() {
                 className={`${styles.boolBtn} ${form[key] ? styles.boolSelected : ''}`}
                 onClick={() => setForm((f) => ({ ...f, [key]: true }))}
               >
-                Si
+                Sí
               </button>
               <button
                 type="button"
@@ -195,14 +195,14 @@ export function DailyCheckinForm() {
 
         {/* Medication block */}
         <div className={styles.block}>
-          <span className={styles.blockLabel}>¿Tomaste medicacion hoy?</span>
-          <div className={styles.boolRow} role="group" aria-label="Medicacion">
+          <span className={styles.blockLabel}>¿Tomaste medicación hoy?</span>
+          <div className={styles.boolRow} role="group" aria-label="Medicación">
             <button
               type="button"
               className={`${styles.boolBtn} ${form.medication_taken ? styles.boolSelected : ''}`}
               onClick={() => setForm((f) => ({ ...f, medication_taken: true }))}
             >
-              Si
+              Sí
             </button>
             <button
               type="button"

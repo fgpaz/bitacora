@@ -43,7 +43,7 @@ export function MoodEntryForm() {
       if (code === 'CONSENT_REQUIRED') {
         setPhase('consent');
       } else if (code === 'INVALID_SCORE') {
-        setErrorMessage('El valor elegido no es valido. Intentá de nuevo.');
+        setErrorMessage('El valor elegido no es válido. Intentá de nuevo.');
         setPhase('error');
       } else if (code === 'ENCRYPTION_FAILURE') {
         setErrorMessage('No se pudo guardar el registro. Intentá de nuevo.');
@@ -51,7 +51,7 @@ export function MoodEntryForm() {
       } else if (code === 'UNAUTHORIZED' || code === 'ONB_001_JWT_INVALID') {
         setPhase('session');
       } else {
-        setErrorMessage('Ocurrio un error. Intentá de nuevo.');
+        setErrorMessage('Ocurrió un error. Intentá de nuevo.');
         setPhase('error');
       }
     }
@@ -62,7 +62,7 @@ export function MoodEntryForm() {
       <PatientPageShell>
         <div className={styles.consentState}>
           <p className={styles.consentText}>
-            Necesitas aceptar el consentimiento antes de registrar tu humor.
+            Necesitás aceptar el consentimiento antes de registrar tu humor.
           </p>
           <Link href="/consent" className={styles.consentLink}>
             Ir al consentimiento
@@ -77,7 +77,7 @@ export function MoodEntryForm() {
       <PatientPageShell>
         <div className={styles.consentState}>
           <p className={styles.consentText}>
-            Tu sesion caduco. Por favor, ingresá de nuevo.
+            Tu sesión caducó. Ingresá de nuevo.
           </p>
           <Link href="/ingresar" className={styles.consentLink}>
             Ingresar
@@ -104,7 +104,7 @@ export function MoodEntryForm() {
   return (
     <PatientPageShell>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1 className={styles.headline}>¿Como te sentis ahora?</h1>
+        <h1 className={styles.headline}>¿Cómo te sentís ahora?</h1>
 
         <MoodScale
           value={score}

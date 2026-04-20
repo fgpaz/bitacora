@@ -1,0 +1,330 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.summarySkeletonGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+}
+
+.summarySkeleton,
+.entrySkeleton {
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted) 25%,
+    var(--surface) 50%,
+    var(--surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.summarySkeleton {
+  min-height: 104px;
+}
+
+.entrySkeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.entrySkeleton {
+  min-height: 64px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.errorState,
+.emptyState {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  padding: var(--space-lg);
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+
+.errorState {
+  border-color: var(--brand-accent);
+}
+
+.errorTitle,
+.emptyTitle {
+  margin: 0 0 var(--space-xs);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.errorText,
+.emptyText {
+  display: block;
+  margin: 0 0 var(--space-md);
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.emptyIcon {
+  display: block;
+  margin: 0 auto var(--space-md);
+  color: var(--brand-primary);
+  opacity: 0.65;
+}
+
+.primaryButton,
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.primaryButton,
+.primaryLink {
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: var(--surface);
+}
+
+.secondaryLink {
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.primaryButton:hover,
+.primaryLink:hover,
+.secondaryLink:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.primaryButton:focus-visible,
+.primaryLink:focus-visible,
+.secondaryLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.sectionTitle {
+  margin: 0 0 var(--space-sm);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.trendPanel {
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.trendHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.trendHeader .sectionTitle {
+  margin-bottom: 0;
+}
+
+.trendCaption {
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.trendChart {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--trend-count), minmax(0, 1fr));
+  gap: var(--space-xs);
+  min-height: 156px;
+  padding: var(--space-sm) 0 0;
+}
+
+.trendMidline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--space-sm) + 58px);
+  height: 1px;
+  background-color: var(--border-subtle);
+}
+
+.trendColumn {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 120px auto;
+  gap: var(--space-xs);
+}
+
+.trendTrack {
+  position: relative;
+  min-width: 0;
+  height: 120px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-muted);
+}
+
+.trendBar {
+  position: absolute;
+  left: 50%;
+  width: min(18px, 70%);
+  min-height: 6px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+.trendBarPositive {
+  bottom: 60px;
+  height: var(--bar-size);
+  background-color: var(--brand-primary);
+}
+
+.trendBarNegative {
+  top: 60px;
+  height: var(--bar-size);
+  background-color: var(--brand-accent);
+}
+
+.trendBarNeutral {
+  top: 57px;
+  height: 6px;
+  background-color: var(--brand-secondary);
+}
+
+.trendBarMissing {
+  top: 57px;
+  height: 6px;
+  background-color: var(--border-subtle);
+}
+
+.trendDay {
+  min-width: 0;
+  color: var(--foreground-muted);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.entryList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.entryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 64px;
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.entryItem:hover {
+  border-color: var(--brand-secondary);
+  background-color: var(--surface-muted);
+}
+
+.entryInfo {
+  min-width: 0;
+}
+
+.entryDate {
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.scoreBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 480px) {
+  .summarySkeletonGrid,
+  .actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trendChart {
+    gap: var(--space-sm);
+  }
+}
+
+@media (min-width: 768px) {
+  .summarySkeletonGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .trendPanel {
+    padding: var(--space-lg);
+  }
+
+  .emptyState {
+    padding: var(--space-xl);
+  }
+}

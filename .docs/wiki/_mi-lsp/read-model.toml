@@ -3,7 +3,12 @@ version = 1
 [[family]]
   name = "functional"
   intent_keywords = ["scope", "flow", "feature", "behavior", "rf", "fl", "test", "workflow", "governance", "ordered_wiki", "spec_core", "technical"]
-  paths = [".docs/wiki/00_gobierno_documental.md"]
+  paths = [".docs/wiki/00_gobierno_documental.md", ".docs/wiki/01_alcance_funcional.md", ".docs/wiki/02_arquitectura.md", ".docs/wiki/03_FL.md", ".docs/wiki/03_FL/", ".docs/wiki/04_RF.md", ".docs/wiki/04_RF/", ".docs/wiki/05_modelo_datos.md", ".docs/wiki/06_matriz_pruebas_RF.md", ".docs/wiki/06_pruebas/"]
+
+[[family]]
+  name = "technical"
+  intent_keywords = ["technical", "governance", "runtime", "backend", "contract", "protocol", "search", "context", "refs", "service", "index", "routing", "ordered_wiki", "spec_core"]
+  paths = [".docs/wiki/07_baseline_tecnica.md", ".docs/wiki/07_tech/", ".docs/wiki/08_modelo_fisico_datos.md", ".docs/wiki/08_db/", ".docs/wiki/09_contratos_tecnicos.md", ".docs/wiki/09_contratos/"]
 
 [generic_docs]
   paths = ["README.md", "README*.md", "docs/", ".docs/"]
@@ -20,9 +25,9 @@ version = 1
   profile = "spec_backend"
   effective_base = "ordered_wiki"
   effective_overlays = ["spec_core", "technical"]
-  context_chain = ["governance"]
-  closure_chain = ["governance"]
-  audit_chain = ["governance"]
+  context_chain = ["governance", "scope", "architecture", "flows", "requirements"]
+  closure_chain = ["requirements", "tests", "technical", "validation"]
+  audit_chain = ["requirements", "tests", "technical", "experience_global", "validation"]
   blocking_rules = ["missing_human_governance_doc", "missing_governance_yaml", "invalid_governance_schema", "projection_out_of_sync", "workspace_index_stale"]
   numbering_recommended = true
   [governance.projection]
@@ -38,3 +43,83 @@ version = 1
     family = "functional"
     pack_stage = "governance"
     paths = [".docs/wiki/00_gobierno_documental.md"]
+
+  [[governance.hierarchy]]
+    id = "scope"
+    label = "Alcance funcional"
+    layer = "01"
+    family = "functional"
+    pack_stage = "context"
+    paths = [".docs/wiki/01_alcance_funcional.md"]
+
+  [[governance.hierarchy]]
+    id = "architecture"
+    label = "Arquitectura"
+    layer = "02"
+    family = "functional"
+    pack_stage = "context"
+    paths = [".docs/wiki/02_arquitectura.md"]
+
+  [[governance.hierarchy]]
+    id = "flows"
+    label = "Flujos funcionales"
+    layer = "03"
+    family = "functional"
+    pack_stage = "context"
+    paths = [".docs/wiki/03_FL.md", ".docs/wiki/03_FL/"]
+
+  [[governance.hierarchy]]
+    id = "requirements"
+    label = "Requerimientos funcionales"
+    layer = "04"
+    family = "functional"
+    pack_stage = "spec"
+    paths = [".docs/wiki/04_RF.md", ".docs/wiki/04_RF/"]
+
+  [[governance.hierarchy]]
+    id = "data_model"
+    label = "Modelo de datos"
+    layer = "05"
+    family = "functional"
+    pack_stage = "spec"
+    paths = [".docs/wiki/05_modelo_datos.md"]
+
+  [[governance.hierarchy]]
+    id = "tests"
+    label = "Pruebas y cobertura"
+    layer = "06"
+    family = "functional"
+    pack_stage = "validation"
+    paths = [".docs/wiki/06_matriz_pruebas_RF.md", ".docs/wiki/06_pruebas/"]
+
+  [[governance.hierarchy]]
+    id = "technical"
+    label = "Baseline tecnica, modelo fisico y contratos"
+    layer = "07-09"
+    family = "technical"
+    pack_stage = "implementation"
+    paths = [".docs/wiki/07_baseline_tecnica.md", ".docs/wiki/07_tech/", ".docs/wiki/08_modelo_fisico_datos.md", ".docs/wiki/08_db/", ".docs/wiki/09_contratos_tecnicos.md", ".docs/wiki/09_contratos/"]
+
+  [[governance.hierarchy]]
+    id = "experience_global"
+    label = "Experiencia global y marca"
+    layer = "10-16"
+    family = "experience"
+    pack_stage = "experience"
+    paths = [".docs/wiki/10_manifiesto_marca_experiencia.md", ".docs/wiki/11_identidad_visual.md", ".docs/wiki/12_lineamientos_interfaz_visual.md", ".docs/wiki/13_voz_tono.md", ".docs/wiki/14_metodo_prototipado_validacion_ux.md", ".docs/wiki/15_handoff_operacional_uxui.md", ".docs/wiki/16_patrones_ui.md"]
+
+  [[governance.hierarchy]]
+    id = "ux_case"
+    label = "Caso UX"
+    layer = "17-20"
+    family = "experience"
+    pack_stage = "ux_case"
+    paths = [".docs/wiki/17_UXR.md", ".docs/wiki/18_UXI.md", ".docs/wiki/19_UJ.md", ".docs/wiki/20_UXS.md"]
+
+  [[governance.hierarchy]]
+    id = "validation"
+    label = "Validacion y operacion UX/UI"
+    layer = "21-23"
+    family = "validation"
+    pack_stage = "validation"
+    paths = [".docs/wiki/21_matriz_validacion_ux.md", ".docs/wiki/22_aprendizaje_ux_ui_spec_driven.md", ".docs/wiki/23_uxui/"]

@@ -64,7 +64,7 @@ El readiness para implementación técnica y el estado de validación UX no sign
 | `VIS-002` | Profesional | `prepared_waiting_evidence` | cohorte híbrida `F` | prototipo listo + operativo listo | — | `UX-VALIDATION-VIS-002.md` |
 | `EXP-001` | Paciente | `blocked` | cohorte híbrida `E` | validación intentada 2026-04-10, bloqueada por entorno | WEB-VAL-001 + WEB-VAL-002 | `UX-VALIDATION-EXP-001.md` |
 | `TG-001` | Paciente | `blocked` | cohorte híbrida `G` | validación intentada 2026-04-10, bloqueada por Telegram | TG-VAL-001 + TG-VAL-002 | `UX-VALIDATION-TG-001.md` |
-| `TG-002` | Paciente | `blocked` | cohorte híbrida `G` | validación intentada 2026-04-10, bloqueada por Telegram | TG-VAL-001 + TG-VAL-002 | `UX-VALIDATION-TG-002.md` |
+| `TG-002` | Paciente | `prepared_waiting_prod_e2e` | cohorte híbrida `G` | runtime Telegram materializado; regresión #21 espera E2E post-deploy | TG-VAL-003 | `UX-VALIDATION-TG-002.md` |
 
 ## Defectos críticos detectados en la sesión
 
@@ -75,7 +75,7 @@ El readiness para implementación técnica y el estado de validación UX no sign
 | `WEB-VAL-003` | Resolved | todas las rutas web | `next build` ya no detecta deuda `middleware` a `proxy`; migrado a `frontend/proxy.ts`. |
 | `TG-VAL-001` | Critical | TG-001, TG-002 | `TELEGRAM_BOT_TOKEN` no está presente en el shell; no puede ejecutarse bot real |
 | `TG-VAL-002` | Critical | TG-001, TG-002 | No hay cuenta de test Telegram ni transcript reproducible; los flujos de vinculación y recordatorio no pueden validarse con canal real |
-| `TG-VAL-003` | High | TG-002 | El path de recordatorio depende de conectividad real al Bot API sin credencial de fallback |
+| `TG-VAL-003` | High | TG-002 | Revalidar en producción guardar recordatorio `22:00` tras deploy de la regresión #21 |
 
 ## Regla de avance
 
@@ -200,7 +200,7 @@ Los siguientes archivos fueron confirmados presentes en el workspace:
 | `VIS-002` | Profesional | **Validado (evidencia statica)** | web T1 | — |
 | `EXP-001` | Paciente | **Validado (evidencia statica)** | web T1 | — |
 | `TG-001` | Paciente | **Validado (evidencia statica)** | tg T2 | — |
-| `TG-002` | Paciente | `blocked` | — | prueba con paciente real vinculado |
+| `TG-002` | Paciente | `prepared_waiting_prod_e2e` | `UX-VALIDATION-TG-002.md` | prueba post-deploy con paciente real vinculado |
 
 ### Decisión de release
 

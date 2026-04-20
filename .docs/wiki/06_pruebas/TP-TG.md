@@ -2,7 +2,7 @@
 
 ## Alcance
 
-- RF cubiertos: RF-TG-001..003, RF-TG-010..012
+- RF cubiertos: RF-TG-001..003, RF-TG-006, RF-TG-010..012
 - Flujos origen: FL-TG-01, FL-TG-02
 
 ## Estado de ejecucion actual
@@ -52,6 +52,7 @@
 | TG-P06 | RF-TG-006 | Positivo | Configurar horario de recordatorio via PUT /reminder-schedule |
 | TG-N04 | RF-TG-005 | Negativo | DELETE /api/v1/telegram/session sin sesion activa retorna 404 |
 | TG-N05 | RF-TG-006 | Negativo | PUT /api/v1/reminder-schedule sin sesion Telegram activa retorna 403 |
+| TG-N06 | RF-TG-006 | Negativo | PUT /api/v1/telegram/reminder-schedule rechaza hora, minuto o timezone invalidos con 400 tipado |
 
 ## Gherkin expandido
 
@@ -88,10 +89,11 @@ Scenario: Desvincular Telegram desde interfaz web
 
 Scenario: Configurar horario de recordatorio
   Given paciente autenticado con sesion Telegram vinculada
-  When accede a /configuracion/telegram y selecciona hora (ej: 20:00)
+  When accede a /configuracion/telegram y selecciona hora local Buenos Aires (ej: 22:00)
   And hace click en "Guardar"
-  Then PUT /api/v1/reminder-schedule retorna 200
-  And reminder_configs se actualiza en BD con nueva hora
+  Then PUT /api/v1/telegram/reminder-schedule retorna 200
+  And el request contiene { hourUtc: 1, minuteUtc: 0, timezone: "America/Argentina/Buenos_Aires" }
+  And reminder_configs se actualiza en BD con nueva hora UTC
   And scheduler enviara recordatorios a la nueva hora
 
 Scenario: Desvincular sin sesion Telegram activa
@@ -102,14 +104,26 @@ Scenario: Desvincular sin sesion Telegram activa
 
 Scenario: Configurar horario sin sesion Telegram activa
   Given paciente autenticado SIN sesion Telegram vinculada
-  When intenta PUT /api/v1/reminder-schedule con {hour: 20}
-  Then retorna 403 TG_NO_ACTIVE_SESSION
+  When intenta PUT /api/v1/telegram/reminder-schedule con {hourUtc: 20, minuteUtc: 0}
+  Then retorna 403 TG_006_NO_ACTIVE_SESSION
+  And la BD no se modifica
+
+Scenario: Configurar horario con minuto invalido
+  Given paciente autenticado con sesion Telegram vinculada
+  When intenta PUT /api/v1/telegram/reminder-schedule con {hourUtc: 9, minuteUtc: 15}
+  Then retorna 400 TG_006_INVALID_MINUTE
   And la BD no se modifica
 ```
 
+### Regresion #21 (2026-04-20)
+
+| TC ID | Estado | Ambiente | Fecha | Evidencia |
+|-------|--------|----------|-------|-----------|
+| TG-P06-REG21 | CODE-VERIFIED | local | 2026-04-20 | `ReminderScheduleTests`: `22:00` Buenos Aires se cubre via conversion cliente -> `{ hourUtc: 1, minuteUtc: 0 }`; backend valida `hourUtc`, `minuteUtc`, `timezone`, `TelegramSession` linked y mapea `reminder_timezone`. Evidencia pendiente de E2E post-deploy. |
+
 ## Criterios de salida
 
-- Cobertura positiva y negativa de los 6 RF del modulo.
+- Cobertura positiva y negativa de los RF activos del modulo TG.
 - Evidencia de pairing seguro y de scheduler con skips correctos.
 
 ## Cierre del ciclo de pruebas

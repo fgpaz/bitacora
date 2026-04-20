@@ -24,12 +24,112 @@ hierarchy:
     pack_stage: governance
     paths:
       - .docs/wiki/00_gobierno_documental.md
+  - id: scope
+    label: Alcance funcional
+    layer: "01"
+    family: functional
+    pack_stage: context
+    paths:
+      - .docs/wiki/01_alcance_funcional.md
+  - id: architecture
+    label: Arquitectura
+    layer: "02"
+    family: functional
+    pack_stage: context
+    paths:
+      - .docs/wiki/02_arquitectura.md
+  - id: flows
+    label: Flujos funcionales
+    layer: "03"
+    family: functional
+    pack_stage: context
+    paths:
+      - .docs/wiki/03_FL.md
+      - .docs/wiki/03_FL/
+  - id: requirements
+    label: Requerimientos funcionales
+    layer: "04"
+    family: functional
+    pack_stage: spec
+    paths:
+      - .docs/wiki/04_RF.md
+      - .docs/wiki/04_RF/
+  - id: data_model
+    label: Modelo de datos
+    layer: "05"
+    family: functional
+    pack_stage: spec
+    paths:
+      - .docs/wiki/05_modelo_datos.md
+  - id: tests
+    label: Pruebas y cobertura
+    layer: "06"
+    family: functional
+    pack_stage: validation
+    paths:
+      - .docs/wiki/06_matriz_pruebas_RF.md
+      - .docs/wiki/06_pruebas/
+  - id: technical
+    label: Baseline tecnica, modelo fisico y contratos
+    layer: "07-09"
+    family: technical
+    pack_stage: implementation
+    paths:
+      - .docs/wiki/07_baseline_tecnica.md
+      - .docs/wiki/07_tech/
+      - .docs/wiki/08_modelo_fisico_datos.md
+      - .docs/wiki/08_db/
+      - .docs/wiki/09_contratos_tecnicos.md
+      - .docs/wiki/09_contratos/
+  - id: experience_global
+    label: Experiencia global y marca
+    layer: "10-16"
+    family: experience
+    pack_stage: experience
+    paths:
+      - .docs/wiki/10_manifiesto_marca_experiencia.md
+      - .docs/wiki/11_identidad_visual.md
+      - .docs/wiki/12_lineamientos_interfaz_visual.md
+      - .docs/wiki/13_voz_tono.md
+      - .docs/wiki/14_metodo_prototipado_validacion_ux.md
+      - .docs/wiki/15_handoff_operacional_uxui.md
+      - .docs/wiki/16_patrones_ui.md
+  - id: ux_case
+    label: Caso UX
+    layer: "17-20"
+    family: experience
+    pack_stage: ux_case
+    paths:
+      - .docs/wiki/17_UXR.md
+      - .docs/wiki/18_UXI.md
+      - .docs/wiki/19_UJ.md
+      - .docs/wiki/20_UXS.md
+  - id: validation
+    label: Validacion y operacion UX/UI
+    layer: "21-23"
+    family: validation
+    pack_stage: validation
+    paths:
+      - .docs/wiki/21_matriz_validacion_ux.md
+      - .docs/wiki/22_aprendizaje_ux_ui_spec_driven.md
+      - .docs/wiki/23_uxui/
 context_chain:
   - governance
+  - scope
+  - architecture
+  - flows
+  - requirements
 closure_chain:
-  - governance
+  - requirements
+  - tests
+  - technical
+  - validation
 audit_chain:
-  - governance
+  - requirements
+  - tests
+  - technical
+  - experience_global
+  - validation
 blocking_rules:
   - missing_human_governance_doc
   - missing_governance_yaml
@@ -54,8 +154,8 @@ projection:
 
 El proyecto usa perfil `spec_backend` porque:
 - El backend (.NET 10) está completo y en producción.
-- El frontend (Next.js 16) existe pero su deployment completo está diferido a Phase 40.
-- La wiki cubre toda la capa técnica (01-09) y tiene la capa UX/UI completa (10-22) como anticipación.
+- El frontend (Next.js 16) está materializado y desplegado como superficie paciente/profesional.
+- La wiki cubre toda la capa técnica (01-09) y tiene la capa UX/UI completa (10-23) como canon operativo.
 
 ## Estructura de la wiki
 

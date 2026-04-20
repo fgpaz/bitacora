@@ -1,5 +1,5 @@
 .form {
-  padding-bottom: calc(var(--space-2xl) + 56px);
+  padding-bottom: calc(var(--space-2xl) + 72px);
 }
 
 .headline {
@@ -16,6 +16,7 @@
   background-color: var(--surface-muted);
   border-radius: var(--radius-md);
   border-left: 3px solid var(--brand-secondary);
+  box-shadow: var(--shadow-soft);
 }
 
 .blockLabel {
@@ -42,6 +43,7 @@
 .numberInput {
   width: 100%;
   max-width: 120px;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 1rem;
   color: var(--foreground);
@@ -63,6 +65,7 @@
 
 .boolBtn {
   flex: 1;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 500;
@@ -73,6 +76,16 @@
   padding: var(--space-xs) var(--space-md);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.boolBtn:focus-visible,
+.numberInput:focus-visible,
+.timeInput:focus-visible,
+.submitBtn:focus-visible,
+.redirectLink:focus-visible,
+.backLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .boolBtn.boolSelected {
@@ -86,6 +99,7 @@
 }
 
 .timeInput {
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 1rem;
   color: var(--foreground);
@@ -110,6 +124,7 @@
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: center;
+  z-index: 20;
 }
 
 .submitBtn {
@@ -123,6 +138,7 @@
   padding: var(--space-sm) var(--space-xl);
   cursor: pointer;
   min-width: 200px;
+  min-height: 44px;
   transition: opacity 0.15s ease;
 }
 
@@ -151,6 +167,10 @@
 }
 
 .redirectLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -159,6 +179,10 @@
 }
 
 .backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.875rem;
   color: var(--foreground-muted);

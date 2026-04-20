@@ -4,6 +4,7 @@
  */
 
 const API_PROXY_BASE = '/api/backend';
+const DEFAULT_REMINDER_TIMEZONE = 'America/Argentina/Buenos_Aires';
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
 
@@ -283,19 +284,106 @@ interface RawReminderScheduleResponse {
   nextFireAtUtc?: string;
 }
 
+interface TimeZoneDateParts {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+}
+
+function validateReminderTime(hour: number, minute: number) {
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+    throw new RangeError('Reminder hour must be an integer between 0 and 23.');
+  }
+
+  if (!Number.isInteger(minute) || (minute !== 0 && minute !== 30)) {
+    throw new RangeError('Reminder minute must be 0 or 30.');
+  }
+}
+
+function getTimeZoneDateParts(date: Date, timezone: string): TimeZoneDateParts {
+  const formatter = new Intl.DateTimeFormat('en-US-u-ca-iso8601', {
+    timeZone: timezone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const values = Object.fromEntries(
+    formatter.formatToParts(date)
+      .filter((part) => part.type !== 'literal')
+      .map((part) => [part.type, Number(part.value)])
+  );
+
+  return {
+    year: values.year,
+    month: values.month,
+    day: values.day,
+    hour: values.hour,
+    minute: values.minute,
+  };
+}
+
+export function toUtcReminderSchedule(
+  localHour: number,
+  localMinute: number,
+  timezone = DEFAULT_REMINDER_TIMEZONE,
+  referenceDate = new Date()
+): { hourUtc: number; minuteUtc: number } {
+  validateReminderTime(localHour, localMinute);
+
+  const timezoneDate = getTimeZoneDateParts(referenceDate, timezone);
+  const desiredLocalMs = Date.UTC(
+    timezoneDate.year,
+    timezoneDate.month - 1,
+    timezoneDate.day,
+    localHour,
+    localMinute
+  );
+  let utcMs = desiredLocalMs;
+
+  for (let i = 0; i < 3; i++) {
+    const rendered = getTimeZoneDateParts(new Date(utcMs), timezone);
+    const renderedLocalMs = Date.UTC(
+      rendered.year,
+      rendered.month - 1,
+      rendered.day,
+      rendered.hour,
+      rendered.minute
+    );
+
+    const deltaMs = desiredLocalMs - renderedLocalMs;
+    if (deltaMs === 0) break;
+    utcMs += deltaMs;
+  }
+
+  const utcDate = new Date(utcMs);
+
+  return {
+    hourUtc: utcDate.getUTCHours(),
+    minuteUtc: utcDate.getUTCMinutes(),
+  };
+}
+
 export async function setReminderSchedule(
   hour: number,
   minute: number,
   timezone: string
 ): Promise<ReminderScheduleResponse> {
+  const { hourUtc, minuteUtc } = toUtcReminderSchedule(hour, minute, timezone);
+
   const raw = await bitacoraFetch<RawReminderScheduleResponse>('/telegram/reminder-schedule', {
     method: 'PUT',
-    body: JSON.stringify({ hourUtc: hour, minuteUtc: minute, timezone }),
+    body: JSON.stringify({ hourUtc, minuteUtc, timezone }),
   });
 
   return {
-    hour: raw.hour ?? raw.hourUtc ?? hour,
-    minute: raw.minute ?? raw.minuteUtc ?? minute,
+    hour,
+    minute,
     timezone: raw.timezone ?? raw.reminderTimezone ?? timezone,
     next_fire_at_utc: raw.next_fire_at_utc ?? raw.nextFireAtUtc ?? '',
   };

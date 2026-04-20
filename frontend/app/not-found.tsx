@@ -1,18 +1,20 @@
 import Link from 'next/link';
+import styles from './AppState.module.css';
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-4xl font-bold text-gray-900">404</h1>
-        <p className="mb-6 text-lg text-gray-600">Página no encontrada</p>
+    <main className={styles.statePage}>
+      <section className={styles.panel} aria-labelledby="not-found-title">
+        <p className={styles.kicker}>404</p>
+        <h1 id="not-found-title" className={styles.title}>Página no encontrada</h1>
+        <p className={styles.text}>La ruta no está disponible o cambió de lugar.</p>
         <Link
           href="/"
-          className="inline-flex items-center text-blue-600 transition-colors hover:text-blue-700"
+          className={styles.secondaryLink}
         >
-          ← Volver al inicio
+          Volver al inicio
         </Link>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

@@ -1,7 +1,7 @@
 namespace NuestrasCuentitas.Bitacora.Application.Contracts.Telegram;
 
 /// <summary>
-/// Response after configuring reminder schedule (RF-TG-010..012).
+/// Response after configuring reminder schedule (RF-TG-006).
 /// </summary>
 public sealed record ConfigureReminderScheduleResponse(
     Guid ReminderConfigId,

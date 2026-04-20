@@ -92,13 +92,13 @@
 }
 
 .emailInput[aria-invalid="true"] {
-  border-color: #B0413E;
+  border-color: var(--status-danger);
 }
 
 .errorMessage {
   font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #B0413E;
+  color: var(--status-danger);
   margin: 0;
 }
 

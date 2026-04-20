@@ -166,13 +166,14 @@ La autoridad activa para planificar su materializacion pendiente vive en `.docs/
 | reminder_config_id | UUID | PK |
 | patient_id | UUID | FK → User |
 | hour_utc | int | Hora del recordatorio (0-23 UTC) |
-| minute_utc | int | Minuto (0-59 UTC) |
+| minute_utc | int | Minuto UTC permitido: 0 o 30 |
 | enabled | bool | Si el recordatorio esta activo |
+| reminder_timezone | string | Timezone de referencia para la UI; default `America/Argentina/Buenos_Aires` |
 | next_fire_at_utc | timestamp? | Proximo disparo |
 | created_at_utc | timestamp | |
 | disabled_at_utc | timestamp? | |
 
-> Invariante: `enabled=false` no se calcula automaticamente al desvincular la sesion Telegram; el registro persiste hasta que el paciente lo desactive explicitamente. El `ReminderWorker` procesa configs con `next_fire_at_utc <= now` cada 60 segundos. `SendTelegramMessageAsync` esta implementada en `SendReminderCommand.cs:118`.
+> Invariante: la UI paciente elige hora local Buenos Aires y el cliente envia `hour_utc`/`minute_utc` ya convertidos a UTC. `enabled=false` no se calcula automaticamente al desvincular la sesion Telegram; el registro persiste hasta que el paciente lo desactive explicitamente. El `ReminderWorker` procesa configs con `next_fire_at_utc <= now` cada 60 segundos. `SendTelegramMessageAsync` esta implementada en `SendReminderCommand.cs:118`.
 
 ### AccessAudit (Auditoria — append-only)
 

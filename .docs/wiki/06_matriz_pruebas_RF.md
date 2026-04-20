@@ -117,7 +117,7 @@
 | RF-TG-002 | TP-TG | Vincula chat_id con /start y codigo activo | Responde guidance si el codigo es invalido, expirado o duplicado |
 | RF-TG-003 | TP-TG | Garantiza unicidad de chat_id por paciente | Rechaza chat_id ya vinculado a otra cuenta |
 | RF-TG-005 | TP-TG | Desvincula sesion Telegram desde UI web con confirmacion | Retorna 404 si no hay sesion activa (TG-P05, TG-N04) |
-| RF-TG-006 | TP-TG | Configura horario de recordatorio con timezone desde UI | Retorna 403 sin sesion activa; 400 con timezone invalido (TG-P06, TG-N05) |
+| RF-TG-006 | TP-TG | Configura horario de recordatorio con timezone desde UI; convierte hora local BA a UTC | Retorna 403 sin sesion activa; 400 con hora/minuto/timezone invalido (TG-P06, TG-N05, TG-N06) |
 | RF-TG-010 | TP-TG | Ejecuta scheduler y detecta recordatorios vencidos | Tolera error de DB o planificacion inconsistente |
 | RF-TG-011 | TP-TG | Envia mensaje con keyboard inline correcto | Reporta fallo si falta token o no existe chat |
 | RF-TG-012 | TP-TG | Omite envio cuando hay consent revocado o session unlinked | Rechaza ejecucion con datos de sesion invalidos |

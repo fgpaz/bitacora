@@ -39,7 +39,6 @@ export function PatientPageShell({ children, loading, error }: Props) {
 
   return (
     <main className={styles.shell}>
-      <div className={styles.content}>{children}</div>
       <button
         onClick={handleLogout}
         className={styles.logoutButton}
@@ -47,6 +46,7 @@ export function PatientPageShell({ children, loading, error }: Props) {
       >
         Cerrar sesión
       </button>
+      <div className={styles.content}>{children}</div>
     </main>
   );
 }

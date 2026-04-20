@@ -208,14 +208,14 @@ No entendimos ese mensaje. Usá /registrar para registrar tu humor o esperá tu 
 - el `chat_id` no se almacena en logging
 - si `ConsentGrant` está revocada, no se envía ningún recordatorio (gate en background service)
 - si `TelegramSession` está desvinculada, no se envía ningún recordatorio
-- los factores registradaos respectan la misma política de consentimiento que `MoodEntry`
+- los factores registrados respetan la misma política de consentimiento que `MoodEntry`
 - no se registra el humor si el usuario eligió `Ahora no`; el silencio no se almacena como dato
 
 ## Dependencias abiertas
 
 - `TelegramSession` y `ReminderConfig` existen en runtime (Phase 30+); los seams de recordatorio son operables segun `TECH-TELEGRAM.md`
 - `TG-001` (vinculación) queda fuera de este contrato
-- cuando exista runtime real, `UX-VALIDATION-TG-002.md` podrá reabrir este contrato si la evidencia observada contradice el diseño
+- `UX-VALIDATION-TG-002.md` puede reabrir este contrato si la evidencia observada contradice el diseño
 
 ## Criterio de implementación
 
@@ -233,4 +233,4 @@ La implementación cumple este contrato si:
 
 **Estado:** `UI-RFC` activo para `TG-002` bajo gap map `2026-04-10`.
 **Siguiente capa gobernada:** `HANDOFF-SPEC-TG-002.md`, `HANDOFF-ASSETS-TG-002.md`, `HANDOFF-MAPPING-TG-002.md`, `HANDOFF-VISUAL-QA-TG-002.md`.
-**Validación UX real:** diferida a `Phase 60`; no se genera evidencia anticipada.
+**Validación UX:** `UX-VALIDATION-TG-002.md` queda preparada para cerrar con evidencia post-deploy sanitizada del recordatorio 22:00.

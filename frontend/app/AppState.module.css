@@ -1,0 +1,80 @@
+.statePage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background-color: var(--surface);
+}
+
+.panel {
+  width: min(100%, 420px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-muted);
+  box-shadow: var(--shadow-soft);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--brand-accent);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.text {
+  margin: 0;
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.primaryButton,
+.secondaryLink {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primaryButton {
+  border: 1px solid var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: var(--surface);
+  cursor: pointer;
+}
+
+.primaryButton:hover {
+  background-color: var(--surface);
+  color: var(--brand-primary);
+}
+
+.secondaryLink {
+  align-self: flex-start;
+  color: var(--brand-primary);
+}
+
+.primaryButton:focus-visible,
+.secondaryLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

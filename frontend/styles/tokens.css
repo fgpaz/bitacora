@@ -8,6 +8,7 @@
   /* Surfaces */
   --surface: #F6F1EA;
   --surface-muted: #E8DED3;
+  --surface-raised: #FBF8F4;
 
   /* Foreground */
   --foreground: #2E2A28;
@@ -15,6 +16,18 @@
 
   /* Borders */
   --border-subtle: #D7CCC1;
+
+  /* Semantic state */
+  --status-success: #5E766E;
+  --status-success-bg: #E8EFE9;
+  --status-success-border: #B8C8BF;
+  --status-warning: #9B6C3A;
+  --status-warning-bg: #F3E9D8;
+  --status-warning-border: #D9BE8F;
+  --status-danger: #B0413E;
+  --status-danger-bg: #F4E5E1;
+  --status-danger-border: #D7AAA0;
+  --status-neutral-bg: #ECE6DF;
 
   /* Radius */
   --radius-sm: 4px;

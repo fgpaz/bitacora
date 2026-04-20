@@ -24,7 +24,7 @@ No reemplaza `21_matriz_validacion_ux.md` ni los futuros `UX-VALIDATION-*`. Su f
 | `VIS-002` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
 | `EXP-001` | **Validado (evidencia statica)** | web T1 `2026-04-12` | GO |
 | `TG-001` | **Validado (evidencia statica)** | tg T2 `2026-04-12` | READY FOR RELEASE |
-| `TG-002` | `blocked` | — | deferido (E2E con paciente real) |
+| `TG-002` | `prepared_waiting_prod_e2e` | `UX-VALIDATION-TG-002.md` | regresión #21 pendiente de E2E post-deploy |
 
 ## Defectos críticos — sesión 2026-04-12
 
@@ -37,7 +37,7 @@ Los defectos críticos `WEB-VAL-001`, `WEB-VAL-002`, `TG-VAL-001`, `TG-VAL-002` 
 | WEB-VAL-003 | Resolved | todas las rutas web | Migrado a `frontend/proxy.ts`; validar con `next build` |
 | TG-VAL-001 | Critical | TG-001, TG-002 | **RESUELTO** (token confirmado + estático Phase 60 T2) |
 | TG-VAL-002 | Critical | TG-001, TG-002 | **RESUELTO** (evidencia estática Phase 60 T2) |
-| TG-VAL-003 | High | TG-002 | Open (P2 — E2E conversacional) |
+| TG-VAL-003 | High | TG-002 | pending_prod_e2e — revalidar `22:00` post-deploy |
 
 ## Decisión de release
 
@@ -45,5 +45,5 @@ Los defectos críticos `WEB-VAL-001`, `WEB-VAL-002`, `TG-VAL-001`, `TG-VAL-002` 
 
 ---
 
-**Estado:** 9 slices `Validado (evidencia statica)` — sesión 2026-04-12.
-**Siguiente:** go/no-go de release y seguimiento de gaps P2 post-deploy.
+**Estado:** 9 slices `Validado (evidencia statica)` + `TG-002` preparado para E2E productivo post-deploy.
+**Siguiente:** ejecutar E2E productivo de RF-TG-006 y actualizar `UX-VALIDATION-TG-002.md`.

@@ -36,9 +36,9 @@ Aunque no haya assets especiales, el equipo de backend/telegram debe consumir es
 | mensaje de sin codigo | `VOICE-TG-001.md` | orientacion al flujo web |
 | mensaje de no reconocido | `VOICE-TG-001.md` | recordatorio de formato |
 
-## Ausencia de runtime
+## Runtime materializado
 
-`TelegramSession`, `PairingCode` y el webhook `POST /api/v1/telegram/webhook` no existen hoy en el runtime de `src/`. Esta documentacion opera como especificacion objetivo; la materializacion real sera cuando el modulo Telegram exista en runtime.
+`TelegramSession`, `TelegramPairingCode` y el webhook `POST /api/v1/telegram/webhook` existen hoy en el runtime de `src/`. El slice tambien tiene puente web en `frontend/components/patient/telegram/TelegramPairingCard.tsx`.
 
 ## Regla operativa
 
@@ -55,4 +55,4 @@ el pack debe reabrirse y actualizar este documento.
 
 **Estado:** `sin assets especiales`, con copy y dependencias conversacionales explícitas.
 **Siguiente artefacto:** `HANDOFF-MAPPING-TG-001.md`.
-**Runtime Telegram:** diferido; no existe hoy en `src/`.
+**Runtime Telegram:** implementado; evidencia E2E vigente en `artifacts/e2e/`.

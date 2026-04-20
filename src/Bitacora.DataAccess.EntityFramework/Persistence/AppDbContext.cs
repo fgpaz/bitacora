@@ -215,6 +215,7 @@ public sealed class AppDbContext : DbContext
             entity.Property(x => x.HourUtc).HasColumnName("hour_utc").IsRequired();
             entity.Property(x => x.MinuteUtc).HasColumnName("minute_utc").IsRequired();
             entity.Property(x => x.Enabled).HasColumnName("enabled").IsRequired();
+            entity.Property(x => x.ReminderTimezone).HasColumnName("reminder_timezone").HasMaxLength(128).IsRequired();
             entity.Property(x => x.NextFireAtUtc).HasColumnName("next_fire_at_utc");
             entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
             entity.Property(x => x.DisabledAtUtc).HasColumnName("disabled_at_utc");

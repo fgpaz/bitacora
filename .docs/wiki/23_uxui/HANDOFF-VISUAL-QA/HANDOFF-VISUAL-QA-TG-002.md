@@ -80,12 +80,12 @@ Una deriva en el copy o en el flujo conversacional puede generar culpa, confusio
 - confirmacion de que `Ahora no` no genera mensaje adicional;
 - confirmacion de que el gate de consentimiento y sesion bloquea el envio del recordatorio.
 
-## Validacion diferida
+## Validacion vigente
 
-La evidencia minima de cierre arriba es el gate documental. La validacion UX real con personas reales se documenta en `../UX-VALIDATION/UX-VALIDATION-TG-002.md` y queda diferida a `Phase 60`.
+La evidencia minima de cierre arriba se complementa con E2E productivo de recordatorios/registro conversacional y con la regresion RF-TG-006 registrada en `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.
 
 ---
 
 **Estado:** checklist visual activa para cierre de implementacion.
 **Consumidor principal:** backend + QA visual.
-**Runtime ausencia:** TelegramSession, ReminderConfig y el background service no existen hoy; la validacion real espera la materializacion del modulo.
+**Runtime Telegram:** implementado; mantener este gate como regresion visual/conversacional.

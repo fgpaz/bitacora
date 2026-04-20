@@ -1,26 +1,27 @@
 'use client';
 
+import styles from './AppState.module.css';
+
 export default function Error({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-2xl font-semibold text-gray-900">Algo salió mal</h1>
-        <p className="mb-6 text-gray-600">
-          Ocurrió un error inesperado. Por favor intenta de nuevo.
+    <main className={styles.statePage}>
+      <section className={styles.panel} aria-labelledby="app-error-title">
+        <h1 id="app-error-title" className={styles.title}>Algo salió mal</h1>
+        <p className={styles.text}>
+          Ocurrió un error inesperado. Intentá de nuevo.
         </p>
         <button
           onClick={reset}
-          className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className={styles.primaryButton}
         >
           Reintentar
         </button>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

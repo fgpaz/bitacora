@@ -1,22 +1,27 @@
-/* TelegramPairingCard — minimal, functional, accessible */
-
 .card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  width: 100%;
   max-width: 480px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-soft);
 }
 
 .skeleton {
-  height: 120px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  min-height: 120px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted) 25%,
+    var(--surface) 50%,
+    var(--surface-muted) 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 0.5rem;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
 
 @keyframes shimmer {
@@ -24,331 +29,289 @@
   100% { background-position: -200% 0; }
 }
 
-.title {
-  font-size: 1.125rem;
-  font-weight: 600;
+.title,
+.sectionTitle {
   margin: 0;
-  color: #111827;
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-weight: 700;
 }
 
-.description {
-  font-size: 0.9rem;
-  color: #4b5563;
+.title {
+  font-size: 1.125rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+}
+
+.description,
+.hint,
+.instruction,
+.codeLabel,
+.reminderLabel,
+.confirmText,
+.expiredText {
   margin: 0;
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
   line-height: 1.5;
 }
 
-.hint {
-  font-size: 0.9rem;
-  color: #4b5563;
-  margin: 0;
+.description,
+.hint,
+.instruction {
+  font-size: 0.9375rem;
+}
+
+.codeLabel,
+.reminderLabel,
+.confirmText,
+.expiredText {
+  font-size: 0.875rem;
 }
 
 .linkedBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-weight: 600;
-  color: #059669;
-  font-size: 0.95rem;
-}
-
-.linkedBadge::before {
-  content: '✓';
+  align-self: flex-start;
+  min-height: 32px;
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--brand-primary);
+  border-radius: var(--radius-sm);
+  color: var(--brand-primary);
+  background-color: var(--surface-muted);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
 }
 
 .botLink {
-  color: #2563eb;
+  color: var(--brand-primary);
+  font-weight: 700;
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.generateBtn {
-  align-self: flex-start;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+.botLink:focus-visible,
+.generateBtn:focus-visible,
+.copyBtn:focus-visible,
+.saveReminderBtn:focus-visible,
+.unlinkBtn:focus-visible,
+.confirmBtn:focus-visible,
+.cancelBtn:focus-visible,
+.reminderSelect:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.generateBtn,
+.saveReminderBtn,
+.confirmBtn,
+.copyBtn,
+.unlinkBtn,
+.cancelBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.generateBtn:hover:not(:disabled) {
-  background: #1d4ed8;
+.generateBtn,
+.saveReminderBtn {
+  align-self: flex-start;
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: var(--surface);
 }
 
-.generateBtn:disabled {
-  background: #93c5fd;
+.generateBtn:hover:not(:disabled),
+.saveReminderBtn:hover:not(:disabled) {
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.generateBtn:disabled,
+.saveReminderBtn:disabled,
+.confirmBtn:disabled,
+.copyBtn:disabled,
+.unlinkBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-.codeBlock {
+.codeBlock,
+.expiredBlock,
+.section,
+.unlinkSection,
+.unlinkConfirmation {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
-.codeLabel {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: 0;
+.section,
+.unlinkSection {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .codeRow {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-sm);
+  align-items: stretch;
 }
 
 .code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 1.5rem;
+  display: block;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #111827;
-  background: #f3f4f6;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
   user-select: all;
 }
 
-.copyBtn {
-  background: transparent;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.85rem;
-  color: #374151;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+.copyBtn,
+.cancelBtn {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-subtle);
+  background-color: transparent;
+  color: var(--foreground);
 }
 
-.copyBtn:hover {
-  background: #f3f4f6;
-}
-
-.instruction {
-  font-size: 0.875rem;
-  color: #4b5563;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.expiredBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.copyBtn:hover:not(:disabled),
+.cancelBtn:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+  background-color: var(--surface-muted);
 }
 
 .expiredText {
-  font-size: 0.9rem;
-  color: #b45309;
-  margin: 0;
-  font-weight: 500;
+  color: var(--brand-accent);
+  font-weight: 700;
+}
+
+.error,
+.reminderSuccess,
+.unlinkConfirmation {
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
 }
 
 .error {
+  margin: 0;
+  border: 1px solid var(--brand-accent);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  margin: 0;
-}
-
-/* Reminder schedule configuration */
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 1rem;
-}
-
-.sectionTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  color: #111827;
+  line-height: 1.4;
 }
 
 .reminderControls {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
 }
 
 .reminderGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-}
-
-.reminderLabel {
-  font-size: 0.85rem;
-  color: #4b5563;
-  font-weight: 500;
+  gap: var(--space-xs);
 }
 
 .reminderSelect {
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  color: #111827;
+  min-height: 44px;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 1rem;
   cursor: pointer;
-  transition: border-color 0.15s;
-  min-width: 80px;
 }
 
 .reminderSelect:hover:not(:disabled) {
-  border-color: #9ca3af;
-}
-
-.reminderSelect:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--brand-primary);
 }
 
 .reminderSelect:disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
+  background-color: var(--surface-muted);
+  color: var(--foreground-muted);
   cursor: not-allowed;
 }
 
 .reminderSuccess {
-  font-size: 0.875rem;
-  color: #059669;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
   margin: 0;
-  font-weight: 500;
-}
-
-.saveReminderBtn {
-  align-self: flex-start;
-  background: #10b981;
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.saveReminderBtn:hover:not(:disabled) {
-  background: #059669;
-}
-
-.saveReminderBtn:disabled {
-  background: #a7f3d0;
-  cursor: not-allowed;
-}
-
-/* Unlink section */
-
-.unlinkSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 1rem;
+  border: 1px solid var(--brand-primary);
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
 .unlinkBtn {
   align-self: flex-start;
-  background: transparent;
-  border: 1px solid #dc2626;
-  border-radius: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #dc2626;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--brand-accent);
+  background-color: transparent;
+  color: var(--brand-accent);
 }
 
 .unlinkBtn:hover:not(:disabled) {
-  background: #fef2f2;
-}
-
-.unlinkBtn:disabled {
-  border-color: #fca5a5;
-  color: #fca5a5;
-  cursor: not-allowed;
+  background-color: var(--surface-muted);
+  color: var(--foreground);
 }
 
 .unlinkConfirmation {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-}
-
-.confirmText {
-  font-size: 0.875rem;
-  color: #7f1d1d;
-  margin: 0;
-  font-weight: 500;
+  border: 1px solid var(--brand-accent);
+  background-color: var(--surface-muted);
 }
 
 .confirmButtons {
-  display: flex;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
 }
 
 .confirmBtn {
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--brand-accent);
+  background-color: var(--brand-accent);
+  color: var(--surface);
 }
 
 .confirmBtn:hover:not(:disabled) {
-  background: #b91c1c;
+  background-color: var(--surface);
+  color: var(--brand-accent);
 }
 
-.confirmBtn:disabled {
-  background: #fca5a5;
-  cursor: not-allowed;
-}
+@media (min-width: 420px) {
+  .codeRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
 
-.cancelBtn {
-  background: transparent;
-  border: 1px solid #9ca3af;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.cancelBtn:hover:not(:disabled) {
-  background: #f3f4f6;
-}
-
-.cancelBtn:disabled {
-  border-color: #d1d5db;
-  color: #9ca3af;
-  cursor: not-allowed;
+  .confirmButtons {
+    grid-template-columns: auto auto;
+    justify-content: start;
+  }
 }

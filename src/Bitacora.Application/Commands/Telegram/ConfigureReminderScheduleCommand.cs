@@ -4,8 +4,8 @@ using NuestrasCuentitas.Bitacora.Application.Contracts.Telegram;
 namespace NuestrasCuentitas.Bitacora.Application.Commands.Telegram;
 
 /// <summary>
-/// Command to configure or reschedule reminders for authenticated patient (RF-TG-010..012).
-/// Supports timezone configuration to convert UTC schedule to patient-local timezone.
+/// Command to configure or reschedule reminders for authenticated patient (RF-TG-006).
+/// HourUtc and MinuteUtc are persisted UTC fields; timezone preserves patient-local display context.
 /// </summary>
 public sealed record ConfigureReminderScheduleCommand(
     Guid PatientId,

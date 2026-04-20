@@ -115,9 +115,10 @@ public static class TelegramEndpoints
             .WithName("ConfigureReminderSchedule")
             .WithTags(Tag)
             .WithSummary("Configura horario de recordatorios con soporte de zona horaria")
-            .WithDescription("Creates or updates reminder configuration. Supports IANA and Windows timezone IDs. Optional timezone defaults to Etc/UTC.")
+            .WithDescription("Creates or updates reminder configuration. The request uses UTC hour/minute converted from Buenos Aires local time. Optional timezone defaults to America/Argentina/Buenos_Aires.")
             .Produces<ConfigureReminderScheduleResponse>(StatusCodes.Status200OK)
-            .Produces<BitacoraException>(StatusCodes.Status400BadRequest);
+            .Produces<BitacoraException>(StatusCodes.Status400BadRequest)
+            .Produces<BitacoraException>(StatusCodes.Status403Forbidden);
 
         // Webhook endpoint — Telegram sends POST with update payload
         // Rate-limited per IP (webhook policy); secret-token validated before dispatch.

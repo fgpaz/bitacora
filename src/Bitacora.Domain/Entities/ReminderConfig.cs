@@ -1,5 +1,3 @@
-using NuestrasCuentitas.Bitacora.Domain.Enums;
-
 namespace NuestrasCuentitas.Bitacora.Domain.Entities;
 
 /// <summary>
@@ -8,12 +6,14 @@ namespace NuestrasCuentitas.Bitacora.Domain.Entities;
 /// </summary>
 public sealed class ReminderConfig
 {
+    public const string DefaultTimezone = "America/Argentina/Buenos_Aires";
+
     public Guid ReminderConfigId { get; private set; }
     public Guid PatientId { get; private set; }
     public int HourUtc { get; private set; }
     public int MinuteUtc { get; private set; }
     public bool Enabled { get; private set; }
-    public string ReminderTimezone { get; private set; } = "Etc/UTC";
+    public string ReminderTimezone { get; private set; } = DefaultTimezone;
     public DateTime? NextFireAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime? DisabledAtUtc { get; private set; }
@@ -28,7 +28,7 @@ public sealed class ReminderConfig
         int hourUtc,
         int minuteUtc,
         bool enabled,
-        string reminderTimezone,
+        string? reminderTimezone,
         DateTime? nextFireAtUtc,
         DateTime createdAtUtc,
         DateTime? disabledAtUtc)
@@ -38,7 +38,7 @@ public sealed class ReminderConfig
         HourUtc = hourUtc;
         MinuteUtc = minuteUtc;
         Enabled = enabled;
-        ReminderTimezone = reminderTimezone ?? "Etc/UTC";
+        ReminderTimezone = NormalizeTimezone(reminderTimezone);
         NextFireAtUtc = nextFireAtUtc;
         CreatedAtUtc = createdAtUtc;
         DisabledAtUtc = disabledAtUtc;
@@ -51,6 +51,8 @@ public sealed class ReminderConfig
             throw new ArgumentException("Patient id is required.", nameof(patientId));
         }
 
+        ValidateSchedule(defaultHourUtc, defaultMinuteUtc);
+
         var nowUtc = DateTime.UtcNow;
         var nextFire = CalculateNextFireUtc(nowUtc, defaultHourUtc, defaultMinuteUtc);
 
@@ -60,7 +62,7 @@ public sealed class ReminderConfig
             defaultHourUtc,
             defaultMinuteUtc,
             enabled: true,
-            reminderTimezone: timezone ?? "Etc/UTC",
+            reminderTimezone: timezone,
             nextFireAtUtc: nextFire,
             createdAtUtc: nowUtc,
             disabledAtUtc: null);
@@ -80,18 +82,18 @@ public sealed class ReminderConfig
 
     public void Reschedule(int hourUtc, int minuteUtc, string? timezone, DateTime nowUtc)
     {
-        if (!Enabled)
-        {
-            throw new InvalidOperationException("Cannot reschedule a disabled reminder config.");
-        }
+        ConfigureSchedule(hourUtc, minuteUtc, timezone, nowUtc);
+    }
+
+    public void ConfigureSchedule(int hourUtc, int minuteUtc, string? timezone, DateTime nowUtc)
+    {
+        ValidateSchedule(hourUtc, minuteUtc);
 
         HourUtc = hourUtc;
         MinuteUtc = minuteUtc;
-        if (!string.IsNullOrWhiteSpace(timezone))
-        {
-            ReminderTimezone = timezone;
-        }
-
+        Enabled = true;
+        DisabledAtUtc = null;
+        ReminderTimezone = NormalizeTimezone(timezone);
         NextFireAtUtc = CalculateNextFireUtc(nowUtc, hourUtc, minuteUtc);
     }
 
@@ -107,7 +109,29 @@ public sealed class ReminderConfig
 
     private static DateTime CalculateNextFireUtc(DateTime nowUtc, int hourUtc, int minuteUtc)
     {
+        ValidateSchedule(hourUtc, minuteUtc);
+
         var today = new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, hourUtc, minuteUtc, 0, DateTimeKind.Utc);
         return today > nowUtc ? today : today.AddDays(1);
+    }
+
+    private static void ValidateSchedule(int hourUtc, int minuteUtc)
+    {
+        if (hourUtc is < 0 or > 23)
+        {
+            throw new ArgumentOutOfRangeException(nameof(hourUtc), "Reminder hour must be between 0 and 23.");
+        }
+
+        if (minuteUtc is not (0 or 30))
+        {
+            throw new ArgumentOutOfRangeException(nameof(minuteUtc), "Reminder minute must be 0 or 30.");
+        }
+    }
+
+    private static string NormalizeTimezone(string? timezone)
+    {
+        return string.IsNullOrWhiteSpace(timezone)
+            ? DefaultTimezone
+            : timezone.Trim();
     }
 }

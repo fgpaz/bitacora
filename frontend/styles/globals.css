@@ -8,6 +8,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -16,6 +17,7 @@ body {
   color: var(--foreground);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 /* Focus visible */

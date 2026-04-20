@@ -78,6 +78,17 @@ Estos paths se crean cuando `T04` defina la estructura base del routing paciente
 - `frontend/components/patient/registro/DailyCheckinFlow.tsx`
 - `frontend/lib/patient/registro.ts`
 
+## Sync runtime 2026-04-20
+
+La implementación paciente vigente usa paths reales distintos a los placeholders iniciales:
+
+| Runtime actual | Responsabilidad |
+| --- | --- |
+| `frontend/app/(patient)/registro/daily-checkin/page.tsx` | entrada del slice |
+| `frontend/components/patient/checkin/DailyCheckinForm.tsx` | composición, campos, submit y feedback |
+| `frontend/components/patient/checkin/DailyCheckinForm.module.css` | responsive, foco y tokens visuales |
+| `frontend/lib/api/client.ts` | `upsertDailyCheckin(data)` |
+
 ## Regla de ownership
 
 - `T04` puede crear shell y bases compartidas, pero no debe redefinir el slice;

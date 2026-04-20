@@ -22,7 +22,7 @@ Este documento depende de:
 Y prepara directamente:
 
 - futuro `../PROTOTYPE/PROTOTYPE-TG-002.md`
-- futuro `../UX-VALIDATION/UX-VALIDATION-TG-002.md`
+- `../UX-VALIDATION/UX-VALIDATION-TG-002.md`
 
 ## Slice y paso dueño
 
@@ -102,4 +102,4 @@ Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sens
 - los estados declarados en este documento (reminder_sent, reply_submitting, reply_success, reply_error) fueron heredados en el arbol de estados del UI-RFC
 
 **Estado:** `UXS` activo para `TG-002`.
-**Siguiente capa gobernada:** futuro `../PROTOTYPE/PROTOTYPE-TG-002.md` y `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.
+**Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-TG-002.md` y `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.

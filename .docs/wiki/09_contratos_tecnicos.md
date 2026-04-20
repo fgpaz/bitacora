@@ -69,7 +69,7 @@
 | Metodo | Ruta | Auth | Descripcion |
 |--------|------|------|-------------|
 | DELETE | /api/v1/telegram/session | Bearer JWT (paciente) | Desvincula (soft delete) la sesion Telegram del paciente autenticado |
-| PUT | /api/v1/telegram/reminder-schedule | Bearer JWT (paciente) | Configura el horario de recordatorio del bot; convierte timezone local a UTC |
+| PUT | /api/v1/telegram/reminder-schedule | Bearer JWT (paciente) | Configura el horario de recordatorio del bot; recibe hora/minuto UTC convertidos desde la UI local |
 
 **DELETE /api/v1/telegram/session**
 
@@ -83,11 +83,12 @@
 
 - **Auth**: Bearer JWT (patient)
 - **Rate limit**: write
-- **Body**: `{ hourUtc: int(0-23), minuteUtc: int(0|30), timezone: string(IANA) }`
+- **Body**: `{ hourUtc: int(0-23), minuteUtc: int(0|30), timezone: string(IANA|Windows|null) }`
+- **Contrato horario**: la UI paciente muestra hora local Buenos Aires; `frontend/lib/api/client.ts` convierte esa hora local a `hourUtc`/`minuteUtc` antes de enviar. Ejemplo: `22:00` Buenos Aires => `{ hourUtc: 1, minuteUtc: 0 }`.
 - **Response 200**: `{ reminderConfigId: uuid, hourUtc: int, minuteUtc: int, reminderTimezone: string, enabled: bool, nextFireAtUtc: ISO }`
-- **Response 400**: `{ code: "INVALID_TIMEZONE" }`
-- **Response 403**: `{ code: "TG_NO_ACTIVE_SESSION" }`
-- **Descripcion**: Configura el horario de recordatorio del bot Telegram. Convierte timezone local a UTC antes de persistir. Devuelve proximo disparo del recordatorio en UTC.
+- **Response 400**: `{ code: "TG_006_INVALID_HOUR" }`, `{ code: "TG_006_INVALID_MINUTE" }`, `{ code: "TG_006_INVALID_TIMEZONE" }`
+- **Response 403**: `{ code: "TG_006_NO_ACTIVE_SESSION" }`
+- **Descripcion**: Configura el horario de recordatorio del bot Telegram. Persiste horario UTC y timezone de contexto local. Devuelve proximo disparo del recordatorio en UTC.
 
 ## Convenciones de contrato
 
@@ -153,8 +154,10 @@ Todas las respuestas de error siguen este envelope:
 | BINDING_CODE_ALREADY_USED | 409 | BindingCode ya consumido |
 | SESSION_NOT_LINKED | 200 | Webhook Telegram sin sesion vinculada |
 | TG_SESSION_NOT_FOUND | 404 | Sesion Telegram del paciente no existe |
-| TG_NO_ACTIVE_SESSION | 403 | Paciente sin sesion Telegram activa para programar recordatorio |
-| INVALID_TIMEZONE | 400 | Zona horaria IANA invalida o no soportada |
+| TG_006_NO_ACTIVE_SESSION | 403 | Paciente sin sesion Telegram activa para programar recordatorio |
+| TG_006_INVALID_HOUR | 400 | `hourUtc` fuera de 0..23 |
+| TG_006_INVALID_MINUTE | 400 | `minuteUtc` distinto de 0 o 30 |
+| TG_006_INVALID_TIMEZONE | 400 | Zona horaria invalida o no soportada |
 | AUDIT_WRITE_FAILED | 500 | Fallo al persistir `AccessAudit` |
 | ENCRYPTION_FAILURE | 500 | Fallo de cifrado o clave no disponible |
 | NO_CONSENT_CONFIG | 503 | No hay consentimiento activo configurado |

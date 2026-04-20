@@ -8,47 +8,37 @@ Este documento traduce `TG-001` a ownership tecnico concreto para `backend/teleg
 
 | Archivo objetivo | Responsabilidad |
 | --- | --- |
-| `src/Bitacora.Api/Endpoints/Telegram/Webhook.cs` | recepcion de mensajes entrantes del bot |
-| `src/Bitacora.Api/Endpoints/Telegram/Pairing.cs` | generacion de codigo de vinculacion |
-| `src/Bitacora.Api/Domain/Entities/TelegramSession.cs` | entidad de sesion vinculada |
-| `src/Bitacora.Api/Domain/Entities/PairingCode.cs` | entidad de codigo |
-| `src/Bitacora.Api/Services/Telegram/TelegramBotService.cs` | logica de parseo, validacion y respuesta |
-| `src/Bitacora.Api/BackgroundServices/TelegramReminderService.cs` | background service de recordatorios (delegado a TG-002) |
-| `src/Bitacora.Api/Program.cs` | registro de webhook y servicios |
+| `src/Bitacora.Api/Endpoints/Telegram/TelegramEndpoints.cs` | pairing REST, sesion REST y webhook |
+| `src/Bitacora.Application/Commands/Telegram/GeneratePairingCodeCommand.cs` | generacion de codigo de vinculacion |
+| `src/Bitacora.Application/Commands/Telegram/ConfirmPairingCommand.cs` | validacion de codigo desde webhook y creacion de sesion |
+| `src/Bitacora.Application/Commands/Telegram/HandleWebhookUpdateCommand.cs` | parseo `/start CODE` y respuestas del bot |
+| `src/Bitacora.Domain/Entities/TelegramSession.cs` | entidad de sesion vinculada |
+| `src/Bitacora.Domain/Entities/TelegramPairingCode.cs` | entidad de codigo |
+| `frontend/components/patient/telegram/TelegramPairingCard.tsx` | UI web de vinculo, estado y desvinculacion |
 
 ## Bloques conversacionales y destino sugerido
 
 | Bloque UX/UI | Implementacion sugerida | Nota |
 | --- | --- | --- |
-| evaluacion de `/start <codigo>` | `TelegramBotService.EvaluateStartCommand(string code)` | primer punto de entrada |
-| validacion de codigo | `PairingCodeService.Validate(code)` | retorna resultado con estado |
-| creacion de sesion | `TelegramSessionService.Link(patientId, chatId)` | solo si codigo valido y no vinculado |
-| respuesta al usuario | `TelegramBotService.SendMessage(chatId, copy)` | un solo mensaje por transicion |
-| logging de audit | `AccessAuditService.Log(telegram_session_linked, ...)` | momento auditable obligatorio |
+| evaluacion de `/start <codigo>` | `HandleWebhookUpdateCommandHandler` | primer punto de entrada desde Telegram |
+| validacion de codigo | `ConfirmPairingCommandHandler` | retorna resultado con estado |
+| creacion de sesion | `TelegramSession.CreateLinked(...)` | solo si codigo valido y no vinculado |
+| respuesta al usuario | `HandleWebhookUpdateCommandHandler` | un solo mensaje por transicion |
+| logging de audit | command handlers + repositorios | momento auditable obligatorio |
 
 ## Contratos de transicion
 
-### Webhook recibido por el bot
+### Webhook recibido desde el adapter Telegram
 
 ```
 POST /api/v1/telegram/webhook
-body: { "chat_id": number, "message": "/start BIT-7K2Q9" }
+header: X-Telegram-Webhook-Secret: <secret>
+body: TelegramWebhookRequest
 ```
 
-### Confirmacion de vinculacion (endpoint consumido por el bot)
+### Confirmacion de vinculacion
 
-```
-POST /api/v1/telegram/pairing/confirm
-body: { "code": string, "chat_id": number }
-header: X-Telegram-Bot-Token: <token>
-```
-
-Respuestas esperadas:
-
-- `200`: `{ "status": "linked", "patient_id": string }`
-- `410`: `{ "error": "code_expired" }`
-- `404`: `{ "error": "code_invalid" }`
-- `409`: `{ "error": "chat_already_linked" }`
+No existe endpoint REST publico `pairing/confirm`. La confirmacion ocurre dentro del webhook: `HandleWebhookUpdateCommandHandler` detecta `/start CODE`, invoca `ConfirmPairingCommandHandler`, y el endpoint responde `TelegramWebhookResponse` siempre con HTTP 200 para controlar reentregas de Telegram.
 
 ### Lectura de sesion (para saber si ya esta vinculado)
 
@@ -74,16 +64,9 @@ Respuestas esperadas:
 | `no_code` | orienta a flujo web | `Envia el codigo que aparece en la seccion de Telegram de la web.` |
 | `unrecognized` | recordatorio de formato | `No entendimos ese mensaje. Usa el comando /start junto con el codigo.` |
 
-## Rutas y filenames todavia no existentes en runtime
+## Runtime actual
 
-Estos paths se crean cuando el modulo Telegram se materialice en `src/`:
-
-- `src/Bitacora.Api/Endpoints/Telegram/Webhook.cs`
-- `src/Bitacora.Api/Endpoints/Telegram/Pairing.cs`
-- `src/Bitacora.Api/Domain/Entities/TelegramSession.cs`
-- `src/Bitacora.Api/Domain/Entities/PairingCode.cs`
-- `src/Bitacora.Api/Services/Telegram/TelegramBotService.cs`
-- `src/Bitacora.Api/BackgroundServices/TelegramReminderService.cs` (TG-002)
+Los paths de primera pasada fueron reemplazados por el runtime materializado listado arriba. Para QA y mantenimiento, usar `TelegramEndpoints`, `GeneratePairingCodeCommand`, `ConfirmPairingCommand`, `HandleWebhookUpdateCommand`, `TelegramSession`, `TelegramPairingCode` y `TelegramPairingCard` como ownership vigente.
 
 ## Momentos auditables
 
@@ -110,12 +93,26 @@ Estos paths se crean cuando el modulo Telegram se materialice en `src/`:
 - recordatorios y registro conversacional quedan fuera de este mapping (delegados a `TG-002`);
 - si el codigo necesita bloques extra, deben caer dentro de estos owners y no inventar una arquitectura paralela.
 
-## Runtime ausencia
+## Sync runtime 2026-04-20
 
-`TelegramSession` y `PairingCode` no existen hoy en el runtime de `src/`. El equipo consume este contrato como especificacion objetivo; la implementacion real espera la materializacion del modulo Telegram.
+La implementación paciente vigente para vinculación y configuración web de Telegram vive en:
+
+| Runtime actual | Responsabilidad |
+| --- | --- |
+| `frontend/app/(patient)/configuracion/telegram/page.tsx` | entrada de configuración Telegram paciente |
+| `frontend/components/patient/telegram/TelegramPairingCard.tsx` | vinculación, estado, desvinculación y horario local |
+| `frontend/components/patient/telegram/TelegramPairingCard.module.css` | estados responsive y tokens visuales |
+| `frontend/lib/api/client.ts` | `setReminderSchedule()` convierte hora local Buenos Aires a UTC |
+| `src/Bitacora.Api/Endpoints/Telegram/TelegramEndpoints.cs` | endpoints REST Telegram reales |
+| `src/Bitacora.Domain/Entities/TelegramSession.cs` | entidad de sesión vinculada |
+| `src/Bitacora.Domain/Entities/ReminderConfig.cs` | configuración persistida del recordatorio |
+
+## Nota historica
+
+La tabla `Sync runtime 2026-04-20` conserva el puente operativo entre el handoff original y los paths reales.
 
 ---
 
 **Estado:** mapping listo para `backend/telegram/`.
 **Siguiente artefacto:** `HANDOFF-VISUAL-QA-TG-001.md`.
-**Runtime Telegram:** diferido.
+**Runtime Telegram:** implementado; mapping sincronizado con paths reales el 2026-04-20.

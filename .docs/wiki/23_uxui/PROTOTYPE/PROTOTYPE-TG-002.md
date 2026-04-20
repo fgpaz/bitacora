@@ -24,7 +24,7 @@ Este documento depende de:
 
 Y prepara directamente:
 
-- futuro `../UX-VALIDATION/UX-VALIDATION-TG-002.md`
+- `../UX-VALIDATION/UX-VALIDATION-TG-002.md`
 
 ## Slice cubierto
 
@@ -146,4 +146,4 @@ El prototipo está listo si:
 - este prototipo mantiene su valor como referencia visual Stitch y HTML local, pero no constituye evidencia de validacion hasta que exista runtime
 
 **Estado:** prototipo enlazado, navegable y testeable para `TG-002`.
-**Siguiente capa gobernada:** futuro `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.
+**Siguiente capa gobernada:** `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.

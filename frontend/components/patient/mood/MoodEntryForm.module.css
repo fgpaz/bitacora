@@ -1,5 +1,5 @@
 .form {
-  padding-bottom: calc(var(--space-2xl) + 56px);
+  padding-bottom: calc(var(--space-2xl) + 72px);
 }
 
 .headline {
@@ -21,6 +21,7 @@
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: center;
+  z-index: 20;
 }
 
 .submitBtn {
@@ -34,7 +35,16 @@
   padding: var(--space-sm) var(--space-xl);
   cursor: pointer;
   min-width: 200px;
-  transition: opacity 0.15s ease;
+  min-height: 44px;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.submitBtn:focus-visible,
+.consentLink:focus-visible,
+.nextLink:focus-visible,
+.backLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .submitBtn:disabled {
@@ -63,6 +73,10 @@
 
 .consentLink,
 .nextLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -71,6 +85,10 @@
 }
 
 .backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.875rem;
   color: var(--foreground-muted);

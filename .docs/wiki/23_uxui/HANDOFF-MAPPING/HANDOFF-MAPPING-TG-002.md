@@ -2,35 +2,36 @@
 
 ## Proposito
 
-Este documento traduce `TG-002` a ownership tecnico concreto para `backend/telegram/`.
+Este documento traduce `TG-002` a ownership tecnico concreto para el runtime actual de Telegram.
 
 ## Archivos objetivo de primera pasada
 
 | Archivo objetivo | Responsabilidad |
 | --- | --- |
-| `src/Bitacora.Api/BackgroundServices/TelegramReminderService.cs` | timer cada 1 min, consulta ReminderConfig, gate y envio |
-| `src/Bitacora.Api/Domain/Entities/TelegramSession.cs` | entidad de sesion vinculada |
-| `src/Bitacora.Api/Domain/Entities/ReminderConfig.cs` | entidad de configuracion de recordatorios |
-| `src/Bitacora.Api/Services/Telegram/TelegramBotService.cs` | parseo de respuesta inline keyboard |
-| `src/Bitacora.Api/Domain/Entities/MoodEntry.cs` | registro de humor con `source: "telegram"` |
-| `src/Bitacora.Api/Domain/Entities/DailyCheckin.cs` | registro parcial de factores |
-| `src/Bitacora.Api/Endpoints/Telegram/Webhook.cs` | recepcion de callback queries del inline keyboard |
-| `src/Bitacora.Api/Program.cs` | registro de IHostedService y webhook |
+| `src/Bitacora.Api/Workers/ReminderWorker.cs` | timer cada 1 min, consulta `ReminderConfig`, gate y envio |
+| `src/Bitacora.Api/Endpoints/Telegram/TelegramEndpoints.cs` | endpoints REST + webhook Telegram |
+| `src/Bitacora.Application/Commands/Telegram/SendReminderCommand.cs` | envio de recordatorio con keyboard inline |
+| `src/Bitacora.Application/Commands/Telegram/HandleWebhookUpdateCommand.cs` | parseo de respuesta y flujo conversacional |
+| `src/Bitacora.Application/Commands/Telegram/ConfigureReminderScheduleCommandHandler.cs` | configuracion de horario con validacion RF-TG-006 |
+| `src/Bitacora.Domain/Entities/TelegramSession.cs` | entidad de sesion vinculada y estado conversacional |
+| `src/Bitacora.Domain/Entities/ReminderConfig.cs` | entidad de configuracion de recordatorios |
+| `src/Bitacora.Domain/Entities/DailyCheckin.cs` | registro diario generado desde Telegram |
+| `frontend/components/patient/telegram/TelegramPairingCard.tsx` | UI web de vinculo y horario local |
 
 ## Bloques conversacionales y destino sugerido
 
 | Bloque UX/UI | Implementacion sugerida | Nota |
 | --- | --- | --- |
-| `daily_reminder` trigger | `TelegramReminderService.OnTimerTick()` | timer 1 min, query ReminderConfig |
-| gate de consentimiento | `TelegramReminderService.ShouldSend(patientId)` | revisa ConsentGrant activo |
-| gate de sesion | `TelegramReminderService.ShouldSend(patientId)` | revisa TelegramSession vinculada |
-| envio de pregunta de humor | `TelegramBotService.SendInlineKeyboard(chatId, scaleKeyboard)` | keyboard con `+3 .. -3` + `Ahora no` |
-| recepcion de respuesta | `TelegramBotService.HandleCallbackQuery(callback)` | parsea valor y dispatcha |
-| registro de humor | `MoodEntryService.Create(moodValue, source: telegram)` | llama `POST /api/v1/mood-entries` internamente |
-| confirmacion | `TelegramBotService.SendMessage(chatId, confirmCopy)` | sin celebracion ni emoji |
-| factores prompt | `TelegramBotService.SendInlineKeyboard(chatId, sleepKeyboard)` | continuacion opcional |
-| cierre final | `TelegramBotService.SendMessage(chatId, "Buen dia.")` | sin insistencia |
-| logging de audit | `AccessAuditService.Log(...)` | cada recordatorio y cada respuesta |
+| `daily_reminder` trigger | `ReminderWorker.ExecuteAsync()` | timer 1 min, query `ReminderConfig` |
+| gate de consentimiento | `SendReminderCommandHandler` | revisa `ConsentGrant` activo |
+| gate de sesion | `SendReminderCommandHandler` | revisa `TelegramSession` vinculada |
+| envio de pregunta de humor | `SendReminderCommandHandler.SendViaTelegramApiAsync()` | keyboard con escala y `Ahora no` |
+| recepcion de respuesta | `HandleWebhookUpdateCommandHandler` | parsea update/callback y dispatcha |
+| registro diario | `HandleWebhookUpdateCommandHandler` | crea/actualiza `DailyCheckin` sin ecoar valores clinicos |
+| confirmacion | `HandleWebhookUpdateCommandHandler` | copy factual sin celebracion ni emoji |
+| factores prompt | `HandleWebhookUpdateCommandHandler` | continuacion opcional |
+| cierre final | `HandleWebhookUpdateCommandHandler` | cierre breve sin insistencia |
+| horario local | `frontend/lib/api/client.ts` | convierte Buenos Aires local a UTC antes del PUT |
 
 ## Contratos de transicion
 
@@ -42,28 +43,15 @@ Gate: ConsentGrant.active == true AND TelegramSession.linked == true
 Si gate pasa -> Telegram API SendMessage
 ```
 
-### Registro de humor via API
+### Registro conversacional interno
 
 ```
-POST /api/v1/mood-entries
-body: { "mood_value": number, "source": "telegram", "chat_id": number }
-header: Authorization: Bearer <access_token>
-
-Respuestas:
-- 201: { "mood_entry_id": string, "mood_value": number, "recorded_at": string }
-- 401: mensaje generico (sin sesion)
-- 422: valor fuera de rango
+POST /api/v1/telegram/webhook
+header: X-Telegram-Webhook-Secret: <secret>
+body: TelegramWebhookRequest
 ```
 
-### Registro de factores via API
-
-```
-POST /api/v1/daily-checkins
-body: { "sleep_hours": string, "physical_activity": boolean, "medication_taken": string, "chat_id": number }
-header: Authorization: Bearer <access_token>
-
-Body es parcial si el usuario no completa todos los factores.
-```
+El handler resuelve la sesion vinculada internamente, crea/actualiza `DailyCheckin` y devuelve a Telegram solo mensajes de control. El bot no ecoa valores clinicos, factores, medicacion, identificadores internos ni payloads.
 
 ### Rate limit
 
@@ -83,14 +71,9 @@ Body es parcial si el usuario no completa todos los factores.
 | `reminder_skipped` | usuario eligio `Ahora no` | silencio util — no hay mensaje |
 | `unrecognized` | mensaje no esperado | `No entendimos ese mensaje. Usa /registrar o esperi tu proximo recordatorio.` |
 
-## Rutas y filenames todavia no existentes en runtime
+## Runtime actual
 
-Estos paths se crean cuando el modulo Telegram se materialice en `src/`:
-
-- `src/Bitacora.Api/BackgroundServices/TelegramReminderService.cs`
-- `src/Bitacora.Api/Domain/Entities/TelegramSession.cs`
-- `src/Bitacora.Api/Domain/Entities/ReminderConfig.cs`
-- `src/Bitacora.Api/Services/Telegram/TelegramBotService.cs`
+Los paths de primera pasada fueron reemplazados por el runtime materializado listado arriba. Para QA y mantenimiento, usar `ReminderWorker`, `TelegramEndpoints`, `SendReminderCommand`, `HandleWebhookUpdateCommand`, `TelegramSession`, `ReminderConfig` y `TelegramPairingCard` como ownership vigente.
 
 ## Momentos auditables
 
@@ -120,12 +103,8 @@ Estos paths se crean cuando el modulo Telegram se materialice en `src/`:
 - vinculacion de cuenta queda fuera de este mapping (delegada a `TG-001`);
 - si el codigo necesita bloques extra, deben caer dentro de estos owners y no inventar una arquitectura paralela.
 
-## Runtime ausencia
-
-`TelegramSession`, `ReminderConfig`, el background service y el webhook no existen hoy en el runtime de `src/`. El equipo consume este contrato como especificacion objetivo; la implementacion real espera la materializacion del modulo Telegram.
-
 ---
 
 **Estado:** mapping listo para `backend/telegram/`.
 **Siguiente artefacto:** `HANDOFF-VISUAL-QA-TG-002.md`.
-**Runtime Telegram:** diferido.
+**Runtime Telegram:** implementado; pendiente solo E2E post-deploy de la regresion RF-TG-006.

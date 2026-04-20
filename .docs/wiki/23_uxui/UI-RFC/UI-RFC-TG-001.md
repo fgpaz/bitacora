@@ -185,7 +185,7 @@ No entendimos ese mensaje. Usá el comando /start junto con el código.
 
 - `TelegramSession` existe en runtime (Phase 30+); la tabla, el seam webhook y el flujo conversacional son operables segun `TECH-TELEGRAM.md`
 - `TG-002` (recordatorios) queda fuera de este contrato
-- cuando exista runtime real, `UX-VALIDATION-TG-001.md` podrá reabrir este contrato si la evidencia observada contradice el diseño
+- `UX-VALIDATION-TG-001.md` puede reabrir este contrato si la evidencia observada contradice el diseño
 
 ## Criterio de implementación
 
@@ -201,4 +201,4 @@ La implementación cumple este contrato si:
 
 **Estado:** `UI-RFC` activo para `TG-001` bajo gap map `2026-04-10`.
 **Siguiente capa gobernada:** `HANDOFF-SPEC-TG-001.md`, `HANDOFF-ASSETS-TG-001.md`, `HANDOFF-MAPPING-TG-001.md`, `HANDOFF-VISUAL-QA-TG-001.md`.
-**Validación UX real:** diferida a `Phase 60`; no se genera evidencia anticipada.
+**Validación UX:** `UX-VALIDATION-TG-001.md` cubre la evidencia estática disponible; el E2E conversacional completo queda sujeto a evidencia post-deploy sanitizada.

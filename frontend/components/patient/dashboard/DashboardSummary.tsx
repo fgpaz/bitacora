@@ -4,6 +4,7 @@
  * DashboardSummary — patient dashboard statistics cards.
  * Displays total entries, average mood score, and last entry timestamp.
  */
+import styles from './DashboardSummary.module.css';
 
 interface Props {
   totalEntries: number;
@@ -32,25 +33,22 @@ function formatMoodScore(score: number | null): string {
 
 export function DashboardSummary({ totalEntries, avgMoodScore, lastEntryAt }: Props) {
   return (
-    <div className="grid grid-cols-3 gap-4 mb-8">
-      {/* Total entries card */}
-      <div className="bg-surface-default border border-surface-muted rounded-lg p-6 text-center">
-        <p className="text-sm font-medium text-foreground-muted mb-2">Registros totales</p>
-        <p className="text-3xl font-bold text-foreground-default">{totalEntries}</p>
+    <div className={styles.grid}>
+      <div className={styles.card}>
+        <p className={styles.label}>Registros totales</p>
+        <p className={styles.value}>{totalEntries}</p>
       </div>
 
-      {/* Average mood score card */}
-      <div className="bg-surface-default border border-surface-muted rounded-lg p-6 text-center">
-        <p className="text-sm font-medium text-foreground-muted mb-2">Promedio de humor</p>
-        <p className="text-3xl font-bold text-foreground-default">
+      <div className={styles.card}>
+        <p className={styles.label}>Promedio de humor</p>
+        <p className={styles.value}>
           {formatMoodScore(avgMoodScore)}
         </p>
       </div>
 
-      {/* Last entry date card */}
-      <div className="bg-surface-default border border-surface-muted rounded-lg p-6 text-center">
-        <p className="text-sm font-medium text-foreground-muted mb-2">Último registro</p>
-        <p className="text-lg font-semibold text-foreground-default">{formatDate(lastEntryAt)}</p>
+      <div className={styles.card}>
+        <p className={styles.label}>Último registro</p>
+        <p className={styles.dateValue}>{formatDate(lastEntryAt)}</p>
       </div>
     </div>
   );

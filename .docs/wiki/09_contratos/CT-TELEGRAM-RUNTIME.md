@@ -99,6 +99,53 @@ Consulta el estado de vinculacion Telegram del paciente autenticado.
 
 ---
 
+### PUT /api/v1/telegram/reminder-schedule
+
+Configura el horario diario de recordatorio para el paciente autenticado (RF-TG-006).
+
+| Campo | Detalle |
+|-------|---------|
+| Autenticacion | JWT Bearer (patient) |
+| Precondicion | `TelegramSession` linked para el paciente |
+| Contrato horario | UI local Buenos Aires -> request UTC |
+| Estado | **Implementado** |
+
+**Request body:**
+
+```json
+{
+  "hourUtc": 1,
+  "minuteUtc": 0,
+  "timezone": "America/Argentina/Buenos_Aires"
+}
+```
+
+**Nota:** el ejemplo corresponde a `22:00` en hora local Buenos Aires. La API no interpreta campos locales; recibe UTC ya convertido y conserva `timezone` como contexto de display/scheduler.
+
+**Response 200:**
+
+```json
+{
+  "reminderConfigId": "uuid",
+  "hourUtc": 1,
+  "minuteUtc": 0,
+  "reminderTimezone": "America/Argentina/Buenos_Aires",
+  "enabled": true,
+  "nextFireAtUtc": "2026-04-21T01:00:00Z"
+}
+```
+
+**Errores tipados:**
+
+| Codigo | HTTP | Trigger |
+|--------|------|---------|
+| TG_006_INVALID_HOUR | 400 | `hourUtc` fuera de 0..23 |
+| TG_006_INVALID_MINUTE | 400 | `minuteUtc` distinto de 0 o 30 |
+| TG_006_INVALID_TIMEZONE | 400 | timezone invalido |
+| TG_006_NO_ACTIVE_SESSION | 403 | no hay TelegramSession linked |
+
+---
+
 ### POST /api/v1/telegram/webhook
 
 Procesa updates entrantes del bot Telegram (comandos `/start CODE`, inline keyboard mood values, mensajes de texto).

@@ -38,9 +38,9 @@ Aunque no haya assets especiales, el equipo de backend/telegram debe consumir es
 | mensaje de error | `VOICE-TG-002.md` | reintento sin culpa |
 | mensaje de no reconocido | `VOICE-TG-002.md` | recordatorio de formato |
 
-## Ausencia de runtime
+## Runtime materializado
 
-`TelegramSession`, `ReminderConfig`, el webhook y el background service no existen hoy en el runtime de `src/`. Esta documentacion opera como especificacion objetivo; la materializacion real sera cuando el modulo Telegram exista en runtime.
+`TelegramSession`, `ReminderConfig`, el webhook y `ReminderWorker` existen hoy en el runtime de `src/`. La configuracion de horario se expone tambien en `frontend/components/patient/telegram/TelegramPairingCard.tsx`, con conversion de hora local Buenos Aires a UTC antes del contrato REST.
 
 ## Regla operativa
 
@@ -57,4 +57,4 @@ el pack debe reabrirse y actualizar este documento.
 
 **Estado:** `sin assets especiales`, con copy y dependencias conversacionales explícitas.
 **Siguiente artefacto:** `HANDOFF-MAPPING-TG-002.md`.
-**Runtime Telegram:** diferido; no existe hoy en `src/`.
+**Runtime Telegram:** implementado; E2E post-fix de RF-TG-006 se registra en `UX-VALIDATION-TG-002.md`.

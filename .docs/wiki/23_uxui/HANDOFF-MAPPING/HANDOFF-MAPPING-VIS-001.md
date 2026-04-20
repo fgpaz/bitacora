@@ -47,6 +47,18 @@ Estos paths se crean cuando `T04` defina la estructura base del routing paciente
 - `frontend/components/patient/timeline/TimelineChart.tsx`
 - `frontend/lib/patient/timeline.ts`
 
+## Sync runtime 2026-04-20
+
+La superficie paciente vigente usa `/dashboard` como implementación operativa del historial cotidiano, mientras `VIS-001` conserva el contrato de timeline canónico:
+
+| Runtime actual | Responsabilidad |
+| --- | --- |
+| `frontend/app/(patient)/dashboard/page.tsx` | entrada operativa del historial paciente |
+| `frontend/components/patient/dashboard/Dashboard.tsx` | estados loading/error/empty/ready |
+| `frontend/components/patient/dashboard/DashboardSummary.tsx` | métricas resumidas |
+| `frontend/components/patient/dashboard/*.module.css` | responsive y tokens visuales |
+| `frontend/lib/api/client.ts` | `getPatientTimeline()` y `getPatientSummary()` |
+
 ## Backend todavía no existente
 
 El endpoint `GET /api/v1/mood-entries/timeline` es futuro — contrato marcado como especulativo en `UI-RFC-VIS-001.md`. No debe asumirse runtime de mood entries activo.

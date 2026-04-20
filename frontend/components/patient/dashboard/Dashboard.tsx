@@ -9,16 +9,47 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
-import type { PatientTimelineResponse, PatientSummaryResponse } from '@/lib/api/client';
 import { DashboardSummary } from './DashboardSummary';
+import styles from './Dashboard.module.css';
 
 type ViewState = 'loading' | 'ready' | 'error' | 'empty';
 
 interface EntryData {
   date: string;
   moodScore: number | null;
+}
+
+const SUMMARY_SKELETON_KEYS = ['summary-total', 'summary-average', 'summary-last'];
+const ENTRY_SKELETON_KEYS = ['entry-1', 'entry-2', 'entry-3', 'entry-4'];
+const MAX_ABS_SCORE = 3;
+
+function formatEntryDate(date: string, options: Intl.DateTimeFormatOptions): string {
+  return new Date(`${date}T00:00:00`).toLocaleDateString('es-AR', options);
+}
+
+function formatMoodScore(score: number | null): string {
+  if (score === null) return 'sin puntaje';
+  if (score > 0) return `+${score}`;
+  return score.toString();
+}
+
+function getTrendBarClass(score: number | null): string {
+  if (score === null) return `${styles.trendBar} ${styles.trendBarMissing}`;
+  if (score > 0) return `${styles.trendBar} ${styles.trendBarPositive}`;
+  if (score < 0) return `${styles.trendBar} ${styles.trendBarNegative}`;
+  return `${styles.trendBar} ${styles.trendBarNeutral}`;
+}
+
+function getTrendBarStyle(score: number | null): CSSProperties {
+  const magnitude = score === null ? 0 : Math.abs(score);
+  const barSize = score === null ? 6 : Math.max(6, Math.round((magnitude / MAX_ABS_SCORE) * 58));
+
+  return {
+    '--bar-size': `${barSize}px`,
+  } as CSSProperties;
 }
 
 export function Dashboard() {
@@ -50,7 +81,7 @@ export function Dashboard() {
 
         // Process timeline entries (take last 10, reverse for newest first)
         const sortedEntries = timelineRes.entries
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           .slice(0, 10)
           .map((e) => ({
             date: e.date,
@@ -68,8 +99,7 @@ export function Dashboard() {
           return;
         }
         // Other errors: show error state
-        const message = (err as { message?: string }).message ?? 'Error desconocido';
-        setErrorMsg(message);
+        setErrorMsg('No se pudo cargar el historial.');
         setViewState('error');
       }
     }
@@ -79,24 +109,22 @@ export function Dashboard() {
 
   if (viewState === 'loading') {
     return (
-      <div className="space-y-6">
-        {/* Skeleton: summary cards */}
-        <div className="grid grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
+      <div className={styles.stack} aria-busy="true" aria-label="Cargando historial">
+        <div className={styles.summarySkeletonGrid}>
+          {SUMMARY_SKELETON_KEYS.map((key) => (
             <div
-              key={i}
-              className="bg-surface-muted rounded-lg p-6 h-24 animate-pulse"
+              key={key}
+              className={styles.summarySkeleton}
               aria-hidden="true"
             />
           ))}
         </div>
 
-        {/* Skeleton: entry list */}
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className={styles.entrySkeletonList}>
+          {ENTRY_SKELETON_KEYS.map((key) => (
             <div
-              key={i}
-              className="bg-surface-muted rounded-lg p-4 h-16 animate-pulse"
+              key={key}
+              className={styles.entrySkeleton}
               aria-hidden="true"
             />
           ))}
@@ -108,14 +136,14 @@ export function Dashboard() {
   if (viewState === 'error') {
     return (
       <div
-        className="bg-surface-default border border-status-error rounded-lg p-6 text-center"
+        className={styles.errorState}
         role="alert"
       >
-        <p className="text-foreground-default font-medium mb-2">Error al cargar el historial</p>
-        <small className="text-foreground-muted block mb-4">{errorMsg}</small>
+        <p className={styles.errorTitle}>Error al cargar el historial</p>
+        <small className={styles.errorText}>{errorMsg}</small>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-brand-primary text-white rounded-md hover:opacity-90"
+          className={styles.primaryButton}
         >
           Reintentar
         </button>
@@ -125,14 +153,14 @@ export function Dashboard() {
 
   if (viewState === 'empty') {
     return (
-      <div className="space-y-6">
+      <div className={styles.stack}>
         <DashboardSummary
           totalEntries={totalEntries}
           avgMoodScore={avgMoodScore}
           lastEntryAt={lastEntryAt}
         />
         <div
-          className="bg-surface-default border border-surface-muted rounded-lg p-12 text-center"
+          className={styles.emptyState}
           role="status"
         >
           <svg
@@ -140,7 +168,7 @@ export function Dashboard() {
             height={48}
             viewBox="0 0 24 24"
             fill="none"
-            className="mx-auto mb-4 opacity-50"
+            className={styles.emptyIcon}
             aria-hidden="true"
           >
             <path
@@ -150,15 +178,15 @@ export function Dashboard() {
               strokeLinecap="round"
             />
           </svg>
-          <p className="text-foreground-default font-medium mb-2">Aún no tienes registros</p>
-          <p className="text-foreground-muted text-sm mb-6">
-            Comienza a registrar tu humor para ver tu historial aquí.
+          <p className={styles.emptyTitle}>Todavía no hay registros</p>
+          <p className={styles.emptyText}>
+            El historial se mostrará cuando cargues el primer registro.
           </p>
           <Link
             href="/registro/mood-entry"
-            className="inline-block px-6 py-2 bg-brand-primary text-white rounded-md hover:opacity-90"
+            className={styles.primaryLink}
           >
-            Registrar ahora
+            Registrar humor
           </Link>
         </div>
       </div>
@@ -166,42 +194,62 @@ export function Dashboard() {
   }
 
   // viewState === 'ready'
+  const trendEntries = entries.toReversed();
+  const trendCount = Math.max(1, trendEntries.length);
+
   return (
-    <div className="space-y-6">
-      {/* Summary statistics */}
+    <div className={styles.stack}>
       <DashboardSummary
         totalEntries={totalEntries}
         avgMoodScore={avgMoodScore}
         lastEntryAt={lastEntryAt}
       />
 
-      {/* Recent entries section */}
+      <section className={styles.trendPanel} aria-labelledby="trend-heading">
+        <div className={styles.trendHeader}>
+          <h2 id="trend-heading" className={styles.sectionTitle}>
+            Variabilidad diaria
+          </h2>
+          <span className={styles.trendCaption}>Últimos registros</span>
+        </div>
+
+        <div
+          className={styles.trendChart}
+          role="list"
+          aria-label="Variación de puntajes por día"
+          style={{ '--trend-count': trendCount } as CSSProperties}
+        >
+          <div className={styles.trendMidline} aria-hidden="true" />
+          {trendEntries.map((entry) => {
+            const dayLabel = formatEntryDate(entry.date, { day: '2-digit', month: 'short' });
+            const ariaLabel = `${dayLabel}: ${formatMoodScore(entry.moodScore)}`;
+
+            return (
+              <div key={entry.date} className={styles.trendColumn} role="listitem">
+                <div className={styles.trendTrack} aria-label={ariaLabel} title={ariaLabel}>
+                  <span
+                    className={getTrendBarClass(entry.moodScore)}
+                    style={getTrendBarStyle(entry.moodScore)}
+                  />
+                </div>
+                <span className={styles.trendDay}>{dayLabel}</span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       <section aria-labelledby="recent-entries-heading">
         <h2
           id="recent-entries-heading"
-          className="text-lg font-semibold text-foreground-default mb-4"
+          className={styles.sectionTitle}
         >
           Registros recientes
         </h2>
 
-        <div className="space-y-2">
+        <div className={styles.entryList}>
           {entries.map((entry) => {
-            const emoji = entry.moodScore === null
-              ? '📝'
-              : entry.moodScore <= -2
-              ? '😢'
-              : entry.moodScore === -1
-              ? '😕'
-              : entry.moodScore === 0
-              ? '😐'
-              : entry.moodScore === 1
-              ? '🙂'
-              : entry.moodScore === 2
-              ? '😊'
-              : '😁';
-
-            const dateObj = new Date(`${entry.date}T00:00:00`);
-            const dateStr = dateObj.toLocaleDateString('es-AR', {
+            const dateStr = formatEntryDate(entry.date, {
               year: 'numeric',
               month: 'short',
               day: 'numeric',
@@ -210,29 +258,30 @@ export function Dashboard() {
             return (
               <div
                 key={entry.date}
-                className="bg-surface-default border border-surface-muted rounded-lg p-4 flex items-center justify-between hover:bg-surface-muted transition-colors"
+                className={styles.entryItem}
               >
-                <div className="flex-1">
-                  <p className="text-foreground-default font-medium">{dateStr}</p>
+                <div className={styles.entryInfo}>
+                  <p className={styles.entryDate}>{dateStr}</p>
                 </div>
-                <div className="text-2xl">{emoji}</div>
+                <div className={styles.scoreBadge} aria-label="Puntaje de humor">
+                  {entry.moodScore === null ? 'Sin puntaje' : formatMoodScore(entry.moodScore)}
+                </div>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* Quick action buttons */}
-      <section className="grid grid-cols-2 gap-3 pt-4 border-t border-surface-muted">
+      <section className={styles.actions} aria-label="Acciones de registro">
         <Link
           href="/registro/mood-entry"
-          className="block px-4 py-3 bg-brand-primary text-white text-center rounded-md hover:opacity-90 font-medium text-sm"
+          className={styles.primaryLink}
         >
           Registrar humor
         </Link>
         <Link
           href="/registro/daily-checkin"
-          className="block px-4 py-3 bg-brand-secondary text-white text-center rounded-md hover:opacity-90 font-medium text-sm"
+          className={styles.secondaryLink}
         >
           Check-in diario
         </Link>

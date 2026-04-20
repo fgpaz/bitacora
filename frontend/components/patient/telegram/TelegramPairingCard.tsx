@@ -77,8 +77,8 @@ export function TelegramPairingCard() {
       setPairing(result);
       setSecondsLeft(TTL_SECONDS);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al generar el código';
-      setError(msg);
+      void err;
+      setError('No se pudo generar el código. Intentá de nuevo.');
     } finally {
       setGenerating(false);
     }
@@ -112,8 +112,8 @@ export function TelegramPairingCard() {
       setUnlinkConfirmation(false);
       setReminderSchedule(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al desvincular Telegram';
-      setError(msg);
+      void err;
+      setError('No se pudo desvincular Telegram. Intentá de nuevo.');
       setState('linked');
     }
   }
@@ -128,8 +128,8 @@ export function TelegramPairingCard() {
       setTimeout(() => setReminderSaved(false), 3000);
       setState('linked');
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al guardar el horario';
-      setError(msg);
+      void err;
+      setError('No se pudo guardar el horario. Intentá de nuevo.');
       setState('linked');
     }
   }
@@ -213,7 +213,7 @@ export function TelegramPairingCard() {
             disabled={state === 'saving_schedule'}
             aria-busy={state === 'saving_schedule'}
           >
-            {state === 'saving_schedule' ? 'Guardando...' : 'Guardar horario'}
+            {state === 'saving_schedule' ? 'Guardando…' : 'Guardar horario'}
           </button>
         </div>
 
@@ -239,7 +239,7 @@ export function TelegramPairingCard() {
                   disabled={state === 'unlinking'}
                   aria-busy={state === 'unlinking'}
                 >
-                  {state === 'unlinking' ? 'Desvinculando...' : 'Confirmar'}
+                  {state === 'unlinking' ? 'Desvinculando…' : 'Confirmar'}
                 </button>
                 <button
                   className={styles.cancelBtn}
@@ -294,7 +294,7 @@ export function TelegramPairingCard() {
           disabled={generating}
           aria-busy={generating}
         >
-          {generating ? 'Generando...' : 'Generar código de vinculación'}
+          {generating ? 'Generando…' : 'Generar código de vinculación'}
         </button>
       )}
 
@@ -337,7 +337,7 @@ export function TelegramPairingCard() {
             disabled={generating}
             aria-busy={generating}
           >
-            {generating ? 'Generando...' : 'Generar nuevo código'}
+            {generating ? 'Generando…' : 'Generar nuevo código'}
           </button>
         </div>
       )}

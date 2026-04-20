@@ -16,53 +16,55 @@
 .label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #111827;
+  color: var(--foreground);
 }
 
 .input {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
   padding: 0.625rem 0.875rem;
   font-size: 0.9rem;
   font-family: inherit;
+  color: var(--foreground);
+  background: var(--surface-raised);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--brand-primary);
+  box-shadow: var(--focus-ring);
 }
 
 .input:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
+  background: var(--surface-muted);
+  color: var(--foreground-muted);
   cursor: not-allowed;
 }
 
 .inputError {
   composes: input;
-  border-color: #dc2626;
-  background: #fef2f2;
+  border-color: var(--status-danger);
+  background: var(--status-danger-bg);
 }
 
 .inputError:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 0 0 2px var(--status-danger-border);
 }
 
 .errorMessage {
   font-size: 0.875rem;
-  color: #dc2626;
+  color: var(--status-danger);
   margin: 0;
   font-weight: 500;
 }
 
 .submitButton {
   align-self: flex-start;
-  background: #2563eb;
-  color: #fff;
+  background: var(--brand-primary);
+  color: var(--surface);
   border: none;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-md);
   padding: 0.625rem 1.25rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -71,14 +73,15 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: color-mix(in srgb, var(--brand-primary) 88%, var(--foreground));
 }
 
 .submitButton:disabled {
-  background: #93c5fd;
+  background: var(--surface-muted);
+  color: var(--foreground-muted);
   cursor: not-allowed;
 }
 
 .submitButton:active:not(:disabled) {
-  background: #1e40af;
+  background: color-mix(in srgb, var(--brand-primary) 78%, var(--foreground));
 }

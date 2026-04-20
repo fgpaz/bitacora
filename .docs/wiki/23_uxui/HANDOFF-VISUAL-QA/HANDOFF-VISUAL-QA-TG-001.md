@@ -71,12 +71,12 @@ Una deriva en el copy o en el flujo conversacional puede alterar la percepcion d
 - confirmacion de que el logging de audit cubre los 4 momentos audtables;
 - confirmacion de que el gate de consentimiento revocado bloquea el vinculo.
 
-## Validacion diferida
+## Validacion vigente
 
-La evidencia minima de cierre arriba es el gate documental. La validacion UX real con personas reales se documenta en `../UX-VALIDATION/UX-VALIDATION-TG-001.md` y queda diferida a `Phase 60`.
+La evidencia minima de cierre arriba se complementa con E2E productivo de vinculacion Telegram registrado en `../UX-VALIDATION/UX-VALIDATION-TG-001.md` y evidencia bajo `artifacts/e2e/`.
 
 ---
 
 **Estado:** checklist visual activa para cierre de implementacion.
 **Consumidor principal:** backend + QA visual.
-**Runtime ausencia:** TelegramSession no existe hoy; la validacion real espera la materializacion del modulo.
+**Runtime Telegram:** implementado; mantener este gate como regresion visual/conversacional.

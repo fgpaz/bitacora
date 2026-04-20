@@ -1,13 +1,18 @@
 .scale {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
+  width: 100%;
+  max-width: 392px;
+  margin: 0 auto;
   padding: var(--space-xl) 0;
 }
 
 .option {
-  width: 48px;
-  height: 48px;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1.5px solid var(--border-subtle);
   background-color: var(--surface);
@@ -15,11 +20,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .option:hover:not(:disabled) {
   border-color: var(--brand-primary);
+}
+
+.option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .option.selected {
@@ -34,11 +44,21 @@
 
 .value {
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--foreground);
 }
 
 .option.selected .value {
   color: var(--surface);
+}
+
+@media (min-width: 375px) {
+  .scale {
+    gap: var(--space-sm);
+  }
+
+  .value {
+    font-size: 0.875rem;
+  }
 }

@@ -1,3 +1,17 @@
+---
+id: RF-TG-006
+title: Configurar horario de recordatorio con soporte de zona horaria
+implements:
+  - src/Bitacora.Api/Endpoints/Telegram/TelegramEndpoints.cs
+  - src/Bitacora.Application/Commands/Telegram/ConfigureReminderScheduleCommandHandler.cs
+  - src/Bitacora.Domain/Entities/ReminderConfig.cs
+  - src/Bitacora.DataAccess.EntityFramework/Persistence/AppDbContext.cs
+  - frontend/lib/api/client.ts
+  - frontend/components/patient/telegram/TelegramPairingCard.tsx
+tests:
+  - src/Bitacora.Tests/ReminderScheduleTests.cs
+---
+
 # RF-TG-006: Configurar horario de recordatorio con soporte de zona horaria
 
 ## Execution Sheet
@@ -13,27 +27,29 @@
 ## Precondiciones detalladas
 - JWT valido con `User.status=active`.
 - Existe un `TelegramSession` activo (linked) para el `patient_id`.
+- La UI muestra horario local de Buenos Aires y convierte a UTC antes de invocar la API.
 - `HourUtc` en rango 0-23; `MinuteUtc` en 0 o 30.
 - `Timezone` es un IANA o Windows timezone ID valido (o null — default `America/Argentina/Buenos_Aires`).
 
 ## Inputs
 | Campo | Tipo | Origen | Validacion |
 |-------|------|--------|-----------|
-| HourUtc | int | Request body | 0-23 |
-| MinuteUtc | int | Request body | 0 o 30 |
+| HourUtc | int | Request body | 0-23; ya convertido desde hora local UI |
+| MinuteUtc | int | Request body | 0 o 30; ya convertido desde hora local UI |
 | Timezone | string? | Request body | IANA o Windows TZ ID; null = default Buenos Aires |
 
 ## Proceso (Happy Path)
 1. Extraer `patient_id` del JWT.
 2. Verificar que existe `TelegramSession` activa para ese paciente; si no, lanzar 403.
-3. Resolver `Timezone` a `TimeZoneInfo` (lookup dual IANA→Windows; fallback Argentina).
-4. Si `Timezone` invalido, lanzar `BitacoraException("INVALID_TIMEZONE", 400)`.
-5. Buscar `ReminderConfig` existente para el paciente (`FindByPatientIdAsync`).
-6. Si existe: actualizar `HourUtc`, `MinuteUtc`, `ReminderTimezone`, `Enabled=true`.
-7. Si no existe: crear nuevo `ReminderConfig` con los valores provistos.
-8. Calcular `NextFireAtUtc` (proximo disparo a partir de now()).
-9. `SaveChangesAsync` en transaccion.
-10. Retornar respuesta con todos los campos del config.
+3. Validar `HourUtc` y `MinuteUtc`; si son invalidos, lanzar error tipado 400.
+4. Resolver `Timezone` a `TimeZoneInfo` (IANA o Windows). Si viene null/blanco, usar `America/Argentina/Buenos_Aires`.
+5. Si `Timezone` invalido, lanzar `BitacoraException("TG_006_INVALID_TIMEZONE", 400)`.
+6. Buscar `ReminderConfig` existente para el paciente (`FindByPatientIdAsync`).
+7. Si existe: actualizar `HourUtc`, `MinuteUtc`, `ReminderTimezone`, `Enabled=true`.
+8. Si no existe: crear nuevo `ReminderConfig` con los valores provistos.
+9. Calcular `NextFireAtUtc` (proximo disparo a partir de now()).
+10. `SaveChangesAsync`.
+11. Retornar respuesta con todos los campos del config.
 
 ## Outputs
 | Campo | Tipo | Descripcion |
@@ -49,12 +65,14 @@
 | Codigo | HTTP | Trigger | Respuesta |
 |--------|------|---------|----------|
 | TG_006_NO_ACTIVE_SESSION | 403 | No hay sesion Telegram activa | `{error: "TG_006_NO_ACTIVE_SESSION"}` |
-| INVALID_TIMEZONE | 400 | Timezone string no reconocido | `{error: "INVALID_TIMEZONE"}` |
+| TG_006_INVALID_HOUR | 400 | `HourUtc` fuera de 0..23 | `{error: "TG_006_INVALID_HOUR"}` |
+| TG_006_INVALID_MINUTE | 400 | `MinuteUtc` distinto de 0 o 30 | `{error: "TG_006_INVALID_MINUTE"}` |
+| TG_006_INVALID_TIMEZONE | 400 | Timezone string no reconocido | `{error: "TG_006_INVALID_TIMEZONE"}` |
 | TG_006_UNAUTHORIZED | 401 | JWT invalido o ausente | `{error: "TG_006_UNAUTHORIZED"}` |
 
 ## Casos especiales y variantes
 - UPSERT semantico: crea `ReminderConfig` si no existe, actualiza si ya existe.
-- Timezone lookup: intenta IANA, luego Windows timezone ID. Fallback `America/Argentina/Buenos_Aires` si Timezone es null.
+- Timezone lookup: acepta IANA o Windows timezone ID. Solo `null`/blanco usa default `America/Argentina/Buenos_Aires`; un timezone invalido no tiene fallback silencioso.
 - `HourUtc` y `MinuteUtc` son UTC puros; la UI los convierte desde la hora local antes de enviar.
 - El scheduler backend (`ReminderSchedulerBackgroundService`) usa `HourUtc` + `MinuteUtc` directamente para calcular el proximo disparo.
 
@@ -65,11 +83,12 @@
 
 ## Criterios de aceptacion (Gherkin)
 ```gherkin
-Scenario: Paciente configura recordatorio diario a las 09:00 Buenos Aires
+Scenario: Paciente configura recordatorio diario a las 22:00 Buenos Aires
   Given paciente autenticado con sesion Telegram activa
-  And body: { HourUtc: 9, MinuteUtc: 0, Timezone: "America/Argentina/Buenos_Aires" }
+  And la UI muestra "22:00" en hora local Buenos Aires
+  And el cliente envia body: { HourUtc: 1, MinuteUtc: 0, Timezone: "America/Argentina/Buenos_Aires" }
   When PUT /api/v1/telegram/reminder-schedule
-  Then HTTP 200 con { HourUtc: 9, MinuteUtc: 0, ReminderTimezone: "America/Argentina/Buenos_Aires", Enabled: true }
+  Then HTTP 200 con { HourUtc: 1, MinuteUtc: 0, ReminderTimezone: "America/Argentina/Buenos_Aires", Enabled: true }
   And ReminderConfig.enabled = true para ese patient_id
 
 Scenario: PUT sin sesion Telegram activa
@@ -81,14 +100,20 @@ Scenario: PUT con timezone invalido
   Given paciente autenticado con sesion Telegram activa
   And body: { HourUtc: 9, MinuteUtc: 0, Timezone: "Mars/Olympus" }
   When PUT /api/v1/telegram/reminder-schedule
-  Then HTTP 400 con error="INVALID_TIMEZONE"
+  Then HTTP 400 con error="TG_006_INVALID_TIMEZONE"
+
+Scenario: PUT con minuto invalido
+  Given paciente autenticado con sesion Telegram activa
+  And body: { HourUtc: 9, MinuteUtc: 15, Timezone: "America/Argentina/Buenos_Aires" }
+  When PUT /api/v1/telegram/reminder-schedule
+  Then HTTP 400 con error="TG_006_INVALID_MINUTE"
 ```
 
 ## Trazabilidad
 | Elemento | Referencia |
 |----------|-----------|
 | Flujo fuente | FL-TG-02 |
-| Test plan | TP-TG (TG-P06, TG-N05) |
+| Test plan | TP-TG (TG-P06, TG-N05, TG-N06) |
 | Comando backend | `ConfigureReminderScheduleCommand` + `ConfigureReminderScheduleCommandHandler` |
 | Endpoint | `TelegramEndpoints.cs` MapPut("/reminder-schedule") |
 | Componente frontend | `TelegramPairingCard.tsx` (reminderControls section) |

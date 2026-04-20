@@ -49,6 +49,18 @@ Estos paths se crean cuando `T04` defina la estructura base del routing paciente
 - `frontend/components/patient/registro/MoodEntryFlow.tsx`
 - `frontend/lib/patient/registro.ts`
 
+## Sync runtime 2026-04-20
+
+La implementación paciente vigente usa paths reales distintos a los placeholders iniciales:
+
+| Runtime actual | Responsabilidad |
+| --- | --- |
+| `frontend/app/(patient)/registro/mood-entry/page.tsx` | entrada del slice |
+| `frontend/components/patient/mood/MoodEntryForm.tsx` | composición, submit y feedback |
+| `frontend/components/patient/mood/MoodScale.tsx` | escala -3..+3 responsive |
+| `frontend/components/patient/mood/*.module.css` | tokens visuales, foco y touch targets |
+| `frontend/lib/api/client.ts` | `createMoodEntry(score)` |
+
 ## Regla de ownership
 
 - `T04` puede crear shell y bases compartidas, pero no debe redefinir el slice;
