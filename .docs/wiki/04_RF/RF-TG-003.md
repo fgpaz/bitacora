@@ -1,3 +1,14 @@
+---
+id: RF-TG-003
+title: Validar unicidad de chat_id
+implements:
+  - src/Bitacora.Application/Commands/Telegram/ConfirmPairingCommand.cs
+  - src/Bitacora.DataAccess.EntityFramework/Repositories/TelegramSessionRepository.cs
+  - src/Bitacora.DataAccess.EntityFramework/Persistence/AppDbContext.cs
+tests:
+  - src/Bitacora.Tests/ReminderScheduleTests.cs
+---
+
 # RF-TG-003: Validar unicidad de chat_id
 
 ## Execution Sheet
@@ -8,7 +19,7 @@
 
 ## Precondiciones detalladas
 - `chat_id` obtenido del webhook de Telegram
-- Tabla `telegram_sessions` tiene UNIQUE constraint en `chat_id`
+- Tabla `telegram_sessions` tiene partial unique index `UNIQUE(chat_id) WHERE status='Linked'`
 - Un chat_id solo puede estar vinculado a un patient_id a la vez
 
 ## Inputs
@@ -20,7 +31,7 @@
 ## Proceso (Happy Path)
 1. Query: `SELECT patient_id FROM telegram_sessions WHERE chat_id = @chatId AND status = 'linked'`
 2. Si no existe fila: chat_id disponible, continuar con RF-TG-002
-3. Si existe fila con `patient_id = @patientId` (mismo paciente): sesion existente, devolver conflict para re-vinculacion
+3. Si existe fila con `patient_id = @patientId` (mismo paciente): sesion existente, devolver confirmacion idempotente
 4. Si existe fila con `patient_id != @patientId`: rechazar con TG_003_CHAT_DUPLICATE
 
 ## Outputs
