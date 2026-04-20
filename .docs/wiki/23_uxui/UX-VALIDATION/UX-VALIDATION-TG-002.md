@@ -2,7 +2,7 @@
 
 ## Estado
 
-`prepared_waiting_prod_e2e`
+`blocked_auth_credentials`
 
 ## Slice
 
@@ -16,13 +16,13 @@
 | E2E productivo histórico 2026-04-20 `qa-dev` | PASS | pairing, registro Telegram y privacidad del bot sin eco de valores clínicos |
 | Regresión `#21` local 2026-04-20 | CODE-VERIFIED | `22:00` Buenos Aires se convierte a `{ hourUtc: 1, minuteUtc: 0 }`; backend valida sesión, hora, minuto y timezone |
 | UI mobile post-hardening | PASS local | screenshots 320/375/tablet/desktop bajo `artifacts/e2e/2026-04-20-bitacora-reminder-ui-fix/` |
-| E2E productivo post-deploy RF-TG-006 | PENDING | debe ejecutarse después de desplegar el commit |
+| E2E productivo post-deploy RF-TG-006 | BLOCKED | `artifacts/e2e/2026-04-20-bitacora-reminder-ui-prod-e2e/`; no hay credencial QA web reutilizable para completar login Zitadel |
 
 ## Hallazgos abiertos
 
 | ID | Severidad | Estado | Acción |
 | --- | --- | --- | --- |
-| TG-VAL-003 | High | pending_prod_e2e | Revalidar en producción guardar recordatorio `22:00` desde `/configuracion/telegram` con cuenta QA serial |
+| TG-VAL-003 | High | blocked_auth_credentials | Revalidar en producción guardar recordatorio `22:00` desde `/configuracion/telegram` con credencial QA web dedicada y cuenta Telegram QA serial |
 
 ## Criterios de cierre
 
@@ -36,7 +36,9 @@
 
 No cerrar como `validated` hasta completar el E2E productivo post-deploy de la regresión `#21`.
 
+El intento post-deploy de `2026-04-20` quedó bloqueado antes de entrar al producto: los secretos disponibles permiten operar infraestructura, pero no contienen una credencial QA web reutilizable para el login de paciente en Zitadel. No se hizo cleanup ni escritura directa en base de datos.
+
 ---
 
-**Estado:** preparado para E2E productivo post-deploy.
-**Siguiente paso:** actualizar este documento y `UX-VALIDATION-INDEX.md` con la evidencia final.
+**Estado:** bloqueado por credencial QA web.
+**Siguiente paso:** completar fixture QA de autenticación/pairing y reejecutar E2E productivo post-deploy.

@@ -39,6 +39,7 @@
 | TG-P02 | PASSED | produccion | 2026-04-20 | `qa-dev` completa flujo mood + factores; los registros se persisten y aparecen en `/dashboard` bajo sesion Zitadel. Evidencia: `artifacts/e2e/2026-04-20-qa-dev-full-smoke/14-dashboard-after-privacy-smoke.png`. |
 | TG-SEC-20260420 | PASSED | produccion | 2026-04-20 | Respuestas post-fix del bot son confirmacion-only: no repiten score, sueno, factores, medicacion, `chat_id`, `patient_id`, JWT ni payloads clinicos. Reporte: `.docs/raw/reports/2026-04-20-qa-dev-full-smoke.md`. |
 | TG-ZITADEL | PASSED | produccion | 2026-04-20 | Smoke Zitadel-only validado: OIDC discovery/JWKS, readiness, login/logout redirects, backend proxy sin sesion 401, bootstrap sin bearer 401. Comando: `pwsh -File .\infra\smoke\zitadel-cutover-smoke.ps1`. |
+| TG-P06-REG21 | BLOCKED | produccion | 2026-04-20 | Fix `#21` desplegado en API/frontend (`f23af7e`), pero E2E autenticado post-deploy no pudo entrar al producto por falta de credencial QA web reutilizable. Evidencia sanitizada: `artifacts/e2e/2026-04-20-bitacora-reminder-ui-prod-e2e/`. |
 
 ## Cobertura RF
 
