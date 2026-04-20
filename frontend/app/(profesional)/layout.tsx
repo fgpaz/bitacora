@@ -1,7 +1,4 @@
 import type { Metadata } from 'next';
-import { Providers } from '@/providers';
-import '@/styles/tokens.css';
-import '@/styles/globals.css';
 
 export const metadata: Metadata = {
   title: 'Bitacora — Panel Profesional',
@@ -9,19 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProfesionalLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="es">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
-  );
+  return children;
 }

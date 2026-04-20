@@ -1,5 +1,5 @@
 /**
- * Bitacora middleware - runtime hardening layer.
+ * Bitacora proxy - runtime hardening layer.
  *
  * It only performs UX routing checks from the product session cookie. Bitacora.Api
  * remains the authority for token signature, issuer, audience and data access.
@@ -67,8 +67,8 @@ function withSecurityHeaders(response: NextResponse): NextResponse {
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self'",
       "img-src 'self' data: https://*",
       "connect-src 'self' https://*",
       "frame-ancestors 'none'",
@@ -77,7 +77,7 @@ function withSecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const response = withSecurityHeaders(NextResponse.next());
 

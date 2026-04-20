@@ -4,7 +4,7 @@ const nextConfig = {
   output: 'standalone',
 
   // ── Security headers ────────────────────────────────────────────────────────
-  // Applied per-response by middleware as well; these are the Next.js-level defaults.
+  // Applied per-response by proxy as well; these are the Next.js-level defaults.
   async headers() {
     return [
       {

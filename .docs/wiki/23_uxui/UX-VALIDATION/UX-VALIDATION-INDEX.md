@@ -34,7 +34,7 @@ Los defectos críticos `WEB-VAL-001`, `WEB-VAL-002`, `TG-VAL-001`, `TG-VAL-002` 
 | --- | --- | --- | --- |
 | WEB-VAL-001 | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | **RESUELTO** (evidencia estática Phase 60 T1) |
 | WEB-VAL-002 | Critical | ONB-001, REG-001, REG-002, VIN-001, VIS-001, EXP-001 | **RESUELTO** (evidencia estática Phase 60 T1) |
-| WEB-VAL-003 | High | todas las rutas web | Open (P2 — migración middleware) |
+| WEB-VAL-003 | Resolved | todas las rutas web | Migrado a `frontend/proxy.ts`; validar con `next build` |
 | TG-VAL-001 | Critical | TG-001, TG-002 | **RESUELTO** (token confirmado + estático Phase 60 T2) |
 | TG-VAL-002 | Critical | TG-001, TG-002 | **RESUELTO** (evidencia estática Phase 60 T2) |
 | TG-VAL-003 | High | TG-002 | Open (P2 — E2E conversacional) |

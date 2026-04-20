@@ -72,7 +72,7 @@ El readiness para implementación técnica y el estado de validación UX no sign
 | --- | --- | --- | --- |
 | `WEB-VAL-001` | Critical | ONB-001, REG-001, REG-002, VIS-001, EXP-001 | `frontend/.env.local` no define `NEXT_PUBLIC_API_BASE_URL`; no puede validarse la runtime web contra el backend real |
 | `WEB-VAL-002` | Critical | ONB-001, REG-001, REG-002, VIS-001, EXP-001 | No existe sesión de navegador autenticada ni transcript de E2E; `UI-RFC` y `HANDOFF-VISUAL-QA` no pueden confirmarse contra la sesión renderizada |
-| `WEB-VAL-003` | High | todas las rutas web | `next build` detecta que `middleware` migrará a `proxy`; deuda de migración |
+| `WEB-VAL-003` | Resolved | todas las rutas web | `next build` ya no detecta deuda `middleware` a `proxy`; migrado a `frontend/proxy.ts`. |
 | `TG-VAL-001` | Critical | TG-001, TG-002 | `TELEGRAM_BOT_TOKEN` no está presente en el shell; no puede ejecutarse bot real |
 | `TG-VAL-002` | Critical | TG-001, TG-002 | No hay cuenta de test Telegram ni transcript reproducible; los flujos de vinculación y recordatorio no pueden validarse con canal real |
 | `TG-VAL-003` | High | TG-002 | El path de recordatorio depende de conectividad real al Bot API sin credencial de fallback |

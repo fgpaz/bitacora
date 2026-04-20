@@ -7,7 +7,7 @@
 - Public host: `bitacora.nuestrascuentitas.com`
 - Internal port: `3000`
 - App ID (Dokploy): `BRTMuvBfWtslXHnShtrnB`
-- Node version: 22 (matches package.json engines.node)
+- Docker Node version: 22 (`package.json` allows Node `>=22 <25` for local tooling compatibility)
 
 ## Required environment variables
 
@@ -73,4 +73,4 @@ pwsh -File .\infra\smoke\zitadel-cutover-smoke.ps1
 - DNS for `bitacora.nuestrascuentitas.com` must point to `54.37.157.93`
 - Zitadel redirect URI must include `https://bitacora.nuestrascuentitas.com/auth/callback`
 - `output: 'standalone'` must be active in `next.config.mjs` (verified 2026-04-14)
-- Dockerfile must use `node:22-slim` (matches package.json engines.node: 22)
+- Dockerfile must use `node:22-slim` (inside the supported `package.json` engine range `>=22 <25`)

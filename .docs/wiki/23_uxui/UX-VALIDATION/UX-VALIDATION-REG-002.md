@@ -30,13 +30,13 @@
 - **Owner:** QA / validation harness
 - **Estado:** Open
 
-### WEB-VAL-003 — Next.js middleware convention deprecated
+### WEB-VAL-003 — Next.js proxy convention migrated
 
 - **Severidad:** High
-- **Evidencia:** `next build` muestra warning sobre `middleware` migrando a `proxy`.
-- **Impacto:** no es un blocker actual de build, pero debe migrarse antes de la estabilización.
+- **Evidencia:** `frontend/proxy.ts` reemplaza la convención `middleware` sin cambiar la lógica de auth/routing.
+- **Impacto:** deuda de compatibilidad Next.js 16 resuelta; mantener `next build` sin warning de migración.
 - **Owner:** frontend runtime hardening
-- **Estado:** Open
+- **Estado:** Resolved
 
 ## Veredicto de validación
 
@@ -53,7 +53,7 @@ La validación UX del slice `REG-002` queda en estado **`blocked`** en esta sesi
 | --- | --- | --- | --- |
 | WEB-VAL-001 | Critical | REG-002 | Open |
 | WEB-VAL-002 | Critical | REG-002 | Open |
-| WEB-VAL-003 | High | todas | Open |
+| WEB-VAL-003 | High | todas | Resolved |
 
 ## Retorno a la cadena canónica
 

@@ -68,7 +68,7 @@ ConsentRequiredMiddleware    → hard gate: bloquea POST /mood-entries y /daily-
 | T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
 | T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
 | T3-SEC-10 | ProfessionalDataAccessAuthorizer fail-closed: lanza 403 en vez de revelar datos cuando el profesional no tiene CareLink autorizado con el paciente. No hay fuga de existencia. |
-| T3-SEC-11 | Frontend middleware valida la sesion OIDC `bitacora_session` y deriva rol desde `urn:zitadel:iam:org:project:roles`; enforce rol `professional` para rutas profesionales; falla cerrado si el rol no corresponde. |
+| T3-SEC-11 | Frontend Proxy valida la sesion OIDC `bitacora_session` y deriva rol desde `urn:zitadel:iam:org:project:roles`; enforce rol `professional` para rutas profesionales; falla cerrado si el rol no corresponde. |
 | T3-TG-01 | Telegram API client retry con exponential backoff: 1s, 2s, 4s antes de fallar. |
 | T3-TG-02 | SendReminderCommand y HandleWebhookUpdateCommand invocan SaveChangesAsync para persistir AccessAudit antes de retornar. |
 | T3-TG-03 | `DELETE /api/v1/telegram/session` requiere auth valido + rate-limit `"write"` (5 req/IP/min). Borra TelegramSession activa para el usuario. |
@@ -89,7 +89,7 @@ Las siguientes reglas se hardened durante Phase 40, Phase 50 (T2/T3/T4) y reflej
 | T3-RL-01 | Rate limiter fail-closed: politica `auth` 10 req/IP/min; cualquier exceso devuelve 429 + `Retry-After: 60` (segundos fijo). |
 | T3-RL-04 | Auth bootstrap usa policy rate limiting `auth` (no `write`). |
 | T3-RL-05 | Health/ready endpoint respeta el rate limiter (politica `auth`). |
-| T3-SEC-11 | Frontend `middleware.ts` valida `bitacora_session` y enforce rol `professional` para rutas profesionales. |
+| T3-SEC-11 | Frontend `proxy.ts` valida `bitacora_session` y enforce rol `professional` para rutas profesionales. |
 
 ---
 
