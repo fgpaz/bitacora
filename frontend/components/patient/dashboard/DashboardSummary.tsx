@@ -14,7 +14,7 @@ interface Props {
 function formatDate(isoString: string | null): string {
   if (!isoString) return '—';
   try {
-    const date = new Date(isoString);
+    const date = new Date(isoString.includes('T') ? isoString : `${isoString}T00:00:00`);
     return date.toLocaleDateString('es-AR', {
       year: 'numeric',
       month: 'short',

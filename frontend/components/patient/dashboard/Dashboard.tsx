@@ -47,7 +47,6 @@ export function Dashboard() {
         // Populate summary stats
         setTotalEntries(summaryRes.total_entries);
         setAvgMoodScore(summaryRes.avg_mood_score);
-        setLastEntryAt(summaryRes.last_entry_at);
 
         // Process timeline entries (take last 10, reverse for newest first)
         const sortedEntries = timelineRes.entries
@@ -59,6 +58,7 @@ export function Dashboard() {
           }));
 
         setEntries(sortedEntries);
+        setLastEntryAt(summaryRes.last_entry_at ?? sortedEntries[0]?.date ?? null);
         setViewState(summaryRes.total_entries === 0 ? 'empty' : 'ready');
       } catch (err: unknown) {
         const code = (err as { code?: string }).code;
@@ -200,7 +200,7 @@ export function Dashboard() {
               ? '😊'
               : '😁';
 
-            const dateObj = new Date(entry.date);
+            const dateObj = new Date(`${entry.date}T00:00:00`);
             const dateStr = dateObj.toLocaleDateString('es-AR', {
               year: 'numeric',
               month: 'short',
