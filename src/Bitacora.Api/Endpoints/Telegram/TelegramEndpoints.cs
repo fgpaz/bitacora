@@ -39,6 +39,7 @@ public static class TelegramEndpoints
                 return Results.Ok(result);
             })
             .RequireRateLimiting("write")
+            .RequireAuthorization()
             .WithName("GenerateTelegramPairingCode")
             .WithTags(Tag)
             .WithSummary("Genera un codigo de vinculacion para Telegram")

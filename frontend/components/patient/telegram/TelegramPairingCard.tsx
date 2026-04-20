@@ -2,7 +2,7 @@
 
 /**
  * TelegramPairingCard — generates and displays a BIT-XXXXX pairing code
- * for the patient to send to @bitacorav2_bot via /start <code>.
+ * for the patient to send to @mi_bitacora_personal_bot via /start <code>.
  *
  * Implements RF-TG-001 (frontend side): pairing code generation, display,
  * copy-to-clipboard, countdown timer, expiry/regenerate flow, unlinking,
@@ -22,6 +22,7 @@ import styles from './TelegramPairingCard.module.css';
 
 const TTL_SECONDS = 15 * 60; // 15 minutes
 const BUENOS_AIRES_TZ = 'America/Argentina/Buenos_Aires';
+const TELEGRAM_BOT_USERNAME = 'mi_bitacora_personal_bot';
 
 type LoadingState = 'checking' | 'linked' | 'unlinked' | 'unlinking' | 'saving_schedule';
 
@@ -150,12 +151,12 @@ export function TelegramPairingCard() {
         <p className={styles.hint}>
           Tu cuenta está conectada a{' '}
           <a
-            href="https://t.me/bitacorav2_bot"
+            href={`https://t.me/${TELEGRAM_BOT_USERNAME}`}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.botLink}
           >
-            @bitacorav2_bot
+            @{TELEGRAM_BOT_USERNAME}
           </a>
           . Podés registrar tu humor directamente desde el bot.
         </p>
@@ -270,12 +271,12 @@ export function TelegramPairingCard() {
       <p className={styles.description}>
         Generá un código único y enviáselo al bot{' '}
         <a
-          href="https://t.me/bitacorav2_bot"
+          href={`https://t.me/${TELEGRAM_BOT_USERNAME}`}
           target="_blank"
           rel="noopener noreferrer"
           className={styles.botLink}
         >
-          @bitacorav2_bot
+          @{TELEGRAM_BOT_USERNAME}
         </a>{' '}
         con el comando <code>/start TU_CÓDIGO</code>.
       </p>
@@ -315,7 +316,7 @@ export function TelegramPairingCard() {
           <p className={styles.instruction}>
             Abrí{' '}
             <a
-              href={`https://t.me/bitacorav2_bot?start=${pairing.code}`}
+              href={`https://t.me/${TELEGRAM_BOT_USERNAME}?start=${pairing.code}`}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.botLink}

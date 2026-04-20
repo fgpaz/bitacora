@@ -19,7 +19,7 @@
 graph TB
     subgraph Clientes["Canales de entrada"]
         WEB["Next.js 16<br/>bitacora.nuestrascuentitas.com"]
-        TG["Bot Telegram<br/>@BitacoraBot"]
+        TG["Bot Telegram<br/>@mi_bitacora_personal_bot"]
     end
 
     subgraph Backend["Bitacora.Api — Monolito modular (.NET 10)"]

@@ -109,8 +109,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
         var session = await sessionRepository.GetByChatIdAsync(command.ChatId, cancellationToken);
         if (session == null)
         {
-            logger.LogWarning("Telegram webhook for unknown chat_id {ChatId}, trace {TraceId}",
-                command.ChatId, command.TraceId);
+            logger.LogWarning("Telegram webhook for unknown Telegram session, trace {TraceId}",
+                command.TraceId);
             await WriteAuditAsync(
                 command.TraceId, command.ChatId, messageType, rawText,
                 AuditOutcome.Denied, "session_not_found", null, cancellationToken);
@@ -123,8 +123,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
         if (consent == null)
         {
             logger.LogWarning(
-                "Telegram webhook for patient {PatientId} with no active consent, trace {TraceId}",
-                session.PatientId, command.TraceId);
+                "Telegram webhook for linked session with no active consent, trace {TraceId}",
+                command.TraceId);
             await WriteAuditAsync(
                 command.TraceId, command.ChatId, messageType, rawText,
                 AuditOutcome.Denied, "consent_revoked_or_missing", session.PatientId, cancellationToken);
@@ -193,17 +193,17 @@ public sealed class HandleWebhookUpdateCommandHandler(
 
             var moodResult = await mediator.Send(createMoodCmd, cancellationToken);
 
-            var dupSuffix = moodResult.IsDuplicate ? " (ya estaba registrado hace poco)." : ".";
             logger.LogInformation(
-                "Telegram mood {Score} persisted for patient {PatientId}, entry {MoodEntryId}, duplicate={IsDuplicate}, trace {TraceId}",
-                score, session.PatientId, moodResult.MoodEntryId, moodResult.IsDuplicate, traceId);
+                "Telegram mood persisted, entry {MoodEntryId}, duplicate={IsDuplicate}, trace {TraceId}",
+                moodResult.MoodEntryId, moodResult.IsDuplicate, traceId);
 
             // Initialize factor accumulator
             var accumulator = new TelegramFactorAccumulator { MoodScore = score };
             _factorAccumulators[session.ChatId] = accumulator;
 
             // RF-REG-013 step 1: ask for sleep hours with inline keyboard
-            var reply = $"Registrado: {score}{dupSuffix}\n\n" +
+            var reply = (moodResult.IsDuplicate ? "Tu registro ya estaba guardado hace poco." : "Registro guardado.") +
+                        "\n\n" +
                         "Ahora contame un poco más:\n" +
                         "¿Cuántas horas dormiste anoche?";
 
@@ -223,8 +223,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
         catch (BitacoraException ex) when (ex.StatusCode == 422)
         {
             logger.LogWarning(
-                "Telegram mood duplicate check rejected {Score} for patient {PatientId}, trace {TraceId}",
-                score, session.PatientId, traceId);
+                "Telegram mood duplicate check rejected, trace {TraceId}",
+                traceId);
             var reply = "Ese valor ya lo registraste hace poco. Proba otro o espera unos minutos.";
             await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
             await WriteAuditAsync(traceId, session.ChatId, "mood_input", moodValue,
@@ -234,8 +234,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
         catch (Exception ex)
         {
             logger.LogError(ex,
-                "Failed to persist Telegram mood {Score} for session {SessionId}, trace {TraceId}",
-                score, session.TelegramSessionId, traceId);
+                "Failed to persist Telegram mood, trace {TraceId}",
+                traceId);
             var reply = "No pudimos registrarlo. Intenta de nuevo mas tarde.";
             await SendTelegramMessageAsync(session.ChatId, reply, traceId, cancellationToken);
             await WriteAuditAsync(traceId, session.ChatId, "mood_input", moodValue,
@@ -481,12 +481,12 @@ public sealed class HandleWebhookUpdateCommandHandler(
 
             var checkinResult = await mediator.Send(checkinCmd, cancellationToken);
 
-            var actionWord = checkinResult.Created ? "Registro completo!" : "Check-in actualizado!";
-            var reply = $"{actionWord}\n\n{checkinResult.Summary}";
+            var actionWord = checkinResult.Created ? "Registro completo." : "Check-in actualizado.";
+            var reply = $"{actionWord}\n\nYa podés verlo en tu historial web.";
 
             logger.LogInformation(
-                "Telegram DailyCheckin {DailyCheckinId} for patient {PatientId}, date {Date}, created={Created}, trace {TraceId}",
-                checkinResult.DailyCheckinId, session.PatientId, checkinResult.CheckinDate, checkinResult.Created, traceId);
+                "Telegram DailyCheckin persisted, id {DailyCheckinId}, created={Created}, trace {TraceId}",
+                checkinResult.DailyCheckinId, checkinResult.Created, traceId);
 
             // Reset session and accumulator
             session.ResetToIdle(nowUtc);
@@ -503,8 +503,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
         catch (Exception ex)
         {
             logger.LogError(ex,
-                "Failed to complete Telegram DailyCheckin for session {SessionId}, trace {TraceId}",
-                session.TelegramSessionId, traceId);
+                "Failed to complete Telegram DailyCheckin, trace {TraceId}",
+                traceId);
 
             session.ResetToIdle(nowUtc);
             await sessionRepository.UpdateAsync(session, cancellationToken);
@@ -633,8 +633,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
                 if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
                 {
                     logger.LogWarning(
-                        "Telegram API client error {StatusCode} for chat {ChatId} (no retry), trace {TraceId}",
-                        response.StatusCode, chatId, traceId);
+                        "Telegram API client error {StatusCode} (no retry), trace {TraceId}",
+                        response.StatusCode, traceId);
                     return false;
                 }
 
@@ -658,8 +658,8 @@ public sealed class HandleWebhookUpdateCommandHandler(
             if (attempt >= delays.Length)
             {
                 logger.LogWarning(
-                    "Telegram API retry limit reached for chat {ChatId}, trace {TraceId}",
-                    chatId, traceId);
+                    "Telegram API retry limit reached, trace {TraceId}",
+                    traceId);
                 return false;
             }
 

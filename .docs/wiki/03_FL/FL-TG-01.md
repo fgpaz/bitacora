@@ -17,7 +17,7 @@ El paciente vincula su cuenta de Telegram con su cuenta de Bitacora para habilit
 
 ## Precondiciones
 - Paciente autenticado en web
-- Bot de Telegram activo (@BitacoraBot)
+- Bot de Telegram activo (@mi_bitacora_personal_bot)
 
 ## Postcondiciones
 - TelegramSession creada en estado `linked` con chat_id

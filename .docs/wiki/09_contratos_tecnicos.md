@@ -75,7 +75,7 @@
 
 - **Auth**: Bearer JWT (patient)
 - **Rate limit**: write
-- **Response 200**: `{ unlinked: true, unlinked_at_utc: ISO }`
+- **Response 200**: `{ patientId: uuid, unlinkedAtUtc: ISO }`
 - **Response 404**: `{ code: "TG_SESSION_NOT_FOUND" }`
 - **Descripcion**: Desvincula (soft delete) la sesion Telegram del paciente autenticado. No elimina historico de pairing, solo marca como inactivo.
 
@@ -83,8 +83,8 @@
 
 - **Auth**: Bearer JWT (patient)
 - **Rate limit**: write
-- **Body**: `{ hour: int(0-23), minute: int(0|30), timezone: string(IANA) }`
-- **Response 200**: `{ hour: int, minute: int, timezone: string, next_fire_at_utc: TimeOnly }`
+- **Body**: `{ hourUtc: int(0-23), minuteUtc: int(0|30), timezone: string(IANA) }`
+- **Response 200**: `{ reminderConfigId: uuid, hourUtc: int, minuteUtc: int, reminderTimezone: string, enabled: bool, nextFireAtUtc: ISO }`
 - **Response 400**: `{ code: "INVALID_TIMEZONE" }`
 - **Response 403**: `{ code: "TG_NO_ACTIVE_SESSION" }`
 - **Descripcion**: Configura el horario de recordatorio del bot Telegram. Convierte timezone local a UTC antes de persistir. Devuelve proximo disparo del recordatorio en UTC.

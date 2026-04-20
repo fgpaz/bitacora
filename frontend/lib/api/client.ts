@@ -107,7 +107,12 @@ export async function bitacoraFetch<T>(
     throw err;
   }
 
-  return res.json() as Promise<T>;
+  const text = await res.text();
+  if (!text) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }
 
 /* ─── Auth / Bootstrap ──────────────────────────────────────────────────────── */
@@ -159,20 +164,53 @@ export interface TelegramPairingResponse {
   expires_at: string;   // ISO UTC timestamp
 }
 
+interface RawTelegramPairingResponse {
+  code?: string;
+  Code?: string;
+  expiresAt?: string;
+  expiresAtUtc?: string;
+  ExpiresAt?: string;
+  expires_at?: string;
+}
+
 export interface TelegramSessionResponse {
   linked: boolean;
   linked_at?: string;   // ISO UTC timestamp (present when linked=true)
   chat_id?: string;     // obfuscated, present when linked=true
+  session_id?: string;
+}
+
+interface RawTelegramSessionResponse {
+  linked?: boolean;
+  isLinked?: boolean;
+  linked_at?: string | null;
+  linkedAtUtc?: string | null;
+  chat_id?: string | null;
+  chatId?: string | null;
+  session_id?: string | null;
+  sessionId?: string | null;
 }
 
 export async function generatePairingCode(): Promise<TelegramPairingResponse> {
-  return bitacoraFetch<TelegramPairingResponse>('/telegram/pairing', {
+  const raw = await bitacoraFetch<RawTelegramPairingResponse>('/telegram/pairing', {
     method: 'POST',
   });
+
+  return {
+    code: raw.code ?? raw.Code ?? '',
+    expires_at: raw.expires_at ?? raw.expiresAt ?? raw.expiresAtUtc ?? raw.ExpiresAt ?? '',
+  };
 }
 
 export async function getTelegramSession(): Promise<TelegramSessionResponse> {
-  return bitacoraFetch<TelegramSessionResponse>('/telegram/session');
+  const raw = await bitacoraFetch<RawTelegramSessionResponse>('/telegram/session');
+
+  return {
+    linked: raw.linked ?? raw.isLinked ?? false,
+    linked_at: raw.linked_at ?? raw.linkedAtUtc ?? undefined,
+    chat_id: raw.chat_id ?? raw.chatId ?? undefined,
+    session_id: raw.session_id ?? raw.sessionId ?? undefined,
+  };
 }
 
 /* ─── Care Links (Vínculos profesional-paciente) ───────────────────────────── */
@@ -211,8 +249,20 @@ export async function revokeCareLink(id: string): Promise<void> {
 
 /* ─── Telegram: desvincular y configurar recordatorio ──────────────────────── */
 
+interface RawUnlinkTelegramResponse {
+  unlinked?: boolean;
+  unlinkedAtUtc?: string;
+  unlinked_at_utc?: string;
+  patientId?: string;
+}
+
 export async function unlinkTelegram(): Promise<{ unlinked: boolean; unlinked_at_utc?: string }> {
-  return bitacoraFetch('/telegram/session', { method: 'DELETE' });
+  const raw = await bitacoraFetch<RawUnlinkTelegramResponse | undefined>('/telegram/session', { method: 'DELETE' });
+
+  return {
+    unlinked: raw?.unlinked ?? true,
+    unlinked_at_utc: raw?.unlinked_at_utc ?? raw?.unlinkedAtUtc,
+  };
 }
 
 export interface ReminderScheduleResponse {
@@ -222,15 +272,33 @@ export interface ReminderScheduleResponse {
   next_fire_at_utc: string;
 }
 
+interface RawReminderScheduleResponse {
+  hour?: number;
+  hourUtc?: number;
+  minute?: number;
+  minuteUtc?: number;
+  timezone?: string;
+  reminderTimezone?: string;
+  next_fire_at_utc?: string;
+  nextFireAtUtc?: string;
+}
+
 export async function setReminderSchedule(
   hour: number,
   minute: number,
   timezone: string
 ): Promise<ReminderScheduleResponse> {
-  return bitacoraFetch('/telegram/reminder-schedule', {
+  const raw = await bitacoraFetch<RawReminderScheduleResponse>('/telegram/reminder-schedule', {
     method: 'PUT',
-    body: JSON.stringify({ hour, minute, timezone }),
+    body: JSON.stringify({ hourUtc: hour, minuteUtc: minute, timezone }),
   });
+
+  return {
+    hour: raw.hour ?? raw.hourUtc ?? hour,
+    minute: raw.minute ?? raw.minuteUtc ?? minute,
+    timezone: raw.timezone ?? raw.reminderTimezone ?? timezone,
+    next_fire_at_utc: raw.next_fire_at_utc ?? raw.nextFireAtUtc ?? '',
+  };
 }
 
 /* ─── Patient Dashboard ──────────────────────────────────────────────────────── */
@@ -251,18 +319,88 @@ export interface PatientSummaryResponse {
   last_entry_at: string | null;
 }
 
+interface RawPatientTimelineDay {
+  date: string;
+  moodEntry?: {
+    moodEntryId?: string;
+    moodScore?: number | null;
+    createdAtUtc?: string;
+  } | null;
+  dailyCheckin?: {
+    dailyCheckinId?: string;
+    checkinDate?: string;
+    sleepHours?: number | null;
+    physicalActivity?: boolean | null;
+    socialActivity?: boolean | null;
+    anxiety?: boolean | null;
+    irritability?: boolean | null;
+    medicationTaken?: boolean | null;
+  } | null;
+}
+
+interface RawPatientTimelineResponse {
+  entries?: PatientTimelineEntry[];
+  days?: RawPatientTimelineDay[];
+}
+
+interface RawPatientSummaryResponse {
+  total_entries?: number;
+  totalEntries?: number;
+  avg_mood_score?: number | null;
+  avgMoodScore?: number | null;
+  last_entry_at?: string | null;
+  lastEntryAt?: string | null;
+  daysWithMoodEntry?: number;
+  daysWithCheckin?: number;
+  averageMoodScore?: number | null;
+}
+
 export async function getPatientTimeline(from: Date, to: Date): Promise<PatientTimelineResponse> {
   const fromStr = from.toISOString().split('T')[0];
   const toStr = to.toISOString().split('T')[0];
-  return bitacoraFetch<PatientTimelineResponse>(
+  const raw = await bitacoraFetch<RawPatientTimelineResponse>(
     `/visualizacion/timeline?from=${fromStr}&to=${toStr}`
   );
+
+  if (raw.entries) {
+    return raw as PatientTimelineResponse;
+  }
+
+  return {
+    entries: (raw.days ?? [])
+      .filter((day) => day.moodEntry || day.dailyCheckin)
+      .map((day) => ({
+        date: day.date,
+        mood_score: day.moodEntry?.moodScore ?? null,
+        factors: day.dailyCheckin
+          ? {
+              sleep_hours: day.dailyCheckin.sleepHours,
+              physical_activity: day.dailyCheckin.physicalActivity,
+              social_activity: day.dailyCheckin.socialActivity,
+              anxiety: day.dailyCheckin.anxiety,
+              irritability: day.dailyCheckin.irritability,
+              medication_taken: day.dailyCheckin.medicationTaken,
+            }
+          : undefined,
+      })),
+  };
 }
 
 export async function getPatientSummary(from: Date, to: Date): Promise<PatientSummaryResponse> {
   const fromStr = from.toISOString().split('T')[0];
   const toStr = to.toISOString().split('T')[0];
-  return bitacoraFetch<PatientSummaryResponse>(
+  const raw = await bitacoraFetch<RawPatientSummaryResponse>(
     `/visualizacion/summary?from=${fromStr}&to=${toStr}`
   );
+
+  const totalEntries =
+    raw.total_entries ??
+    raw.totalEntries ??
+    (raw.daysWithMoodEntry ?? 0) + (raw.daysWithCheckin ?? 0);
+
+  return {
+    total_entries: totalEntries,
+    avg_mood_score: raw.avg_mood_score ?? raw.avgMoodScore ?? raw.averageMoodScore ?? null,
+    last_entry_at: raw.last_entry_at ?? raw.lastEntryAt ?? null,
+  };
 }

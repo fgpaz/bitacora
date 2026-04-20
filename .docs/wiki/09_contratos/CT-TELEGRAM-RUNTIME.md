@@ -44,8 +44,8 @@ Genera un codigo de vinculacion `BIT-XXXXX` para el paciente autenticado (TTL 15
 ```json
 {
   "code": "BIT-7K2Q9",
-  "expires_in_seconds": 900,
-  "expires_at": "2026-04-11T12:15:00Z"
+  "expiresInSeconds": 900,
+  "expiresAt": "2026-04-11T12:15:00Z"
 }
 ```
 
@@ -77,10 +77,10 @@ Consulta el estado de vinculacion Telegram del paciente autenticado.
 
 ```json
 {
-  "is_linked": true,
-  "session_id": "uuid",
-  "chat_id": null,
-  "linked_at_utc": "2026-04-11T12:00:00Z"
+  "isLinked": true,
+  "sessionId": "uuid",
+  "chatId": null,
+  "linkedAtUtc": "2026-04-11T12:00:00Z"
 }
 ```
 
@@ -88,14 +88,14 @@ Consulta el estado de vinculacion Telegram del paciente autenticado.
 
 ```json
 {
-  "is_linked": false,
-  "session_id": null,
-  "chat_id": null,
-  "linked_at_utc": null
+  "isLinked": false,
+  "sessionId": null,
+  "chatId": null,
+  "linkedAtUtc": null
 }
 ```
 
-**Nota:** `chat_id` es `null` en la respuesta por razones de privacidad. No se expone el `chat_id` de Telegram al paciente via API.
+**Nota:** `chatId` es `null` en la respuesta por razones de privacidad. No se expone el `chat_id` de Telegram al paciente via API.
 
 ---
 
@@ -113,10 +113,10 @@ Procesa updates entrantes del bot Telegram (comandos `/start CODE`, inline keybo
 
 ```json
 {
-  "Update": "/start BIT-ABC12",
-  "ChatId": "123456789",
-  "TraceId": "uuid-generado-por-adapter",
-  "CallbackQueryId": "opcional-para-keyboard-taps"
+  "update": "/start BIT-ABC12",
+  "chatId": "123456789",
+  "traceId": "uuid-generado-por-adapter",
+  "callbackQueryId": "opcional-para-keyboard-taps"
 }
 ```
 
@@ -142,8 +142,8 @@ Procesa updates entrantes del bot Telegram (comandos `/start CODE`, inline keybo
 ```json
 {
   "accepted": true,
-  "error_code": null,
-  "bot_message": "Cuenta vinculada. Ya podes registrar tu humor desde aca."
+  "errorCode": null,
+  "botMessage": "Cuenta vinculada. Ya podes registrar tu humor desde aca."
 }
 ```
 
@@ -156,7 +156,8 @@ Procesa updates entrantes del bot Telegram (comandos `/start CODE`, inline keybo
 | Codigo vencido | "Codigo invalido o expirado." |
 | Chat duplicado | "Este Telegram ya esta vinculado a otra cuenta." |
 | `/start` sin codigo | "Hola! Usa /start para vincular tu cuenta o escribe tu estado de animo." |
-| Mood input | "Recibido. Lo registramos en tu bitacora." |
+| Mood input | "Registro guardado. Ahora contame un poco mas: ¿Cuantas horas dormiste anoche?" |
+| Check-in completo | "Registro completo. Ya podes verlo en tu historial web." |
 | Sesion no vinculada | (silent deny — 200 sin mensaje al bot) |
 | Consent no vigente | (silent deny — 200 sin mensaje al bot) |
 
