@@ -63,7 +63,7 @@ export function OnboardingEntryHero({
             noValidate
           >
             <label className={styles.emailLabel} htmlFor="onboarding-email">
-              Tu correo electrónico
+              Correo (opcional, pre-completa el login)
             </label>
             <input
               id="onboarding-email"
@@ -91,7 +91,7 @@ export function OnboardingEntryHero({
                 className={styles.primaryCta}
                 disabled={submitting}
               >
-                {submitting ? 'Abriendo...' : 'Empezar ahora'}
+                {submitting ? 'Abriendo...' : 'Iniciar sesión con Zitadel'}
               </button>
             </div>
           </form>
@@ -109,8 +109,8 @@ export function OnboardingEntryHero({
       </div>
 
       <footer className={styles.footer}>
-        <p className={styles.footerText}>¿Ya tienes cuenta?</p>
-        <a href="/ingresar" className={styles.footerLink}>Ingresar</a>
+        <p className={styles.footerText}>¿Problemas para acceder?</p>
+        <a href="mailto:soporte@nuestrascuentitas.com" className={styles.footerLink}>Contactar soporte</a>
       </footer>
     </div>
   );

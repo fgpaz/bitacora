@@ -18,7 +18,7 @@ export default function HomePage() {
   async function handleStart() {
     const trimmed = email.trim();
     if (!trimmed) {
-      setError('Ingresá tu correo electrónico.');
+      setError('Ingresá tu correo para pre-completar en Zitadel.');
       return;
     }
     setSubmitting(true);
@@ -39,7 +39,7 @@ export default function HomePage() {
             Revisá tu correo
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', color: 'var(--foreground-muted)' }}>
-            Te estamos llevando al inicio de sesión seguro para <strong>{email}</strong>.
+            Redirigiendo a Zitadel para iniciar sesión...
           </p>
         </div>
       </main>

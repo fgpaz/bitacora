@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     const session = createSessionFromAccessToken(tokenSet.access_token, config, tokenSet.id_token, expectedNonce);
-    const response = NextResponse.redirect(new URL('/onboarding', publicOrigin));
+    const response = NextResponse.redirect(new URL('/dashboard', publicOrigin));
     clearTransientAuthCookies(response);
     setSessionCookie(response, session);
     return response;
