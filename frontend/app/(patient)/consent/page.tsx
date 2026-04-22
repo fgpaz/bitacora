@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * ConsentPage — dedicated route for standalone consent reading and granting.
  * Delegates to OnboardingFlow's consent sub-states for consistency.

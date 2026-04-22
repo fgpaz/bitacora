@@ -12,7 +12,7 @@ import '@/styles/globals.css';
 import { Providers } from '@/providers';
 
 export const metadata: Metadata = {
-  title: 'Bitacora',
+  title: 'Bitácora',
   description: 'Registro de humor y bienestar',
 };
 

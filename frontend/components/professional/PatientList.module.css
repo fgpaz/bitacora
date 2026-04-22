@@ -156,7 +156,9 @@
 .pageBtn {
   font-family: var(--font-body);
   font-size: 0.875rem;
-  padding: 4px 12px;
+  padding: 10px 16px;
+  min-height: 44px;
+  min-width: 44px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   background: var(--surface-muted);

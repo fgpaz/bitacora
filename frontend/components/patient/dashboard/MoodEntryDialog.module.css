@@ -7,15 +7,28 @@
   max-height: 100vh;
 }
 
+.dialog[open] {
+  animation: moodDialogFadeIn 200ms ease-out;
+}
+
+@keyframes moodDialogFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] { animation: none; }
+}
+
 .dialog::backdrop {
-  background-color: rgba(16, 24, 40, 0.55);
+  background-color: var(--overlay-backdrop);
   backdrop-filter: blur(2px);
 }
 
 .panel {
   background-color: var(--surface);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: var(--shadow-strong, 0 24px 48px rgba(16, 24, 40, 0.18));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-strong);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -60,7 +73,8 @@
 }
 
 .closeBtn:focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
 

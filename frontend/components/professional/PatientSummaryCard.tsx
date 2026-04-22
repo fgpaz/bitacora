@@ -29,7 +29,7 @@ export function PatientSummaryCard({ summary }: Props) {
           <dd className={styles.statValue}>{avgScore}</dd>
         </div>
         <div className={styles.stat}>
-          <dt className={styles.statLabel}>Ultimo registro</dt>
+          <dt className={styles.statLabel}>Último registro</dt>
           <dd className={styles.statValue}>
             {summary.last_entry_at
               ? new Date(summary.last_entry_at).toLocaleDateString('es-AR', { dateStyle: 'medium' })

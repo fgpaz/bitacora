@@ -40,6 +40,7 @@ export function PatientPageShell({ children, loading, error }: Props) {
   return (
     <main className={styles.shell}>
       <button
+        type="button"
         onClick={handleLogout}
         className={styles.logoutButton}
         title="Cerrar sesión"

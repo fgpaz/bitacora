@@ -90,7 +90,7 @@ test.describe('TelegramReminderBanner', () => {
     });
 
     await page.goto('/dashboard');
-    await page.getByRole('button', { name: 'Ahora no' }).click();
+    await page.getByRole('button', { name: 'Descartar recordatorio por 30 días' }).click();
     await expect(page.getByText('Recibí recordatorios por Telegram')).toHaveCount(0);
 
     const dismissedAt = await page.evaluate(() =>

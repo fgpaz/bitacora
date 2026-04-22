@@ -47,7 +47,7 @@ export function BindingCodeForm({ onSuccess }: BindingCodeFormProps) {
       setTimeout(() => {
         setState('idle');
         onSuccess();
-      }, 1500);
+      }, 400);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al aceptar el código';
       setErrorMessage(msg);
@@ -86,7 +86,7 @@ export function BindingCodeForm({ onSuccess }: BindingCodeFormProps) {
         aria-busy={state === 'submitting'}
       >
         {state === 'submitting' && 'Aceptando...'}
-        {state === 'success' && 'Invitación aceptada ✓'}
+        {state === 'success' && 'Invitación aceptada'}
         {state === 'idle' && 'Aceptar invitación'}
         {state === 'error' && 'Aceptar invitación'}
       </button>

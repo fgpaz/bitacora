@@ -10,7 +10,7 @@ export function OnboardingEntryHero({ variant = 'standard', professionalName }: 
   return (
     <div className={styles.hero}>
       <header className={styles.header}>
-        <span className={styles.wordmark}>Bitacora</span>
+        <span className={styles.wordmark}>Bitácora</span>
       </header>
 
       <div className={styles.body}>
@@ -28,8 +28,8 @@ export function OnboardingEntryHero({ variant = 'standard', professionalName }: 
         <h1 className={styles.headline}>Tu espacio personal de registro</h1>
 
         <p className={styles.sub}>
-          Un lugar tranquilo para llevar tu registro de humor y bienestar,
-          con la tranquilidad de que tus datos son privados.
+          Un lugar sobrio para llevar tu registro de humor y bienestar,
+          con la seguridad de que tus datos son privados.
         </p>
 
         <div className={styles.ctaStack}>

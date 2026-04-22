@@ -58,9 +58,9 @@ function PaginationControls({
   const nextDisabled = !hasMore;
 
   return (
-    <div className={styles.pagination} aria-label="Paginacion">
+    <div className={styles.pagination} aria-label="Paginación">
       <span className={styles.pageInfo}>
-        Pagina {page} de {totalPages}
+        Página {page} de {totalPages}
         {total !== undefined && (
           <span className={styles.totalCount}> &middot; {total} pacientes</span>
         )}
@@ -70,7 +70,7 @@ function PaginationControls({
           className={styles.pageBtn}
           onClick={onPrev}
           disabled={prevDisabled}
-          aria-label="Pagina anterior"
+          aria-label="Página anterior"
         >
           Anterior
         </button>
@@ -78,7 +78,7 @@ function PaginationControls({
           className={styles.pageBtn}
           onClick={onNext}
           disabled={nextDisabled}
-          aria-label="Pagina siguiente"
+          aria-label="Página siguiente"
         >
           Siguiente
         </button>
@@ -141,8 +141,8 @@ export function PatientList() {
   if (patients.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <p>No tenes pacientes vinculados todavia.</p>
-        <p>Invita a alguien desde la seccion de invitaciones.</p>
+        <p>No tenés pacientes vinculados todavía.</p>
+        <p>Invitá a alguien desde la sección de invitaciones.</p>
       </div>
     );
   }

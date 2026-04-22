@@ -40,6 +40,12 @@
   100% { background-position: -200% 0; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
 .errorState {
   flex: 1;
   display: flex;
@@ -74,7 +80,8 @@
 }
 
 .logoutButton:focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
 

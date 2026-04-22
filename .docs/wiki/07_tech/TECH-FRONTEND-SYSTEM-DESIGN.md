@@ -115,14 +115,16 @@ Este documento no redefine esos valores: los traduce a roles de sistema y reglas
 
 | Familia | Base canónica | Regla |
 | --- | --- | --- |
-| color de marca | `--brand-primary`, `--brand-secondary`, `--brand-accent` | color atmosférico con acentos medidos, nunca como ruido dominante |
-| superficies | `--surface`, `--surface-muted` | fondos cálidos con textura suave editorial, mate y legible |
+| color de marca | `--brand-primary`, `--brand-secondary`, `--brand-accent`, `--foreground-on-brand` | color atmosférico con acentos medidos, nunca como ruido dominante; `--foreground-on-brand` reservado para texto sobre fondos de marca |
+| superficies | `--surface`, `--surface-muted`, `--surface-raised`, `--overlay-backdrop` | fondos cálidos con textura suave editorial, mate y legible; `--overlay-backdrop` para dialogs modales |
 | tipografía | `Newsreader`, `Source Sans 3`, `IBM Plex Mono` | `Newsreader` editorial medida para ritmo de lectura; sans para operaciones |
-| radios | `radius-sm`, `radius-md`, `radius-lg` | contenedores con suavidad contenida, sin carácter decorativo |
-| borde | `border-base`, `border-subtle` | separar sin rigidez |
-| elevación | `shadow-none`, `shadow-soft` | profundidad mínima |
-| foco | `focus-ring` | visible, accesible, sin brillo agresivo |
-| motion | transiciones suaves y cortas | movimiento suave y funcional; sin rebotes ni teatralidad |
+| radios | `radius-sm` (4px), `radius-md` (8px), `radius-lg` (12px) | contenedores con suavidad contenida, sin carácter decorativo; valores reales sincronizados 2026-04-22 con `11_identidad_visual.md` |
+| borde | `border-subtle`, alias `--border` | separar sin rigidez; `--border` queda como alias legacy, código nuevo usa `--border-subtle` |
+| elevación | `shadow-none`, `shadow-soft`, `shadow-strong` | profundidad mínima; `shadow-strong` reservado para dialogs modales |
+| estado semántico | `--status-success*`, `--status-warning*`, `--status-danger*`, alias `--semantic-warning` | indicadores reforzados con texto/ícono, no solo color |
+| foco | `focus-ring` | visible, accesible, sin brillo agresivo; aplicar `outline: 2px solid var(--brand-primary); outline-offset: 2px` + `box-shadow: var(--focus-ring)` para garantizar visibilidad en Windows High Contrast Mode |
+| motion | transiciones suaves y cortas | movimiento suave y funcional; sin rebotes ni teatralidad; respetar `prefers-reduced-motion` con regla local por componente además de la global en `tokens.css` |
+| breakpoints | `--bp-sm` (480px), `--bp-md` (768px), `--bp-lg` (1024px) | canon agregado 2026-04-22 como tokens documentales; aplicar progresivamente en código nuevo (requiere PostCSS custom-media para usarlos directamente en `@media`) |
 
 ### Reglas de tokenización
 
@@ -189,6 +191,9 @@ La futura implementación debe organizarse alrededor de estas primitivas de sist
 | `TimelinePanel` | lectura longitudinal | loading, ready, empty, error |
 | `BindingCodePanel` | auto-vinculación paciente-profesional por código | idle, code, invalid, expired, success, error |
 | `TelegramCodeBridgePanel` | pairing Telegram y códigos temporales de canal | idle, code, expired, linked, error |
+| `PairingCodeDisplay` | subcomponente presentational de `TelegramCodeBridgePanel`: código generado + countdown + copiar/abrir Telegram/confirmar | code, expired |
+| `PairingInstructions` | subcomponente presentational de `TelegramCodeBridgePanel`: bloque inicial idle con CTA "Generar código" | default, generating |
+| `PairingReminderSection` | subcomponente presentational de `TelegramCodeBridgePanel`: schedule picker + probar/volver + desvincular con confirm inline | default, saving, confirming_unlink |
 | `TrustContextPanel` | aviso puntual de confianza/consentimiento en tareas críticas | default, contextual_trust |
 | `OnboardingEntryHero` | entrada pública `ONB-first` | standard, invite, invite_fallback |
 | `AuthBootstrapInterstitial` | continuidad breve entre auth y bootstrap | default, contextual_invite |

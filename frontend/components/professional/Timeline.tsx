@@ -5,7 +5,7 @@
  * Supports period filtering with longitudinal chart visualization.
  * Follows UI-RFC-VIS-001 state taxonomy.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getPatientTimelineByPeriod } from '@/lib/api/professional';
 import type { TimelineEntry } from '@/lib/api/professional';
 import styles from './Timeline.module.css';
@@ -317,7 +317,10 @@ export function Timeline({ patientId }: Props) {
     load(from, to);
   };
 
-  const moodPoints = entries ? extractMoodPoints(entries) : [];
+  const moodPoints = useMemo(
+    () => (entries ? extractMoodPoints(entries) : []),
+    [entries],
+  );
 
   if (viewState === 'error') {
     return (

@@ -49,6 +49,7 @@ export function MoodEntryDialog({ open, onClose, onSaved }: Props) {
       onCancel={handleCancel}
       onClick={handleBackdropClick}
       aria-labelledby="mood-entry-dialog-title"
+      aria-modal="true"
     >
       <div className={styles.panel}>
         <div className={styles.header}>

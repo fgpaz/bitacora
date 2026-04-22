@@ -81,7 +81,7 @@
 }
 
 .cardConflict {
-  border-left-color: var(--semantic-warning, #d97706);
+  border-left-color: var(--status-warning-border);
 }
 
 .cardTitle {

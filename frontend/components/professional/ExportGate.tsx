@@ -267,7 +267,7 @@ export function ExportGate({ patientId }: Props) {
   if (error) {
     return (
       <div className={styles.errorState} role="alert">
-        <p>No se pudo verificar el acceso a exportacion.</p>
+        <p>No se pudo verificar el acceso a exportación.</p>
         <small>{error}</small>
       </div>
     );
@@ -283,8 +283,8 @@ export function ExportGate({ patientId }: Props) {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-2h2v2h-2zm0-4V7h2v6h-2z" fill="currentColor" />
           </svg>
         </div>
-        <h3 className={styles.deniedTitle}>Exportacion no disponible</h3>
-        <p className={styles.deniedReason}>{constraint.reason ?? 'No tenes permisos para exportar los datos de este paciente.'}</p>
+        <h3 className={styles.deniedTitle}>Exportación no disponible</h3>
+        <p className={styles.deniedReason}>{constraint.reason ?? 'No tenés permisos para exportar los datos de este paciente.'}</p>
         <p className={styles.deniedHint}>
           Si necesitas una copia de los registros, solicitale a tu paciente que la descargue desde su cuenta.
         </p>

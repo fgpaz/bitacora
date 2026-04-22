@@ -11,7 +11,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
 import { DashboardSummary } from './DashboardSummary';
 import { MoodEntryDialog } from './MoodEntryDialog';
@@ -65,6 +65,7 @@ export function Dashboard() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const openDialogRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,11 +117,15 @@ export function Dashboard() {
 
   function closeDialog() {
     setDialogOpen(false);
+    requestAnimationFrame(() => openDialogRef.current?.focus());
   }
 
   function handleEntrySaved() {
     setRefreshNonce((n) => n + 1);
   }
+
+  const trendEntries = useMemo(() => entries.toReversed(), [entries]);
+  const trendCount = Math.max(1, trendEntries.length);
 
   if (viewState === 'loading') {
     return (
@@ -171,14 +176,11 @@ export function Dashboard() {
       <>
         <div className={styles.stack}>
           <TelegramReminderBanner />
-          <DashboardSummary
-            totalEntries={totalEntries}
-            avgMoodScore={avgMoodScore}
-            lastEntryAt={lastEntryAt}
-          />
+          {/* DashboardSummary removido del empty state — canon 10 anti-señal "tablero de vigilancia" aplicada a primer uso */}
           <div
             className={styles.emptyState}
-            role="status"
+            role="region"
+            aria-label="Historial vacío"
           >
             <svg
               width={48}
@@ -197,9 +199,10 @@ export function Dashboard() {
             </svg>
             <p className={styles.emptyTitle}>Empezá con tu primer registro</p>
             <p className={styles.emptyText}>
-              Acá vas a ver tu historial cuando cargues tu primer registro.
+              Cuando cargues tu primer registro, lo vas a ver acá.
             </p>
             <button
+              ref={openDialogRef}
               type="button"
               onClick={openDialog}
               className={styles.primaryButton}
@@ -212,9 +215,6 @@ export function Dashboard() {
       </>
     );
   }
-
-  const trendEntries = entries.toReversed();
-  const trendCount = Math.max(1, trendEntries.length);
 
   return (
     <>
@@ -251,6 +251,7 @@ export function Dashboard() {
                     <span
                       className={getTrendBarClass(entry.moodScore)}
                       style={getTrendBarStyle(entry.moodScore)}
+                      aria-hidden="true"
                     />
                   </div>
                   <span className={styles.trendDay}>{dayLabel}</span>
@@ -284,8 +285,8 @@ export function Dashboard() {
                   <div className={styles.entryInfo}>
                     <p className={styles.entryDate}>{dateStr}</p>
                   </div>
-                  <div className={styles.scoreBadge} aria-label="Puntaje de humor">
-                    {entry.moodScore === null ? 'Sin puntaje' : formatMoodScore(entry.moodScore)}
+                  <div className={styles.scoreBadge} aria-label="Estado de ánimo">
+                    {entry.moodScore === null ? 'Sin registro' : formatMoodScore(entry.moodScore)}
                   </div>
                 </div>
               );
@@ -295,6 +296,7 @@ export function Dashboard() {
 
         <section className={styles.actions} aria-label="Acciones de registro">
           <button
+            ref={openDialogRef}
             type="button"
             onClick={openDialog}
             className={styles.primaryButton}

@@ -73,11 +73,15 @@
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: background-color 150ms ease-out;
 }
 
 .primaryCta:hover {
-  opacity: 0.9;
+  background-color: color-mix(in srgb, var(--brand-primary) 92%, black 8%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryCta { transition: none; }
 }
 
 .privacyNote {

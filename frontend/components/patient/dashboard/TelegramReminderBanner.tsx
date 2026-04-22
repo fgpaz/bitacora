@@ -24,6 +24,7 @@ function wasRecentlyDismissed(): boolean {
 
 export function TelegramReminderBanner() {
   const [visible, setVisible] = useState(false);
+  const [dismissAnnounce, setDismissAnnounce] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -48,22 +49,29 @@ export function TelegramReminderBanner() {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(DISMISS_KEY, Date.now().toString());
     }
-    setVisible(false);
+    setDismissAnnounce('Recordatorio descartado por 30 días.');
+    setTimeout(() => setVisible(false), 100);
   }
 
-  if (!visible) return null;
+  if (!visible) {
+    return (
+      <span role="status" aria-live="polite" className="visually-hidden">
+        {dismissAnnounce}
+      </span>
+    );
+  }
 
   return (
     <aside className={styles.banner} role="complementary" aria-label="Conectar Telegram">
       <div className={styles.content}>
         <p className={styles.title}>Recibí recordatorios por Telegram</p>
-        <p className={styles.description}>Tarda un minuto y te ayuda a no olvidar tu registro.</p>
+        <p className={styles.description}>Tarda un minuto. El recordatorio te llega a Telegram.</p>
       </div>
       <div className={styles.actions}>
         <Link href="/configuracion/telegram" className={styles.primary}>
           Conectar
         </Link>
-        <button type="button" onClick={handleDismiss} className={styles.secondary}>
+        <button type="button" onClick={handleDismiss} className={styles.secondary} aria-label="Descartar recordatorio por 30 días">
           Ahora no
         </button>
       </div>

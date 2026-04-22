@@ -17,7 +17,7 @@ export function InlineFeedback({ variant, message, traceId }: Props) {
     <div
       className={`${styles.root} ${styles[variant]}`}
       role={variant === 'error' ? 'alert' : 'status'}
-      aria-live="polite"
+      aria-live={variant === 'error' ? 'assertive' : 'polite'}
     >
       <span className={styles.message}>{message}</span>
       {traceId && (

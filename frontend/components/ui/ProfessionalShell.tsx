@@ -41,7 +41,7 @@ export function ProfessionalShell({ children, loading }: Props) {
             Cerrar sesión
           </button>
         </nav>
-        <div className={styles.wordmark}>Bitacora Pro</div>
+        <div className={styles.wordmark}>Bitácora Pro</div>
       </header>
       <main className={styles.main}>
         <div className={styles.content}>{children}</div>

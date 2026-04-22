@@ -12,10 +12,12 @@
 
   /* Foreground */
   --foreground: #2E2A28;
-  --foreground-muted: #655E59;
+  --foreground-muted: #4A4440;
+  --foreground-on-brand: #FFFFFF;
 
   /* Borders */
   --border-subtle: #D7CCC1;
+  --border: var(--border-subtle);  /* alias legacy — usar --border-subtle en código nuevo */
 
   /* Semantic state */
   --status-success: #5E766E;
@@ -28,6 +30,7 @@
   --status-danger-bg: #F4E5E1;
   --status-danger-border: #D7AAA0;
   --status-neutral-bg: #ECE6DF;
+  --semantic-warning: var(--status-warning);
 
   /* Radius */
   --radius-sm: 4px;
@@ -37,6 +40,7 @@
   /* Shadows */
   --shadow-none: none;
   --shadow-soft: 0 1px 3px rgba(46, 42, 40, 0.08);
+  --shadow-strong: 0 8px 24px rgba(46, 42, 40, 0.14);
 
   /* Focus */
   --focus-ring: 0 0 0 2px var(--brand-primary);
@@ -46,6 +50,9 @@
   --font-body: 'Source Sans 3', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
+  /* Overlays */
+  --overlay-backdrop: rgba(46, 42, 40, 0.55);
+
   /* Spacing */
   --space-xs: 4px;
   --space-sm: 8px;
@@ -53,7 +60,23 @@
   --space-lg: 24px;
   --space-xl: 40px;
   --space-2xl: 64px;
+
+  /* Breakpoints (para uso en código nuevo; los módulos existentes mantienen sus media queries hasta normalización futura) */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
 }
+
+/*
+Breakpoint canon (para waves futuras):
+  ≤480px       mobile
+  481-767px    tablet small
+  768-1023px   tablet / desktop mínimo
+  ≥1024px      desktop full
+Los custom properties anteriores no son usables directamente en @media sin PostCSS custom-media.
+Sirven como documentación viva + referencia para futuro PostCSS plugin.
+NO unificar media queries existentes en esta wave (riesgo visual alto); aplicar la convención en código nuevo.
+*/
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
