@@ -5,13 +5,6 @@
  * only starts login, starts logout, or checks whether a product session exists.
  */
 
-export async function signInWithMagicLink(email: string): Promise<{ error: string | null }> {
-  const loginUrl = new URL('/ingresar', window.location.origin);
-  loginUrl.searchParams.set('login_hint', email.trim());
-  window.location.assign(loginUrl.toString());
-  return { error: null };
-}
-
 export async function signInWithZitadel(email?: string): Promise<{ error: string | null }> {
   const loginUrl = new URL('/ingresar', window.location.origin);
   if (email?.trim()) {

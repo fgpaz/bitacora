@@ -54,54 +54,6 @@
   margin-bottom: var(--space-xl);
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-}
-
-.emailLabel {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
-}
-
-.emailInput {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--foreground);
-  background-color: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  width: 100%;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.emailInput:focus {
-  outline: none;
-  border-color: var(--brand-primary);
-  box-shadow: var(--focus-ring);
-}
-
-.emailInput:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.emailInput[aria-invalid="true"] {
-  border-color: var(--status-danger);
-}
-
-.errorMessage {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  color: var(--status-danger);
-  margin: 0;
-}
-
 .ctaStack {
   margin-top: var(--space-sm);
   margin-bottom: var(--space-lg);
