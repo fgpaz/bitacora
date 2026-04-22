@@ -40,7 +40,6 @@ export interface ConsentGrantResponse {
   consentGrantId: string;
   status: 'consent_granted';
   grantedAtUtc: string;
-  needsFirstEntry: boolean;
   resumePendingInvite: boolean;
 }
 

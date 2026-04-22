@@ -1,6 +1,10 @@
 /**
  * Bitacora proxy - runtime hardening layer.
  *
+ * Next.js 16 runs this file as the request-level middleware when the exported
+ * function is named `proxy` (formerly `middleware.ts` in Next 15). The config
+ * matcher below scopes it to app routes excluding static and API paths.
+ *
  * It only performs UX routing checks from the product session cookie. Bitacora.Api
  * remains the authority for token signature, issuer, audience and data access.
  */
