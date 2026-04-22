@@ -5,6 +5,7 @@
  * States: loading | ready | error | empty
  * Fetches timeline and summary in parallel (async-parallel).
  * Handles 403 Consent Required by redirecting to /consent.
+ * Opens MoodEntryDialog inline so the user never loses the history context.
  */
 
 import Link from 'next/link';
@@ -13,6 +14,8 @@ import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
 import { DashboardSummary } from './DashboardSummary';
+import { MoodEntryDialog } from './MoodEntryDialog';
+import { TelegramReminderBanner } from './TelegramReminderBanner';
 import styles from './Dashboard.module.css';
 
 type ViewState = 'loading' | 'ready' | 'error' | 'empty';
@@ -60,26 +63,23 @@ export function Dashboard() {
   const [avgMoodScore, setAvgMoodScore] = useState<number | null>(null);
   const [lastEntryAt, setLastEntryAt] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     async function loadData() {
       try {
-        // Calculate date range: 30 days ago to today
         const to = new Date();
         const from = new Date();
         from.setDate(from.getDate() - 30);
 
-        // Fetch timeline and summary in parallel
         const [timelineRes, summaryRes] = await Promise.all([
           getPatientTimeline(from, to),
           getPatientSummary(from, to),
         ]);
+        if (cancelled) return;
 
-        // Populate summary stats
-        setTotalEntries(summaryRes.total_entries);
-        setAvgMoodScore(summaryRes.avg_mood_score);
-
-        // Process timeline entries (take last 10, reverse for newest first)
         const sortedEntries = timelineRes.entries
           .toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           .slice(0, 10)
@@ -88,24 +88,39 @@ export function Dashboard() {
             moodScore: e.mood_score,
           }));
 
+        setTotalEntries(summaryRes.total_entries);
+        setAvgMoodScore(summaryRes.avg_mood_score);
         setEntries(sortedEntries);
         setLastEntryAt(summaryRes.last_entry_at ?? sortedEntries[0]?.date ?? null);
         setViewState(summaryRes.total_entries === 0 ? 'empty' : 'ready');
       } catch (err: unknown) {
+        if (cancelled) return;
         const code = (err as { code?: string }).code;
-        // 403 Forbidden or consent-specific error: redirect to consent flow
         if (code === 'CONSENT_REQUIRED' || code === 'FORBIDDEN' || code === '403') {
           router.push('/consent');
           return;
         }
-        // Other errors: show error state
         setErrorMsg('No se pudo cargar el historial.');
         setViewState('error');
       }
     }
-
     loadData();
-  }, [router]);
+    return () => {
+      cancelled = true;
+    };
+  }, [router, refreshNonce]);
+
+  function openDialog() {
+    setDialogOpen(true);
+  }
+
+  function closeDialog() {
+    setDialogOpen(false);
+  }
+
+  function handleEntrySaved() {
+    setRefreshNonce((n) => n + 1);
+  }
 
   if (viewState === 'loading') {
     return (
@@ -153,139 +168,148 @@ export function Dashboard() {
 
   if (viewState === 'empty') {
     return (
+      <>
+        <div className={styles.stack}>
+          <TelegramReminderBanner />
+          <DashboardSummary
+            totalEntries={totalEntries}
+            avgMoodScore={avgMoodScore}
+            lastEntryAt={lastEntryAt}
+          />
+          <div
+            className={styles.emptyState}
+            role="status"
+          >
+            <svg
+              width={48}
+              height={48}
+              viewBox="0 0 24 24"
+              fill="none"
+              className={styles.emptyIcon}
+              aria-hidden="true"
+            >
+              <path
+                d="M3 12h18M3 6h18M3 18h18"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+            </svg>
+            <p className={styles.emptyTitle}>Empezá con tu primer registro</p>
+            <p className={styles.emptyText}>
+              Acá vas a ver tu historial cuando cargues tu primer registro.
+            </p>
+            <button
+              type="button"
+              onClick={openDialog}
+              className={styles.primaryButton}
+            >
+              Registrar humor
+            </button>
+          </div>
+        </div>
+        <MoodEntryDialog open={dialogOpen} onClose={closeDialog} onSaved={handleEntrySaved} />
+      </>
+    );
+  }
+
+  const trendEntries = entries.toReversed();
+  const trendCount = Math.max(1, trendEntries.length);
+
+  return (
+    <>
       <div className={styles.stack}>
+        <TelegramReminderBanner />
         <DashboardSummary
           totalEntries={totalEntries}
           avgMoodScore={avgMoodScore}
           lastEntryAt={lastEntryAt}
         />
-        <div
-          className={styles.emptyState}
-          role="status"
-        >
-          <svg
-            width={48}
-            height={48}
-            viewBox="0 0 24 24"
-            fill="none"
-            className={styles.emptyIcon}
-            aria-hidden="true"
+
+        <section className={styles.trendPanel} aria-labelledby="trend-heading">
+          <div className={styles.trendHeader}>
+            <h2 id="trend-heading" className={styles.sectionTitle}>
+              Variabilidad diaria
+            </h2>
+            <span className={styles.trendCaption}>Últimos registros</span>
+          </div>
+
+          <div
+            className={styles.trendChart}
+            role="list"
+            aria-label="Variación de puntajes por día"
+            style={{ '--trend-count': trendCount } as CSSProperties}
           >
-            <path
-              d="M3 12h18M3 6h18M3 18h18"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-            />
-          </svg>
-          <p className={styles.emptyTitle}>Todavía no hay registros</p>
-          <p className={styles.emptyText}>
-            El historial se mostrará cuando cargues el primer registro.
-          </p>
-          <Link
-            href="/registro/mood-entry"
-            className={styles.primaryLink}
+            <div className={styles.trendMidline} aria-hidden="true" />
+            {trendEntries.map((entry) => {
+              const dayLabel = formatEntryDate(entry.date, { day: '2-digit', month: 'short' });
+              const ariaLabel = `${dayLabel}: ${formatMoodScore(entry.moodScore)}`;
+
+              return (
+                <div key={entry.date} className={styles.trendColumn} role="listitem">
+                  <div className={styles.trendTrack} aria-label={ariaLabel} title={ariaLabel}>
+                    <span
+                      className={getTrendBarClass(entry.moodScore)}
+                      style={getTrendBarStyle(entry.moodScore)}
+                    />
+                  </div>
+                  <span className={styles.trendDay}>{dayLabel}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section aria-labelledby="recent-entries-heading">
+          <h2
+            id="recent-entries-heading"
+            className={styles.sectionTitle}
           >
-            Registrar humor
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // viewState === 'ready'
-  const trendEntries = entries.toReversed();
-  const trendCount = Math.max(1, trendEntries.length);
-
-  return (
-    <div className={styles.stack}>
-      <DashboardSummary
-        totalEntries={totalEntries}
-        avgMoodScore={avgMoodScore}
-        lastEntryAt={lastEntryAt}
-      />
-
-      <section className={styles.trendPanel} aria-labelledby="trend-heading">
-        <div className={styles.trendHeader}>
-          <h2 id="trend-heading" className={styles.sectionTitle}>
-            Variabilidad diaria
+            Registros recientes
           </h2>
-          <span className={styles.trendCaption}>Últimos registros</span>
-        </div>
 
-        <div
-          className={styles.trendChart}
-          role="list"
-          aria-label="Variación de puntajes por día"
-          style={{ '--trend-count': trendCount } as CSSProperties}
-        >
-          <div className={styles.trendMidline} aria-hidden="true" />
-          {trendEntries.map((entry) => {
-            const dayLabel = formatEntryDate(entry.date, { day: '2-digit', month: 'short' });
-            const ariaLabel = `${dayLabel}: ${formatMoodScore(entry.moodScore)}`;
+          <div className={styles.entryList}>
+            {entries.map((entry) => {
+              const dateStr = formatEntryDate(entry.date, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              });
 
-            return (
-              <div key={entry.date} className={styles.trendColumn} role="listitem">
-                <div className={styles.trendTrack} aria-label={ariaLabel} title={ariaLabel}>
-                  <span
-                    className={getTrendBarClass(entry.moodScore)}
-                    style={getTrendBarStyle(entry.moodScore)}
-                  />
+              return (
+                <div
+                  key={entry.date}
+                  className={styles.entryItem}
+                >
+                  <div className={styles.entryInfo}>
+                    <p className={styles.entryDate}>{dateStr}</p>
+                  </div>
+                  <div className={styles.scoreBadge} aria-label="Puntaje de humor">
+                    {entry.moodScore === null ? 'Sin puntaje' : formatMoodScore(entry.moodScore)}
+                  </div>
                 </div>
-                <span className={styles.trendDay}>{dayLabel}</span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
+          </div>
+        </section>
 
-      <section aria-labelledby="recent-entries-heading">
-        <h2
-          id="recent-entries-heading"
-          className={styles.sectionTitle}
-        >
-          Registros recientes
-        </h2>
-
-        <div className={styles.entryList}>
-          {entries.map((entry) => {
-            const dateStr = formatEntryDate(entry.date, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
-
-            return (
-              <div
-                key={entry.date}
-                className={styles.entryItem}
-              >
-                <div className={styles.entryInfo}>
-                  <p className={styles.entryDate}>{dateStr}</p>
-                </div>
-                <div className={styles.scoreBadge} aria-label="Puntaje de humor">
-                  {entry.moodScore === null ? 'Sin puntaje' : formatMoodScore(entry.moodScore)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className={styles.actions} aria-label="Acciones de registro">
-        <Link
-          href="/registro/mood-entry"
-          className={styles.primaryLink}
-        >
-          Registrar humor
-        </Link>
-        <Link
-          href="/registro/daily-checkin"
-          className={styles.secondaryLink}
-        >
-          Check-in diario
-        </Link>
-      </section>
-    </div>
+        <section className={styles.actions} aria-label="Acciones de registro">
+          <button
+            type="button"
+            onClick={openDialog}
+            className={styles.primaryButton}
+          >
+            + Nuevo registro
+          </button>
+          <Link
+            href="/registro/daily-checkin"
+            className={styles.secondaryLink}
+          >
+            Check-in diario
+          </Link>
+        </section>
+      </div>
+      <MoodEntryDialog open={dialogOpen} onClose={closeDialog} onSaved={handleEntrySaved} />
+    </>
   );
 }

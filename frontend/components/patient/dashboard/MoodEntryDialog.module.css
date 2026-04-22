@@ -1,0 +1,70 @@
+.dialog {
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-width: min(560px, 100vw);
+  width: 100%;
+  max-height: 100vh;
+}
+
+.dialog::backdrop {
+  background-color: rgba(16, 24, 40, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.panel {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: var(--shadow-strong, 0 24px 48px rgba(16, 24, 40, 0.18));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, 720px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--foreground-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.closeBtn:hover {
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.closeBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.body {
+  overflow-y: auto;
+  padding: var(--space-lg);
+}

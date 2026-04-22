@@ -2,7 +2,7 @@
 
 /**
  * MoodEntryForm — REG-001: mood score capture and submission.
- * States: S02-DEFAULT | S02-SUBMITTING | S02-SUCCESS | S02-ERROR | S02-CONSENT | S02-SESSION
+ * Variants: page (default, standalone route) | embedded (inside a dialog).
  */
 import Link from 'next/link';
 import { useState } from 'react';
@@ -15,7 +15,12 @@ import styles from './MoodEntryForm.module.css';
 
 type Phase = 'idle' | 'submitting' | 'success' | 'error' | 'consent' | 'session';
 
-export function MoodEntryForm() {
+interface Props {
+  embedded?: boolean;
+  onSaved?: () => void;
+}
+
+export function MoodEntryForm({ embedded = false, onSaved }: Props = {}) {
   const [score, setScore] = useState<number | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -36,6 +41,7 @@ export function MoodEntryForm() {
       }
       await createMoodEntry(score);
       setPhase('success');
+      if (onSaved) onSaved();
     } catch (err: unknown) {
       const code = (err as { code?: string }).code;
       const trace = (err as { trace_id?: string }).trace_id;
@@ -57,80 +63,75 @@ export function MoodEntryForm() {
     }
   }
 
-  if (phase === 'consent') {
-    return (
-      <PatientPageShell>
-        <div className={styles.consentState}>
-          <p className={styles.consentText}>
-            Necesitás aceptar el consentimiento antes de registrar tu humor.
-          </p>
-          <Link href="/consent" className={styles.consentLink}>
-            Ir al consentimiento
-          </Link>
-        </div>
-      </PatientPageShell>
-    );
-  }
+  const consentBlock = (
+    <div className={styles.consentState}>
+      <p className={styles.consentText}>
+        Necesitás aceptar el consentimiento antes de registrar tu humor.
+      </p>
+      <Link href="/consent" className={styles.consentLink}>
+        Ir al consentimiento
+      </Link>
+    </div>
+  );
 
-  if (phase === 'session') {
-    return (
-      <PatientPageShell>
-        <div className={styles.consentState}>
-          <p className={styles.consentText}>
-            Tu sesión caducó. Ingresá de nuevo.
-          </p>
-          <a href="/ingresar" className={styles.consentLink}>
-            Ingresar
-          </a>
-        </div>
-      </PatientPageShell>
-    );
-  }
+  const sessionBlock = (
+    <div className={styles.consentState}>
+      <p className={styles.consentText}>Tu sesión caducó. Ingresá de nuevo.</p>
+      <a href="/ingresar" className={styles.consentLink}>Ingresar</a>
+    </div>
+  );
 
-  if (phase === 'success') {
-    return (
-      <PatientPageShell>
-        <div className={styles.successState} role="status" aria-live="polite">
-          <p className={styles.successText}>Registro guardado.</p>
+  const successBlock = (
+    <div className={styles.successState} role="status" aria-live="polite">
+      <p className={styles.successText}>Registro guardado.</p>
+      {!embedded && (
+        <>
           <Link href="/registro/daily-checkin" className={styles.nextLink}>
             Completar check-in diario
           </Link>
-          <Link href="/" className={styles.backLink}>Volver al inicio</Link>
-        </div>
-      </PatientPageShell>
-    );
-  }
-
-  return (
-    <PatientPageShell>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <h1 className={styles.headline}>¿Cómo te sentís ahora?</h1>
-
-        <MoodScale
-          value={score}
-          onChange={setScore}
-          disabled={phase === 'submitting'}
-        />
-
-        {phase === 'error' && errorMessage && (
-          <InlineFeedback
-            variant="error"
-            message={errorMessage}
-            traceId={traceId}
-          />
-        )}
-
-        <div className={styles.submitArea}>
-          <button
-            type="submit"
-            className={styles.submitBtn}
-            disabled={score === null || phase === 'submitting'}
-            aria-busy={phase === 'submitting'}
-          >
-            {phase === 'submitting' ? 'Guardando…' : 'Guardar'}
-          </button>
-        </div>
-      </form>
-    </PatientPageShell>
+          <Link href="/dashboard" className={styles.backLink}>Volver al dashboard</Link>
+        </>
+      )}
+    </div>
   );
+
+  const formBlock = (
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h1 className={styles.headline}>¿Cómo te sentís ahora?</h1>
+
+      <MoodScale
+        value={score}
+        onChange={setScore}
+        disabled={phase === 'submitting'}
+      />
+
+      {phase === 'error' && errorMessage && (
+        <InlineFeedback
+          variant="error"
+          message={errorMessage}
+          traceId={traceId}
+        />
+      )}
+
+      <div className={styles.submitArea}>
+        <button
+          type="submit"
+          className={styles.submitBtn}
+          disabled={score === null || phase === 'submitting'}
+          aria-busy={phase === 'submitting'}
+        >
+          {phase === 'submitting' ? 'Guardando…' : 'Guardar'}
+        </button>
+      </div>
+    </form>
+  );
+
+  const content =
+    phase === 'consent' ? consentBlock :
+    phase === 'session' ? sessionBlock :
+    phase === 'success' ? successBlock :
+    formBlock;
+
+  if (embedded) return content;
+  return <PatientPageShell>{content}</PatientPageShell>;
 }
