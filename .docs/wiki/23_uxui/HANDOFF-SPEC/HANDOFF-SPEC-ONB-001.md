@@ -43,7 +43,7 @@ Este documento fija el alcance implementable de `ONB-001` para frontend.
 7. consentimiento con recordatorio ligero;
 8. conflicto de versión;
 9. error recuperable de consentimiento;
-10. bridge final.
+10. > **Deprecado 2026-04-22**: bridge final — estado eliminado. El post-consent va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 ## Restricciones cerradas
 
@@ -59,7 +59,7 @@ Este documento fija el alcance implementable de `ONB-001` para frontend.
 - auth válida deriva a bootstrap;
 - `needsConsent=true` obliga `S03`;
 - `status=consent_granted` o `active` puede saltar directo al bridge o a la siguiente ruta;
-- `POST /api/v1/consent` exitoso debe terminar en bridge, no en pantalla neutra.
+- > **Deprecado 2026-04-22**: `POST /api/v1/consent` exitoso derivaba al bridge. Ahora va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 ## Blockers explícitos ya resueltos
 
@@ -82,7 +82,11 @@ El handoff spec está bien consumido si frontend puede implementar el flujo sin 
 - cómo se cierra el consentimiento;
 - cuál es la siguiente acción del usuario.
 
+## Cambios recientes
+
+- 2026-04-22: estado 10 (bridge final) deprecado. El post-consent va directo a `/dashboard`. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** listo para consumo por `T04/T05`.
+**Estado:** consumido por `T04/T05`. Bridge final deprecado 2026-04-22.
 **Siguiente artefacto:** `HANDOFF-ASSETS-ONB-001.md`.

@@ -34,7 +34,7 @@ Aunque no haya assets especiales, frontend sí debe consumir estas dependencias 
 | texto fallback invitado | `VOICE-ONB-001.md` | hero `S01-HERO-INVITE-FALLBACK` |
 | microcopy interstitial | `VOICE-ONB-001.md` | `S02-AUTH-INTERSTITIAL` |
 | consentimiento vigente | backend runtime | `S03-CONSENT-*` |
-| CTA bridge final | `VOICE-ONB-001.md` | `S04-BRIDGE` |
+| CTA bridge final | > **Deprecado 2026-04-22**: `VOICE-ONB-001.md` | `S04-BRIDGE` — estado eliminado. El post-consent va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. |
 
 ## Regla operativa
 
@@ -47,7 +47,11 @@ Si durante implementación aparece la necesidad de:
 
 el pack debe reabrirse y actualizar este documento.
 
+## Cambios recientes
+
+- 2026-04-22: recurso "CTA bridge final" deprecado junto con S04-BRIDGE. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** `sin assets especiales`, con dependencias tipográficas, tokens y copy explícitas.
+**Estado:** `sin assets especiales`, con dependencias tipograficas, tokens y copy explicitas. S04-BRIDGE deprecado 2026-04-22.
 **Siguiente artefacto:** `HANDOFF-MAPPING-ONB-001.md`.

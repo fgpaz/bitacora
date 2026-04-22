@@ -233,6 +233,12 @@ ReminderWorker.Fire(reminder):
 
 ---
 
+## Bitacora de cambios de rollout
+
+| Fecha | Cambio | Fase afectada | Decision doc |
+|-------|--------|---------------|-------------|
+| 2026-04-22 | Eliminacion de `NextActionBridgeCard` y estado `S04-BRIDGE`. Post-consent redirige a `/dashboard`. Dashboard incorpora `MoodEntryDialog` (modal inline) y `TelegramReminderBanner`. Eliminado `frontend/e2e/login.spec.ts`; agregados `landing.spec.ts`, `dashboard-modal.spec.ts`, `telegram-banner.spec.ts`. | Phase 40 (frontend web) | `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md` |
+
 ## Sync gates
 
 Cambios en este documento fuerzan revision de:

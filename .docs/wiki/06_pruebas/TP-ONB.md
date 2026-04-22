@@ -8,7 +8,7 @@
 
 ## Estado de ejecucion actual
 
-- `Wave 1` implementa bootstrap via `OnboardingFlow` con maquina de estados en cliente: `auth -> consent -> bridge`.
+- `Wave 1` implementa bootstrap via `OnboardingFlow` con maquina de estados en cliente: `auth -> consent -> redirect /dashboard`. (El estado `bridge` fue eliminado el 2026-04-22; ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.)
 - `OnboardingFlow` consume `POST /api/v1/auth/bootstrap` y maneja errores tipados con `trace_id`.
 - `PendingInvite` reanudable detectable via `resumePendingInvite: true` en respuesta bootstrap.
 - Transicion a `active` con el primer `MoodEntry` sigue diferida al modulo de vinculos.
@@ -62,14 +62,14 @@ Scenario: Primer MoodEntry activa definitivamente al usuario
 | `error` (auth) | JWT invalido/expirado | mensaje humanizado + `PatientPageShell error` |
 | `auth` | bootstrap resuelto, necesita consentimiento | `AuthBootstrapInterstitial` con variant |
 | `consent` | necesita consentimiento | `ConsentGatePanel` + carga de version vigente |
-| `bridge` | consentimiento ya otorgado | `NextActionBridgeCard` con `needsFirstEntry` |
+| `bridge` | consentimiento ya otorgado | > **Deprecado 2026-04-22**: `NextActionBridgeCard` con `needsFirstEntry` — reemplazado por redirect directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. |
 | `locked` | nunca alcanzado en ONB por diseño | diferido a RF-REG-002 |
 
 ## Dependencias de validacion final
 
 - Validacion UX de `AuthBootstrapInterstitial` en variantes `default` e `invite_context`.
 - Validacion UX de `ConsentGatePanel` en escenarios `ready`, `conflict`, `error`, `submitting`.
-- Validacion UX de `NextActionBridgeCard` y navegacion al primer registro.
+- > **Deprecado 2026-04-22**: Validacion UX de `NextActionBridgeCard` — componente eliminado. El post-consent va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 - Cierre visual de `HANDOFF-VISUAL-QA-ONB-001` pendiente.
 
 ## Resultados de ejecucion (E2E 2026-04-15)

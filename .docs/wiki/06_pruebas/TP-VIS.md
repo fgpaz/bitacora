@@ -2,7 +2,7 @@
 
 ## Alcance
 
-- RF cubiertos: RF-VIS-001..003, RF-VIS-010..014
+- RF cubiertos: RF-VIS-001..003, RF-VIS-010..015
 - Flujos origen: FL-VIS-01, FL-VIS-02
 
 ## Estado de ejecucion actual
@@ -75,6 +75,36 @@ Scenario: Profesional no puede exportar datos de paciente
 | VIS-P03 | PASSED | produccion | 2026-04-15 | GET /visualizacion/summary?from=2026-04-09&to=2026-04-15: HTTP 200, avgMood=1, avgSleep=7, daysWithEntry=1. Evidencia: F6-03-summary.json |
 | VIS-OBS | RESUELTO | produccion | 2026-04-15 | GAP-05: key mismatch en GetPatientTimelineQuery y GetPatientSummaryQuery (buscaban physical_activity/medication_taken en lugar de has_physical/has_medication). Fix: 2026-04-15, commit b826356. Verificación post-deploy: medicationTaken=true, physicalActivity=true correctamente proyectados. |
 
+## Cobertura RF-VIS-015 (dashboard inline entry)
+
+| TC ID | RF | Tipo | Escenario |
+|------|----|------|-----------|
+| VIS-P06 | RF-VIS-015 | Positivo | Modal de nuevo registro abre, guarda y refresca sin salir del dashboard |
+| VIS-P07 | RF-VIS-015 | Positivo | Banner Telegram aparece con `linked=false`, oculto con `linked=true`, dismiss persiste 30 dias |
+| VIS-N04 | RF-VIS-015 | Negativo | Cierre del modal sin guardar no crea MoodEntry |
+| VIS-N05 | RF-VIS-015 | Negativo | Error ENCRYPTION_FAILURE muestra InlineFeedback con trace_id; error CONSENT_REQUIRED muestra bloque consent |
+
+```gherkin
+Scenario: TP-VIS-06 — Modal de nuevo registro
+  Given paciente autenticado en /dashboard
+  When presiona "Registrar humor" o "+ Nuevo registro"
+  Then MoodEntryDialog se abre como <dialog> nativo
+  When selecciona score y confirma
+  Then POST /api/v1/mood-entries retorna 201
+  And el historial se actualiza sin navegacion ni recarga completa
+  And el modal se cierra
+
+Scenario: TP-VIS-07 — TelegramReminderBanner
+  Given paciente autenticado con TelegramSession.linked=false y sin dismiss vigente
+  When accede a /dashboard
+  Then TelegramReminderBanner es visible
+  Given TelegramSession.linked=true
+  Then TelegramReminderBanner no se renderiza
+  Given paciente hace dismiss del banner
+  When vuelve a /dashboard dentro de 30 dias
+  Then TelegramReminderBanner no se renderiza aunque linked=false
+```
+
 ## Pendiente para validacion final
 
 - La experiencia completa de navegacion profesional (lista -> detalle -> tabs) requiere validacion UX con usuarios reales.
@@ -87,3 +117,8 @@ Scenario: Profesional no puede exportar datos de paciente
 - Cobertura positiva y negativa de los RF del modulo visualizacion.
 - Evidencia de que summary, timeline y alerts son tabs separados en PatientDetail.
 - Evidencia de que export para profesionales esta explicitamente bloqueado en la UI.
+- Evidencia de TP-VIS-06 (modal de registro) y TP-VIS-07 (banner Telegram) segun E2E en `frontend/e2e/dashboard-modal.spec.ts` y `frontend/e2e/telegram-banner.spec.ts`.
+
+## Cambios recientes
+
+- 2026-04-22: agregados casos TP-VIS-06 y TP-VIS-07 para RF-VIS-015. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.

@@ -189,16 +189,20 @@ Esta aclaración vive dentro del mismo slice, sin modal paralelo ni desvío larg
 
 ### S04 — Confirmación + puente
 
+> **Deprecado 2026-04-22**: El estado S04-BRIDGE y el componente `NextActionBridgeCard` fueron eliminados. El post-consent deriva directamente a `/dashboard` via `window.location.assign('/dashboard')`. No existe pantalla de puente. El primer registro se hace desde el empty state del dashboard. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. El estado de reemplazo es `S05-DASHBOARD-EMPTY` (empty state del dashboard).
+
+Historia del contrato (referencia archivada):
+
 #### Objetivo
 
 Cerrar el consentimiento y empujar al siguiente valor.
 
-#### Reglas
+#### Reglas (historicas)
 
-- confirmación factual breve;
+- confirmacion factual breve;
 - CTA principal exacto: `Hacer mi primer registro`;
 - sin celebraciones;
-- sin recordar otra vez la invitación;
+- sin recordar otra vez la invitacion;
 - sin presentar el primer formulario dentro de este slice.
 
 ## Modelo de estados
@@ -215,7 +219,7 @@ Cerrar el consentimiento y empujar al siguiente valor.
 | `consent_context_clarification` | aclaración por confusión de invitación/contexto | resuelve la fricción principal |
 | `consent_version_conflict` | cambio de versión vigente | exige revisar la versión actual |
 | `consent_error_retryable` | error recuperable cerca del rail de acción | reintento digno |
-| `bridge_ready` | confirmación + CTA al primer registro | cierra el slice y empuja al siguiente |
+| `bridge_ready` | > **Deprecado 2026-04-22**: confirmacion + CTA al primer registro (Bridge Card). Reemplazado por redirect a `/dashboard`. El estado de reemplazo es el empty state del dashboard (`S05-DASHBOARD-EMPTY`). Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. | — |
 
 ## Responsive
 
@@ -271,8 +275,12 @@ El slice está mal calibrado si:
 - auth o consentimiento se vuelven técnicos;
 - o la confirmación pretende cerrar más de lo que el slice muestra.
 
+## Cambios recientes
+
+- 2026-04-22: S04-BRIDGE y el estado `bridge_ready` deprecados. El post-consent va directo a `/dashboard`. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** `UXS` activo para `ONB-001`.
+**Estado:** `UXS` activo para `ONB-001`. Cubre S01, S02 y S03. S04-BRIDGE deprecado 2026-04-22; reemplazado por `S05-DASHBOARD-EMPTY`.
 **Precedencia:** depende de `UXR`, `UXI`, `UJ`, `VOICE` y `FL/RF` del onboarding real.
 **Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-ONB-001.md`, `../UI-RFC/UI-RFC-ONB-001.md` y la cadena `HANDOFF-*`.

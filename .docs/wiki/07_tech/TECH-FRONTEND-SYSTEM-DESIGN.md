@@ -193,7 +193,10 @@ La futura implementación debe organizarse alrededor de estas primitivas de sist
 | `OnboardingEntryHero` | entrada pública `ONB-first` | standard, invite, invite_fallback |
 | `AuthBootstrapInterstitial` | continuidad breve entre auth y bootstrap | default, contextual_invite |
 | `ConsentGatePanel` | lectura y aceptación de consentimiento | ready, reminder, conflict, error, submitting |
-| `NextActionBridgeCard` | puente al siguiente paso luego de consent | default |
+| `MoodEntryDialog` | modal nativo `<dialog>` que embebe `MoodEntryForm` en el dashboard del paciente | default, submitting, error |
+| `TelegramReminderBanner` | banner dismissible de vinculacion Telegram; visible solo si `linked=false` y sin dismiss vigente | visible, dismissed |
+
+> **Deprecado 2026-04-22**: `NextActionBridgeCard` — puente al siguiente paso luego de consent. Eliminado junto con la fase `S04-BRIDGE`. El post-consent va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 Estos nombres son de sistema y sirven como gramática común. El nombre de implementación puede refinarse después, pero no debería redefinir la familia visual.
 
@@ -306,9 +309,10 @@ Excepción operativa vigente:
 
 | Ruta | Componente | Descripcion |
 |-----|------------|-------------|
-| `/onboarding` | `OnboardingFlow` | flujo bootstrap -> consent -> bridge con `PatientPageShell` |
+| `/onboarding` | `OnboardingFlow` | flujo bootstrap -> consent -> redirect /dashboard con `PatientPageShell` |
 | `/consent` | `ConsentGatePanel` | lectura y otorgamiento de consentimiento |
-| `/registro/mood-entry` | `MoodEntryForm` | captura de mood score con `MoodScale` |
+| `/dashboard` | `Dashboard` + `MoodEntryDialog` + `TelegramReminderBanner` | historial del paciente + modal de nuevo registro inline |
+| `/registro/mood-entry` | `MoodEntryForm` | captura de mood score con `MoodScale` (acceso directo, no via onboarding) |
 | `/registro/daily-checkin` | `DailyCheckinForm` | check-in diario con bloques agrupados |
 
 ## Inventario de componentes paciente
@@ -317,7 +321,11 @@ Excepción operativa vigente:
 |-----------|-------|---------|
 | `PatientPageShell` | `loading?`, `error?`, `children` | `loading`, `ready`, `empty`, `error` |
 | `AuthBootstrapInterstitial` | `variant: 'default' \| 'invite_context'` | `default`, `contextual_invite` |
-| `NextActionBridgeCard` | `needsFirstEntry: boolean` | `default` |
+| `MoodEntryDialog` | `onSaved: () => void` | `default`, `submitting`, `error` |
+| `TelegramReminderBanner` | (sin props; lee `getTelegramSession()` internamente) | `visible`, `dismissed` |
+
+> **Deprecado 2026-04-22**: `NextActionBridgeCard` con prop `needsFirstEntry: boolean` — componente eliminado. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 | `ConsentGatePanel` | `consent`, `resumeInvite`, `onAccept`, `onRetry`, `errorCode`, `errorMessage`, `traceId` | `ready`, `submitting`, `conflict`, `error` |
 | `MoodEntryForm` | (sin props, consume auth via contexto) | `idle`, `submitting`, `success`, `error`, `consent`, `session` |
 | `MoodScale` | `value`, `onChange`, `disabled` | `default`, `submitting` |
@@ -353,10 +361,12 @@ Excepción operativa vigente:
 
 ## Maquinas de estado de flujo
 
-**OnboardingFlow** (`auth -> consent -> bridge`):
+**OnboardingFlow** (`auth -> consent -> redirect /dashboard`):
 - `auth`: resuelve bootstrap; muestra `AuthBootstrapInterstitial` o `PatientPageShell loading/error`
 - `consent`: carga version vigente; renderiza `ConsentGatePanel`
-- `bridge`: consentimiento otorgado; muestra `NextActionBridgeCard`
+- post-consent: `window.location.assign('/dashboard')` directo; sin estado intermedio
+
+> **Deprecado 2026-04-22**: El estado `bridge` y `NextActionBridgeCard` fueron eliminados. El post-consent va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 **MoodEntryForm** (`idle -> submitting -> success/error/consent/session`):
 - `consent`: redireccion a `/consent`

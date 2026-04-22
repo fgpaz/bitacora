@@ -115,17 +115,21 @@ Dirección aprobada:
 
 ### S04 — Confirmación + puente
 
+> **Deprecado 2026-04-22**: El estado S04-BRIDGE fue eliminado del flujo. No existe ya una pantalla de puente post-consent. El post-consent va directo a `/dashboard` sin pantalla intermedia. El CTA "Hacer mi primer registro" ya no existe como pantalla; fue reemplazado por el CTA "Registrar humor" del empty state del dashboard. La voz de confirmacion post-consent sigue siendo valida como microcopy para el momento inmediatamente anterior al redirect (si se incluye una confirmacion inline breve en el futuro). Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
+Historia del contrato verbal (referencia archivada):
+
 Objetivo verbal:
 
 - cerrar el consentimiento;
-- evitar celebración;
+- evitar celebracion;
 - empujar al siguiente valor.
 
-Dirección aprobada:
+Direccion aprobada (historica):
 
-- confirmación factual;
+- confirmacion factual;
 - CTA principal: `Hacer mi primer registro`;
-- sin frases de logro, progreso o felicitación.
+- sin frases de logro, progreso o felicitacion.
 
 ## Direcciones aprobadas de microcopy
 
@@ -152,10 +156,12 @@ Dirección aprobada:
 - Resumen de control breve.
 - Confirmación explícita vinculada a la versión vigente.
 
-### Confirmación + puente
+### Confirmacion + puente (historico)
 
-- Confirmación factual breve.
-- CTA: `Hacer mi primer registro`.
+> **Deprecado 2026-04-22**: Esta seccion describe el microcopy del estado S04-BRIDGE que fue eliminado. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
+- Confirmacion factual breve.
+- CTA: `Hacer mi primer registro` (reemplazado por "Registrar humor" en dashboard empty state).
 
 ## Formulaciones prohibidas o riesgosas
 
@@ -201,8 +207,12 @@ La voz está mal calibrada si se percibe como:
 - copy demasiado técnico;
 - o promesa de acompañamiento más grande que el producto actual.
 
+## Cambios recientes
+
+- 2026-04-22: S04 y el microcopy de "Confirmacion + puente" deprecados junto con la Bridge Card. La voz de S01, S02 y S03 sigue activa sin cambios. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** spec de voz activa para `ONB-001`.
+**Estado:** spec de voz activa para `ONB-001`. S04-BRIDGE deprecado 2026-04-22; S01, S02 y S03 vigentes.
 **Precedencia:** depende de `../../13_voz_tono.md`, `../UXI/UXI-ONB-001.md` y `../UJ/UJ-ONB-001.md`.
 **Siguiente capa gobernada:** `../UXS/UXS-ONB-001.md`, `../PROTOTYPE/PROTOTYPE-ONB-001.md` y `../UI-RFC/UI-RFC-ONB-001.md`.

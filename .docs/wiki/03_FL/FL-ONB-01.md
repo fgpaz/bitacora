@@ -65,13 +65,14 @@ sequenceDiagram
     end
     API-->>WEB: {consent_granted: true}
 
-    Note over WEB,P: Primer registro de humor
-    WEB-->>P: "¿Como te sentis hoy?" [keyboard -3..+3]
+    Note over WEB,P: Redireccion directa al dashboard (sin Bridge Card)
+    WEB-->>P: /dashboard (estado vacio + CTA "Registrar humor")
+    P->>WEB: Abre modal "Nuevo registro"
     P->>WEB: Selecciona humor (+0)
     WEB->>API: POST /api/v1/mood-entries {score: 0}
     API->>DB: INSERT MoodEntry (cifrado)
     API-->>WEB: 201 Created
-    WEB-->>P: "Bienvenido a Bitacora. Tu primer registro esta hecho."
+    WEB-->>P: Modal cierra, dashboard refresca con el primer registro
 ```
 
 ## Paths alternativos / errores
@@ -81,7 +82,7 @@ sequenceDiagram
 | Email ya registrado | "Ya tenes cuenta. Inicia sesion." |
 | Paciente rechaza consent | No puede registrar datos. Queda en estado `registered` sin `consent_granted`. |
 | invite_token expiro antes del alta | El onboarding continua sin vinculo; se informa que debe pedir una nueva invitacion. |
-| Paciente cierra la ventana antes del primer mood | Queda con consent pero sin datos. Proximo login → directo al registro. |
+| Paciente cierra la ventana antes del primer mood | Queda con consent pero sin datos. Proximo login → directo a /dashboard con estado vacio. |
 | Auth falla (Zitadel no disponible) | Fail-closed, pagina de error. |
 
 ## Architecture slice
@@ -108,7 +109,7 @@ sequenceDiagram
 ## Bottlenecks y mitigaciones
 | Riesgo | Mitigacion |
 |--------|-----------|
-| Magic link lento (email delivery) | UX: mostrar "Revisa tu email" + opcion Google OAuth |
+| Login lento por red | CTA unico "Ingresar" va directo a Zitadel. Sin intermedios de magic link ni copy de "Revisa tu correo". |
 | Perdida de contexto de invitacion | Reanudacion automatica por `invite_token` valido tras auth |
 | Abandono en pantalla de consent | El consent es obligatorio; sin el no se puede avanzar |
 

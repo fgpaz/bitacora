@@ -96,7 +96,7 @@ Cada frame obligatorio debe existir en desktop y mobile.
 | `ONB-001-S03-CONSENT-CONTEXT` | resolución de confusión por invitación/contexto | sí |
 | `ONB-001-S03-VERSION-CONFLICT` | conflicto de versión vigente | sí |
 | `ONB-001-S03-ERROR` | error recuperable de submit | sí |
-| `ONB-001-S04-BRIDGE` | confirmación con CTA `Hacer mi primer registro` | sí |
+| `ONB-001-S04-BRIDGE` | > **Deprecado 2026-04-22**: confirmacion con CTA `Hacer mi primer registro` — frame eliminado del flujo real. El post-consent va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. | historico |
 
 ## Hipótesis que el prototipo debe permitir observar
 
@@ -123,8 +123,12 @@ El prototipo está listo para validación/handoff si:
 3. los estados sensibles son consistentes entre `UXS`, `UI-RFC` y handoff;
 4. el bridge final deja claro que el siguiente paso es el primer registro, no otra pantalla del mismo slice.
 
+## Cambios recientes
+
+- 2026-04-22: frame `ONB-001-S04-BRIDGE` deprecado. El post-consent ya no tiene pantalla de puente; va directo a `/dashboard`. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** prototipo redefinido para `ONB-001` con autoridad manual del pack `UXS/UI-RFC/HANDOFF`.
+**Estado:** prototipo redefinido para `ONB-001` con autoridad manual del pack `UXS/UI-RFC/HANDOFF`. S04-BRIDGE deprecado 2026-04-22.
 **Precedencia:** depende de `UXS-ONB-001.md` y `UI-RFC-ONB-001.md`.
 **Siguiente capa gobernada:** `UX-VALIDATION-ONB-001.md` y la cadena `HANDOFF-*`.

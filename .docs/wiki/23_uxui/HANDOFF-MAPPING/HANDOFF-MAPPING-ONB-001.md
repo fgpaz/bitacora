@@ -25,7 +25,7 @@ Este documento traduce `ONB-001` a ownership técnico concreto para `frontend/`.
 | `S01-CONTEXT-CLARIFICATION` | `OnboardingFlow.tsx` o panel reusable | overlay simple o bloque inline, sin modal compleja |
 | `S02-AUTH-INTERSTITIAL` | `OnboardingFlow.tsx` + `AuthBootstrapInterstitial` | visible solo mientras resuelve sesión + bootstrap |
 | `S03-CONSENT-*` | `OnboardingFlow.tsx` o `ConsentFlow.tsx` + `ConsentGatePanel` | puede extraerse si el archivo crece |
-| `S04-BRIDGE` | `OnboardingFlow.tsx` + `OnboardingBridgeCard` | CTA dirige al primer registro |
+| `S04-BRIDGE` | > **Deprecado 2026-04-22**: `OnboardingFlow.tsx` + `OnboardingBridgeCard` — estado eliminado. El post-consent hace `window.location.assign('/dashboard')` directo. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. | — |
 
 ## Capa de datos
 
@@ -37,11 +37,13 @@ Este documento traduce `ONB-001` a ownership técnico concreto para `frontend/`.
 
 ## Rutas y salidas
 
-| Estado final | Navegación |
+| Estado final | Navegacion |
 | --- | --- |
-| bridge completado | ir a `frontend/app/(patient)/registro/mood-entry/page.tsx` cuando exista |
-| usuario ya consentido al entrar | saltar directo al bridge o al primer registro según disponibilidad de T05 |
-| sesión inválida | volver a login o reanudar auth |
+| consent otorgado (post-`POST /api/v1/consent`) | `window.location.assign('/dashboard')` directo |
+| usuario ya consentido al entrar | redirect a `/dashboard` sin bridge intermedio |
+| sesion invalida | volver a login o reanudar auth |
+
+> **Deprecado 2026-04-22**: el estado "bridge completado" fue reemplazado por redirect directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 ## Regla de ownership
 
@@ -49,7 +51,11 @@ Este documento traduce `ONB-001` a ownership técnico concreto para `frontend/`.
 - `T05` implementa el flujo `ONB-first` usando este mapping;
 - si el código necesita bloques extra, deben caer dentro de estos owners y no inventar una arquitectura paralela.
 
+## Cambios recientes
+
+- 2026-04-22: S04-BRIDGE y rutas de bridge deprecated. El post-consent va directo a `/dashboard`. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** mapping listo para `frontend/`.
+**Estado:** mapping consumido por `T04/T05`. S04-BRIDGE deprecado 2026-04-22.
 **Siguiente artefacto:** `HANDOFF-VISUAL-QA-ONB-001.md`.

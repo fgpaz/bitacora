@@ -86,7 +86,7 @@ La UI debe sentirse como una guía personal cálida y breve que:
 | `S03-CONSENT-REMINDER` | recordar sutilmente el contexto invitado en consent | `resumePendingInvite=true` | `Aceptar y continuar` |
 | `S03-VERSION-CONFLICT` | resolver cambio de versión sin jerga | `CONSENT_VERSION_MISMATCH` | `Volver a revisar` |
 | `S03-SERVICE-ERROR` | reintentar o esperar si falta consentimiento activo | `NO_CONSENT_CONFIG` o error técnico recuperable | `Reintentar` |
-| `S04-BRIDGE` | cerrar consent y orientar al primer registro | consentimiento otorgado o usuario ya `consent_granted` | `Hacer mi primer registro` |
+| `S04-BRIDGE` | > **Deprecado 2026-04-22**: cerrar consent y orientar al primer registro via Bridge Card. Reemplazado por redirect directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. | — | — |
 
 ## Regiones de composición
 
@@ -118,9 +118,11 @@ La UI debe sentirse como una guía personal cálida y breve que:
 
 ### `S04-BRIDGE`
 
+> **Deprecado 2026-04-22**: esta region fue eliminada. El post-consent deriva directamente a `/dashboard` via `window.location.assign('/dashboard')`. No hay pantalla intermedia. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
+Composicion historica (referencia archivada):
 - `PatientPageShell`
-- `InlineFeedback` de confirmación factual
-- `NextActionBridgeCard`
+- `InlineFeedback` de confirmacion factual
 - `SecondaryNote` serena sobre el siguiente paso
 
 ## Gramática de componentes para implementación
@@ -134,7 +136,6 @@ La UI debe sentirse como una guía personal cálida y breve que:
 | `AuthBootstrapInterstitial` | continuidad breve entre auth y bootstrap | default, invite_context |
 | `ConsentGatePanel` | lectura + aceptación del consentimiento | ready, reminder, version_conflict, service_error, submitting |
 | `InlineFeedback` | error localizado o confirmación factual | info, error, confirm |
-| `NextActionBridgeCard` | puente al primer registro | default |
 | `ContextClarificationPanel` | microaclaración por invitación/contexto | default |
 
 Los nombres pueden refinarse en código, pero la separación de responsabilidades no debe colapsarse.
@@ -184,9 +185,9 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 | retorno autenticado | `POST /api/v1/auth/bootstrap` | `needsConsent=true` | mostrar `S02` y luego `S03` |
 | retorno autenticado | `POST /api/v1/auth/bootstrap` | `status=consent_granted` o `active` | saltar consentimiento e ir a `S04` o a la siguiente ruta |
 | apertura de consentimiento | `GET /api/v1/consent/current` | `patientStatus=none|pending|revoked` | `S03-CONSENT-READY` |
-| envío de consentimiento | `POST /api/v1/consent` | `201` | `S04-BRIDGE` |
+| envío de consentimiento | `POST /api/v1/consent` | `201` | > **Deprecado 2026-04-22**: antes derivaba a `S04-BRIDGE`; ahora va directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`. |
 | consentimiento desactualizado | `POST /api/v1/consent` | `CONSENT_VERSION_MISMATCH` | `S03-VERSION-CONFLICT` |
-| consentimiento ya otorgado | `POST /api/v1/consent` | `CONSENT_ALREADY_GRANTED` | resolver con bridge inmediato o refetch de estado |
+| consentimiento ya otorgado | `POST /api/v1/consent` | `CONSENT_ALREADY_GRANTED` | resolver con redirect a `/dashboard` o refetch de estado |
 | consentimiento no disponible | `GET /api/v1/consent/current` | `NO_CONSENT_CONFIG` | `S03-SERVICE-ERROR` |
 
 ## Manejo de errores obligatorio
@@ -196,7 +197,7 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 | `ONB_001_JWT_INVALID` / `ONB_001_JWT_EXPIRED` | salida a login con mensaje sobrio | no mostrar lenguaje técnico de JWT |
 | `NO_CONSENT_CONFIG` | indisponibilidad operativa clara | no dramatizar ni esconder el bloqueo |
 | `CONSENT_VERSION_MISMATCH` | refrescar el contenido y pedir revisión | no dejar al usuario en error genérico |
-| `CONSENT_ALREADY_GRANTED` | continuar al bridge o siguiente paso | no duplicar la pantalla de consentimiento |
+| `CONSENT_ALREADY_GRANTED` | continuar a `/dashboard` (redirect directo) | no duplicar la pantalla de consentimiento |
 | `ACCEPTED_FALSE` | mantener al usuario en consentimiento | no inventar camino alternativo |
 | `ONB_003_CONSENT_REQUIRED` / `CONSENT_REQUIRED` | redirección o bloqueo a consentimiento | el primer registro no puede abrir |
 
@@ -206,7 +207,7 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 - `Empezar ahora` es la CTA primaria arriba del fold;
 - privacidad/resguardo vive como soporte, no como hero institucional;
 - la invitación se expresa como `registro inicial con acompañamiento profesional`;
-- el contexto invitado desaparece en `S04-BRIDGE`;
+- el contexto invitado desaparece al redirigir a `/dashboard` (antes desaparecía en `S04-BRIDGE`, que fue deprecado 2026-04-22);
 - la confirmación final es factual y no celebratoria.
 
 ## Responsive y accesibilidad
@@ -234,7 +235,23 @@ La implementación de T04/T05 cumple este contrato si:
 - `T04` debe proveer sesión Zitadel, boundary y cliente API antes de `T05`;
 - cuando exista implementación funcional, `UX-VALIDATION-ONB-001.md` podrá reabrir este contrato si la evidencia contradice el slice.
 
+## Componentes fuera de alcance de ONB-001 (movidos al dashboard)
+
+Los siguientes componentes eran parte del slice `ONB-001` en su version original y fueron removidos en 2026-04-22 como resultado de la decision "dashboard-first":
+
+| Componente | Razon | Destino actual |
+|-----------|-------|----------------|
+| `NextActionBridgeCard` | La fase S04-BRIDGE fue eliminada | Eliminado; no tiene sucesor directo en ONB. La funcionalidad de puente se reemplaza por redirect a `/dashboard`. |
+| CTA "Hacer mi primer registro" | Pertenecia a S04-BRIDGE | Reemplazado por CTA "Registrar humor" en el empty state del dashboard |
+| CTA "Vincular Telegram (opcional)" | Pertenecia a S04-BRIDGE; mostraba estado incorrecto | Reemplazado por `TelegramReminderBanner` en el dashboard (respeta `linked` real del backend) |
+
+El contrato de este documento cubre unicamente los estados S01, S02 y S03.
+
+## Cambios recientes
+
+- 2026-04-22: S04-BRIDGE y `NextActionBridgeCard` deprecados. El post-consent va directo a `/dashboard`. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 ---
 
-**Estado:** `UI-RFC` activo para `ONB-001` bajo authority pack manual.
+**Estado:** `UI-RFC` activo para `ONB-001` bajo authority pack manual. Cubre estados S01, S02 y S03. S04-BRIDGE deprecado 2026-04-22.
 **Siguiente capa gobernada:** `HANDOFF-SPEC-ONB-001.md`, `HANDOFF-ASSETS-ONB-001.md`, `HANDOFF-MAPPING-ONB-001.md`, `HANDOFF-VISUAL-QA-ONB-001.md`.

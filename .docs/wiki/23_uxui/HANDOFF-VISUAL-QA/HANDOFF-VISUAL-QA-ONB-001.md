@@ -82,6 +82,7 @@ Una deriva visual aquí puede alterar percepción de control, claridad y privaci
 - `OnboardingFlow` component lands en `/onboarding` con estados: `auth -> consent -> bridge`.
 - `AuthBootstrapInterstitial` con variants `default` e `invite_context`.
 - `ConsentGatePanel` renderiza en `/consent` (route separada).
-- `NextActionBridgeCard` como puente al primer registro.
 - `PatientPageShell` usado como shell unico para todos los estados.
 - Validacion UX y visual QA pendientes de ejecutarse.
+
+> **Deprecado 2026-04-22**: `NextActionBridgeCard` como puente al primer registro fue eliminado. El post-consent va directo a `/dashboard`. El checkpoint 5 "Bridge final" ya no aplica al flujo de implementacion. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
