@@ -11,10 +11,12 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    launchOptions: {
-      executablePath: '/usr/bin/chromium',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    },
+    launchOptions: process.platform === 'linux'
+      ? {
+          executablePath: '/usr/bin/chromium',
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        }
+      : {},
   },
   projects: [
     {

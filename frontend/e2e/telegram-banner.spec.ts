@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { injectPatientSession } from './helpers/session';
 
 async function stubAuthenticatedSession(page: Page) {
   await page.route('**/api/auth/session', async (route) => {
@@ -37,6 +38,7 @@ async function stubEmptyTimeline(page: Page) {
 test.describe('TelegramReminderBanner', () => {
   test.beforeEach(async ({ context }) => {
     await context.clearCookies();
+    await injectPatientSession(context);
   });
 
   test('aparece cuando Telegram no está vinculado', async ({ page }) => {

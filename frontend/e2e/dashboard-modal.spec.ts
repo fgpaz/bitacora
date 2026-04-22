@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { injectPatientSession } from './helpers/session';
 
 async function stubAuthenticatedSession(page: Page) {
   await page.route('**/api/auth/session', async (route) => {
@@ -42,6 +43,11 @@ async function stubEmptyDashboard(page: Page) {
 }
 
 test.describe('Dashboard: modal de nuevo registro', () => {
+  test.beforeEach(async ({ context }) => {
+    await context.clearCookies();
+    await injectPatientSession(context);
+  });
+
   test('CTA "Registrar humor" abre modal y permite cerrar', async ({ page }) => {
     await stubAuthenticatedSession(page);
     await stubEmptyDashboard(page);
@@ -55,7 +61,7 @@ test.describe('Dashboard: modal de nuevo registro', () => {
     const dialogTitle = page.getByRole('heading', { name: 'Nuevo registro' });
     await expect(dialogTitle).toBeVisible();
 
-    await page.getByRole('button', { name: 'Cerrar' }).click();
+    await page.getByRole('button', { name: 'Cerrar', exact: true }).click();
     await expect(dialogTitle).not.toBeVisible();
   });
 
