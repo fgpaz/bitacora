@@ -1,5 +1,3 @@
-'use client';
-
 import { InviteForm } from '@/components/professional/InviteForm';
 
 export default function InvitacionesPage() {

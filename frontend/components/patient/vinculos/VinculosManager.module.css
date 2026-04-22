@@ -25,6 +25,12 @@
   100% { background-position: -200% 0; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
 .section {
   display: flex;
   flex-direction: column;

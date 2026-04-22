@@ -44,6 +44,13 @@
   100% { background-position: -200% 0; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .summarySkeleton,
+  .entrySkeleton {
+    animation: none;
+  }
+}
+
 .errorState,
 .emptyState {
   border: 1px solid var(--border-subtle);
