@@ -56,7 +56,7 @@ La anti-sensación dominante a evitar es:
 
 La persona entra a Bitácora y encuentra una portada con una sola dirección dominante.
 
-- si llega sin contexto especial, ve una entrada estándar guiada por `Empezar ahora`;
+- si llega sin contexto especial, ve una entrada estándar guiada por `Ingresar` (label canónico desde 2026-04-22; antes `Empezar ahora`);
 - si llega por invitación, ve la misma portada con `hero adaptado` y contexto explícito de vínculo + propósito;
 - si faltan datos del vínculo, la variante sigue visible de forma genérica y no desaparece.
 
@@ -82,6 +82,8 @@ Este paso debe dejar claro:
 - y que, si llegó invitada, ese contexto sigue existiendo pero no domina la decisión.
 
 ### S04 — Confirmación + puente
+
+> **Deprecado 2026-04-22**: S04 fue eliminado del journey real. Tras aceptar consentimiento, el frontend hace `window.location.assign('/dashboard')` sin pantalla intermedia. El paciente cae directo en el empty state del dashboard (`S05-DASHBOARD-EMPTY`) y el CTA de entrada al primer registro es `Registrar humor`, que abre un modal inline (`MoodEntryDialog`) sin sacar al paciente del historial. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 Tras aceptar consentimiento, la experiencia no celebra ni agrega ceremonia.
 
@@ -142,7 +144,7 @@ La `UXS` debe cubrir el state pack completo del slice:
 
 La voz tiene que fijar:
 
-- `Empezar ahora` como CTA principal;
+- `Ingresar` como CTA principal (label canónico desde 2026-04-22);
 - ausencia de camino secundario fuerte;
 - wording de vínculo + propósito en hero invitado;
 - interstitial breve no técnico;

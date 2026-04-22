@@ -20,7 +20,7 @@ Una deriva visual aquí puede alterar percepción de control, claridad y privaci
 ### 1. Portada estándar
 
 - se lee primero como guía personal, no como home corporativa;
-- `Empezar ahora` domina el fold;
+- `Ingresar` domina el fold (label canónico desde 2026-04-22; antes `Empezar ahora`);
 - privacidad/resguardo acompaña sin robar protagonismo;
 - no hay CTA secundaria compitiendo.
 
@@ -46,6 +46,8 @@ Una deriva visual aquí puede alterar percepción de control, claridad y privaci
 
 ### 5. Bridge final
 
+> **Deprecado 2026-04-22**: checkpoint 5 corresponde a S04-BRIDGE eliminado. El post-consent redirige directo a `/dashboard` sin pantalla intermedia. El equivalente operativo es el empty state del dashboard con CTA "Registrar humor" que abre el `MoodEntryDialog` (ver `RF-VIS-015`). Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
+
 - la confirmación es factual;
 - el CTA `Hacer mi primer registro` es inequívoco;
 - el contexto invitado ya no domina la lectura.
@@ -67,8 +69,8 @@ Una deriva visual aquí puede alterar percepción de control, claridad y privaci
 
 ## Evidencia mínima de cierre
 
-- captura desktop de `S01`, `S03` y `S04`;
-- captura mobile de `S01`, `S03` y `S04`;
+- captura desktop de `S01`, `S03` y `S05-DASHBOARD-EMPTY` (antes `S04`, deprecado 2026-04-22 — ver decision doc);
+- captura mobile de `S01`, `S03` y `S05-DASHBOARD-EMPTY` (antes `S04`);
 - evidencia de foco visible en CTA principal y CTA de consentimiento;
 - confirmación de que la variante invitada y el fallback conservan jerarquía.
 

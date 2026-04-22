@@ -57,7 +57,7 @@ Objetivo verbal:
 
 Dirección aprobada:
 
-- CTA principal: `Empezar ahora`;
+- CTA principal: `Ingresar` (label canónico desde 2026-04-22; va directo a `/ingresar` OIDC+PKCE y evita el falso magic link);
 - sin camino secundario fuerte dentro del hero;
 - titulares breves y humanos;
 - tono de guía personal, no de landing institucional.
@@ -137,7 +137,7 @@ Direccion aprobada (historica):
 
 - Titular: enfoque personal y claro.
 - Soporte: resguardo y privacidad en una o dos líneas.
-- CTA: `Empezar ahora`.
+- CTA: `Ingresar` (label canónico desde 2026-04-22).
 
 ### Portada invitada
 

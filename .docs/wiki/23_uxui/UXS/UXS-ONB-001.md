@@ -102,7 +102,7 @@ Presentar Bitácora como espacio personal y abrir el onboarding con una sola acc
 #### Jerarquía obligatoria
 
 1. historia principal de guía personal;
-2. CTA principal `Empezar ahora`;
+2. CTA principal `Ingresar` (ver nota en la sección "Cambios recientes"; el label canónico desde 2026-04-22 es `Ingresar` y apunta directamente a `/ingresar` OIDC+PKCE);
 3. soporte dominante de privacidad y resguardo;
 4. cualquier camino de retorno queda fuera del hero principal o con prominencia muy baja.
 
@@ -200,7 +200,7 @@ Cerrar el consentimiento y empujar al siguiente valor.
 #### Reglas (historicas)
 
 - confirmacion factual breve;
-- CTA principal exacto: `Hacer mi primer registro`;
+- > **Deprecado 2026-04-22**: CTA principal exacto `Hacer mi primer registro` — reemplazado por redirect directo al dashboard sin pantalla de puente. El CTA equivalente en el empty state del dashboard es `Registrar humor`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 - sin celebraciones;
 - sin recordar otra vez la invitacion;
 - sin presentar el primer formulario dentro de este slice.
@@ -238,7 +238,7 @@ Cerrar el consentimiento y empujar al siguiente valor.
 
 ## Acceptance criteria
 
-1. La portada estándar deja una sola acción dominante: `Empezar ahora`.
+1. La portada estándar deja una sola acción dominante: `Ingresar` (label canónico desde 2026-04-22; va directo a `/ingresar` OIDC+PKCE).
 2. No existe un camino secundario fuerte dentro del hero.
 3. La variante invitada adapta el mismo hero y muestra vínculo + propósito explícitos.
 4. Si faltan datos del vínculo, existe hero adaptado genérico.
@@ -246,7 +246,7 @@ Cerrar el consentimiento y empujar al siguiente valor.
 6. El consentimiento se siente como `resguardo claro` y no como pared legal.
 7. La fricción principal por invitación/contexto tiene una resolución visible dentro del slice.
 8. La invitación persiste hasta consentimiento con recordatorio ligero y desaparece en confirmación.
-9. La confirmación final usa `Hacer mi primer registro` como CTA inequívoco.
+9. > **Deprecado 2026-04-22**: La confirmación final usa `Hacer mi primer registro` como CTA inequívoco — este AC corresponde a S04-BRIDGE eliminado. El reemplazo es: tras `grantConsent` el paciente hace `window.location.assign('/dashboard')` y el CTA "Registrar humor" del empty state del dashboard abre el `MoodEntryDialog`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 10. Desktop y mobile cubren el mismo state pack sin reinterpretación.
 
 ## Defaults transferibles

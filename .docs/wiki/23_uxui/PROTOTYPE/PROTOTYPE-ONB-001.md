@@ -86,7 +86,7 @@ Cada frame obligatorio debe existir en desktop y mobile.
 
 | Frame ID | Qué muestra | Obligatorio |
 | --- | --- | --- |
-| `ONB-001-S01-HERO-STANDARD` | portada estándar con `Empezar ahora` | sí |
+| `ONB-001-S01-HERO-STANDARD` | portada estándar con `Ingresar` (label canónico desde 2026-04-22) | sí |
 | `ONB-001-S01-HERO-INVITE` | hero adaptado por invitación con vínculo + propósito explícitos | sí |
 | `ONB-001-S01-HERO-INVITE-FALLBACK` | hero adaptado genérico por falta de datos | sí |
 | `ONB-001-S01-INVITE-EXPIRED` | salida clara para contexto invitado inválido o vencido | sí |

@@ -45,7 +45,7 @@ No declara `UX-VALIDATION`, no reemplaza `UXS` ni autoriza extender el slice hac
 
 ### In
 
-- portada pública estándar con CTA `Empezar ahora`;
+- portada pública estándar con CTA `Ingresar`;
 - variante de portada con `hero adaptado` por invitación;
 - fallback genérico de invitación cuando faltan datos;
 - aclaración de contexto si la invitación genera confusión;
@@ -53,7 +53,7 @@ No declara `UX-VALIDATION`, no reemplaza `UXS` ni autoriza extender el slice hac
 - lectura y aceptación de consentimiento vigente;
 - recordatorio ligero del contexto invitado hasta consentimiento;
 - conflicto de versión y error recuperable de consentimiento;
-- confirmación con puente a `Hacer mi primer registro`.
+- > **Deprecado 2026-04-22**: confirmación con puente a `Hacer mi primer registro` — fase S04-BRIDGE eliminada; el post-consent redirige directo a `/dashboard`. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 ### Out
 
@@ -77,9 +77,9 @@ La UI debe sentirse como una guía personal cálida y breve que:
 
 | Estado | Objetivo | Trigger principal | Acción dominante |
 | --- | --- | --- | --- |
-| `S01-HERO-STANDARD` | entrada base de guía personal | visita sin `invite_token` o sin contexto válido | `Empezar ahora` |
-| `S01-HERO-INVITE` | explicar vínculo + propósito en la misma portada | `invite_token` presente y contexto resoluble | `Empezar ahora` |
-| `S01-HERO-INVITE-FALLBACK` | conservar continuidad aunque falten datos del profesional | `invite_token` presente pero datos parciales | `Empezar ahora` |
+| `S01-HERO-STANDARD` | entrada base de guía personal | visita sin `invite_token` o sin contexto válido | `Ingresar` |
+| `S01-HERO-INVITE` | explicar vínculo + propósito en la misma portada | `invite_token` presente y contexto resoluble | `Ingresar` |
+| `S01-HERO-INVITE-FALLBACK` | conservar continuidad aunque falten datos del profesional | `invite_token` presente pero datos parciales | `Ingresar` |
 | `S01-CONTEXT-CLARIFICATION` | bajar confusión sobre por qué llegó invitado/a | duda contextual antes de auth o antes de consent | `Entiendo, continuar` |
 | `S02-AUTH-INTERSTITIAL` | sostener continuidad durante sesión + bootstrap | retorno de Zitadel o resolución de sesión | sin CTA nueva |
 | `S03-CONSENT-READY` | aceptar consentimiento con resguardo claro | `needsConsent=true` y consentimiento vigente disponible | `Aceptar y continuar` |
@@ -181,7 +181,7 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 
 | Momento UI | Backend | Condición | Resultado visible |
 | --- | --- | --- | --- |
-| click `Empezar ahora` con sesión inexistente | Zitadel OIDC | no session | ir a login y volver por `/auth/callback` |
+| click `Ingresar` con sesión inexistente | Zitadel OIDC | no session | ir a login y volver por `/auth/callback` |
 | retorno autenticado | `POST /api/v1/auth/bootstrap` | `needsConsent=true` | mostrar `S02` y luego `S03` |
 | retorno autenticado | `POST /api/v1/auth/bootstrap` | `status=consent_granted` o `active` | saltar consentimiento e ir a `S04` o a la siguiente ruta |
 | apertura de consentimiento | `GET /api/v1/consent/current` | `patientStatus=none|pending|revoked` | `S03-CONSENT-READY` |
@@ -204,7 +204,7 @@ Los nombres pueden refinarse en código, pero la separación de responsabilidade
 ## Reglas de jerarquía y copy
 
 - una sola acción dominante visible por estado;
-- `Empezar ahora` es la CTA primaria arriba del fold;
+- `Ingresar` es la CTA primaria arriba del fold;
 - privacidad/resguardo vive como soporte, no como hero institucional;
 - la invitación se expresa como `registro inicial con acompañamiento profesional`;
 - el contexto invitado desaparece al redirigir a `/dashboard` (antes desaparecía en `S04-BRIDGE`, que fue deprecado 2026-04-22);

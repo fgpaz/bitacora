@@ -77,7 +77,7 @@ La confianza del slice se construye en dos capas.
 
 - el soporte dominante es privacidad y resguardo;
 - la UI debe verse personal antes que clínica;
-- el CTA principal debe ser directo: `Empezar ahora`;
+- el CTA principal debe ser directo: `Ingresar` (label canónico desde 2026-04-22; antes `Empezar ahora`. Va directo a `/ingresar` OIDC+PKCE);
 - no debe haber un camino secundario fuerte que compita con la acción principal.
 
 ### En la variante invitada
@@ -130,7 +130,7 @@ El journey debe salir de esta intención con:
 - portada estándar y portada invitada dentro del mismo sistema;
 - retorno `auth/bootstrap` como transición breve;
 - consentimiento como pausa de resguardo claro;
-- confirmación con CTA `Hacer mi primer registro`.
+- > **Deprecado 2026-04-22**: confirmación con CTA `Hacer mi primer registro` — S04-BRIDGE eliminado. El post-consent redirige directo a `/dashboard` y el equivalente operativo es el CTA `Registrar humor` del empty state. Ver `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
 ### Hacia `VOICE`
 
@@ -157,7 +157,7 @@ Este `UXI` adopta como defaults explícitos:
 
 - historia líder: guía personal del paciente;
 - tono: humano y cálido;
-- CTA principal: `Empezar ahora`;
+- CTA principal: `Ingresar` (label canónico desde 2026-04-22);
 - sin camino secundario fuerte en hero;
 - cobertura obligatoria: desktop + mobile + estados clave;
 - profundidad de entrega: casi-`UI-RFC` completo.
