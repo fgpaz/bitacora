@@ -7,6 +7,19 @@
   max-height: 100vh;
 }
 
+.dialog[open] {
+  animation: moodDialogFadeIn 200ms ease-out;
+}
+
+@keyframes moodDialogFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] { animation: none; }
+}
+
 .dialog::backdrop {
   background-color: var(--overlay-backdrop);
   backdrop-filter: blur(2px);
