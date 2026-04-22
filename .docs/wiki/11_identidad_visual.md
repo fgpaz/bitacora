@@ -214,14 +214,18 @@ La base visual mínima que debe preservarse en futuras capas es:
 
 | Token | Dirección |
 | --- | --- |
-| `radius-sm` | 8px, suavidad contenida |
-| `radius-md` | 14px, contenedores principales |
-| `radius-lg` | 20px, superficies especiales de refugio |
+| `radius-sm` | 4px, suavidad contenida mínima |
+| `radius-md` | 8px, contenedores principales |
+| `radius-lg` | 12px, superficies especiales de refugio |
 | `shadow-soft` | sombra muy baja, difusa, casi editorial |
 | `shadow-none` | preferida por defecto en superficies tranquilas |
 | `space-base` | ritmo respirado, evitar densidad SaaS |
 | `border-base` | fino, cálido, visible pero no rígido |
 | `focus-ring` | visible, sobrio, accesible, sin brillo agresivo |
+
+> Actualizado 2026-04-22 — radios sincronizados con `frontend/styles/tokens.css` real. La identidad editorial sobria se preserva; la diferencia de 4-8px no altera la percepción cálida ni el canon 10 (refugio clínico sereno). Ver `.docs/raw/plans/2026-04-22-impeccable-hardening/T4-normalize.md` y commit de sync.
+>
+> Paleta actualizada en la misma wave: `--foreground-muted` subido de `#655E59` a `#4A4440` para cumplir WCAG 2.1 AA §1.4.3 (contraste ≥4.5:1 sobre `--surface-muted`). Compliance salud (Ley 26.657).
 
 ### Reglas tokenizadas
 
