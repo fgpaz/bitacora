@@ -111,8 +111,25 @@ La implementación paciente vigente para vinculación y configuración web de Te
 
 La tabla `Sync runtime 2026-04-20` conserva el puente operativo entre el handoff original y los paths reales.
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: split presentacional de `TelegramPairingCard` aplicado en W5 de la rama `feature/impeccable-hardening-2026-04-22`. Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`.
+
+### Mapping de subcomponentes presentacionales
+
+| UI-RFC primitive | Implementación frontend | Archivo |
+|---|---|---|
+| `TelegramCodeBridgePanel` | `TelegramPairingCard.tsx` (~300 líneas, padre con estado) | `frontend/components/patient/telegram/TelegramPairingCard.tsx` |
+| `TelegramCodeBridgePanel.codeDisplay` | `PairingCodeDisplay.tsx` (presentacional) | `frontend/components/patient/telegram/pairing/PairingCodeDisplay.tsx` |
+| `TelegramCodeBridgePanel.instructions` | `PairingInstructions.tsx` (presentacional) | `frontend/components/patient/telegram/pairing/PairingInstructions.tsx` |
+| `TelegramCodeBridgePanel.reminderSection` | `PairingReminderSection.tsx` (presentacional) | `frontend/components/patient/telegram/pairing/PairingReminderSection.tsx` |
+
+Nota: el split fue declarado en W5 (impeccable-extract) para reducir `TelegramPairingCard.tsx` de 455 a ~300 líneas y permitir memoización. El estado compartido (polling, generating, unlinking, saving_schedule) vive exclusivamente en el componente padre. Los subcomponentes no tienen lógica de negocio ni acceso a API directamente.
+
+Los 3 subcomponentes sirven también para `TG-002` (schedule picker y sección de recordatorio conversacional); ver `HANDOFF-MAPPING-TG-002.md`.
+
 ---
 
 **Estado:** mapping listo para `backend/telegram/`.
 **Siguiente artefacto:** `HANDOFF-VISUAL-QA-TG-001.md`.
-**Runtime Telegram:** implementado; mapping sincronizado con paths reales el 2026-04-20.
+**Runtime Telegram:** implementado; mapping sincronizado con paths reales el 2026-04-20; subcomponentes presentacionales agregados el 2026-04-22.

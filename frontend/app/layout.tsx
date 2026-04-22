@@ -1,15 +1,31 @@
-import type { Metadata } from 'next';
-import '@fontsource/newsreader/latin-400.css';
-import '@fontsource/newsreader/latin-500.css';
-import '@fontsource/newsreader/latin-400-italic.css';
-import '@fontsource/source-sans-3/latin-400.css';
-import '@fontsource/source-sans-3/latin-500.css';
-import '@fontsource/source-sans-3/latin-600.css';
-import '@fontsource/ibm-plex-mono/latin-400.css';
-import '@fontsource/ibm-plex-mono/latin-500.css';
+import { Newsreader, Source_Sans_3, IBM_Plex_Mono } from 'next/font/google';
 import '@/styles/tokens.css';
 import '@/styles/globals.css';
 import { Providers } from '@/providers';
+
+import type { Metadata } from 'next';
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-display',
+});
+
+const sourceSans = Source_Sans_3({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-body',
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-mono',
+});
 
 export const metadata: Metadata = {
   title: 'Bitácora',
@@ -18,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${newsreader.variable} ${sourceSans.variable} ${plexMono.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

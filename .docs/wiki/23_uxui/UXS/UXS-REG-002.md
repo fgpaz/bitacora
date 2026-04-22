@@ -90,6 +90,32 @@ Y prepara directamente:
 
 Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sensación deseada y no agrega fricción gratuita. Está mal calibrado si el paso pide más lectura o interpretación que el valor que devuelve.
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: deltas aplicados sobre implementación en rama `feature/impeccable-hardening-2026-04-22` (W2–W3–W7). Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`.
+
+### DailyCheckinForm — accesibilidad y semántica
+
+- Botones Sí/No de los 4 factores booleanos (actividad física, actividad social, ansiedad, irritabilidad) y de medicación: `aria-pressed={form[key] === true/false}` aplicado en los 10 botones (W2). WCAG 4.1.2 — estado comunicado via ARIA.
+- Input `sleep_hours`: `aria-required="true"` agregado (W2).
+
+### DailyCheckinForm — error visual no dependiente de color
+
+- CSS `.blockError`: `border-left-color: var(--status-danger)` + `border-left-width: 4px` para que el estado de error sea perceptible sin depender únicamente del color (WCAG 1.4.1) (W3).
+
+### Tipografía y focus
+
+- Heading `.headline`: `clamp(1.5rem, 4vw, 2rem)` — tipografía fluida adaptada a viewports (W7).
+- Focus-visible con outline real compatible con High Contrast Mode (HCM-safe) (W3).
+
+### Error fallback
+
+- Mensaje de error recuperable especificado como `"No pudimos guardar el check-in. Probá de nuevo."` (canon 13 §Errores) (W2).
+
+### Notas de implementación
+
+- Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
+
 ---
 
 **Estado:** `UXS` activo para `REG-002`.

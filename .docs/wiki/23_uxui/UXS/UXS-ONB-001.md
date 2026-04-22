@@ -279,6 +279,31 @@ El slice está mal calibrado si:
 
 - 2026-04-22: S04-BRIDGE y el estado `bridge_ready` deprecados. El post-consent va directo a `/dashboard`. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: deltas aplicados sobre implementación en rama `feature/impeccable-hardening-2026-04-22` (W2–W3–W4–W7–W10). Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`.
+
+### ConsentGatePanel — correcciones semánticas y accesibilidad
+
+- Elemento raíz cambiado de `<section role="listitem">` a `<div role="listitem">`: la combinación landmark + listitem era inválida según ARIA 1.2 (W2).
+- Copy contextual corregido con tildes obligatorias (regla 9.1): `"Recordá que viniste a través de una invitación de tu profesional."` (W2).
+- `ConsentGatePanel.acceptBtn` y `ConsentGatePanel.retryBtn`: `min-height: 44px` aplicado para cumplir WCAG 2.5.5 — CTAs de consentimiento son acción legal crítica (W3).
+
+### OnboardingEntryHero — copy y microinteracción CTA
+
+- Wordmark en heading: `"Bitácora"` con tilde (regla 9.1) (W2).
+- Sub-copy: `"Un lugar sobrio..."` corregido para eliminar la duplicación de "tranquilidad" detectada en critique T1 (W2).
+- CTA `"Ingresar"` (copy congelado — no modificar): hover con transición `background-color 150ms` + `color-mix` sobre `--brand-primary` + guard `@media (prefers-reduced-motion: reduce)` local en el módulo CSS (W10).
+
+### OnboardingFlow — error fallback
+
+- Mensaje de error recuperable especificado como `"No pudimos guardar el registro..."` reemplazando genérico anterior (canon 13 §Errores) (W2).
+
+### Notas de implementación
+
+- CTA `"Ingresar"` y copy `"Tu espacio personal de registro"` son zonas congeladas; no fueron modificados.
+- Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
+
 ---
 
 **Estado:** `UXS` activo para `ONB-001`. Cubre S01, S02 y S03. S04-BRIDGE deprecado 2026-04-22; reemplazado por `S05-DASHBOARD-EMPTY`.
