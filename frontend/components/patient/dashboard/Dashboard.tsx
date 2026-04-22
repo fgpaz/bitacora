@@ -176,14 +176,11 @@ export function Dashboard() {
       <>
         <div className={styles.stack}>
           <TelegramReminderBanner />
-          <DashboardSummary
-            totalEntries={totalEntries}
-            avgMoodScore={avgMoodScore}
-            lastEntryAt={lastEntryAt}
-          />
+          {/* DashboardSummary removido del empty state — canon 10 anti-señal "tablero de vigilancia" aplicada a primer uso */}
           <div
             className={styles.emptyState}
-            role="status"
+            role="region"
+            aria-label="Historial vacío"
           >
             <svg
               width={48}
@@ -202,7 +199,7 @@ export function Dashboard() {
             </svg>
             <p className={styles.emptyTitle}>Empezá con tu primer registro</p>
             <p className={styles.emptyText}>
-              Acá vas a ver tu historial cuando cargues tu primer registro.
+              Cuando cargues tu primer registro, lo vas a ver acá.
             </p>
             <button
               ref={openDialogRef}
