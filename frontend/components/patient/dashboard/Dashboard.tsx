@@ -229,15 +229,15 @@ export function Dashboard() {
         <section className={styles.trendPanel} aria-labelledby="trend-heading">
           <div className={styles.trendHeader}>
             <h2 id="trend-heading" className={styles.sectionTitle}>
-              Variabilidad diaria
+              Tus últimos días
             </h2>
-            <span className={styles.trendCaption}>Últimos registros</span>
+            <span className={styles.trendCaption}>Resumen visual</span>
           </div>
 
           <div
             className={styles.trendChart}
             role="list"
-            aria-label="Variación de puntajes por día"
+            aria-label="Estado de ánimo de los últimos días"
             style={{ '--trend-count': trendCount } as CSSProperties}
           >
             <div className={styles.trendMidline} aria-hidden="true" />
