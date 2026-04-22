@@ -60,7 +60,23 @@
   --space-lg: 24px;
   --space-xl: 40px;
   --space-2xl: 64px;
+
+  /* Breakpoints (para uso en código nuevo; los módulos existentes mantienen sus media queries hasta normalización futura) */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
 }
+
+/*
+Breakpoint canon (para waves futuras):
+  ≤480px       mobile
+  481-767px    tablet small
+  768-1023px   tablet / desktop mínimo
+  ≥1024px      desktop full
+Los custom properties anteriores no son usables directamente en @media sin PostCSS custom-media.
+Sirven como documentación viva + referencia para futuro PostCSS plugin.
+NO unificar media queries existentes en esta wave (riesgo visual alto); aplicar la convención en código nuevo.
+*/
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
