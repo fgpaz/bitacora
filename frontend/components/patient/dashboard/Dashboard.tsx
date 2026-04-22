@@ -11,7 +11,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
 import { DashboardSummary } from './DashboardSummary';
 import { MoodEntryDialog } from './MoodEntryDialog';
@@ -124,6 +124,9 @@ export function Dashboard() {
     setRefreshNonce((n) => n + 1);
   }
 
+  const trendEntries = useMemo(() => entries.toReversed(), [entries]);
+  const trendCount = Math.max(1, trendEntries.length);
+
   if (viewState === 'loading') {
     return (
       <div className={styles.stack} aria-busy="true" aria-label="Cargando historial">
@@ -215,9 +218,6 @@ export function Dashboard() {
       </>
     );
   }
-
-  const trendEntries = entries.toReversed();
-  const trendCount = Math.max(1, trendEntries.length);
 
   return (
     <>

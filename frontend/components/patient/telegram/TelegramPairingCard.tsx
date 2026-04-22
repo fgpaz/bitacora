@@ -7,7 +7,6 @@
  * client converts the selected local time to UTC before persisting RF-TG-006.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import {
   generatePairingCode,
   getReminderSchedule,
@@ -18,6 +17,9 @@ import {
   type TelegramPairingResponse,
   type TelegramSessionResponse,
 } from '../../../lib/api/client';
+import { PairingCodeDisplay } from './pairing/PairingCodeDisplay';
+import { PairingInstructions } from './pairing/PairingInstructions';
+import { PairingReminderSection } from './pairing/PairingReminderSection';
 import styles from './TelegramPairingCard.module.css';
 
 const TTL_SECONDS = 15 * 60;
@@ -250,204 +252,47 @@ export function TelegramPairingCard() {
 
       {!isLinked ? (
         <div className={styles.flow} aria-label="Pasos para vincular Telegram">
-          <div className={styles.step}>
-            <span className={styles.stepMarker}>1</span>
-            <div>
-              <h3 className={styles.stepTitle}>Generá un código</h3>
-              <p className={styles.stepText}>El código vence en 15 minutos y sirve solo para vincular tu cuenta.</p>
-            </div>
-          </div>
-
           {!pairing && (
-            <button
-              className={styles.primaryBtn}
-              onClick={handleGenerate}
-              disabled={generating}
-              aria-busy={generating}
-            >
-              {generating ? 'Generando...' : 'Generar código'}
-            </button>
+            <PairingInstructions
+              generating={generating}
+              onGenerate={handleGenerate}
+            />
           )}
 
-          {pairing && !isExpired && (
-            <>
-              <div className={styles.commandBox}>
-                <p className={styles.codeLabel}>Enviá este mensaje al bot. Vence en {formatTime(secondsLeft)}.</p>
-                <code className={styles.commandText}>{commandText}</code>
-                <div className={styles.actionGrid}>
-                  <button className={styles.secondaryBtn} onClick={handleCopyCommand}>
-                    {copied ? 'Mensaje copiado' : 'Copiar mensaje'}
-                  </button>
-                  <a className={styles.primaryBtn} href={telegramStartUrl} target="_blank" rel="noopener noreferrer">
-                    Abrir Telegram
-                  </a>
-                </div>
-              </div>
-
-              <div className={styles.step}>
-                <span className={styles.stepMarker}>2</span>
-                <div>
-                  <h3 className={styles.stepTitle}>Confirmá la vinculación</h3>
-                  <p className={styles.stepText}>
-                    Si Telegram no completa el mensaje solo, pegá el texto copiado en el chat con @{TELEGRAM_BOT_USERNAME}.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                className={styles.secondaryBtn}
-                onClick={handleCheckLink}
-                disabled={checkingLink}
-                aria-busy={checkingLink}
-              >
-                {checkingLink ? 'Comprobando...' : 'Ya envié el mensaje'}
-              </button>
-            </>
-          )}
-
-          {isExpired && (
-            <div className={styles.expiredBlock} role="status">
-              <p className={styles.expiredText}>El código venció. Generá uno nuevo y enviá el nuevo mensaje al bot.</p>
-              <button
-                className={styles.primaryBtn}
-                onClick={handleGenerate}
-                disabled={generating}
-                aria-busy={generating}
-              >
-                {generating ? 'Generando...' : 'Generar nuevo código'}
-              </button>
-            </div>
+          {pairing && (
+            <PairingCodeDisplay
+              commandText={commandText}
+              telegramStartUrl={telegramStartUrl}
+              secondsLeft={secondsLeft}
+              isExpired={isExpired}
+              copied={copied}
+              checkingLink={checkingLink}
+              generating={generating}
+              onCopy={handleCopyCommand}
+              onCheckLink={handleCheckLink}
+              onGenerate={handleGenerate}
+            />
           )}
         </div>
       ) : (
-        <>
-          <div className={styles.flow}>
-            <div className={styles.step}>
-              <span className={styles.stepMarker}>1</span>
-              <div>
-                <h3 className={styles.stepTitle}>Telegram quedó vinculado</h3>
-                <p className={styles.stepText}>Ya podés escribirle al bot para registrar tu humor desde Telegram.</p>
-              </div>
-            </div>
-
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <h3 className={styles.sectionTitle}>Recordatorio diario</h3>
-                {configuredTime && (
-                  <p className={styles.savedTime}>Actual: {configuredTime}, hora de Buenos Aires</p>
-                )}
-              </div>
-              <p className={styles.hint}>Elegí a qué hora querés que el bot te recuerde registrar tu estado de ánimo.</p>
-
-              <div className={styles.reminderControls}>
-                <div className={styles.reminderGroup}>
-                  <label htmlFor="reminder-hour" className={styles.reminderLabel}>
-                    Hora
-                  </label>
-                  <select
-                    id="reminder-hour"
-                    value={reminderHour}
-                    onChange={(event) => setReminderHour(Number(event.target.value))}
-                    className={styles.reminderSelect}
-                    disabled={state === 'saving_schedule'}
-                  >
-                    {Array.from({ length: 24 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {i.toString().padStart(2, '0')}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.reminderGroup}>
-                  <label htmlFor="reminder-minute" className={styles.reminderLabel}>
-                    Minuto
-                  </label>
-                  <select
-                    id="reminder-minute"
-                    value={reminderMinute}
-                    onChange={(event) => setReminderMinute(Number(event.target.value))}
-                    className={styles.reminderSelect}
-                    disabled={state === 'saving_schedule'}
-                  >
-                    <option value={0}>00</option>
-                    <option value={30}>30</option>
-                  </select>
-                </div>
-              </div>
-
-              <button
-                className={styles.primaryBtn}
-                onClick={handleSaveReminder}
-                disabled={state === 'saving_schedule'}
-                aria-busy={state === 'saving_schedule'}
-              >
-                {state === 'saving_schedule' ? 'Guardando...' : 'Guardar recordatorio'}
-              </button>
-            </div>
-          </div>
-
-          {reminderSchedule?.configured && (
-            <div className={styles.nextStep}>
-              <h3 className={styles.sectionTitle}>Ya quedó listo</h3>
-              <p className={styles.hint}>
-                El próximo paso es probar el bot con un registro breve. Podés volver a cambiar el horario cuando quieras.
-              </p>
-              <div className={styles.actionGrid}>
-                <a className={styles.primaryBtn} href={TELEGRAM_BOT_URL} target="_blank" rel="noopener noreferrer">
-                  Probar el bot
-                </a>
-                <Link className={styles.secondaryBtn} href="/dashboard">
-                  Volver al inicio
-                </Link>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.unlinkSection}>
-            {!unlinkConfirmation ? (
-              <button
-                className={styles.unlinkBtn}
-                onClick={() => setUnlinkConfirmation(true)}
-                disabled={state === 'unlinking'}
-              >
-                Desvincular Telegram
-              </button>
-            ) : (
-              <div className={styles.unlinkConfirmation}>
-                <p className={styles.confirmText}>
-                  Se cortará la conexión con el bot. Tus registros existentes no se eliminan.
-                </p>
-                <div className={styles.actionGrid}>
-                  <button
-                    className={styles.confirmBtn}
-                    onClick={handleUnlink}
-                    disabled={state === 'unlinking'}
-                    aria-busy={state === 'unlinking'}
-                  >
-                    {state === 'unlinking' ? 'Desvinculando...' : 'Desvincular'}
-                  </button>
-                  <button
-                    className={styles.secondaryBtn}
-                    onClick={() => setUnlinkConfirmation(false)}
-                    disabled={state === 'unlinking'}
-                  >
-                    Mantener vínculo
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </>
+        <PairingReminderSection
+          reminderHour={reminderHour}
+          reminderMinute={reminderMinute}
+          configuredTime={configuredTime}
+          savingSchedule={state === 'saving_schedule'}
+          reminderConfigured={reminderSchedule?.configured ?? false}
+          unlinkConfirmation={unlinkConfirmation}
+          unlinking={state === 'unlinking'}
+          onHourChange={setReminderHour}
+          onMinuteChange={setReminderMinute}
+          onSaveReminder={handleSaveReminder}
+          onRequestUnlink={() => setUnlinkConfirmation(true)}
+          onConfirmUnlink={handleUnlink}
+          onCancelUnlink={() => setUnlinkConfirmation(false)}
+        />
       )}
     </section>
   );
-}
-
-function formatTime(seconds: number) {
-  const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const remainingSeconds = (seconds % 60).toString().padStart(2, '0');
-  return `${minutes}:${remainingSeconds}`;
 }
 
 function formatScheduleTime(hour: number, minute: number) {

@@ -1,0 +1,280 @@
+.flow,
+.section,
+.nextStep,
+.unlinkSection,
+.unlinkConfirmation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: var(--space-sm);
+  align-items: start;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stepMarker {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--brand-primary);
+  background-color: var(--surface-muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.stepTitle {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground);
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.stepText {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground);
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.section,
+.nextStep,
+.unlinkSection {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.savedTime {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.hint {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.confirmText {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.reminderControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.reminderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.reminderLabel {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.reminderSelect {
+  min-height: 44px;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.reminderSelect:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+}
+
+.reminderSelect:disabled {
+  background-color: var(--surface-muted);
+  color: var(--foreground-muted);
+  cursor: not-allowed;
+}
+
+.reminderSelect:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+  align-items: stretch;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.unlinkBtn,
+.confirmBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.primaryBtn {
+  align-self: flex-start;
+  border: 1px solid var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: var(--surface);
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.secondaryBtn {
+  border: 1px solid var(--border-subtle);
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.secondaryBtn:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+  background-color: var(--surface-muted);
+}
+
+.unlinkBtn {
+  align-self: flex-start;
+  border: 1px solid var(--brand-accent);
+  background-color: transparent;
+  color: var(--brand-accent);
+}
+
+.unlinkBtn:hover:not(:disabled) {
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+}
+
+.confirmBtn {
+  border: 1px solid var(--brand-accent);
+  background-color: var(--brand-accent);
+  color: var(--surface);
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background-color: var(--surface);
+  color: var(--brand-accent);
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.unlinkBtn:disabled,
+.confirmBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.primaryBtn:focus-visible,
+.secondaryBtn:focus-visible,
+.unlinkBtn:focus-visible,
+.confirmBtn:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.unlinkConfirmation {
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--brand-accent);
+  background-color: var(--surface-muted);
+}
+
+@media (min-width: 480px) {
+  .actionGrid {
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    justify-content: start;
+  }
+
+  .primaryBtn,
+  .secondaryBtn,
+  .confirmBtn {
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 359px) {
+  .step {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .stepMarker {
+    width: 28px;
+    height: 28px;
+  }
+
+  .reminderControls {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryBtn,
+  .secondaryBtn,
+  .unlinkBtn,
+  .confirmBtn {
+    transition: none;
+  }
+}
