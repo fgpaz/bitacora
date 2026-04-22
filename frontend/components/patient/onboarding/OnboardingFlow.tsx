@@ -1,15 +1,14 @@
 'use client';
 
 /**
- * OnboardingFlow — orchestrates the ONB-first authenticated journey:
- * bootstrap -> consent -> bridge.
- * States: S01-HERO-INVITE | S02-AUTH-INTERSTITIAL | S03-CONSENT-* | S04-BRIDGE
+ * OnboardingFlow — authenticated entry gate. Runs only when the user needs
+ * consent; otherwise redirects to /dashboard.
+ * Phases: auth (bootstrap loader) -> consent (gate panel) -> redirect.
  */
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PatientPageShell } from '@/components/ui/PatientPageShell';
 import { AuthBootstrapInterstitial } from './AuthBootstrapInterstitial';
-import { NextActionBridgeCard } from './NextActionBridgeCard';
 import { ConsentGatePanel } from '@/components/patient/consent/ConsentGatePanel';
 import {
   bootstrapPatient,
@@ -19,7 +18,7 @@ import {
 } from '@/lib/api/client';
 import { getAccessToken } from '@/lib/auth/client';
 
-type Phase = 'auth' | 'consent' | 'bridge';
+type Phase = 'auth' | 'consent';
 
 interface BootstrapData {
   userId: string;
@@ -39,23 +38,21 @@ export function OnboardingFlow() {
   const [traceId, setTraceId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
 
-  // S02: resolve session + bootstrap
   useEffect(() => {
     async function resolve() {
       try {
         const token = await getAccessToken();
         if (!token) {
-          window.location.href = '/ingresar';
-          setLoading(false);
+          window.location.assign('/ingresar');
           return;
         }
         const data = await bootstrapPatient(inviteToken);
         setBootstrapData(data);
         if (!data.needsConsent) {
-          setPhase('bridge');
-        } else {
-          setPhase('consent');
+          window.location.assign('/dashboard');
+          return;
         }
+        setPhase('consent');
       } catch (err: unknown) {
         const code = (err as { code?: string }).code;
         setErrorCode(code);
@@ -71,7 +68,6 @@ export function OnboardingFlow() {
     resolve();
   }, [inviteToken]);
 
-  // S03: load consent
   useEffect(() => {
     if (phase !== 'consent') return;
     async function loadConsent() {
@@ -96,10 +92,7 @@ export function OnboardingFlow() {
   async function handleConsentAccept(version: string) {
     try {
       await grantConsent(version);
-      setBootstrapData((prev) =>
-        prev ? { ...prev, needsConsent: false } : null,
-      );
-      setPhase('bridge');
+      window.location.assign('/dashboard');
     } catch (err: unknown) {
       const code = (err as { code?: string }).code;
       const trace = (err as { trace_id?: string }).trace_id;
@@ -108,7 +101,7 @@ export function OnboardingFlow() {
       if (code === 'CONSENT_VERSION_MISMATCH') {
         setError('La versión del consentimiento cambió. Por favor, revisalo de nuevo.');
       } else if (code === 'CONSENT_ALREADY_GRANTED') {
-        setPhase('bridge');
+        window.location.assign('/dashboard');
       } else {
         setError((err as Error).message ?? 'Error al guardar el consentimiento.');
       }
@@ -122,15 +115,11 @@ export function OnboardingFlow() {
   }
 
   if (loading) {
-    return (
-      <PatientPageShell loading />
-    );
+    return <PatientPageShell loading />;
   }
 
   if (error && phase === 'auth') {
-    return (
-      <PatientPageShell error={error} />
-    );
+    return <PatientPageShell error={error} />;
   }
 
   if (phase === 'auth') {
@@ -143,15 +132,6 @@ export function OnboardingFlow() {
     );
   }
 
-  if (phase === 'bridge') {
-    return (
-      <PatientPageShell>
-        <NextActionBridgeCard needsFirstEntry={bootstrapData?.needsConsent === false} />
-      </PatientPageShell>
-    );
-  }
-
-  // phase === 'consent'
   if (!consent) {
     return <PatientPageShell loading />;
   }
