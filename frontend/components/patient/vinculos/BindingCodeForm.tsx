@@ -47,7 +47,7 @@ export function BindingCodeForm({ onSuccess }: BindingCodeFormProps) {
       setTimeout(() => {
         setState('idle');
         onSuccess();
-      }, 1500);
+      }, 400);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al aceptar el código';
       setErrorMessage(msg);
