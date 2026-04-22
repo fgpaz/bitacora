@@ -284,8 +284,8 @@ export function Dashboard() {
                   <div className={styles.entryInfo}>
                     <p className={styles.entryDate}>{dateStr}</p>
                   </div>
-                  <div className={styles.scoreBadge} aria-label="Puntaje de humor">
-                    {entry.moodScore === null ? 'Sin puntaje' : formatMoodScore(entry.moodScore)}
+                  <div className={styles.scoreBadge} aria-label="Estado de ánimo">
+                    {entry.moodScore === null ? 'Sin registro' : formatMoodScore(entry.moodScore)}
                   </div>
                 </div>
               );

@@ -57,7 +57,7 @@ export function MoodEntryForm({ embedded = false, onSaved }: Props = {}) {
       } else if (code === 'UNAUTHORIZED' || code === 'ONB_001_JWT_INVALID') {
         setPhase('session');
       } else {
-        setErrorMessage('Ocurrió un error. Intentá de nuevo.');
+        setErrorMessage('No pudimos guardar el registro. Probá de nuevo.');
         setPhase('error');
       }
     }

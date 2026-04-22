@@ -86,7 +86,7 @@ export function BindingCodeForm({ onSuccess }: BindingCodeFormProps) {
         aria-busy={state === 'submitting'}
       >
         {state === 'submitting' && 'Aceptando...'}
-        {state === 'success' && 'Invitación aceptada ✓'}
+        {state === 'success' && 'Invitación aceptada'}
         {state === 'idle' && 'Aceptar invitación'}
         {state === 'error' && 'Aceptar invitación'}
       </button>

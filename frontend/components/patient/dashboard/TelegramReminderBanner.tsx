@@ -57,13 +57,13 @@ export function TelegramReminderBanner() {
     <aside className={styles.banner} role="complementary" aria-label="Conectar Telegram">
       <div className={styles.content}>
         <p className={styles.title}>Recibí recordatorios por Telegram</p>
-        <p className={styles.description}>Tarda un minuto y te ayuda a no olvidar tu registro.</p>
+        <p className={styles.description}>Tarda un minuto. El recordatorio te llega a Telegram.</p>
       </div>
       <div className={styles.actions}>
         <Link href="/configuracion/telegram" className={styles.primary}>
           Conectar
         </Link>
-        <button type="button" onClick={handleDismiss} className={styles.secondary}>
+        <button type="button" onClick={handleDismiss} className={styles.secondary} aria-label="Descartar recordatorio por 30 días">
           Ahora no
         </button>
       </div>

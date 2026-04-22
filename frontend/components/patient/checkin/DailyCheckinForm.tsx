@@ -94,7 +94,7 @@ export function DailyCheckinForm() {
       } else if (code === 'UNAUTHORIZED') {
         setPhase('session');
       } else {
-        setErrorMessage('Ocurrió un error. Intentá de nuevo.');
+        setErrorMessage('No pudimos guardar el check-in. Probá de nuevo.');
         setPhase('error');
       }
     }

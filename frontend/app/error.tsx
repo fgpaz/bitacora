@@ -11,9 +11,9 @@ export default function Error({
   return (
     <main className={styles.statePage}>
       <section className={styles.panel} aria-labelledby="app-error-title">
-        <h1 id="app-error-title" className={styles.title}>Algo salió mal</h1>
+        <h1 id="app-error-title" className={styles.title}>No pudimos cargar esta pantalla</h1>
         <p className={styles.text}>
-          Ocurrió un error inesperado. Intentá de nuevo.
+          Ocurrió algo inesperado. Probá recargar la página o volver en unos minutos.
         </p>
         <button
           onClick={reset}

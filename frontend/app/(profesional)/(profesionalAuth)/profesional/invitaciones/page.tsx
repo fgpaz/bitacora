@@ -9,7 +9,7 @@ export default function InvitacionesPage() {
         Invitar paciente
       </h1>
       <p style={{ fontFamily: 'var(--font-body)', color: 'var(--foreground-muted)', marginBottom: 'var(--space-lg)' }}>
-        Ingresa el correo electronico de tu paciente. Le enviaremos un enlace para que se registre y quede vinculado a tu cuenta.
+        Ingresá el correo electrónico de tu paciente. Le enviaremos un enlace para que se registre y quede vinculado a tu cuenta.
       </p>
       <InviteForm />
     </section>

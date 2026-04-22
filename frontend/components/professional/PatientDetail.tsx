@@ -62,7 +62,7 @@ export function PatientDetail() {
       <div role="tabpanel">
         {tab === 'resumen' && summary && (
           <p className={styles.tabNote}>
-            Resumen general del paciente. Ultimo registro:{' '}
+            Resumen general del paciente. Último registro:{' '}
             {summary.last_entry_at
               ? new Date(summary.last_entry_at).toLocaleDateString('es-AR', { dateStyle: 'long' })
               : 'sin registros'}
