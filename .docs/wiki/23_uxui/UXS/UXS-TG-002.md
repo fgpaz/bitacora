@@ -101,5 +101,23 @@ Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sens
 - `UI-RFC-TG-002.md` y `HANDOFF-SPEC-TG-002.md` actuan como contrato conversacional para implementacion backend/telegram
 - los estados declarados en este documento (reminder_sent, reply_submitting, reply_success, reply_error) fueron heredados en el arbol de estados del UI-RFC
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: deltas aplicados sobre implementación en rama `feature/impeccable-hardening-2026-04-22` (W5). Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`.
+
+### TelegramPairingCard — split presentacional (compartido con TG-001)
+
+- El split presentacional de `TelegramPairingCard` en 3 subcomponentes (`PairingCodeDisplay`, `PairingInstructions`, `PairingReminderSection`) afecta también este slice en lo que respecta al schedule picker y la sección de recordatorio conversacional (W5).
+- El padre mantiene el estado compartido; los subcomponentes son puramente presentacionales y no introducen lógica nueva.
+- Ver detalle completo del split y mapping en `../HANDOFF-MAPPING/HANDOFF-MAPPING-TG-001.md` y `../HANDOFF-MAPPING/HANDOFF-MAPPING-TG-002.md`.
+
+### Copy del mensaje guardado
+
+- `"Recordatorio guardado para las {time}, hora de Buenos Aires."` — sin cambios en esta wave; copy aprobado conservado.
+
+### Notas de implementación
+
+- Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
+
 **Estado:** `UXS` activo para `TG-002`.
 **Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-TG-002.md` y `../UX-VALIDATION/UX-VALIDATION-TG-002.md`.

@@ -90,6 +90,42 @@ Y prepara directamente:
 
 Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sensación deseada y no agrega fricción gratuita. Está mal calibrado si el paso pide más lectura o interpretación que el valor que devuelve.
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: deltas aplicados sobre implementación en rama `feature/impeccable-hardening-2026-04-22` (W2–W3–W6–W9–W10). Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`. Cubre también RF-VIS-015 (dashboard paciente inline entry).
+
+### Dashboard — empty state rediseñado
+
+- `DashboardSummary` ocultado cuando `entries.length === 0` (canon 10 §Anti-señales): mostrar "Registros totales: 0" antes del primer registro del paciente es un anti-patrón de vigilancia detectado en critique T1 (W9).
+- Empty state wrapper: `role="region" aria-label="Historial vacío"` — semántica permanente (no transitoria) (W9).
+- Sub-copy del empty state: `"Cuando cargues tu primer registro, lo vas a ver acá."` — elimina repetición con el h2 del área principal (W9).
+- Espaciado: padding/margin del ritmo de empty state usa `--space-xl` por defecto; `.emptyTitle` y `.errorTitle` separados en clases distintas para evitar colisión de estilos (W9).
+
+### Dashboard — language y aria
+
+- `aria-label` en `scoreBadge`: `"Estado de ánimo"` reemplaza `"Puntaje de humor"` (scoring language eliminado; canon 13) (W2).
+- Entries null-fallback: `"Sin registro"` reemplaza `"Sin puntaje"` (W2).
+
+### MoodEntryDialog — accesibilidad y microanimación
+
+- Fade-in de 200ms sobre `.dialog[open]` (W10).
+- `aria-modal="true"` en el elemento dialog (W3).
+- Focus restore al elemento disparador via `useRef` + `requestAnimationFrame` al cerrar el modal (W3).
+- Backdrop: `var(--overlay-backdrop)` reemplaza el `rgba` hardcoded anterior (W4).
+
+### Timeline.tsx (profesional) — performance
+
+- `useMemo` sobre `extractMoodPoints(entries)` para evitar recálculo en cada render (W5/W6).
+
+### Zonas congeladas
+
+- Copy `"+ Nuevo registro"`, `"Check-in diario"`, `"Empezá con tu primer registro"` y `"Registrar humor"` no fueron modificados.
+- `DashboardSummary` se sigue mostrando en estado `ready` (con registros); solo se oculta en estado `empty`.
+
+### Notas de implementación
+
+- Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
+
 ---
 
 **Estado:** `UXS` activo para `VIS-001`.

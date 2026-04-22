@@ -105,5 +105,30 @@ Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sens
 - `UI-RFC-TG-001.md` y `HANDOFF-SPEC-TG-001.md` actuan como contrato conversacional para implementacion backend/telegram
 - los estados declarados en este documento (idle, code_generated, expired, linked, error_retryable) fueron heredados en el arbol de estados del UI-RFC
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: deltas aplicados sobre implementación en rama `feature/impeccable-hardening-2026-04-22` (W2–W3–W5). Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`.
+
+### TelegramReminderBanner — accesibilidad y copy
+
+- Botón dismiss: `aria-label="Descartar recordatorio por 30 días"` — el texto visible `"Ahora no"` se conserva como copy congelado; el aria-label es el accessible name completo (WCAG 4.1.2) (W2).
+- Al descartar: `aria-live="polite"` emite mensaje `"Recordatorio descartado por 30 días."` con clase `visually-hidden` antes de desmontar el componente (W2).
+- Copy del banner corregido: `"Tarda un minuto. El recordatorio te llega a Telegram."` — neutraliza el tono push paternalista detectado en critique T1 (W2).
+- `TelegramReminderBanner.module.css` buttons: `min-height: 44px` (WCAG 2.5.5 — touch target) (W3).
+
+### TelegramPairingCard — split presentacional
+
+- `TelegramPairingCard.tsx` reducido de 455 a ~300 líneas mediante extracción de 3 subcomponentes presentacionales (W5):
+  - `PairingCodeDisplay` — muestra el código y su vencimiento.
+  - `PairingInstructions` — instrucciones hacia el bot.
+  - `PairingReminderSection` — configuración del horario de recordatorio.
+- El componente padre conserva todo el estado (polling, generating, unlinking, saving_schedule).
+- Ver mapping actualizado en `../HANDOFF-MAPPING/HANDOFF-MAPPING-TG-001.md`.
+
+### Notas de implementación
+
+- Copy congelado `"Ahora no"` no fue modificado.
+- Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
+
 **Estado:** `UXS` activo para `TG-001`.
 **Siguiente capa gobernada:** futuro `../PROTOTYPE/PROTOTYPE-TG-001.md` y `../UX-VALIDATION/UX-VALIDATION-TG-001.md`.

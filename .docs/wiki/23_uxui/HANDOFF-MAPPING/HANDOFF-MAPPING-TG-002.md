@@ -103,8 +103,24 @@ Los paths de primera pasada fueron reemplazados por el runtime materializado lis
 - vinculacion de cuenta queda fuera de este mapping (delegada a `TG-001`);
 - si el codigo necesita bloques extra, deben caer dentro de estos owners y no inventar una arquitectura paralela.
 
+## Deltas 2026-04-22 — impeccable-hardening
+
+> 2026-04-22 — sync impeccable-hardening: referencia cruzada al split presentacional de `TelegramPairingCard` (W5, rama `feature/impeccable-hardening-2026-04-22`). Fuente de verdad: `.docs/raw/reports/2026-04-22-impeccable-hardening-closure.md`.
+
+### Referencia cruzada — subcomponentes presentacionales
+
+Los 3 subcomponentes extraídos de `TelegramPairingCard` en W5 son relevantes para este slice en lo que respecta al schedule picker y la sección de recordatorio conversacional:
+
+| Subcomponente | Responsabilidad en TG-002 |
+|---|---|
+| `PairingReminderSection.tsx` | Configuración del horario de recordatorio (schedule picker) visible desde la web |
+| `PairingCodeDisplay.tsx` | Sin uso directo en TG-002 (exclusivo de TG-001 pairing) |
+| `PairingInstructions.tsx` | Sin uso directo en TG-002 (exclusivo de TG-001 pairing) |
+
+El mapping completo de los 3 subcomponentes (paths, ownership, estado en padre) está en `HANDOFF-MAPPING-TG-001.md §Deltas 2026-04-22`.
+
 ---
 
 **Estado:** mapping listo para `backend/telegram/`.
 **Siguiente artefacto:** `HANDOFF-VISUAL-QA-TG-002.md`.
-**Runtime Telegram:** implementado; regresion RF-TG-006 validada con evidencia `qa-dev` y seguimiento local de persistencia UI el 2026-04-20.
+**Runtime Telegram:** implementado; regresion RF-TG-006 validada con evidencia `qa-dev` y seguimiento local de persistencia UI el 2026-04-20; referencia subcomponentes actualizada 2026-04-22.
