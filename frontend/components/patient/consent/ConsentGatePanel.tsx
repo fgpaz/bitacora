@@ -57,10 +57,10 @@ export function ConsentGatePanel({
 
       <div className={styles.sections} role="list" aria-label="Secciones del consentimiento">
         {consent.sections.map((section) => (
-          <section key={section.id} className={styles.section} role="listitem">
+          <div key={section.id} className={styles.section} role="listitem">
             <h3 className={styles.sectionTitle}>{section.title}</h3>
             <p className={styles.sectionContent}>{section.content}</p>
-          </section>
+          </div>
         ))}
       </div>
 

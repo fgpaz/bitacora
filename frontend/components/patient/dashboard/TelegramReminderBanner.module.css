@@ -42,7 +42,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: 44px;
   padding: var(--space-xs) var(--space-md);
   font-family: var(--font-body);
   font-size: 0.875rem;
@@ -77,7 +77,8 @@
 
 .primary:focus-visible,
 .secondary:focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
 

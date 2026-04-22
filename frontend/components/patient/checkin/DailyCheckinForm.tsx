@@ -158,6 +158,7 @@ export function DailyCheckinForm() {
             onChange={(e) =>
               setForm((f) => ({ ...f, sleep_hours: parseFloat(e.target.value) || null }))
             }
+            aria-required="true"
             aria-describedby={blockErrors.sleep ? 'sleep-error' : undefined}
           />
           {blockErrors.sleep && (
@@ -177,15 +178,17 @@ export function DailyCheckinForm() {
             <div className={styles.boolRow} role="group" aria-label={label}>
               <button
                 type="button"
-                className={`${styles.boolBtn} ${form[key] ? styles.boolSelected : ''}`}
+                className={`${styles.boolBtn} ${form[key] === true ? styles.boolSelected : ''}`}
                 onClick={() => setForm((f) => ({ ...f, [key]: true }))}
+                aria-pressed={form[key] === true}
               >
                 Sí
               </button>
               <button
                 type="button"
-                className={`${styles.boolBtn} ${!form[key] ? styles.boolSelected : ''}`}
+                className={`${styles.boolBtn} ${form[key] === false ? styles.boolSelected : ''}`}
                 onClick={() => setForm((f) => ({ ...f, [key]: false }))}
+                aria-pressed={form[key] === false}
               >
                 No
               </button>
@@ -199,15 +202,17 @@ export function DailyCheckinForm() {
           <div className={styles.boolRow} role="group" aria-label="Medicación">
             <button
               type="button"
-              className={`${styles.boolBtn} ${form.medication_taken ? styles.boolSelected : ''}`}
+              className={`${styles.boolBtn} ${form.medication_taken === true ? styles.boolSelected : ''}`}
               onClick={() => setForm((f) => ({ ...f, medication_taken: true }))}
+              aria-pressed={form.medication_taken === true}
             >
               Sí
             </button>
             <button
               type="button"
-              className={`${styles.boolBtn} ${!form.medication_taken ? styles.boolSelected : ''}`}
+              className={`${styles.boolBtn} ${form.medication_taken === false ? styles.boolSelected : ''}`}
               onClick={() => setForm((f) => ({ ...f, medication_taken: false, medication_time: '' }))}
+              aria-pressed={form.medication_taken === false}
             >
               No
             </button>

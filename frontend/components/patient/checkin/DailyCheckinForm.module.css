@@ -29,7 +29,8 @@
 }
 
 .blockError {
-  border-left-color: var(--brand-accent);
+  border-left-color: var(--status-danger);
+  border-left-width: 4px;
 }
 
 .blockErrorText {
@@ -53,9 +54,10 @@
   padding: var(--space-xs) var(--space-sm);
 }
 
-.numberInput:focus {
+.numberInput:focus-visible {
   outline: 2px solid var(--brand-primary);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
 }
 
 .boolRow {
@@ -84,7 +86,8 @@
 .submitBtn:focus-visible,
 .redirectLink:focus-visible,
 .backLink:focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
 
@@ -109,9 +112,10 @@
   padding: var(--space-xs) var(--space-sm);
 }
 
-.timeInput:focus {
+.timeInput:focus-visible {
   outline: 2px solid var(--brand-primary);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
 }
 
 .submitBar {

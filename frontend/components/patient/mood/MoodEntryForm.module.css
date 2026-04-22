@@ -43,7 +43,8 @@
 .consentLink:focus-visible,
 .nextLink:focus-visible,
 .backLink:focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
 

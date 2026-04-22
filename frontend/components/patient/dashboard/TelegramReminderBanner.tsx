@@ -24,6 +24,7 @@ function wasRecentlyDismissed(): boolean {
 
 export function TelegramReminderBanner() {
   const [visible, setVisible] = useState(false);
+  const [dismissAnnounce, setDismissAnnounce] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -48,10 +49,17 @@ export function TelegramReminderBanner() {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(DISMISS_KEY, Date.now().toString());
     }
-    setVisible(false);
+    setDismissAnnounce('Recordatorio descartado por 30 días.');
+    setTimeout(() => setVisible(false), 100);
   }
 
-  if (!visible) return null;
+  if (!visible) {
+    return (
+      <span role="status" aria-live="polite" className="visually-hidden">
+        {dismissAnnounce}
+      </span>
+    );
+  }
 
   return (
     <aside className={styles.banner} role="complementary" aria-label="Conectar Telegram">

@@ -79,6 +79,7 @@
   padding: var(--space-sm) var(--space-xl);
   cursor: pointer;
   min-width: 200px;
+  min-height: 44px;
   transition: opacity 0.15s ease;
 }
 
@@ -98,4 +99,5 @@
   padding: var(--space-xs) var(--space-md);
   cursor: pointer;
   margin-top: var(--space-md);
+  min-height: 44px;
 }

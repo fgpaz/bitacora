@@ -97,7 +97,13 @@ export function MoodEntryForm({ embedded = false, onSaved }: Props = {}) {
 
   const formBlock = (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <h1 className={styles.headline}>¿Cómo te sentís ahora?</h1>
+      {embedded ? (
+        <p className={styles.headline} role="heading" aria-level={3}>
+          ¿Cómo te sentís ahora?
+        </p>
+      ) : (
+        <h1 className={styles.headline}>¿Cómo te sentís ahora?</h1>
+      )}
 
       <MoodScale
         value={score}

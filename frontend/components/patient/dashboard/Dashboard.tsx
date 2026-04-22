@@ -11,7 +11,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
 import { DashboardSummary } from './DashboardSummary';
 import { MoodEntryDialog } from './MoodEntryDialog';
@@ -65,6 +65,7 @@ export function Dashboard() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const openDialogRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,6 +117,7 @@ export function Dashboard() {
 
   function closeDialog() {
     setDialogOpen(false);
+    requestAnimationFrame(() => openDialogRef.current?.focus());
   }
 
   function handleEntrySaved() {
@@ -200,6 +202,7 @@ export function Dashboard() {
               Acá vas a ver tu historial cuando cargues tu primer registro.
             </p>
             <button
+              ref={openDialogRef}
               type="button"
               onClick={openDialog}
               className={styles.primaryButton}
@@ -251,6 +254,7 @@ export function Dashboard() {
                     <span
                       className={getTrendBarClass(entry.moodScore)}
                       style={getTrendBarStyle(entry.moodScore)}
+                      aria-hidden="true"
                     />
                   </div>
                   <span className={styles.trendDay}>{dayLabel}</span>
@@ -295,6 +299,7 @@ export function Dashboard() {
 
         <section className={styles.actions} aria-label="Acciones de registro">
           <button
+            ref={openDialogRef}
             type="button"
             onClick={openDialog}
             className={styles.primaryButton}
