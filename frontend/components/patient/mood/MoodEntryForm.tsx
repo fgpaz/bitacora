@@ -84,7 +84,9 @@ export function MoodEntryForm({ embedded = false, onSaved }: Props = {}) {
   const successBlock = (
     <div className={styles.successState} role="status" aria-live="polite">
       <p className={styles.successText}>Registro guardado.</p>
-      {!embedded && (
+      {embedded ? (
+        <p className={styles.embeddedBridge}>Volviendo al dashboard…</p>
+      ) : (
         <>
           <Link href="/registro/daily-checkin" className={styles.nextLink}>
             Completar check-in diario

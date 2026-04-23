@@ -1,3 +1,11 @@
+.compactSummary {
+  margin: 0;
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr;

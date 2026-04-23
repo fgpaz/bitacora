@@ -60,7 +60,14 @@ export function Dashboard() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
   const openDialogRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!toastMsg) return;
+    const timer = setTimeout(() => setToastMsg(null), 4000);
+    return () => clearTimeout(timer);
+  }, [toastMsg]);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +124,7 @@ export function Dashboard() {
 
   function handleEntrySaved() {
     setRefreshNonce((n) => n + 1);
+    setToastMsg('Registro sumado a tu historial.');
   }
 
   const trendEntries = useMemo(() => entries.toReversed(), [entries]);
@@ -154,7 +162,7 @@ export function Dashboard() {
         className={styles.errorState}
         role="alert"
       >
-        <p className={styles.errorTitle}>Error al cargar el historial</p>
+        <p className={styles.errorTitle}>No pudimos cargar el historial.</p>
         <small className={styles.errorText}>{errorMsg}</small>
         <button
           onClick={() => window.location.reload()}
@@ -214,11 +222,29 @@ export function Dashboard() {
   return (
     <>
       <div className={styles.stack}>
+        <section className={styles.actionRail} aria-label="Acciones de registro">
+          <button
+            ref={openDialogRef}
+            type="button"
+            onClick={openDialog}
+            className={styles.primaryButton}
+          >
+            + Nuevo registro
+          </button>
+          <Link
+            href="/registro/daily-checkin"
+            className={styles.secondaryLink}
+          >
+            Check-in diario
+          </Link>
+        </section>
+
         <TelegramReminderBanner />
         <DashboardSummary
           totalEntries={totalEntries}
           avgMoodScore={avgMoodScore}
           lastEntryAt={lastEntryAt}
+          variant="compact"
         />
 
         <section className={styles.trendPanel} aria-labelledby="trend-heading">
@@ -289,24 +315,13 @@ export function Dashboard() {
           </div>
         </section>
 
-        <section className={styles.actions} aria-label="Acciones de registro">
-          <button
-            ref={openDialogRef}
-            type="button"
-            onClick={openDialog}
-            className={styles.primaryButton}
-          >
-            + Nuevo registro
-          </button>
-          <Link
-            href="/registro/daily-checkin"
-            className={styles.secondaryLink}
-          >
-            Check-in diario
-          </Link>
-        </section>
       </div>
       <MoodEntryDialog open={dialogOpen} onClose={closeDialog} onSaved={handleEntrySaved} />
+      {toastMsg && (
+        <div className={styles.toast} role="status" aria-live="polite">
+          {toastMsg}
+        </div>
+      )}
     </>
   );
 }

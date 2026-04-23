@@ -120,6 +120,13 @@ test.describe('Dashboard: modal de nuevo registro', () => {
     await expect(page.getByText('Registro guardado.')).toBeVisible();
     await expect.poll(() => summaryCalls, { timeout: 5000 }).toBeGreaterThan(1);
 
+    // R-P0-4: el modal se cierra automaticamente ~800ms post-success.
+    await expect(page.getByRole('heading', { name: 'Nuevo registro' })).toBeHidden({ timeout: 3000 });
+
+    // R-P0-4: aparece el toast canon 13 con la confirmacion factual.
+    await expect(page.getByRole('status').filter({ hasText: 'Registro sumado a tu historial.' }))
+      .toBeVisible({ timeout: 2000 });
+
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 });

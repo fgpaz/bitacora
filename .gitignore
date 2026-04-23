@@ -44,6 +44,10 @@ tmp/
 artifacts/
 .playwright-mcp/
 
+# Frontend test artifacts (Playwright)
+frontend/test-results/
+frontend/playwright-report/
+
 # Infra local secrets
 infra/.env
 infra/client_secret_*.json

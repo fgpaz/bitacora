@@ -5,6 +5,7 @@
  * States: ready | reminder | version_conflict | service_error | submitting
  */
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ConsentCurrentResponse } from '@/lib/api/client';
 import { InlineFeedback } from '@/components/ui/InlineFeedback';
 import styles from './ConsentGatePanel.module.css';
@@ -29,6 +30,7 @@ export function ConsentGatePanel({
   traceId,
 }: Props) {
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   async function handleAccept() {
     setSubmitting(true);
@@ -37,6 +39,12 @@ export function ConsentGatePanel({
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleDecline() {
+    // Sin borrar cookie (sesion activa). app/page.tsx respeta ?declined=1 para
+    // NO redirigir al dashboard y mostrar mensaje sereno canon 13.
+    router.push('/?declined=1');
   }
 
   const isVersionConflict = errorCode === 'CONSENT_VERSION_MISMATCH';
@@ -49,12 +57,6 @@ export function ConsentGatePanel({
         <p className={styles.version}>Versión {consent.version}</p>
       </header>
 
-      {resumeInvite && (
-        <p className={styles.inviteHint}>
-          Recordá que viniste a través de una invitación de tu profesional.
-        </p>
-      )}
-
       <div className={styles.sections} role="list" aria-label="Secciones del consentimiento">
         {consent.sections.map((section) => (
           <div key={section.id} className={styles.section} role="listitem">
@@ -63,6 +65,12 @@ export function ConsentGatePanel({
           </div>
         ))}
       </div>
+
+      {resumeInvite && (
+        <p className={styles.inviteHint}>
+          Recordá que viniste a través de una invitación de tu profesional.
+        </p>
+      )}
 
       {errorMessage && (
         <InlineFeedback
@@ -85,17 +93,30 @@ export function ConsentGatePanel({
       )}
 
       {!isServiceError && !isVersionConflict && (
-        <div className={styles.decisionBar}>
-          <button
-            type="button"
-            className={styles.acceptBtn}
-            onClick={handleAccept}
-            disabled={submitting}
-            aria-busy={submitting}
-          >
-            {submitting ? 'Guardando...' : 'Aceptar y continuar'}
-          </button>
-        </div>
+        <>
+          <p className={styles.revocationNote}>
+            Podés revocarlo cuando quieras desde Mi cuenta.
+          </p>
+          <div className={styles.decisionBar}>
+            <button
+              type="button"
+              className={styles.declineBtn}
+              onClick={handleDecline}
+              disabled={submitting}
+            >
+              Ahora no
+            </button>
+            <button
+              type="button"
+              className={styles.acceptBtn}
+              onClick={handleAccept}
+              disabled={submitting}
+              aria-busy={submitting}
+            >
+              {submitting ? 'Guardando...' : 'Aceptar y continuar'}
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
