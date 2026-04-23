@@ -19,8 +19,11 @@ export default function DashboardPage() {
     <PatientPageShell>
       <section aria-labelledby="dashboard-heading">
         <h1 id="dashboard-heading" className={styles.heading}>
-          Mi historial
+          Hola. Acá está lo que registraste.
         </h1>
+        <p className={styles.subtitle}>
+          Solo vos ves lo que registrás. Tus datos son privados.
+        </p>
         <Dashboard />
       </section>
     </PatientPageShell>
