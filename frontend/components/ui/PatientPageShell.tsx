@@ -73,6 +73,9 @@ export function PatientPageShell({ children, loading, error }: Props) {
           <ShellMenuItem onClick={() => router.push('/configuracion/vinculos')}>
             Vínculos
           </ShellMenuItem>
+          <ShellMenuItem onClick={() => router.push('/configuracion/consent')}>
+            Consentimiento
+          </ShellMenuItem>
           <ShellMenuSeparator />
           <ShellMenuItem onClick={handleLogout} variant="destructive">
             Cerrar sesión

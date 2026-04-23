@@ -137,6 +137,30 @@ export async function grantConsent(version: string): Promise<ConsentGrantRespons
   });
 }
 
+export interface ConsentRevokeResponse {
+  status: 'revoked';
+  revokedAtUtc: string;
+}
+
+interface RawConsentRevokeResponse {
+  status?: string;
+  Status?: string;
+  revokedAtUtc?: string;
+  RevokedAtUtc?: string;
+}
+
+export async function revokeConsent(confirmed: boolean): Promise<ConsentRevokeResponse> {
+  const raw = await bitacoraFetch<RawConsentRevokeResponse>('/consent/current', {
+    method: 'DELETE',
+    body: JSON.stringify({ confirmed }),
+  });
+
+  return {
+    status: 'revoked',
+    revokedAtUtc: raw.revokedAtUtc ?? raw.RevokedAtUtc ?? new Date().toISOString(),
+  };
+}
+
 /* ─── Mood Entries ─────────────────────────────────────────────────────────── */
 
 export async function createMoodEntry(score: number): Promise<MoodEntryResponse> {
