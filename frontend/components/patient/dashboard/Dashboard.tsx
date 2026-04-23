@@ -214,6 +214,23 @@ export function Dashboard() {
   return (
     <>
       <div className={styles.stack}>
+        <section className={styles.actionRail} aria-label="Acciones de registro">
+          <button
+            ref={openDialogRef}
+            type="button"
+            onClick={openDialog}
+            className={styles.primaryButton}
+          >
+            + Nuevo registro
+          </button>
+          <Link
+            href="/registro/daily-checkin"
+            className={styles.secondaryLink}
+          >
+            Check-in diario
+          </Link>
+        </section>
+
         <TelegramReminderBanner />
         <DashboardSummary
           totalEntries={totalEntries}
@@ -289,22 +306,6 @@ export function Dashboard() {
           </div>
         </section>
 
-        <section className={styles.actions} aria-label="Acciones de registro">
-          <button
-            ref={openDialogRef}
-            type="button"
-            onClick={openDialog}
-            className={styles.primaryButton}
-          >
-            + Nuevo registro
-          </button>
-          <Link
-            href="/registro/daily-checkin"
-            className={styles.secondaryLink}
-          >
-            Check-in diario
-          </Link>
-        </section>
       </div>
       <MoodEntryDialog open={dialogOpen} onClose={closeDialog} onSaved={handleEntrySaved} />
     </>
