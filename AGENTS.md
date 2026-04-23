@@ -7,7 +7,33 @@
 **Auth:** Zitadel OIDC + PKCE (`id.nuestrascuentitas.com`)
 **Deploy:** Dokploy VPS 54.37.157.93
 
-> **Health Data Sensitivity:** This project processes sensitive health data under Argentine Ley 25.326 (Data Protection), Ley 26.529 (Patient Rights), and Ley 26.657 (Mental Health). Any change to data storage, access control, consent flows, or audit logging must be reviewed for regulatory compliance before merge.
+> **Health Data Sensitivity:** This project processes sensitive health data under Argentine Ley 25.326 (Data Protection), Ley 26.529 (Patient Rights), and Ley 26.657 (Mental Health). Any change to data storage, access control, consent flows, or audit logging must be reviewed for regulatory compliance before push.
+
+## Spec Driven Development Contract (Mandatory)
+
+This project uses Spec Driven Development.
+The wiki (`.docs/wiki/00..23`) is the ONLY source of truth.
+
+Before writing any code, the agent MUST:
+  1. Identify the `RF-*`, `FL-*`, or `CT-*` that anchors this change.
+  2. If no anchor exists, create it first via `$ps-docs` or the matching `crear-*` skill.
+  3. Launch `ps-explorer` (uses `mi-lsp`) to confirm anchor and load context. Minimum: `mi-lsp nav pack "<task>"` and `mi-lsp nav ask "<question>"`.
+  4. No write subagent (`ps-dotnet10`, `ps-next-vercel`, `ps-python`) starts before step 3.
+
+Non-compliant: implementing without citing an `RF-*`/`FL-*`/`CT-*`, or skipping `ps-explorer`.
+
+## Workflow Stance (XP on `main`, Mandatory)
+
+Bitacora works in **Extreme Programming sobre `main`**: push directo a `main`, sin PRs, sin feature branches de larga duracion.
+
+- Commit atomico a `main` tras validacion local (typecheck + lint + tests aplicables + `dotnet build` cuando toca backend).
+- `git push origin main` como cierre estandar. No se abren PRs.
+- NO crear feature branches salvo que el humano lo pida explicitamente.
+- Cada commit lleva el trailer `- Gabriel Paz -`.
+- Closure docs siguen obligatorios para tareas grandes (`.docs/raw/reports/*-closure.md`). XP acelera el merge, no suprime la traceability.
+- Safeguards preservados: acciones de alto blast radius (prod SQL, `--force push`, `rm -rf`, modificar Dokploy prod) siguen requiriendo confirmacion explicita incluso bajo XP-on-main.
+- Antes de cada push a `main`, ejecutar `$ps-pre-push` como gate final tras `$ps-trazabilidad` (y `$ps-auditar-trazabilidad` cuando corresponda).
+- Nunca commitear ni pushear archivos bajo `.docs/raw/` que sean scratch local; solo promover a `.docs/raw/decisiones/`, `.docs/raw/reports/` o equivalentes cuando la evidencia deba persistir.
 
 ## 1) Orchestration Mode (MANDATORY - Always Active)
 
@@ -30,6 +56,7 @@ For EVERY task (`feature`, `bugfix`, `refactor`, `docs`, `infra`, `performance`)
 | `$writing-plans` | Large/risky tasks, after brainstorming | Yes — for large tasks |
 | `$ps-trazabilidad` | Before closing any task | Yes — verifies sync |
 | `$ps-auditar-trazabilidad` | Large/risky/multi-module changes | Yes — cross-document audit |
+| `$ps-pre-push` | Before any `git push origin main`, after traceability/audit | Yes — final XP-on-main gate |
 
 ### Registered Subagent Catalog
 
@@ -81,7 +108,15 @@ For EVERY task (`feature`, `bugfix`, `refactor`, `docs`, `infra`, `performance`)
 1. `$ps-contexto` → `$mi-lsp` → `$brainstorming` → `$ps-crear-agentsclaudemd` → `$ps-trazabilidad`
 
 ### D) Small / Trivial Task Flow
-1. `$ps-contexto` → `$mi-lsp` → `$brainstorming` (lock assumptions) → execute → `$ps-trazabilidad`
+1. `$ps-contexto` → `$mi-lsp` → `$brainstorming` (lock assumptions) → execute → `$ps-trazabilidad` → `$ps-pre-push` before pushing to `main`
+
+### E) Pre-Push Flow for XP on `main`
+1. `$ps-trazabilidad` debe estar completo.
+2. `$ps-auditar-trazabilidad` debe estar completo para cambios grandes/riesgosos, multi-modulo, policy-changing, o closure de waves.
+3. Tests aplicables verdes (frontend: typecheck + lint + e2e; backend: `dotnet build` + tests unitarios cuando existan).
+4. Grep de zonas congeladas (`lib/auth/*`, `proxy.ts`, `app/api/*`, `app/auth/*`, `src/` frontend) debe dar 0 cruces cuando el scope lo requiera.
+5. Sin archivos `.docs/raw/` de scratch agregados al commit.
+6. `$ps-pre-push` debe retornar `Approved` o `Approved with waiver` antes de `git push origin main`.
 
 ## 3) Project Decision Priority
 
@@ -190,7 +225,7 @@ When receiving subagent results:
 4. ps-dotnet10: "Create POST /api/v1/mood-entries with Command and Handler"
 5. ps-dotnet10: "Create GET /api/v1/mood-entries with Query and pagination"
 
-**"Review PR before merge"** — launch 3 in parallel:
+**"Review diff before push to main"** (XP-on-main) — launch 3 in parallel:
 1. ps-code-reviewer: "Review the diff, focus on P0 performance and security"
 2. ps-explorer: "Check if changed files have tests"
 3. ps-qa-orchestrator: "Audit quality and security on diff files"
@@ -237,6 +272,7 @@ Then review and update (if applicable):
 - `writing-plans`: Wave-dispatchable implementation plans
 - `ps-trazabilidad`: Task closure traceability and documentation sync
 - `ps-auditar-trazabilidad`: Read-only audit for large/risky changes
+- `ps-pre-push`: Final XP-on-main gate before `git push origin main`
 - `ps-crear-agentsclaudemd`: Policy wiring for `AGENTS.md` / `CLAUDE.md`
 - `crear-alcance`: Generate scope document (01_alcance_funcional.md)
 - `crear-arquitectura`: Generate architecture document (02_arquitectura.md)
@@ -247,3 +283,53 @@ Then review and update (if applicable):
 - `ps-asistente-wiki`: SDD workflow navigation and phase gate validation
 - `ps-gap-terminator`: Gap detection across spec-driven stack
 - `ps-investigar`: Research and evidence gathering
+
+## 11) XP-on-main Workflow (Mandatory)
+
+### Direct push to `main`
+
+- Todo trabajo cierra con `git push origin main` tras `$ps-pre-push`.
+- Sin PRs, sin `gh pr create`, sin feature branches.
+- Commits atomicos con trailer `- Gabriel Paz -`.
+- Si un cambio grande requiere waves, cada wave cierra con su propio `$ps-trazabilidad` + commit directo a `main` (no acumular en feature branch).
+
+### Cuando SI usar rama separada
+
+Solo cuando el humano pide explicitamente:
+
+- Experimentacion de alto riesgo que puede descartarse sin costo.
+- Spike tecnico sin intencion de merge inmediato.
+- Colaboracion con agentes externos que requieren branch dedicada.
+
+En estos casos, nombrar la rama `spike/<slug>-<YYYY-MM-DD>` y documentar la razon en el commit inicial.
+
+### Safeguards inviolables
+
+Incluso bajo XP-on-main, las siguientes acciones SIEMPRE requieren confirmacion explicita del humano en el mismo turno:
+
+- Aplicar SQL plano en produccion (VPS 54.37.157.93) — seguir `infra/runbooks/manual-migrations.md`.
+- Force push a `main` (`git push --force origin main`).
+- `git reset --hard` sobre commits pusheados.
+- `rm -rf` sobre directorios del proyecto.
+- Modificar Dokploy produccion (restart, env vars, scheduled tasks).
+- Rotar secrets produccion.
+- Tocar zonas congeladas sin decision explicita: `frontend/lib/auth/**`, `frontend/app/api/**`, `frontend/app/auth/**`, `frontend/proxy.ts`, `frontend/src/**`.
+- Comprometer PII o contenido clinico via logs, analytics props, o audit sin pseudonimizacion.
+
+### Closure docs siguen obligatorios
+
+- Tareas grandes (>= 5 commits o cross-module) producen `.docs/raw/reports/<YYYY-MM-DD>-<slug>-closure.md`.
+- Closure doc lista verdict por scope item + verificaciones + follow-ups + referencias a commits.
+- Ausencia de closure doc en una tarea que lo amerita es **gap de traceability** y bloqueante para `$ps-pre-push`.
+
+### Tests obligatorios pre-push
+
+- Frontend: `npm run typecheck && npm run lint` exit 0.
+- Frontend e2e: `npx playwright test --project=chromium` verde (workers=1 por flakiness mitigation 2026-04-23).
+- Backend: `dotnet build src/Bitacora.sln` 0 errors.
+- Backend tests: `dotnet test` verde cuando existan specs afectadas.
+- Grep final de zonas congeladas: 0 cruces sobre el diff.
+
+## 12) Alignment Rule
+
+Keep this file aligned with `CLAUDE.md`. If the skill workflow policy changes, update both files in the same task.
