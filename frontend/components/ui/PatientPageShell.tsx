@@ -5,7 +5,9 @@
  * States: loading | ready | error
  */
 import { ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { signOut } from '../../lib/auth/client';
+import { ShellMenu, ShellMenuItem, ShellMenuSeparator } from './ShellMenu';
 import styles from './PatientPageShell.module.css';
 
 interface Props {
@@ -15,6 +17,8 @@ interface Props {
 }
 
 export function PatientPageShell({ children, loading, error }: Props) {
+  const router = useRouter();
+
   if (loading) {
     return (
       <main className={styles.shell} aria-busy="true" aria-label="Cargando">
@@ -39,14 +43,20 @@ export function PatientPageShell({ children, loading, error }: Props) {
 
   return (
     <main className={styles.shell}>
-      <button
-        type="button"
-        onClick={handleLogout}
-        className={styles.logoutButton}
-        title="Cerrar sesión"
-      >
-        Cerrar sesión
-      </button>
+      <header className={styles.shellHeader}>
+        <ShellMenu>
+          <ShellMenuItem onClick={() => router.push('/configuracion/telegram')}>
+            Recordatorios
+          </ShellMenuItem>
+          <ShellMenuItem onClick={() => router.push('/configuracion/vinculos')}>
+            Vínculos
+          </ShellMenuItem>
+          <ShellMenuSeparator />
+          <ShellMenuItem onClick={handleLogout} variant="destructive">
+            Cerrar sesión
+          </ShellMenuItem>
+        </ShellMenu>
+      </header>
       <div className={styles.content}>{children}</div>
     </main>
   );

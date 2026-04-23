@@ -1,0 +1,109 @@
+.menuContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.menuTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.menuTrigger:hover {
+  background-color: var(--surface-muted);
+  border-color: var(--brand-primary);
+  color: var(--foreground);
+}
+
+.menuTrigger:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.menuTriggerIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+
+.menuList {
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  min-width: 200px;
+  margin: 0;
+  padding: var(--space-xs) 0;
+  list-style: none;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-strong);
+  z-index: 50;
+}
+
+.menuList[hidden] {
+  display: none;
+}
+
+.menuItemWrapper {
+  display: block;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background-color: transparent;
+  border: none;
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  min-height: 44px;
+}
+
+.menuItem:hover {
+  background-color: var(--surface-muted);
+}
+
+.menuItem:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: -2px;
+  box-shadow: var(--focus-ring);
+}
+
+.menuItemDestructive {
+  color: var(--status-danger);
+}
+
+.menuItemDestructive:hover {
+  background-color: var(--status-danger-bg);
+}
+
+.menuSeparator {
+  display: block;
+  height: 1px;
+  margin: var(--space-xs) 0;
+  background-color: var(--border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menuTrigger,
+  .menuItem {
+    transition: none;
+  }
+}
