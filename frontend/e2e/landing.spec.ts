@@ -17,7 +17,7 @@ test.describe('Landing pública', () => {
     await page.goto('/');
 
     await expect(page.getByRole('heading', { name: 'Tu espacio personal de registro' })).toBeVisible();
-    await expect(page.getByText(/La privacidad de tus datos es fundamental/)).toBeVisible();
+    await expect(page.getByText(/Solo vos ves lo que registrás/)).toBeVisible();
     await expect(page.locator('a[href^="mailto:"]')).toHaveAttribute(
       'href',
       'mailto:soporte@nuestrascuentitas.com',

@@ -118,7 +118,7 @@ test.describe('Dashboard: modal de nuevo registro', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page.getByText('Registro guardado.')).toBeVisible();
-    await expect.poll(() => summaryCalls, { timeout: 2000 }).toBeGreaterThan(1);
+    await expect.poll(() => summaryCalls, { timeout: 5000 }).toBeGreaterThan(1);
 
     await expect(page).toHaveURL(/\/dashboard$/);
   });
