@@ -126,7 +126,48 @@ Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sens
 
 - Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`. Cubre dashboard paciente ready state.
+
+### Dashboard ready — rail de acción al top
+
+- `<section className={styles.actionRail}>` agregado como PRIMER bloque DOM del estado `ready` (`Dashboard.tsx:225-240`).
+- CTA dominante: `"+ Nuevo registro"` con `ref={openDialogRef}` (focus trap destination tras cerrar el modal). Canon 12 §"una acción dominante + secundaria silenciosa".
+- CTA secundario silencioso: `"Check-in diario"` como link a `/registro/daily-checkin`. Mismo tamaño pero estilo secondary.
+- Resuelve el hallazgo E3-F1 P0 del audit 2026-04-23: el CTA ya no está enterrado al final del scroll.
+
+### DashboardSummary variant compact
+
+- Nueva prop `variant: "compact" | "cards"`. `variant="compact"` reemplaza las 3 stat cards por texto corrido sobrio (`"Llevás N registros. El último, hace X días."` o similar).
+- Dashboard `ready` invoca `variant="compact"` (`Dashboard.tsx:247`). Vista profesional o futuras podrían usar `variant="cards"`.
+- Canon 10 §12.2 "evitar tableros de vigilancia" aplicado al recurrente.
+
+### PatientPageShell — ShellMenu overflow con logout protegido
+
+- Nuevo componente `ShellMenu` (`frontend/components/ui/ShellMenu.tsx`) con trigger `"Mi cuenta"` (label default), overflow `⋯`, `aria-haspopup="menu"`, `aria-expanded`, Escape + click-outside para cerrar, focus management con `requestAnimationFrame`.
+- Items: `"Recordatorios"` → `/configuracion/telegram`, `"Vínculos"` → `/configuracion/vinculos`, separator, `"Cerrar sesión"` con `variant="destructive"`.
+- Logout protegido: requiere 2 taps deliberados (abrir menu + seleccionar item). Resuelve E3-F6 P0 del audit 2026-04-23.
+
+### Heading dashboard saludo contextual
+
+- h1 del dashboard: `"Hola. Acá está lo que registraste."` (saludo contextual; decisión humana AskUserQuestion Q2 del brainstorming del rediseño — opción (c) del audit §4.2 R-P1-8).
+- Subtítulo de privacidad: `"Solo vos ves lo que registrás. Tus datos son privados."` (copy congelado 2026-04-22, reusado como ancla emocional).
+- Canon 10 §refugio antes que archivo.
+
+### trendChart adaptado ≤400px
+
+- `@media (max-width: 399px)` en `Dashboard.module.css:193-201`: `grid-template-columns: repeat(5, 1fr)` + gap `var(--space-sm)` + `nth-child(n+6) { display: none }`. Muestra últimas 5 entradas con gap legible.
+- WCAG 1.4.10 Reflow cumplido en viewports estrechos.
+
+### Notas de implementación
+
+- Todos los cambios `ui-only, no-schema, no-contract, no-auth`.
+- Copy congelado preservado: `"+ Nuevo registro"`, `"Check-in diario"`, `"Tus últimos días"`, `"Registros recientes"`.
+- Excepción autorizada (decisión humana): h1 del dashboard migró a `"Hola. Acá está lo que registraste."` (reemplaza `"Mi historial"` del closure 2026-04-22).
+- Nuevo copy aprobado 2026-04-23: `"Mi cuenta"` (ShellMenu default label), `"Recordatorios"`, `"Vínculos"`, `"Cerrar sesión"`.
+
 ---
 
-**Estado:** `UXS` activo para `VIS-001`.
+**Estado:** `UXS` activo para `VIS-001` con deltas 2026-04-22 (empty state, aria) y deltas 2026-04-23 (rail de acción, DashboardSummary compact, ShellMenu, heading contextual, trendChart adapt).
 **Siguiente capa gobernada:** futuro `../PROTOTYPE/PROTOTYPE-VIS-001.md` y `../UX-VALIDATION/UX-VALIDATION-VIS-001.md`.
