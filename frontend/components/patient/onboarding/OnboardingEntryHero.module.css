@@ -91,6 +91,18 @@
   line-height: 1.5;
 }
 
+.heroMessage {
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--status-success-bg);
+  border: 1px solid var(--status-success-border);
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 .footer {
   padding: var(--space-lg);
   border-top: 1px solid var(--border-subtle);
