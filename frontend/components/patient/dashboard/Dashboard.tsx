@@ -35,20 +35,22 @@ function formatEntryDate(date: string, options: Intl.DateTimeFormatOptions): str
   return new Date(`${date}T00:00:00`).toLocaleDateString('es-AR', options);
 }
 
-function getTrendBarClass(score: number | null): string {
-  if (score === null) return `${styles.trendBar} ${styles.trendBarMissing}`;
-  if (score > 0) return `${styles.trendBar} ${styles.trendBarPositive}`;
-  if (score < 0) return `${styles.trendBar} ${styles.trendBarNegative}`;
-  return `${styles.trendBar} ${styles.trendBarNeutral}`;
+type RowKind = 'positive' | 'negative' | 'neutral' | 'missing';
+
+function getRowKind(score: number | null): RowKind {
+  if (score === null) return 'missing';
+  if (score > 0) return 'positive';
+  if (score < 0) return 'negative';
+  return 'neutral';
 }
 
-function getTrendBarStyle(score: number | null): CSSProperties {
-  const magnitude = score === null ? 0 : Math.abs(score);
-  const barSize = score === null ? 6 : Math.max(6, Math.round((magnitude / MAX_ABS_SCORE) * 58));
-
-  return {
-    '--bar-size': `${barSize}px`,
-  } as CSSProperties;
+/**
+ * Mapea mood score a porcentaje [0, 100] del semi-eje (positivo o negativo).
+ * 100% = extremo (+3 o -3). 0% = midline (neutral).
+ */
+function getRowMagnitudePercent(score: number | null): number {
+  if (score === null || score === 0) return 0;
+  return Math.min(100, Math.round((Math.abs(score) / MAX_ABS_SCORE) * 100));
 }
 
 export function Dashboard() {
@@ -143,7 +145,6 @@ export function Dashboard() {
   }
 
   const trendEntries = useMemo(() => entries.toReversed(), [entries]);
-  const trendCount = Math.max(1, trendEntries.length);
 
   if (viewState === 'loading') {
     return (
@@ -271,34 +272,43 @@ export function Dashboard() {
             <h2 id="trend-heading" className={styles.sectionTitle}>
               Tus últimos días
             </h2>
-            <span className={styles.trendCaption}>Resumen visual</span>
+            <span className={styles.trendCaption}>Últimos {trendEntries.length}</span>
           </div>
 
-          <div
-            className={styles.trendChart}
-            role="list"
+          <ol
+            className={styles.trendList}
             aria-label="Estado de ánimo de los últimos días"
-            style={{ '--trend-count': trendCount } as CSSProperties}
           >
-            <div className={styles.trendMidline} aria-hidden="true" />
             {trendEntries.map((entry) => {
               const dayLabel = formatEntryDate(entry.date, { day: '2-digit', month: 'short' });
               const ariaLabel = `${dayLabel}: ${formatMoodScore(entry.moodScore)}`;
+              const kind = getRowKind(entry.moodScore);
+              const magnitude = getRowMagnitudePercent(entry.moodScore);
+              const dotLabel =
+                kind === 'missing'
+                  ? '—'
+                  : entry.moodScore! > 0
+                    ? `+${entry.moodScore}`
+                    : String(entry.moodScore);
+              const rowStyle = { '--row-magnitude': `${magnitude}%` } as CSSProperties;
 
               return (
-                <div key={entry.date} className={styles.trendColumn} role="listitem">
-                  <div className={styles.trendTrack} aria-label={ariaLabel} title={ariaLabel}>
-                    <span
-                      className={getTrendBarClass(entry.moodScore)}
-                      style={getTrendBarStyle(entry.moodScore)}
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <span className={styles.trendDay}>{dayLabel}</span>
-                </div>
+                <li
+                  key={entry.date}
+                  className={`${styles.trendRow} ${styles[`trendRow_${kind}`]}`}
+                  aria-label={ariaLabel}
+                  style={rowStyle}
+                >
+                  <span className={styles.trendRowDate}>{dayLabel}</span>
+                  <span className={styles.trendRowTrack} aria-hidden="true">
+                    <span className={styles.trendRowMidline} />
+                    <span className={styles.trendRowStem} />
+                    <span className={styles.trendRowDot}>{dotLabel}</span>
+                  </span>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </section>
 
         <section aria-labelledby="recent-entries-heading">

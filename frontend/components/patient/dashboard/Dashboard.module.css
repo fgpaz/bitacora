@@ -190,80 +190,142 @@
   white-space: nowrap;
 }
 
-.trendChart {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(var(--trend-count), minmax(0, 1fr));
+/* ─── Trend lollipop chart ─────────────────────────────────────────────────
+ * Cada fila = un día. Grid: [fecha 72px] [track flex] .
+ * Track tiene una midline vertical central; el stem crece a derecha (+)
+ * o izquierda (-) desde la midline. Al extremo del stem, un dot con el
+ * valor numérico siempre visible. Neutral (=0) = dot en la midline sin
+ * stem. Missing (sin registro) = dash sobre la midline, sin dot.
+ */
+
+.trendList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xs);
-  min-height: 156px;
-  padding: var(--space-sm) 0 0;
 }
 
-.trendMidline {
+.trendRow {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 0;
+  font-family: var(--font-body);
+}
+
+.trendRowDate {
+  color: var(--foreground-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.trendRowTrack {
+  position: relative;
+  height: 32px;
+  display: block;
+}
+
+.trendRowMidline {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(var(--space-sm) + 58px);
-  height: 1px;
+  inset: 0 0 0 calc(50% - 0.5px);
+  width: 1px;
   background-color: var(--border-subtle);
 }
 
-.trendColumn {
-  min-width: 0;
-  display: grid;
-  grid-template-rows: 120px auto;
-  gap: var(--space-xs);
-}
-
-.trendTrack {
-  position: relative;
-  min-width: 0;
-  height: 120px;
-  border-radius: var(--radius-sm);
-  background-color: var(--surface-muted);
-}
-
-.trendBar {
+.trendRowStem {
   position: absolute;
-  left: 50%;
-  width: min(18px, 70%);
-  min-height: 6px;
+  top: 50%;
+  height: 3px;
   border-radius: 999px;
-  transform: translateX(-50%);
+  transform: translateY(-50%);
 }
 
-.trendBarPositive {
-  bottom: 60px;
-  height: var(--bar-size);
+.trendRowDot {
+  position: absolute;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground-on-brand);
+  transform: translateY(-50%);
+  box-shadow: var(--shadow-soft);
+  white-space: nowrap;
+}
+
+/* Positive: stem a la derecha del midline, dot al extremo derecho. */
+.trendRow_positive .trendRowStem {
+  left: 50%;
+  width: var(--row-magnitude, 0%);
   background-color: var(--brand-primary);
 }
 
-.trendBarNegative {
-  top: 60px;
-  height: var(--bar-size);
+.trendRow_positive .trendRowDot {
+  left: calc(50% + var(--row-magnitude, 0%));
+  transform: translate(-50%, -50%);
+  background-color: var(--brand-primary);
+}
+
+/* Negative: stem a la izquierda del midline, dot al extremo izquierdo. */
+.trendRow_negative .trendRowStem {
+  right: 50%;
+  width: var(--row-magnitude, 0%);
   background-color: var(--brand-accent);
 }
 
-.trendBarNeutral {
-  top: 57px;
-  height: 6px;
+.trendRow_negative .trendRowDot {
+  right: calc(50% + var(--row-magnitude, 0%));
+  transform: translate(50%, -50%);
+  background-color: var(--brand-accent);
+}
+
+/* Neutral: dot en la midline con "0". Sin stem. */
+.trendRow_neutral .trendRowStem {
+  display: none;
+}
+
+.trendRow_neutral .trendRowDot {
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: var(--brand-secondary);
+  color: var(--foreground);
+  box-shadow: none;
+  border: 1px solid var(--border-subtle);
 }
 
-.trendBarMissing {
-  top: 57px;
-  height: 6px;
-  background-color: var(--border-subtle);
+/* Missing: dash textual sobre la midline, sin stem ni dot de color. */
+.trendRow_missing .trendRowStem {
+  display: none;
 }
 
-.trendDay {
-  min-width: 0;
+.trendRow_missing .trendRowDot {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: transparent;
   color: var(--foreground-muted);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1.15;
-  text-align: center;
-  overflow-wrap: anywhere;
+  box-shadow: none;
+  border: 1px dashed var(--border-subtle);
+  font-weight: 400;
+}
+
+/* Micro-interacción sutil al entrar foco por teclado sobre la fila (si se hiciera focusable en el futuro). */
+.trendRow:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
 }
 
 .entryList {
@@ -369,13 +431,20 @@
 }
 
 @media (max-width: 399px) {
-  .trendChart {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: var(--space-sm);
+  .trendRow {
+    grid-template-columns: 60px 1fr;
+    gap: var(--space-xs);
   }
 
-  .trendColumn:nth-child(n+6) {
-    display: none;
+  .trendRowDate {
+    font-size: 0.75rem;
+  }
+
+  .trendRowDot {
+    min-width: 28px;
+    height: 24px;
+    font-size: 0.75rem;
+    padding: 0 6px;
   }
 }
 
@@ -383,10 +452,6 @@
   .summarySkeletonGrid,
   .actionRail {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .trendChart {
-    gap: var(--space-sm);
   }
 }
 
