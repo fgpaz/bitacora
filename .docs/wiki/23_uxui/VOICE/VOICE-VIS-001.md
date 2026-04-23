@@ -79,7 +79,39 @@ No debe sonar como:
 
 La voz de este slice está bien calibrada si se percibe como breve, clara y coherente con la tarea principal. Está mal calibrada si agrega dramatización, juicio o tecnicismo donde no hace falta.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas verbales aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`. Cubre dashboard paciente.
+
+### Heading del dashboard — saludo contextual
+
+- Titular aprobado: `"Hola. Acá está lo que registraste."` (saludo contextual, canon 10 §refugio; excepción autorizada del copy congelado 2026-04-22 via AskUserQuestion).
+- Subtítulo aprobado: `"Solo vos ves lo que registrás. Tus datos son privados."` (copy congelado 2026-04-22, reusado como ancla emocional y de privacidad).
+
+### Rail de acción — CTAs dominante + silencioso
+
+- CTA dominante: `"+ Nuevo registro"` (copy congelado).
+- CTA secundario silencioso: `"Check-in diario"` (copy congelado).
+- Canon 12 §una acción dominante.
+
+### ShellMenu — labels de cuenta
+
+- Trigger: `"Mi cuenta"` (label default del componente).
+- Items: `"Recordatorios"` (→ `/configuracion/telegram`), `"Vínculos"` (→ `/configuracion/vinculos`), `"Cerrar sesión"` (destructive).
+- Tono: sustantivos breves, sin verbos al trigger (reserva el verbo al item de acción).
+
+### Formulaciones nuevas aprobadas
+
+- `"Hola. Acá está lo que registraste."` (h1 dashboard — excepción autorizada).
+- `"Mi cuenta"` (ShellMenu trigger).
+- `"Recordatorios"`, `"Vínculos"`, `"Cerrar sesión"` (items del menu).
+
+### Phrasing prohibido ratificado
+
+- Sin `"Tu evolución"`, `"Tu progreso"`, `"Mejora sostenida"`.
+- Sin `"Bienvenido/a"` formal o institucional (el saludo es `"Hola."` sereno y directo).
+
 ---
 
-**Estado:** `VOICE` activo para `VIS-001`.
+**Estado:** `VOICE` activo para `VIS-001` con deltas 2026-04-23 (saludo dashboard + ShellMenu labels).
 **Siguiente capa gobernada:** `../UXS/UXS-VIS-001.md` y futuro `../PROTOTYPE/PROTOTYPE-VIS-001.md`.

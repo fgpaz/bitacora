@@ -174,8 +174,41 @@ Este `UJ` está mal modelado si:
 - deja al hero invitado como apéndice menor;
 - o corta la experiencia con auth o consentimiento demasiado técnicos.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`.
+
+### S01 — Variante `S01-RETURNING` para paciente recurrente con cookie viva
+
+- La portada deja de tratar al recurrente como primera vez. Cuando `app/page.tsx` (Server Component) detecta cookie `bitacora_session` viva, el hero muestra una puerta de retorno explícita (`"Volviste."` + `"Seguí donde dejaste."` + CTA `"Seguir registrando"` → `/dashboard`), no el pitch de captación de S01 estándar.
+- Esta variante no reemplaza S01 estándar ni S01 invite; convive como tercer ramal del mismo journey step.
+- Detección server-side sin tocar `lib/auth/*` (zona congelada): lectura observacional de `cookies().has()` en RSC.
+
+### S03 — Salida respetuosa sin romper el hard gate funcional
+
+- S03 gana camino alternativo: CTA secundario `"Ahora no"` → redirect a `/?declined=1` sin borrar cookie de sesión.
+- El hard gate funcional de `RF-CON-003` se preserva: sin consent no hay registro de mood. Pero el paciente ya NO está forzado al único camino "Aceptar y continuar" — puede volver al landing, dejar la sesión abierta y aceptar más tarde sin re-autenticar.
+- Cumple Ley 26.529 Art. 2 inc. e) autonomía y Art. 10 revocabilidad (revocationNote explícita cerca del `decisionBar`).
+
+### Loop reversible landing → consent dentro de la misma sesión
+
+- El feedback post-decline en landing (`role=status aria-live=polite` con `"Podés aceptar cuando quieras. Tu sesión sigue activa."`) cierra el loop UX sin forzar re-autenticación.
+- El journey se vuelve no-lineal y dignificado: la persona puede oscilar S01 ↔ S03 dentro de la misma sesión Zitadel hasta tomar la decisión.
+
+### Stable steps actualizados
+
+| Step | Nombre | Qué vive la persona | Delta 2026-04-23 |
+| --- | --- | --- | --- |
+| `S01-RETURNING` | Puerta de retorno para recurrente | entra y se reconoce como persona continuando | NUEVO — detecta cookie viva server-side |
+| `S03-DECLINE` | Salida respetuosa del consent | puede elegir "Ahora no" sin perder la sesión | NUEVO — cumple Ley 26.529 Art. 2 |
+
+### Notas de implementación
+
+- Docs-only en esta wave. El código ya está mergeado en commit `5d91158` del rediseño 2026-04-23.
+- Zonas congeladas: `lib/auth/*`, `app/api/*`, `app/auth/*`, `proxy.ts`, `src/*` sin cambios.
+
 ---
 
-**Estado:** journey UX activo para `ONB-001`.
+**Estado:** journey UX activo para `ONB-001` con deltas 2026-04-23 (variant returning + salida respetuosa del consent).
 **Precedencia:** depende de `../UXR/UXR-ONB-001.md` y `../UXI/UXI-ONB-001.md`.
 **Siguiente capa gobernada:** `../VOICE/VOICE-ONB-001.md` y `../UXS/UXS-ONB-001.md`.

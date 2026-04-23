@@ -14,6 +14,7 @@ import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
 import { formatMoodScore } from '@/lib/formatters';
+import { track } from '@/lib/analytics/track';
 import { DashboardSummary } from './DashboardSummary';
 import { MoodEntryDialog } from './MoodEntryDialog';
 import { TelegramReminderBanner } from './TelegramReminderBanner';
@@ -62,12 +63,19 @@ export function Dashboard() {
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const openDialogRef = useRef<HTMLButtonElement | null>(null);
+  const readyAtRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!toastMsg) return;
     const timer = setTimeout(() => setToastMsg(null), 4000);
     return () => clearTimeout(timer);
   }, [toastMsg]);
+
+  useEffect(() => {
+    if (viewState === 'ready' && readyAtRef.current === null) {
+      readyAtRef.current = performance.now();
+    }
+  }, [viewState]);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,7 +121,14 @@ export function Dashboard() {
     };
   }, [router, refreshNonce]);
 
-  function openDialog() {
+  function openDialog(source: 'rail' | 'empty' = 'empty') {
+    if (readyAtRef.current !== null) {
+      const deltaMs = Math.round(performance.now() - readyAtRef.current);
+      track('time_to_cta_ready', { source, delta_ms: deltaMs });
+      readyAtRef.current = null;
+    } else {
+      track('time_to_cta_ready', { source, delta_ms: null });
+    }
     setDialogOpen(true);
   }
 
@@ -207,7 +222,7 @@ export function Dashboard() {
             <button
               ref={openDialogRef}
               type="button"
-              onClick={openDialog}
+              onClick={() => openDialog('empty')}
               className={styles.primaryButton}
             >
               Registrar humor
@@ -226,7 +241,10 @@ export function Dashboard() {
           <button
             ref={openDialogRef}
             type="button"
-            onClick={openDialog}
+            onClick={() => {
+              track('ctr_rail_vs_checkin', { target: 'new_entry' });
+              openDialog('rail');
+            }}
             className={styles.primaryButton}
           >
             + Nuevo registro
@@ -234,6 +252,7 @@ export function Dashboard() {
           <Link
             href="/registro/daily-checkin"
             className={styles.secondaryLink}
+            onClick={() => track('ctr_rail_vs_checkin', { target: 'daily_checkin' })}
           >
             Check-in diario
           </Link>

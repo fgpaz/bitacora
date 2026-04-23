@@ -28,6 +28,8 @@ La migracion `InitialCore` y la migracion `AddBindingCodesAndCareLinks` ya fuero
 
 `telegram_sessions`, `telegram_pairing_codes` y `reminder_configs` fueron materializadas en Wave anterior y permanecen activas en Phase 40 (nueva columna `reminder_timezone` agregada).
 
+`analytics_events` fue agregada 2026-04-23 como follow-up del rediseno login flow (medicion UX impact). SQL plano en `infra/migrations/bitacora/20260423_create_analytics_events.sql`; aplicar en prod siguiendo `infra/runbooks/manual-migrations.md`.
+
 Wave B Zitadel retiro el almacenamiento Supabase mediante `20260420020000_RetireSupabaseAuthSubject` y la migracion SQL manual `infra/migrations/zitadel/20260420_retire_supabase_auth.sql`. La columna fisica activa es `auth_subject`; `supabase_user_id` y `legacy_auth_subject` no forman parte del schema vigente.
 
 T01 congela para produccion una topologia backend-only: una DB dedicada `bitacora-db` y una app `bitacora-api`. La creacion live en Dokploy depende de materializar localmente `infra/.env` con credenciales de control-plane.
@@ -55,6 +57,7 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | reminder_configs | Telegram | CRUD | Horarios por paciente + zona horaria IANA. | Materializada |
 | access_audits | Seguridad | Append-only | `trace_id + pseudonym_id`, sin UPDATE/DELETE. | Materializada |
 | encryption_key_versions | Seguridad | Append-only | Key material en vault/env, no en DB. | Materializada |
+| analytics_events | Analytics | Append-only (app) + cleanup operacional | `event_name + props_json no-PII`; whitelist en handler; **retention 180d** via cron `DELETE WHERE created_at_utc < NOW() - INTERVAL '180 days'`; decision en `.docs/raw/decisiones/2026-04-23-analytics-retention-policy.md`. | Materializada (2026-04-23 via SQL plano); cron task operacional pendiente de agendamiento en Dokploy |
 
 ## Schema Telegram
 

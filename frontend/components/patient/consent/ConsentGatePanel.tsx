@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ConsentCurrentResponse } from '@/lib/api/client';
 import { InlineFeedback } from '@/components/ui/InlineFeedback';
+import { track } from '@/lib/analytics/track';
 import styles from './ConsentGatePanel.module.css';
 
 interface Props {
@@ -33,6 +34,7 @@ export function ConsentGatePanel({
   const router = useRouter();
 
   async function handleAccept() {
+    track('decline_consent_rate', { target: 'accept', version: consent.version });
     setSubmitting(true);
     try {
       await onAccept(consent.version);
@@ -42,6 +44,7 @@ export function ConsentGatePanel({
   }
 
   function handleDecline() {
+    track('decline_consent_rate', { target: 'decline', version: consent.version });
     // Sin borrar cookie (sesion activa). app/page.tsx respeta ?declined=1 para
     // NO redirigir al dashboard y mostrar mensaje sereno canon 13.
     router.push('/?declined=1');

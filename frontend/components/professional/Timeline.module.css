@@ -222,6 +222,7 @@
 .dateInput:focus {
   outline: none;
   border-color: var(--brand-primary);
+  box-shadow: var(--focus-ring);
 }
 
 .applyBtn {

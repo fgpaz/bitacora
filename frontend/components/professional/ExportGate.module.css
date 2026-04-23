@@ -173,6 +173,7 @@
 .dateInput:focus {
   outline: none;
   border-color: var(--brand-accent);
+  box-shadow: var(--focus-ring);
 }
 
 /* ─── Selected range ──────────────────────────────────────────────────── */

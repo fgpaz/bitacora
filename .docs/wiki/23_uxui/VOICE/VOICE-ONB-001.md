@@ -211,8 +211,45 @@ La voz está mal calibrada si se percibe como:
 
 - 2026-04-22: S04 y el microcopy de "Confirmacion + puente" deprecados junto con la Bridge Card. La voz de S01, S02 y S03 sigue activa sin cambios. Ver decision doc `.docs/raw/decisiones/2026-04-22-dashboard-first-post-login.md`.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas verbales aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`.
+
+### S01 — Hero variant returning (paciente recurrente con cookie viva)
+
+- Titular: `"Volviste."` (una palabra, serena, reconoce continuidad sin dramatizar).
+- Sub: `"Seguí donde dejaste."` (invita sin exigir).
+- CTA principal: `"Seguir registrando"` → `/dashboard` (verbo directo, alineado con patrón de S01 estándar "Ingresar").
+- Privacidad como soporte constante: `"Solo vos ves lo que registrás. Tus datos son privados."` (copy congelado 2026-04-22).
+
+### S01 post-decline — mensaje sereno en landing
+
+- Mensaje accesible vía `role=status aria-live=polite`: `"Podés aceptar cuando quieras. Tu sesión sigue activa."`.
+- Tono factual, no dramatiza, no regaña. Reafirma reversibilidad y persistencia de la sesión.
+- Se muestra solo cuando el query param `?declined=1` está presente tras clickear el CTA `"Ahora no"` de S03.
+
+### S03 — CTA secundario y revocabilidad
+
+- CTA secundario: `"Ahora no"` (label canónico desde 2026-04-23). Ofrece salida respetuosa sin expresión de causa. Ley 26.529 Art. 2 inc. e.
+- Nota de revocabilidad: `"Podés revocarlo cuando quieras desde Mi cuenta."`. Ley 26.529 Art. 10.
+
+### Formulaciones nuevas aprobadas
+
+- `"Volviste."` (S01 returning h1)
+- `"Seguí donde dejaste."` (S01 returning sub)
+- `"Seguir registrando"` (S01 returning CTA)
+- `"Ahora no"` (S03 CTA secundario)
+- `"Podés revocarlo cuando quieras desde Mi cuenta."` (S03 revocationNote)
+- `"Podés aceptar cuando quieras. Tu sesión sigue activa."` (landing post-decline message)
+
+### Notas verbales
+
+- Todas las formulaciones usan voseo sobrio (regla canon 13).
+- Todas usan tildes obligatorias (regla 9.1 CLAUDE.md).
+- Sin celebración, sin juicio, sin escalas emocionales. Canon 13 §Errores/Estados sensibles.
+
 ---
 
-**Estado:** spec de voz activa para `ONB-001`. S04-BRIDGE deprecado 2026-04-22; S01, S02 y S03 vigentes.
+**Estado:** spec de voz activa para `ONB-001`. S04-BRIDGE deprecado 2026-04-22; S01 (incluyendo variant returning), S02 y S03 (con CTA secundario y revocabilidad) vigentes con deltas 2026-04-23.
 **Precedencia:** depende de `../../13_voz_tono.md`, `../UXI/UXI-ONB-001.md` y `../UJ/UJ-ONB-001.md`.
 **Siguiente capa gobernada:** `../UXS/UXS-ONB-001.md`, `../PROTOTYPE/PROTOTYPE-ONB-001.md` y `../UI-RFC/UI-RFC-ONB-001.md`.

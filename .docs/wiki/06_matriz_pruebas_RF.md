@@ -38,6 +38,12 @@
 - `src/Bitacora.Tests` sigue scaffold-only; la suite ampliada queda en T10.
 - Las filas diferidas del canon se preservan, pero no deben leerse como cobertura ejecutable actual.
 
+## Modulo ANA
+
+| RF | TP | Escenario positivo | Escenario negativo |
+|----|----|--------------------|--------------------|
+| RF-ANA-001 | TP-ANA | Registra evento whitelisted (time_to_cta_ready/ctr_rail_vs_checkin/logout_accidental_rate/decline_consent_rate) con o sin props | Rechaza event_name fuera del whitelist (400), props > 2048 chars (400), body ausente (400), sin JWT (401) |
+
 ## Modulo REG
 
 | RF | TP | Escenario positivo | Escenario negativo |

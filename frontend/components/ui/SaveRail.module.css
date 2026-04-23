@@ -32,4 +32,5 @@
 .cta:focus-visible {
   outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
+  box-shadow: var(--focus-ring);
 }

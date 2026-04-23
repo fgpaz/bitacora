@@ -32,6 +32,7 @@ public sealed class AppDbContext : DbContext
     public DbSet<TelegramPairingCode> TelegramPairingCodes => Set<TelegramPairingCode>();
     public DbSet<TelegramSession> TelegramSessions => Set<TelegramSession>();
     public DbSet<ReminderConfig> ReminderConfigs => Set<ReminderConfig>();
+    public DbSet<AnalyticsEvent> AnalyticsEvents => Set<AnalyticsEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -223,6 +224,20 @@ public sealed class AppDbContext : DbContext
             entity.Property(x => x.DisabledAtUtc).HasColumnName("disabled_at_utc");
             entity.HasIndex(x => new { x.PatientId }).IsUnique();
             entity.HasIndex(x => x.NextFireAtUtc);
+        });
+
+        modelBuilder.Entity<AnalyticsEvent>(entity =>
+        {
+            entity.ToTable("analytics_events");
+            entity.HasKey(x => x.AnalyticsEventId);
+            entity.Property(x => x.AnalyticsEventId).HasColumnName("analytics_event_id");
+            entity.Property(x => x.PatientId).HasColumnName("patient_id").IsRequired();
+            entity.Property(x => x.EventName).HasColumnName("event_name").HasMaxLength(64).IsRequired();
+            entity.Property(x => x.PropsJson).HasColumnName("props_json").HasColumnType("jsonb");
+            entity.Property(x => x.TraceId).HasColumnName("trace_id").IsRequired();
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").IsRequired();
+            entity.HasIndex(x => new { x.EventName, x.CreatedAtUtc });
+            entity.HasIndex(x => new { x.PatientId, x.CreatedAtUtc });
         });
     }
 }

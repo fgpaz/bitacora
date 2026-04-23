@@ -81,7 +81,34 @@ No debe sonar como:
 
 La voz de este slice está bien calibrada si se percibe como breve, clara y coherente con la tarea principal. Está mal calibrada si agrega dramatización, juicio o tecnicismo donde no hace falta.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas verbales aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`.
+
+### Toast post-success del dashboard
+
+- Copy aprobado: `"Registro sumado a tu historial."` (factual, canon 13, sin celebración).
+- Se emite en el dashboard tras el cierre automático del modal (no en el modal mismo, para evitar doble confirmación).
+- Accesibilidad: `role=status aria-live=polite`, timeout 4000ms.
+
+### Puente embedded post-success del modal
+
+- Copy aprobado: `"Volviendo al dashboard…"` (factual, concreto, sin ceremonia).
+- Se muestra durante la transición de 800ms antes del cierre del modal.
+- No es celebración; es confirmación de continuidad.
+
+### Formulaciones nuevas aprobadas
+
+- `"Registro sumado a tu historial."` (toast dashboard post-success).
+- `"Volviendo al dashboard…"` (puente embedded modal).
+
+### Phrasing prohibido ratificado
+
+- Nada de `"¡Excelente!"` ni `"¡Bien hecho!"`.
+- Nada de `"Seguí así"` ni `"Un día más registrado"`.
+- Nada de `"Tu registro fue un éxito"`.
+
 ---
 
-**Estado:** `VOICE` activo para `REG-001`.
+**Estado:** `VOICE` activo para `REG-001` con deltas 2026-04-23 (toast dashboard + puente embedded).
 **Siguiente capa gobernada:** `../UXS/UXS-REG-001.md`, `../UI-RFC/UI-RFC-REG-001.md` y `../PROTOTYPE/PROTOTYPE-REG-001.md`.

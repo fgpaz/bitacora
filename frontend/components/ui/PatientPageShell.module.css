@@ -49,12 +49,57 @@
 .errorState {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-sm);
   padding: var(--space-xl);
   color: var(--foreground);
   font-family: var(--font-body);
   text-align: center;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.errorDescription {
+  font-size: 1rem;
+  color: var(--text-muted, var(--foreground));
+  margin: 0;
+  max-width: 40ch;
+}
+
+.errorRetry {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--brand-primary);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  transition: opacity 0.15s ease;
+}
+
+.errorRetry:hover {
+  opacity: 0.9;
+}
+
+.errorRetry:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.errorRetry:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .shellHeader {

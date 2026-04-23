@@ -304,8 +304,40 @@ El slice está mal calibrado si:
 - CTA `"Ingresar"` y copy `"Tu espacio personal de registro"` son zonas congeladas; no fueron modificados.
 - Todos los cambios son `ui-only, no-schema, no-contract, no-auth`.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`.
+
+### OnboardingEntryHero — variant `"returning"` para paciente con cookie viva
+
+- Nueva variant `returning` en `OnboardingEntryHero.tsx`: cuando `app/page.tsx` (Server Component) detecta cookie `bitacora_session` viva, el hero muestra `h1 "Volviste."` + sub `"Seguí donde dejaste."` + único CTA `"Seguir registrando"` → `/dashboard`. Rompe el anti-patrón de tratar al recurrente como primera vez (E1-F2 del audit 2026-04-23).
+- La detección es server-side sin tocar `lib/auth/*` (zona congelada): `app/page.tsx` usa `cookies()` de `next/headers` con nombre literal `'bitacora_session'` hardcoded (espejo de `lib/auth/constants.ts`).
+- El `privacyNote` (`"Solo vos ves lo que registrás. Tus datos son privados."`) se conserva en ambas variants como soporte constante.
+
+### ConsentGatePanel — CTA secundario `"Ahora no"` y revocabilidad visible
+
+- CTA secundario `"Ahora no"` agregado al `decisionBar` (`ConsentGatePanel.tsx:101-108`). Ofrece salida respetuosa sin expresión de causa. Ley 26.529 Art. 2 inc. e) autonomía.
+- `handleDecline` redirige a `/?declined=1` SIN borrar cookie. La sesión sigue activa; el paciente puede volver a aceptar sin re-autenticar OIDC.
+- `revocationNote` `"Podés revocarlo cuando quieras desde Mi cuenta."` agregado cerca del `decisionBar` (`ConsentGatePanel.tsx:97-99`). Ley 26.529 Art. 10 revocabilidad.
+- `inviteHint` reubicado DESPUÉS del `.sections` block (`ConsentGatePanel.tsx:69-73`): resuelve la anti-señal "frame de supervisión profesional precede al contenido del consent" (E2-F1 del audit 2026-04-23).
+
+### Landing post-decline — feedback sereno canon 13
+
+- `OnboardingEntryHero` gana prop `message?: string` renderizada como `<p className={styles.heroMessage} role="status" aria-live="polite">`. `app/page.tsx` emite el mensaje `"Podés aceptar cuando quieras. Tu sesión sigue activa."` cuando el query param `declined=1` está presente.
+- El mensaje es factual, no dramatiza, no regaña. Canon 13 §voz sereno en momentos sensibles.
+
+### Legal-review R-P1-3
+
+- Review interno pragmatic documentado en `.docs/raw/decisiones/2026-04-23-legal-review-r-p1-3.md` contra Ley 26.529 (Art. 2, 5, 10), Ley 25.326 y Ley 26.657. Verdict: `resuelto-sin-cambios-pending-formal-legal-opinion` (sin red flags hard; red flags soft como follow-up).
+
+### Notas de implementación
+
+- Todos los cambios `ui-only, no-schema, no-contract, no-auth`.
+- Copy congelado preservado: `"Ingresar"`, `"Tu espacio personal de registro"`, `"Solo vos ves lo que registrás. Tus datos son privados."`, `"Aceptar y continuar"`, `"Ahora no"` (nuevo canon 2026-04-23).
+- Zonas congeladas: `lib/auth/*`, `app/api/*`, `app/auth/*`, `proxy.ts`, `src/*` sin cambios.
+
 ---
 
-**Estado:** `UXS` activo para `ONB-001`. Cubre S01, S02 y S03. S04-BRIDGE deprecado 2026-04-22; reemplazado por `S05-DASHBOARD-EMPTY`.
+**Estado:** `UXS` activo para `ONB-001`. Cubre S01 (incluyendo variant returning), S02 y S03 (con CTA secundario y revocabilidad visible). S04-BRIDGE deprecado 2026-04-22; reemplazado por `S05-DASHBOARD-EMPTY`.
 **Precedencia:** depende de `UXR`, `UXI`, `UJ`, `VOICE` y `FL/RF` del onboarding real.
 **Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-ONB-001.md`, `../UI-RFC/UI-RFC-ONB-001.md` y la cadena `HANDOFF-*`.

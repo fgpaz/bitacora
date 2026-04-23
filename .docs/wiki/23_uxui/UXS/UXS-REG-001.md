@@ -90,7 +90,33 @@ Y prepara directamente:
 
 Este `UXS` está bien calibrado si el paso se entiende rápido, sostiene la sensación deseada y no agrega fricción gratuita. Está mal calibrado si el paso pide más lectura o interpretación que el valor que devuelve.
 
+## Deltas 2026-04-23 — login flow redesign
+
+> 2026-04-23 — sync login flow redesign: deltas aplicados sobre implementación en rama `feature/login-flow-redesign-2026-04-23` (W1–W4), merged a `main` en commit `5d91158`. Fuente de verdad: `.docs/raw/reports/2026-04-23-login-flow-redesign-closure.md`.
+
+### MoodEntryDialog — cierre automático post-success + toast
+
+- Tras `handleEntrySaved()` en `Dashboard.tsx`, el modal cierra automáticamente 800ms post-success (delay suficiente para leer la confirmación inline sin retenerlo como pared). `closeDialog()` se invoca desde el effect del modal, no desde un click manual.
+- El dashboard emite un toast `role=status aria-live=polite` con `"Registro sumado a tu historial."` (copy canon 13, factual, sin celebración). Timeout 4000ms.
+- Resuelve el hallazgo E4-F1+E4-F2 P0 del audit 2026-04-23: el modal dejaba al paciente abierto sin instrucción, rompiendo el modelo mental de "registré algo nuevo".
+
+### MoodEntryForm — puente embedded
+
+- El bloque `{!embedded && ...}` de `MoodEntryForm.tsx` gana contraparte para `embedded=true`: puente condensado `"Volviendo al dashboard…"` con `role=status`. Patrón 16 #12 "Puente de siguiente acción" cumplido en ambos modos de renderizado.
+
+### Modelo de estados ampliado
+
+| Estado | Qué ve la persona | Delta 2026-04-23 |
+| --- | --- | --- |
+| `success_transition` (extendido) | confirmación breve seguida por cierre automático del modal tras 800ms, más toast en el dashboard | cierre auto + toast con aria-live |
+
+### Notas de implementación
+
+- Todos los cambios `ui-only, no-schema, no-contract`.
+- Copy congelado preservado: `"Registro guardado."` (interno del modal), `"Registrar humor"`, `"Nuevo registro"`.
+- Nuevo copy aprobado: `"Registro sumado a tu historial."` (toast), `"Volviendo al dashboard…"` (puente embedded).
+
 ---
 
-**Estado:** `UXS` activo para `REG-001`.
+**Estado:** `UXS` activo para `REG-001` con deltas 2026-04-23 (cierre auto + puente embedded + toast).
 **Siguiente capa gobernada:** `../PROTOTYPE/PROTOTYPE-REG-001.md`, `../UI-RFC/UI-RFC-REG-001.md` y futuro `../UX-VALIDATION/UX-VALIDATION-REG-001.md`.

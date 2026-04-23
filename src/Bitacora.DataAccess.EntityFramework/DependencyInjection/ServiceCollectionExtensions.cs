@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITelegramPairingCodeRepository, TelegramPairingCodeRepository>();
         services.AddScoped<ITelegramSessionRepository, TelegramSessionRepository>();
         services.AddScoped<IReminderConfigRepository, ReminderConfigRepository>();
+        services.AddScoped<IAnalyticsEventRepository, AnalyticsEventRepository>();
         services.AddScoped<IBitacoraUnitOfWork, EntityFrameworkBitacoraUnitOfWork>();
 
         return services;
