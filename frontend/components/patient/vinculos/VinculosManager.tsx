@@ -46,9 +46,8 @@ export function VinculosManager() {
       const response = await getCareLinksByPatient();
       setLinks(response.links);
       setLoadState('ready');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al cargar los vínculos';
-      setLoadError(msg);
+    } catch {
+      setLoadError('No pudimos cargar tus vínculos. Probá de nuevo en unos minutos.');
       setLoadState('error');
     }
   };
@@ -59,9 +58,8 @@ export function VinculosManager() {
     try {
       await revokeCareLink(id);
       setLinks((prev) => prev.filter((link) => link.id !== id));
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al desvincular';
-      setRevokeError(msg);
+    } catch {
+      setRevokeError('No pudimos desvincular. Probá de nuevo en unos minutos.');
     } finally {
       setRevoking(null);
     }

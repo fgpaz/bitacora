@@ -48,9 +48,8 @@ export function BindingCodeForm({ onSuccess }: BindingCodeFormProps) {
         setState('idle');
         onSuccess();
       }, 400);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al aceptar el código';
-      setErrorMessage(msg);
+    } catch {
+      setErrorMessage('No pudimos aceptar el código. Revisá el código e intentá de nuevo.');
       setState('error');
     }
   };

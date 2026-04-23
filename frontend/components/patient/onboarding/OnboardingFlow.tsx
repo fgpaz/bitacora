@@ -59,7 +59,7 @@ export function OnboardingFlow() {
         if (code === 'ONB_001_JWT_INVALID' || code === 'ONB_001_JWT_EXPIRED') {
           setError('Tu sesión no es válida. Por favor, ingresá de nuevo.');
         } else {
-          setError((err as Error).message ?? 'No se pudo iniciar sesión. Reintentá.');
+          setError('No pudimos iniciar tu sesión. Probá de nuevo en unos minutos.');
         }
       } finally {
         setLoading(false);
@@ -82,7 +82,7 @@ export function OnboardingFlow() {
         if (code === 'NO_CONSENT_CONFIG') {
           setError('El servicio de consentimiento no está disponible en este momento.');
         } else {
-          setError((err as Error).message ?? 'Error al cargar el consentimiento.');
+          setError('No pudimos cargar el consentimiento. Probá de nuevo en unos minutos.');
         }
       }
     }
@@ -103,7 +103,7 @@ export function OnboardingFlow() {
       } else if (code === 'CONSENT_ALREADY_GRANTED') {
         window.location.assign('/dashboard');
       } else {
-        setError((err as Error).message ?? 'Error al guardar el consentimiento.');
+        setError('No pudimos guardar el consentimiento. Probá de nuevo en unos minutos.');
       }
     }
   }

@@ -162,7 +162,7 @@ export function Dashboard() {
         className={styles.errorState}
         role="alert"
       >
-        <p className={styles.errorTitle}>Error al cargar el historial</p>
+        <p className={styles.errorTitle}>No pudimos cargar el historial.</p>
         <small className={styles.errorText}>{errorMsg}</small>
         <button
           onClick={() => window.location.reload()}
