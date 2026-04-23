@@ -80,6 +80,12 @@
   background-color: color-mix(in srgb, var(--brand-primary) 92%, black 8%);
 }
 
+.primaryCta:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .primaryCta { transition: none; }
 }
@@ -124,8 +130,18 @@
   color: var(--brand-primary);
   font-weight: 500;
   text-decoration: none;
+  border-radius: var(--radius-sm);
+  padding: 2px 4px;
+  margin: -2px -4px;
 }
 
 .footerLink:hover {
+  text-decoration: underline;
+}
+
+.footerLink:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
   text-decoration: underline;
 }
