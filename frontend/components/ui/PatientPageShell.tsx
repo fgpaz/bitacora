@@ -4,10 +4,11 @@
  * PatientPageShell — single-column editorial shell for patient-facing pages.
  * States: loading | ready | error
  */
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from '../../lib/auth/client';
 import type { UserFacingError } from '../../lib/errors/user-facing';
+import { track } from '../../lib/analytics/track';
 import { ShellMenu, ShellMenuItem, ShellMenuSeparator } from './ShellMenu';
 import styles from './PatientPageShell.module.css';
 
@@ -19,6 +20,11 @@ interface Props {
 
 export function PatientPageShell({ children, loading, error }: Props) {
   const router = useRouter();
+  const mountedAtRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    mountedAtRef.current = performance.now();
+  }, []);
 
   if (loading) {
     return (
@@ -45,6 +51,15 @@ export function PatientPageShell({ children, loading, error }: Props) {
   }
 
   async function handleLogout() {
+    if (mountedAtRef.current !== null) {
+      const uptimeMs = Math.round(performance.now() - mountedAtRef.current);
+      track('logout_accidental_rate', {
+        uptime_ms: uptimeMs,
+        accidental: uptimeMs < 180_000,
+      });
+    } else {
+      track('logout_accidental_rate', { uptime_ms: null, accidental: null });
+    }
     await signOut();
   }
 
