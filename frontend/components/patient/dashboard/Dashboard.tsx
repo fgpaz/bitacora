@@ -244,6 +244,7 @@ export function Dashboard() {
           totalEntries={totalEntries}
           avgMoodScore={avgMoodScore}
           lastEntryAt={lastEntryAt}
+          variant="compact"
         />
 
         <section className={styles.trendPanel} aria-labelledby="trend-heading">
