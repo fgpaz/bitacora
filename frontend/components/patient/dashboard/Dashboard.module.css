@@ -325,12 +325,46 @@
   gap: var(--space-sm);
 }
 
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-lg);
+  transform: translateX(-50%);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--foreground);
+  color: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-strong);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  z-index: 60;
+  max-width: calc(100% - var(--space-lg) * 2);
+  text-align: center;
+  animation: toastFadeIn 0.2s ease-out;
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .primaryButton,
   .primaryLink,
   .secondaryLink,
   .entryItem {
     transition: none;
+  }
+
+  .toast {
+    animation: none;
   }
 }
 

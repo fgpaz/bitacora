@@ -40,6 +40,9 @@ export function MoodEntryDialog({ open, onClose, onSaved }: Props) {
 
   function handleSaved() {
     onSaved();
+    // Dar tiempo a AT para leer "Registro guardado." (role=status aria-live=polite
+    // en MoodEntryForm.successBlock) antes de cerrar el modal y restaurar focus.
+    setTimeout(() => onClose(), 800);
   }
 
   return (

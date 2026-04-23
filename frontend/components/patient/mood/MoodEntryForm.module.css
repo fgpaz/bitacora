@@ -95,3 +95,10 @@
   color: var(--foreground-muted);
   text-decoration: none;
 }
+
+.embeddedBridge {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  margin: 0;
+}
