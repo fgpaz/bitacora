@@ -27,6 +27,7 @@
 | DELETE | /api/v1/consent/current | RF-CON-010 | Revocar consentimiento vigente |
 | POST | /api/v1/mood-entries | RF-REG-001 | Registrar humor |
 | POST | /api/v1/daily-checkins | RF-REG-020 | Registrar o actualizar factores diarios del mismo dia |
+| POST | /api/v1/analytics/events | RF-ANA-001 | Persistir evento de UX impact (no-PII); whitelist `time_to_cta_ready` / `ctr_rail_vs_checkin` / `logout_accidental_rate` / `decline_consent_rate` |
 
 ### Endpoints operacionales
 

@@ -1,12 +1,13 @@
 /**
- * Analytics — tracking stub.
+ * Analytics — tracking client.
  *
- * Firma estable para instrumentar eventos del front sin dependencia
- * de vendor externo ni endpoint backend.
+ * Firma estable para instrumentar eventos del front. Llama a
+ * POST /api/backend/analytics/events (proxy al backend /api/v1/analytics/events)
+ * con fire-and-forget semantic: el error se swallow para no romper UX.
  *
- * Por ahora: console.info('[analytics]', event, props).
- * TODO: reemplazar con fetch('/api/analytics', { method: 'POST', body: ... })
- * o navigator.sendBeacon cuando el endpoint backend este disponible.
+ * PII policy: los `props` NO deben contener PII (email, nombre, contenido
+ * clínico, trace ids externos). El backend valida longitud max (2048 chars)
+ * pero NO inspecciona contenido — responsabilidad del caller.
  *
  * Eventos definidos (2026-04-23 login flow redesign):
  * - time_to_cta_ready: ms desde dashboard ready hasta openDialog.
@@ -25,13 +26,33 @@ export type AnalyticsPropValue = string | number | boolean | null | undefined;
 
 export type AnalyticsProps = Record<string, AnalyticsPropValue>;
 
+const ENDPOINT = '/api/backend/analytics/events';
+
 export function track(event: AnalyticsEvent, props?: AnalyticsProps): void {
   if (typeof window === 'undefined') return;
+
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      console.info('[analytics]', event, props ?? {});
+    } catch {
+      // swallow
+    }
+  }
+
+  void sendEvent(event, props);
+}
+
+async function sendEvent(event: AnalyticsEvent, props?: AnalyticsProps): Promise<void> {
   try {
-    console.info('[analytics]', event, props ?? {});
-    // TODO: cuando el endpoint backend este disponible:
-    // navigator.sendBeacon('/api/analytics', JSON.stringify({ event, props, ts: Date.now() }));
+    const body = JSON.stringify({ event, props: props ?? {} });
+    await fetch(ENDPOINT, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: true,
+    });
   } catch {
-    // Swallow - analytics nunca debe romper UX.
+    // Fire-and-forget: analytics nunca debe romper UX.
   }
 }

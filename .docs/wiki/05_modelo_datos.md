@@ -16,6 +16,7 @@
 - `TelegramSession` (Phase 31)
 - `TelegramPairingCode` (Phase 31)
 - `ReminderConfig` (Phase 31 — entidades + ReminderWorker implementados; SendTelegramMessageAsync hace POST real a Telegram Bot API via HttpClient)
+- `AnalyticsEvent` (2026-04-23 follow-ups — medicion de UX impact del rediseno; append-only, no-PII en props)
 
 La autoridad activa para planificar su materializacion pendiente vive en `.docs/plans/wave-prod/`. `.docs/raw/plans/wave-1/` se conserva solo como antecedente historico.
 
@@ -68,6 +69,22 @@ La autoridad activa para planificar su materializacion pendiente vive en `.docs/
 
 > Constraint: `UNIQUE(patient_id, checkin_date)`.
 > `medication_time` representa una hora aproximada autodeclarada, normalizada a bloques de 15 minutos y solo vive en `encrypted_payload`.
+
+### AnalyticsEvent (UX impact tracking — no-PII)
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| analytics_event_id | UUID | PK |
+| patient_id | UUID | FK conceptual a User (responsable del evento) |
+| event_name | string(64) | Enum whitelisted en handler: `time_to_cta_ready` / `ctr_rail_vs_checkin` / `logout_accidental_rate` / `decline_consent_rate` |
+| props_json | jsonb? | Props tipados, max 2048 chars, **NO debe contener PII** |
+| trace_id | UUID | Trace id del request (correlacion) |
+| created_at_utc | timestamp | |
+
+> Invariantes:
+> - **Append-only**: sin UPDATE ni DELETE funcional. Retention policy la define el equipo (sugerido: 180 dias) via task cron separada.
+> - **No-PII enforcement**: `props_json` valida max length (2048) pero NO inspecciona contenido. Responsabilidad del caller mantener props libres de email, nombre, contenido clinico. El handler del command rechaza eventos fuera del whitelist de `event_name`.
+> - **Pseudonimizacion**: el equipo puede pseudonimizar `patient_id` en consulta para analytics agregadas; el storage raw preserva la correlacion para debug de UX flows individuales bajo autoridad expresa.
 
 ### ConsentGrant (Consentimiento informado)
 

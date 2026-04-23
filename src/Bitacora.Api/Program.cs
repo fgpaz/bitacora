@@ -12,6 +12,7 @@ using Correlate.DependencyInjection;
 using Scalar.AspNetCore;
 using System.Threading.RateLimiting;
 using NuestrasCuentitas.Bitacora.Api.Extensions;
+using NuestrasCuentitas.Bitacora.Api.Endpoints.Analytics;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Auth;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Consent;
 using NuestrasCuentitas.Bitacora.Api.Endpoints.Export;
@@ -373,6 +374,7 @@ app.MapVinculosEndpoints();
 app.MapVisualizacionEndpoints();
 app.MapExportEndpoints();
 app.MapTelegramEndpoints();
+app.MapAnalyticsEndpoints();
 
 #endregion Middleware Pipeline
 
