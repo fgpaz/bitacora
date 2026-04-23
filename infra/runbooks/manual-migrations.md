@@ -31,6 +31,49 @@ Script `infra/migrations/zitadel/20260420_retire_supabase_auth.sql`:
 - drops the rollback-only legacy subject column;
 - creates `IX_users_auth_subject` as the unique lookup index.
 
+## Analytics events (2026-04-23)
+
+Script `infra/migrations/bitacora/20260423_create_analytics_events.sql`:
+
+- creates `analytics_events` table (append-only via application).
+- adds indexes `IX_analytics_events_event_name_created_at_utc` and `IX_analytics_events_patient_id_created_at_utc`.
+- `props_json` is `jsonb` with no-PII enforcement at caller responsibility.
+
+### Apply (dev or prod)
+
+Helper convenience:
+
+```powershell
+# Dev (connection string loaded via mkey pull or export):
+bash scripts/apply-analytics-migration.sh
+
+# Prod:
+$env:BITACORA_ENV = "prod"
+bash scripts/apply-analytics-migration.sh
+```
+
+Manual equivalent:
+
+```powershell
+psql "$env:ConnectionStrings__BitacoraDb" -v ON_ERROR_STOP=1 -f .\infra\migrations\bitacora\20260423_create_analytics_events.sql
+```
+
+Verify:
+
+```powershell
+psql "$env:ConnectionStrings__BitacoraDb" -c "SELECT COUNT(*) FROM analytics_events;"
+```
+
+Rollback (if needed before any inserts):
+
+```powershell
+psql "$env:ConnectionStrings__BitacoraDb" -c "DROP TABLE IF EXISTS analytics_events;"
+```
+
+### Retention policy
+
+180d rolling window via cron task. Decision doc: `.docs/raw/decisiones/2026-04-23-analytics-retention-policy.md`. Cron task operacional queda pendiente de agendamiento en Dokploy tras ratificación clínico-legal.
+
 ## Order
 
 1. Verify a recent DB backup exists.

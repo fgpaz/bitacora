@@ -82,7 +82,8 @@ La autoridad activa para planificar su materializacion pendiente vive en `.docs/
 | created_at_utc | timestamp | |
 
 > Invariantes:
-> - **Append-only**: sin UPDATE ni DELETE funcional. Retention policy la define el equipo (sugerido: 180 dias) via task cron separada.
+> - **Append-only en aplicacion**: el endpoint + handler solo hacen INSERT. Sin UPDATE ni DELETE via API.
+> - **Retention policy 180d**: cron task operacional `DELETE FROM analytics_events WHERE created_at_utc < NOW() - INTERVAL '180 days'` agendado diariamente a 03:00 UTC. Decision provisional en `.docs/raw/decisiones/2026-04-23-analytics-retention-policy.md` pendiente ratificacion clinico-legal. DELETE autorizado solo para cleanup via credenciales DB operacionales, NO desde endpoint aplicacion.
 > - **No-PII enforcement**: `props_json` valida max length (2048) pero NO inspecciona contenido. Responsabilidad del caller mantener props libres de email, nombre, contenido clinico. El handler del command rechaza eventos fuera del whitelist de `event_name`.
 > - **Pseudonimizacion**: el equipo puede pseudonimizar `patient_id` en consulta para analytics agregadas; el storage raw preserva la correlacion para debug de UX flows individuales bajo autoridad expresa.
 

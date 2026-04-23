@@ -57,7 +57,7 @@ T01 congela para produccion una topologia backend-only: una DB dedicada `bitacor
 | reminder_configs | Telegram | CRUD | Horarios por paciente + zona horaria IANA. | Materializada |
 | access_audits | Seguridad | Append-only | `trace_id + pseudonym_id`, sin UPDATE/DELETE. | Materializada |
 | encryption_key_versions | Seguridad | Append-only | Key material en vault/env, no en DB. | Materializada |
-| analytics_events | Analytics | Append-only | `event_name + props_json no-PII`; whitelist de eventos en handler; retention policy (180d sugerido) pendiente. | Materializada (2026-04-23 via SQL plano) |
+| analytics_events | Analytics | Append-only (app) + cleanup operacional | `event_name + props_json no-PII`; whitelist en handler; **retention 180d** via cron `DELETE WHERE created_at_utc < NOW() - INTERVAL '180 days'`; decision en `.docs/raw/decisiones/2026-04-23-analytics-retention-policy.md`. | Materializada (2026-04-23 via SQL plano); cron task operacional pendiente de agendamiento en Dokploy |
 
 ## Schema Telegram
 
