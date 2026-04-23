@@ -56,6 +56,14 @@
   line-height: 1.65;
 }
 
+.revocationNote {
+  margin: var(--space-md) 0 var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--foreground-muted);
+  line-height: 1.5;
+}
+
 .decisionBar {
   position: fixed;
   bottom: 0;
@@ -66,6 +74,8 @@
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .acceptBtn {
@@ -86,6 +96,49 @@
 .acceptBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.declineBtn {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--foreground-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.declineBtn:hover {
+  background-color: var(--surface-muted);
+  color: var(--foreground);
+  border-color: var(--brand-primary);
+}
+
+.declineBtn:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.declineBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 479px) {
+  .decisionBar {
+    flex-direction: column;
+  }
+
+  .acceptBtn,
+  .declineBtn {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .retryBtn {
