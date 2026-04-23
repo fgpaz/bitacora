@@ -7,13 +7,14 @@
 import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from '../../lib/auth/client';
+import type { UserFacingError } from '../../lib/errors/user-facing';
 import { ShellMenu, ShellMenuItem, ShellMenuSeparator } from './ShellMenu';
 import styles from './PatientPageShell.module.css';
 
 interface Props {
   children?: ReactNode;
   loading?: boolean;
-  error?: string | null;
+  error?: UserFacingError | null;
 }
 
 export function PatientPageShell({ children, loading, error }: Props) {
@@ -31,7 +32,13 @@ export function PatientPageShell({ children, loading, error }: Props) {
     return (
       <main className={styles.shell}>
         <div className={styles.errorState} role="alert">
-          <p>{error}</p>
+          <p className={styles.errorTitle}>{error.title}</p>
+          <p className={styles.errorDescription}>{error.description}</p>
+          {error.retry && (
+            <button type="button" className={styles.errorRetry} onClick={error.retry}>
+              Reintentar
+            </button>
+          )}
         </div>
       </main>
     );
