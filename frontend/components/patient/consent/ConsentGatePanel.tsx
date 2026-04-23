@@ -49,12 +49,6 @@ export function ConsentGatePanel({
         <p className={styles.version}>Versión {consent.version}</p>
       </header>
 
-      {resumeInvite && (
-        <p className={styles.inviteHint}>
-          Recordá que viniste a través de una invitación de tu profesional.
-        </p>
-      )}
-
       <div className={styles.sections} role="list" aria-label="Secciones del consentimiento">
         {consent.sections.map((section) => (
           <div key={section.id} className={styles.section} role="listitem">
@@ -63,6 +57,12 @@ export function ConsentGatePanel({
           </div>
         ))}
       </div>
+
+      {resumeInvite && (
+        <p className={styles.inviteHint}>
+          Recordá que viniste a través de una invitación de tu profesional.
+        </p>
+      )}
 
       {errorMessage && (
         <InlineFeedback
