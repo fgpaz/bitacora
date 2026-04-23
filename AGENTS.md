@@ -330,6 +330,47 @@ Incluso bajo XP-on-main, las siguientes acciones SIEMPRE requieren confirmacion 
 - Backend tests: `dotnet test` verde cuando existan specs afectadas.
 - Grep final de zonas congeladas: 0 cruces sobre el diff.
 
+### Evidence docs convention (Bitacora)
+
+Bitacora mantiene evidence docs bajo `.docs/raw/` (distinto de BuhoSalud que usa `.docs/auditoria/`). Taxonomia:
+
+| Carpeta | Proposito | Durabilidad | Reconocido por guard como evidence |
+|---------|-----------|-------------|------------------------------------|
+| `.docs/raw/reports/*-closure.md` | Closure docs de tareas grandes | Durable (committable) | Si |
+| `.docs/raw/decisiones/` | Decision docs (legal, retention, architecture) | Durable | Si |
+| `.docs/raw/investigacion/` | Research / evidencia externa | Durable | Si |
+| `.docs/raw/plans/` | Plans wave-dispatchable | Promotable scratch (warning al commitear) | No (directo) |
+| `.docs/raw/prompts/` | Prompts canonicos de input | Promotable scratch (warning al commitear) | No (directo) |
+| `.docs/raw/<otro>` | Sin categorizar | Blocked por guard | No |
+
+El guard `infra/git/Invoke-PrePushGuard.ps1` reconoce `.docs/raw/reports/`, `.docs/raw/decisiones/` y `.docs/raw/investigacion/` como evidence paths validos. Tambien acepta `.docs/auditoria/` y `.docs/planificacion/` si se adoptan mas adelante.
+
+### Pre-push guard script
+
+Ubicacion: `infra/git/Invoke-PrePushGuard.ps1`.
+
+Invocacion normal:
+
+```powershell
+pwsh -NoProfile -File .\infra\git\Invoke-PrePushGuard.ps1 -ExpectedScope policy,git-tooling -TraceabilityEvidence .docs/raw/reports/2026-04-23-login-flow-followups-v2-closure.md
+```
+
+Dry-run (no push):
+
+```powershell
+pwsh -NoProfile -File .\infra\git\Invoke-PrePushGuard.ps1 -ExpectedScope policy -TraceabilityEvidence <path> -DryRun
+```
+
+Con waiver (sin issue/card, sin evidence doc dedicado, cambios de policy de baja superficie):
+
+```powershell
+pwsh -NoProfile -File .\infra\git\Invoke-PrePushGuard.ps1 -WaiverReason "Policy patch chat-approved; self-contained" -ExpectedScope policy
+```
+
+Exit codes: `0` Approved o Approved with waiver; `2` Blocked.
+
+Ver `infra/runbooks/pre-push-guard.md` para runbook completo.
+
 ## 12) Alignment Rule
 
 Keep this file aligned with `CLAUDE.md`. If the skill workflow policy changes, update both files in the same task.
