@@ -39,7 +39,7 @@ export function OnboardingEntryHero({ variant = 'standard', professionalName }: 
         </div>
 
         <p className={styles.privacyNote}>
-          La privacidad de tus datos es fundamental. Nadie más puede ver lo que registrás.
+          Solo vos ves lo que registrás. Tus datos son privados.
         </p>
       </div>
 

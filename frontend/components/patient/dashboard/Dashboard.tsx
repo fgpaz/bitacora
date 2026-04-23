@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPatientTimeline, getPatientSummary } from '@/lib/api/client';
+import { formatMoodScore } from '@/lib/formatters';
 import { DashboardSummary } from './DashboardSummary';
 import { MoodEntryDialog } from './MoodEntryDialog';
 import { TelegramReminderBanner } from './TelegramReminderBanner';
@@ -31,12 +32,6 @@ const MAX_ABS_SCORE = 3;
 
 function formatEntryDate(date: string, options: Intl.DateTimeFormatOptions): string {
   return new Date(`${date}T00:00:00`).toLocaleDateString('es-AR', options);
-}
-
-function formatMoodScore(score: number | null): string {
-  if (score === null) return 'sin puntaje';
-  if (score > 0) return `+${score}`;
-  return score.toString();
 }
 
 function getTrendBarClass(score: number | null): string {
@@ -286,7 +281,7 @@ export function Dashboard() {
                     <p className={styles.entryDate}>{dateStr}</p>
                   </div>
                   <div className={styles.scoreBadge} aria-label="Estado de ánimo">
-                    {entry.moodScore === null ? 'Sin registro' : formatMoodScore(entry.moodScore)}
+                    {formatMoodScore(entry.moodScore, { fallback: 'Sin registro' })}
                   </div>
                 </div>
               );

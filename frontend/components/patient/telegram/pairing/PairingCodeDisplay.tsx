@@ -58,12 +58,12 @@ export function PairingCodeDisplay({
         <p className={styles.codeLabel}>Enviá este mensaje al bot. Vence en {formatTime(secondsLeft)}.</p>
         <code className={styles.commandText}>{commandText}</code>
         <div className={styles.actionGrid}>
-          <button type="button" className={styles.secondaryBtn} onClick={onCopy}>
-            {copied ? 'Mensaje copiado' : 'Copiar mensaje'}
-          </button>
           <a className={styles.primaryBtn} href={telegramStartUrl} target="_blank" rel="noopener noreferrer">
             Abrir Telegram
           </a>
+          <button type="button" className={styles.linkBtn} onClick={onCopy}>
+            {copied ? 'Mensaje copiado' : 'Copiar mensaje'}
+          </button>
         </div>
       </div>
 
@@ -79,7 +79,7 @@ export function PairingCodeDisplay({
 
       <button
         type="button"
-        className={styles.secondaryBtn}
+        className={styles.primaryBtn}
         onClick={onCheckLink}
         disabled={checkingLink}
         aria-busy={checkingLink}

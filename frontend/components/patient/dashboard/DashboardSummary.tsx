@@ -4,6 +4,7 @@
  * DashboardSummary — patient dashboard statistics cards.
  * Displays total entries, average mood score, and last entry timestamp.
  */
+import { formatMoodScore } from '@/lib/formatters';
 import styles from './DashboardSummary.module.css';
 
 interface Props {
@@ -26,11 +27,6 @@ function formatDate(isoString: string | null): string {
   }
 }
 
-function formatMoodScore(score: number | null): string {
-  if (score === null || score === undefined) return '—';
-  return score >= 0 ? `+${score.toFixed(1)}` : score.toFixed(1);
-}
-
 export function DashboardSummary({ totalEntries, avgMoodScore, lastEntryAt }: Props) {
   return (
     <div className={styles.grid}>
@@ -42,7 +38,7 @@ export function DashboardSummary({ totalEntries, avgMoodScore, lastEntryAt }: Pr
       <div className={styles.card}>
         <p className={styles.label}>Promedio de humor</p>
         <p className={styles.value}>
-          {formatMoodScore(avgMoodScore)}
+          {formatMoodScore(avgMoodScore, { decimals: 1 })}
         </p>
       </div>
 
